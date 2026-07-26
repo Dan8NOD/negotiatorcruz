@@ -21,6 +21,15 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 @media(prefers-reduced-motion:reduce){.hero::before{animation:none}.rv{opacity:1;transform:none;transition:none}}
 @media(max-width:640px){.hero{padding:80px 16px 64px}.hero .cta{width:100%;justify-content:center}.hero .actions{flex-direction:column;align-items:stretch}section{padding:44px 16px}.tier{padding:28px 20px}}
 .hero>*{position:relative;z-index:1}
+/* ponytail: skyline parallax — see skill skyline-parallax */
+.skyline{position:absolute;left:0;right:0;bottom:0;pointer-events:none;z-index:0;will-change:transform}
+.skyline.back{height:180px;opacity:.3;background:rgba(212,168,83,.10);
+ clip-path:polygon(0 100%,0 70%,5% 70%,5% 45%,10% 45%,10% 75%,15% 75%,15% 30%,20% 30%,20% 65%,26% 65%,26% 50%,32% 50%,32% 80%,38% 80%,38% 35%,44% 35%,44% 60%,50% 60%,50% 25%,56% 25%,56% 70%,62% 70%,62% 45%,68% 45%,68% 75%,74% 75%,74% 32%,80% 32%,80% 65%,86% 65%,86% 50%,92% 50%,92% 78%,96% 78%,96% 40%,100% 40%,100% 100%)}
+.skyline.front{height:120px;background:linear-gradient(to top,var(--bg) 15%,rgba(212,168,83,.16));
+ clip-path:polygon(0 100%,0 60%,4% 60%,4% 35%,8% 35%,8% 65%,12% 65%,12% 20%,17% 20%,17% 55%,22% 55%,22% 40%,27% 40%,27% 70%,33% 70%,33% 25%,38% 25%,38% 50%,44% 50%,44% 15%,50% 15%,50% 60%,56% 60%,56% 35%,62% 35%,62% 65%,68% 65%,68% 22%,74% 22%,74% 55%,80% 55%,80% 40%,86% 40%,86% 68%,92% 68%,92% 30%,96% 30%,96% 55%,100% 55%,100% 100%)}
+@media(prefers-reduced-motion:reduce){.skyline{transform:none!important}}
+.hero>.skyline{position:absolute;z-index:0}
+.hero{padding-bottom:200px;overflow:hidden}
 .hero .coin{width:88px;margin-bottom:24px;filter:drop-shadow(0 0 24px rgba(212,168,83,.4))}
 .hero .kicker{display:inline-block;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);padding:6px 14px;border:1px solid rgba(212,168,83,.35);border-radius:30px;margin-bottom:24px;font-weight:600;background:rgba(212,168,83,.05)}
 .hero h1{font-size:clamp(36px,7vw,72px);font-weight:800;letter-spacing:-2px;line-height:1.02;margin-bottom:20px;color:var(--white)}
@@ -155,6 +164,8 @@ section h3{font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--white);tex
 
 <!-- HERO -->
 <div class="hero">
+  <div class="skyline back"></div>
+  <div class="skyline front"></div>
   <img src="nod-coin.png" alt="Negotiators Cruz" class="coin">
   <div class="kicker">Corporate Negotiation Training</div>
   <h1>When you want <span class="acc">Negotiators Cruz</span><br>to take the wheel.</h1>
@@ -442,6 +453,23 @@ document.querySelectorAll('.rv').forEach(el=>io.observe(el));
       if(y<600) hero.style.transform = 'translateY('+y*.18+'px)';
     },{passive:true});
   }
+})();
+</script>
+<script>
+// ponytail: skyline parallax — back 0.10x, front 0.25x, rAF-throttled
+(function(){
+  if(matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const back=document.querySelector('.skyline.back'), front=document.querySelector('.skyline.front');
+  if(!back) return;
+  let tick=false;
+  addEventListener('scroll',()=>{
+    if(tick) return; tick=true;
+    requestAnimationFrame(()=>{
+      const y=scrollY;
+      if(y<900){ back.style.transform='translateY('+y*.10+'px)'; front.style.transform='translateY('+y*.25+'px)'; }
+      tick=false;
+    });
+  },{passive:true});
 })();
 </script>
 </body>
