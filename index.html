@@ -19,6 +19,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .rv.in{opacity:1;transform:none}
 @keyframes heroDrift{from{transform:translateX(-52%) scale(1)}to{transform:translateX(-48%) scale(1.1)}}
 @media(prefers-reduced-motion:reduce){.hero::before{animation:none}.rv{opacity:1;transform:none;transition:none}}
+@media(max-width:640px){.hero{padding:80px 16px 64px}.hero .cta{width:100%;justify-content:center}.hero .actions{flex-direction:column;align-items:stretch}section{padding:44px 16px}.tier{padding:28px 20px}}
 .hero>*{position:relative;z-index:1}
 .hero .coin{width:88px;margin-bottom:24px;filter:drop-shadow(0 0 24px rgba(212,168,83,.4))}
 .hero .kicker{display:inline-block;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);padding:6px 14px;border:1px solid rgba(212,168,83,.35);border-radius:30px;margin-bottom:24px;font-weight:600;background:rgba(212,168,83,.05)}
@@ -415,6 +416,33 @@ section h3{font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--white);tex
 document.querySelectorAll('.tier,.industry,.card,section h3').forEach(el=>el.classList.add('rv'));
 const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }),{threshold:.15});
 document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
+
+<script>
+// ponytail: pointer glow + stagger + hero parallax. Disabled on touch / reduced-motion.
+(function(){
+  const fine = matchMedia('(pointer:fine)').matches;
+  const rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // stagger: give .rv siblings incremental delays
+  document.querySelectorAll('.rv').forEach((el,i)=>{ el.style.transitionDelay = (i%8)*60+'ms'; });
+  if(!fine || rm) return;
+  // mouse glow
+  const g = document.createElement('div');
+  g.style.cssText = 'position:fixed;width:420px;height:420px;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(212,168,83,.10),transparent 60%);transform:translate(-50%,-50%);transition:opacity .3s;opacity:0';
+  document.body.appendChild(g);
+  let gx=0,gy=0,cx=0,cy=0;
+  addEventListener('pointermove',e=>{ gx=e.clientX; gy=e.clientY; g.style.opacity=1; },{passive:true});
+  document.addEventListener('pointerleave',()=>g.style.opacity=0);
+  (function loop(){ cx+=(gx-cx)*.12; cy+=(gy-cy)*.12; g.style.left=cx+'px'; g.style.top=cy+'px'; requestAnimationFrame(loop); })();
+  // hero parallax: shift hero content slightly on scroll
+  const hero = document.querySelector('.hero,header');
+  if(hero){
+    addEventListener('scroll',()=>{
+      const y = scrollY;
+      if(y<600) hero.style.transform = 'translateY('+y*.18+'px)';
+    },{passive:true});
+  }
+})();
 </script>
 </body>
 </html>
