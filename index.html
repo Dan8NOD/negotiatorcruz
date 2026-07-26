@@ -13,7 +13,12 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 /* Hero */
 .hero{text-align:center;padding:120px 20px 90px;position:relative;max-width:1180px;margin:0 auto}
-.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(212,168,83,.10) 0%,transparent 60%);pointer-events:none;z-index:0}
+.hero::before{content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);width:900px;height:600px;background:radial-gradient(ellipse,rgba(212,168,83,.10) 0%,transparent 60%);pointer-events:none;z-index:0;animation:heroDrift 18s ease-in-out infinite alternate}
+/* ponytail: scroll reveal */
+.rv{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
+.rv.in{opacity:1;transform:none}
+@keyframes heroDrift{from{transform:translateX(-52%) scale(1)}to{transform:translateX(-48%) scale(1.1)}}
+@media(prefers-reduced-motion:reduce){.hero::before{animation:none}.rv{opacity:1;transform:none;transition:none}}
 .hero>*{position:relative;z-index:1}
 .hero .coin{width:88px;margin-bottom:24px;filter:drop-shadow(0 0 24px rgba(212,168,83,.4))}
 .hero .kicker{display:inline-block;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:var(--gold);padding:6px 14px;border:1px solid rgba(212,168,83,.35);border-radius:30px;margin-bottom:24px;font-weight:600;background:rgba(212,168,83,.05)}
@@ -405,5 +410,11 @@ section h3{font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--white);tex
   <p style="margin-top:18px;font-size:11px;color:var(--dim);opacity:.7">Published author · Marine veteran · Chicago, IL · 1,000+ live practice sessions since 2024</p>
 </div>
 
+<script>
+// ponytail: auto-tag reveal, no markup churn
+document.querySelectorAll('.tier,.industry,.card,section h3').forEach(el=>el.classList.add('rv'));
+const io = new IntersectionObserver(es=>es.forEach(e=>{ if(e.isIntersecting){ e.target.classList.add('in'); io.unobserve(e.target);} }),{threshold:.15});
+document.querySelectorAll('.rv').forEach(el=>io.observe(el));
+</script>
 </body>
 </html>
