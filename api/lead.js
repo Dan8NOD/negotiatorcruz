@@ -99,10 +99,9 @@ module.exports = async function handler(req, res) {
       .json({ ok: false, error: "That email address doesn't look right." });
   }
 
-  /* The table is (id, created_at, name, email, phone, message, status) — there
-     is no source/utm/company column, so the routing context gets folded into
-     `message` as a readable header block. If you later add real columns, split
-     this out; until then this keeps the signal instead of dropping it. */
+  /* Table schema: lead_submissions (id, site, form_type, name, email, phone,
+     message, props jsonb, status, visitor_id, user_id, submitted_at, ...).
+     `site` and `form_type` are NOT NULL. Context fields go into `props`. */
   const ctx = [
     ['Offer', clean(body.offer, MAX.context)],
     ['Company', clean(body.company, MAX.context)],
@@ -116,20 +115,26 @@ module.exports = async function handler(req, res) {
     (ctx.length ? ctx.map(([k, v]) => `${k}: ${v}`).join('\n') + '\n---\n' : '') +
     (note || '(no message)');
 
+  const props = {};
+  for (const [k, v] of ctx) props[k.toLowerCase().replace(/\s+/g, '_')] = v;
+
   try {
     const r = await fetch(`${url.replace(/\/$/, '')}/rest/v1/${TABLE}`, {
       method: 'POST',
       headers: {
-        apikey: key,
+        apikey: `${key}`,
         Authorization: `Bearer ${key}`,
         'Content-Type': 'application/json',
         Prefer: 'return=minimal',
       },
       body: JSON.stringify({
+        site: 'negotiatorcruz',
+        form_type: 'contact',
         name,
         email,
         phone: phone || null,
         message,
+        props,
         status: 'new',
       }),
     });
