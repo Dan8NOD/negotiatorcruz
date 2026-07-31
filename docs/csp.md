@@ -46,6 +46,46 @@ are added.
 `connect-src 'self'` covers the contact form's `fetch('/api/lead')`, which is
 same-origin.
 
+## Why the header block is declared twice
+
+`vercel.json` carries the same five headers under **two** sources, `/(.*)` and
+`/`. That is not a copy-paste slip.
+
+The previous config used a single `"source": "/:path*"`, and on production that
+rule did not match the bare root. Measured against live `negotiatorcruz.com`:
+
+| Path | Security headers |
+|---|---|
+| `/` | **missing** |
+| `/about`, `/system` | present |
+| `/assets/site.css` | present |
+| `/api/lead` | present |
+
+So the homepage — the most-visited page on the site — was the one page serving
+none of them, and had this CSP shipped under the same source it would have
+inherited exactly the same hole.
+
+Two things it is *not*: `/system` and `/assets/site.css` are served from cache
+(`x-vercel-cache: HIT`) and still carry the headers, so a stale CDN entry is not
+the cause; and `path-to-regexp` matches `/` for both `/:path*` and `/(.*)` in
+isolation, so it is not the pattern syntax alone. It is specific to how the
+production edge resolves the root, and **`vercel dev` does not reproduce it** —
+locally `/:path*` covers `/` quite happily. That is why the explicit `/` rule is
+there rather than a tidier one-line pattern change: it is the only form that
+cannot silently miss.
+
+`verify.sh` asserts the two blocks stay byte-identical, since duplicated config
+is exactly what drifts.
+
+**Confirm after the first production deploy:**
+
+```bash
+curl -sS -D- -o /dev/null https://negotiatorcruz.com/ | grep -i 'content-security-policy\|x-frame-options'
+```
+
+If the catch-all turns out to cover `/` on its own, the explicit rule can be
+dropped — but verify on production, not locally.
+
 ## Verified before merge
 
 Served locally with this exact header (`docs/agent-backlog/` has the pattern),
