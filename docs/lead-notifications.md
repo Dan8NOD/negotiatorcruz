@@ -1,80 +1,183 @@
 # Getting told when a lead arrives
 
 `/api/lead` inserts a row into `lead_submissions` with `status: 'new'` and
-returns `200`.
-That is the whole of it — nothing in this repo emails, texts, or pings anyone.
-Until the webhook below exists, the contact page's promise that a message "goes
-straight to me" depends on somebody remembering to open the table.
+returns `200`. That is the whole of it — nothing in this repo emails, texts, or
+pings anyone. Until one of the routes below exists, the contact page's promise
+that a message "goes straight to me" depends on somebody remembering to open the
+table.
 
 The notification is deliberately **not** in `api/lead.js`. A send in the request
 path is one more thing that can fail or hang while a visitor waits on the submit
-button, and that path was just hardened against exactly that. A database webhook
-fires after the row is committed, so a broken notification can no longer cost you
-the lead itself.
+button, and that path was hardened against exactly that. Firing after the row is
+committed means a broken notification can no longer cost you the lead itself.
 
-Configuring it needs a Supabase dashboard login, so it is written out here rather
+Both routes need a Supabase dashboard login, so they are written out here rather
 than done for you.
+
+Project: `iubxycckgrplbpdbncfk` · table: `public.lead_submissions`
 
 ---
 
-## Setup
+## First, the thing that trips people up
 
-**Supabase dashboard → Database → Webhooks → "Create a new hook"**
-
-| Field | Value |
-|---|---|
-| Name | `notify-on-new-lead` |
-| Table | `lead_submissions` |
-| Events | `INSERT` only |
-| Type | HTTP Request |
-| Method | `POST` |
-
-For the URL, pick whichever you already have an account with:
-
-- **Zapier / Make** — create a "Catch Hook" trigger, paste its URL here, and add
-  a Gmail "send email" step. No code, and it can fan out to SMS later.
-- **Resend** — `https://api.resend.com/emails`, with headers
-  `Authorization: Bearer <your key>` and `Content-Type: application/json`.
-  Keys live in the Supabase webhook config, not in this repo.
-
-Supabase posts a JSON body shaped like:
+Supabase Database Webhooks send a **fixed payload** and give you no way to
+reshape the request body:
 
 ```json
 {
   "type": "INSERT",
   "table": "lead_submissions",
+  "schema": "public",
   "record": {
     "site": "negotiatorcruz",
     "form_type": "contact",
-    "name": "...",
-    "email": "...",
+    "name": "Jane Rivera",
+    "email": "jane@acme.com",
     "phone": null,
-    "message": "Offer: one-day\nCompany: ...\n---\n<their note>",
-    "props": { "offer": "one-day", "company": "...", "team_size": "...", "timeline": "...", "page": "/contact", "referrer": "..." },
+    "message": "Offer: one-day\nCompany: Acme\n---\nOur reps discount the second a buyer pauses.",
+    "props": { "offer": "one-day", "company": "Acme", "team_size": "12 reps", "timeline": "Q4", "page": "/contact", "referrer": "" },
     "status": "new"
-  }
+  },
+  "old_record": null
 }
 ```
 
-So the fields worth surfacing in the alert are `record.name`, `record.email`,
-`record.props.offer` and `record.message`.
+You can add custom **headers**, but not a custom **body**. So you cannot point a
+webhook straight at an email API like Resend — it expects `from` / `to` /
+`subject` and will reject this shape with a 422. The destination has to be
+something that accepts an arbitrary payload (Route A), or you build the body
+yourself in SQL (Route B).
 
-Note the shape: the context fields are **nested under `props`**, not top-level
-columns — `record.props.offer`, not `record.offer`. `message` already has the
-same context prepended as readable text above a `---` divider, so an alert that
-sends `record.message` alone is complete on its own.
+Note the context fields are nested under `props` — `record.props.offer`, not
+`record.offer`. `record.message` already repeats that context as readable text
+above a `---` divider, so an alert that forwards `message` alone is complete.
+
+---
+
+## Route A — Zapier or Make (no code, ~10 minutes)
+
+Best if you want it working today and might later fan out to SMS or a CRM.
+
+1. In **Zapier**, create a Zap with the trigger **Webhooks by Zapier → Catch
+   Hook**. Copy the custom webhook URL it gives you.
+2. In **Supabase → Database → Webhooks → Create a new hook**:
+
+   | Field | Value |
+   |---|---|
+   | Name | `notify-on-new-lead` |
+   | Table | `public.lead_submissions` |
+   | Events | `INSERT` only |
+   | Type | HTTP Request |
+   | Method | `POST` |
+   | URL | the Catch Hook URL from step 1 |
+
+3. Submit the form at `/contact` once so Zapier receives a sample and learns the
+   field names.
+4. Add a **Gmail → Send Email** step. Map:
+   - Subject: `New lead: {{record__name}} — {{record__props__offer}}`
+   - Body: `{{record__message}}`, plus `{{record__email}}` and `{{record__phone}}`
+5. Turn the Zap on.
+
+**Filtering by site:** `lead_submissions` has a `site` column because more than
+one of your properties writes to it. A plain webhook fires for all of them. To
+get only this site's leads, add a **Filter by Zapier** step: continue only if
+`record__site` **exactly matches** `negotiatorcruz`.
+
+---
+
+## Route B — all in SQL, no third-party automation account
+
+Everything lives in Supabase. Uses `pg_net`, the same extension the Webhooks UI
+uses under the hood, but you control the body — so it can call Resend directly.
+
+**Before you start:** sign up at resend.com **with the address you want the
+alerts sent to**. On the free tier, the shared `onboarding@resend.dev` sender can
+only deliver to your own account address. Sending to anything else needs a
+verified domain.
+
+Run this in **Supabase → SQL Editor**. Replace the key and the recipient.
+
+```sql
+-- 1. Store the Resend API key as a database setting.
+--    Readable by anyone with database access — acceptable for a send-only key,
+--    but do not reuse a key that can do anything else.
+alter database postgres set app.resend_key = 're_your_key_here';
+```
+
+Then **reconnect** (the setting only applies to new connections — reload the SQL
+Editor tab), and run:
+
+Enable **pg_net** first from **Database → Extensions** (search `pg_net`, toggle
+it on). Enabling it from the UI avoids guessing which schema the extension
+installs into — it exposes `net.http_post` either way.
+
+```sql
+create or replace function public.notify_new_lead()
+returns trigger
+language plpgsql
+security definer
+set search_path = public
+as $$
+begin
+  perform net.http_post(
+    url     := 'https://api.resend.com/emails',
+    headers := jsonb_build_object(
+      'Content-Type',  'application/json',
+      'Authorization', 'Bearer ' || current_setting('app.resend_key', true)
+    ),
+    body := jsonb_build_object(
+      'from', 'Leads <onboarding@resend.dev>',
+      'to',   jsonb_build_array('negotiatorsondemand@gmail.com'),
+      'subject', 'New lead: ' || coalesce(new.name, '(no name)')
+                 || coalesce(' — ' || (new.props ->> 'offer'), ''),
+      'text', concat_ws(E'\n',
+        'Name:  ' || coalesce(new.name,  ''),
+        'Email: ' || coalesce(new.email, ''),
+        'Phone: ' || coalesce(new.phone, '—'),
+        'Site:  ' || coalesce(new.site,  ''),
+        '',
+        coalesce(new.message, '(no message)'))
+    )
+  );
+  return new;
+end;
+$$;
+
+-- The WHEN clause is the site filter. Drop it to be alerted for every
+-- property that writes to this table, not just negotiatorcruz.
+drop trigger if exists notify_new_lead_trg on public.lead_submissions;
+create trigger notify_new_lead_trg
+after insert on public.lead_submissions
+for each row
+when (new.site = 'negotiatorcruz')
+execute function public.notify_new_lead();
+```
+
+`net.http_post` queues the request and returns immediately, so the insert is
+never held up waiting on Resend.
+
+---
 
 ## Confirm it works
 
-Submit the real form at `/contact` with your own address. You should get the
-alert within a few seconds, and the row should still appear in `lead_submissions` either
-way. If the alert does not arrive, check **Database → Webhooks → Logs** — a
-failed webhook does not fail the insert, which is the intended trade and also
-means a silent failure here is easy to miss.
+Submit the real form at `/contact` with your own address. The alert should
+arrive within a few seconds.
+
+If it does not:
+
+- **Route A** — Supabase → Database → Webhooks → the hook → **Logs**. A non-2xx
+  response tells you the destination rejected it.
+- **Route B** — run `select * from net._http_response order by created desc limit 5;`
+  in the SQL Editor. A 422 usually means the recipient is not your Resend account
+  address; a 401 means the key setting did not load, so reconnect and retry.
+
+Either way the row still lands in `lead_submissions`. A failed notification does
+not fail the insert — that is the intended trade, and it also means a silent
+failure here is easy to miss. Check that the alert still fires after any change
+to the table.
 
 ## Worth adding later
 
-`status` is already on the table but nothing ever moves a row off `'new'`. If
-lead volume grows past what an inbox handles comfortably, a `contacted` /
-`booked` / `dead` transition is the next thing worth having — the column is
-sitting there waiting for it.
+`status` is on the table but nothing ever moves a row off `'new'`. If lead volume
+outgrows an inbox, a `contacted` / `booked` / `dead` transition is the next thing
+worth having — the column is sitting there waiting for it.
