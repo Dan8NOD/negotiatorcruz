@@ -173,6 +173,13 @@
   .mm-adbody{grid-template-columns:1fr;gap:6px}
   .mm-adtab{font-size:10px;padding:4px 8px}
 }
+/* This block is pasted into several sites, so it carries its own
+   reduced-motion guard rather than relying on the host page's stylesheet. */
+@media(prefers-reduced-motion:reduce){
+  .mm-adlivedot,.mm-adtab.listen{animation:none}
+  .mm-adframe,.mm-adbody{transition:none}
+  .mm-adframe:hover{transform:none}
+}
 </style>
 <script>
 (function(){
@@ -207,8 +214,14 @@
       }, 200);
     }
     render('deck');
+    // Static for reduced-motion users: they still get the full first scene.
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var idx = 0;
     setInterval(function(){
+      // Skip the swap when nobody can see it — background tab, or scrolled past.
+      if (document.hidden) return;
+      var box = wrap.getBoundingClientRect();
+      if (box.bottom < 0 || box.top > innerHeight) return;
       idx = (idx + 1) % order.length;
       var key = order[idx];
       tabs.forEach(function(t){ t.classList.toggle('on', t.getAttribute('data-scene') === key); });

@@ -99,16 +99,18 @@
       if (hTick) return;
       hTick = true;
       requestAnimationFrame(function () {
-        var y = scrollY;
-        if (y < 600) heroPx.style.transform = 'translateY(' + y * 0.18 + 'px)';
+        // Clamp rather than skip: bailing out past the cutoff leaves the layer
+        // stuck at whatever offset the last handled frame gave it.
+        var y = Math.min(scrollY, 600);
+        heroPx.style.transform = 'translateY(' + y * 0.18 + 'px)';
         hTick = false;
       });
     }, { passive: true });
   }
 
   /* ---- Skyline parallax -------------------------------------------- */
-  // back 0.10x, front 0.25x, rAF-throttled. Only runs while the hero is
-  // plausibly on screen (scrollY < 900) to avoid pointless work.
+  // back 0.10x, front 0.25x, rAF-throttled. Scroll offset is clamped at 900px,
+  // past which the hero is off screen and the layers hold their end position.
   var back = document.querySelector('.skyline.back');
   var front = document.querySelector('.skyline.front');
   if (back && front) {
@@ -117,11 +119,9 @@
       if (tick) return;
       tick = true;
       requestAnimationFrame(function () {
-        var y = scrollY;
-        if (y < 900) {
-          back.style.transform = 'translateY(' + y * 0.1 + 'px)';
-          front.style.transform = 'translateY(' + y * 0.25 + 'px)';
-        }
+        var y = Math.min(scrollY, 900);
+        back.style.transform = 'translateY(' + y * 0.1 + 'px)';
+        front.style.transform = 'translateY(' + y * 0.25 + 'px)';
         tick = false;
       });
     }, { passive: true });
