@@ -48,6 +48,27 @@ else
 fi
 
 echo
+echo "Booking link (fixed — regression guard)"
+# calendly.com/negotiatorsondemand/corporate-training 404s: the event does not
+# exist. It was the primary CTA on all six pages. Live events are 15min, 30min
+# and virtualcoffeewithdan. This guard is offline on purpose -- it catches the
+# dead slug returning, not whether Calendly is up.
+n=$(grep -roF 'negotiatorsondemand/corporate-training' \
+      --include='*.html' --include='*.txt' . 2>/dev/null | wc -l)
+if [ "$n" -eq 0 ]; then
+  pass "dead corporate-training slug gone"
+else
+  fail "dead corporate-training slug is back in $n place(s)"
+fi
+n=$(grep -roF 'calendly.com/negotiatorsondemand/15min' \
+      --include='*.html' --include='*.txt' . 2>/dev/null | wc -l)
+if [ "$n" -eq 14 ]; then
+  pass "booking link in all 14 places"
+else
+  fail "expected 14 booking links, found $n"
+fi
+
+echo
 echo "Batch 1 — defects"
 if [ -e nod-coin.png ]; then fail "T2  nod-coin.png deleted"; else pass "T2  nod-coin.png deleted"; fi
 # The two in-use sizes must survive the delete.
