@@ -14,26 +14,29 @@
   var toggle = document.querySelector('.nav-toggle');
   var links = document.querySelector('.nav-links');
   if (toggle && links) {
-    toggle.addEventListener('click', function () {
-      var open = links.classList.toggle('open');
+    /* One place that owns the open/closed state. The three call sites below
+       used to each set the class, aria-expanded and the glyph by hand, and the
+       aria-label was set once in the markup and never updated — so the button
+       still announced itself as "Open menu" while the menu was open. */
+    var setMenu = function (open) {
+      links.classList.toggle('open', open);
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
       toggle.textContent = open ? '✕' : '☰';
+    };
+
+    toggle.addEventListener('click', function () {
+      setMenu(!links.classList.contains('open'));
     });
     // Close the menu after tapping a link (same-page anchors would otherwise
     // leave the panel covering the target).
     links.addEventListener('click', function (e) {
-      if (e.target.tagName === 'A' && links.classList.contains('open')) {
-        links.classList.remove('open');
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.textContent = '☰';
-      }
+      if (e.target.tagName === 'A' && links.classList.contains('open')) setMenu(false);
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && links.classList.contains('open')) {
-        links.classList.remove('open');
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.textContent = '☰';
-        toggle.focus();
+        setMenu(false);
+        toggle.focus(); // return focus to the control that opened the panel
       }
     });
   }
