@@ -35,6 +35,7 @@ occurrences were replaced:
 |---|---|---|
 | `contact.html` | 4 | `mailto:` card href, its visible body copy, the form-note `mailto:`, the JS `FALLBACK` string |
 | `api/lead.js` | 3 | the 503 unconfigured message, the 502 insert-failure message, the 500 catch-all |
+| `api/lead.js` | +1 | a 504 timeout message added later, when the lead path was hardened — `verify.sh` expects 11 total, not 10 |
 | `index.html` | 2 | the `Organization` entity's `email` in JSON-LD, the footer `mailto:` |
 | `llms.txt` | 1 | the `## Contact` line |
 

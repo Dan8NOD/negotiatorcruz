@@ -37,12 +37,14 @@ if [ "$n" -eq 0 ]; then
 else
   fail "old address is back in $n place(s)"
 fi
+# 11 = the original 10, plus the 504 timeout message added when the lead path
+# was hardened. Bump this deliberately if a new user-facing route is added.
 n=$(grep -roF 'negotiatorsondemand@gmail.com' \
       --include='*.html' --include='*.js' --include='*.txt' . 2>/dev/null | wc -l)
-if [ "$n" -eq 10 ]; then
-  pass "correct address in all 10 places"
+if [ "$n" -eq 11 ]; then
+  pass "correct address in all 11 places"
 else
-  fail "expected 10 occurrences of the correct address, found $n"
+  fail "expected 11 occurrences of the correct address, found $n"
 fi
 
 echo
