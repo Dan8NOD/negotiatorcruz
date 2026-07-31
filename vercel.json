@@ -2,6 +2,13 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "cleanUrls": true,
   "trailingSlash": false,
+  "redirects": [
+    {
+      "source": "/nod-coin.png",
+      "destination": "/og-card.jpg",
+      "permanent": false
+    }
+  ],
   "headers": [
     {
       "source": "/:path*",
