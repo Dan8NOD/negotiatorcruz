@@ -1,6 +1,7 @@
 # Getting told when a lead arrives
 
-`/api/lead` inserts a row into `leads` with `status: 'new'` and returns `200`.
+`/api/lead` inserts a row into `lead_submissions` with `status: 'new'` and
+returns `200`.
 That is the whole of it — nothing in this repo emails, texts, or pings anyone.
 Until the webhook below exists, the contact page's promise that a message "goes
 straight to me" depends on somebody remembering to open the table.
@@ -23,7 +24,7 @@ than done for you.
 | Field | Value |
 |---|---|
 | Name | `notify-on-new-lead` |
-| Table | `leads` |
+| Table | `lead_submissions` |
 | Events | `INSERT` only |
 | Type | HTTP Request |
 | Method | `POST` |
@@ -39,16 +40,34 @@ For the URL, pick whichever you already have an account with:
 Supabase posts a JSON body shaped like:
 
 ```json
-{ "type": "INSERT", "table": "leads", "record": { "name": "...", "email": "...", "message": "...", "status": "new" } }
+{
+  "type": "INSERT",
+  "table": "lead_submissions",
+  "record": {
+    "site": "negotiatorcruz",
+    "form_type": "contact",
+    "name": "...",
+    "email": "...",
+    "phone": null,
+    "message": "Offer: one-day\nCompany: ...\n---\n<their note>",
+    "props": { "offer": "one-day", "company": "...", "team_size": "...", "timeline": "...", "page": "/contact", "referrer": "..." },
+    "status": "new"
+  }
+}
 ```
 
-so the fields to surface in the alert are `record.name`, `record.email`,
-`record.offer` and `record.message`.
+So the fields worth surfacing in the alert are `record.name`, `record.email`,
+`record.props.offer` and `record.message`.
+
+Note the shape: the context fields are **nested under `props`**, not top-level
+columns — `record.props.offer`, not `record.offer`. `message` already has the
+same context prepended as readable text above a `---` divider, so an alert that
+sends `record.message` alone is complete on its own.
 
 ## Confirm it works
 
 Submit the real form at `/contact` with your own address. You should get the
-alert within a few seconds, and the row should still appear in `leads` either
+alert within a few seconds, and the row should still appear in `lead_submissions` either
 way. If the alert does not arrive, check **Database → Webhooks → Logs** — a
 failed webhook does not fail the insert, which is the intended trade and also
 means a silent failure here is easy to miss.
