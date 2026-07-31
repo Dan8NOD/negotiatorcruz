@@ -29,14 +29,20 @@ lacks() {
   if grep -qF -- "$3" "$2" 2>/dev/null; then fail "$1"; else pass "$1"; fi
 }
 
-echo
-echo "T1  contact email (blocked on owner)"
-n=$(grep -rlF 'negotiationsondemand@gmail.com' \
+echo "T1  contact email (fixed — regression guard)"
+n=$(grep -roF 'negotiationsondemand@gmail.com' \
       --include='*.html' --include='*.js' --include='*.txt' . 2>/dev/null | wc -l)
-if [ "$n" -gt 0 ]; then
-  note "still publishing negotiationsondemand@gmail.com in $n file(s) — awaiting owner" "BLOCKED"
+if [ "$n" -eq 0 ]; then
+  pass "old address gone"
 else
-  pass "no unconfirmed address remains"
+  fail "old address is back in $n place(s)"
+fi
+n=$(grep -roF 'negotiatorsondemand@gmail.com' \
+      --include='*.html' --include='*.js' --include='*.txt' . 2>/dev/null | wc -l)
+if [ "$n" -eq 10 ]; then
+  pass "correct address in all 10 places"
+else
+  fail "expected 10 occurrences of the correct address, found $n"
 fi
 
 echo

@@ -34,8 +34,9 @@ class of token spend.
 5. **Do not enter plan mode and do not run `/code-review` or `/security-review`.**
    The work is already reviewed. Implement it.
 
-6. **Skip T1 unless the owner has answered it.** It is blocked on a human
-   decision, flagged in the task. Do not guess.
+6. **Skip T1 — it is already done.** The contact address was confirmed by the
+   owner and fixed on this branch before you started. It stays in the document
+   as a record, and `verify.sh` guards it against regression.
 
 7. **Commit in the three batches given below**, not per task. Push once at the end.
 

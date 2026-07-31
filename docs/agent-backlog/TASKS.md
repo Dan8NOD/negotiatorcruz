@@ -11,11 +11,11 @@ stale, trust the anchor text, not the number.
 
 ---
 
-## T1 — BLOCKED: the contact email may be wrong on every page
+## T1 — DONE: the contact email was wrong on every page
 
-**Status: do not implement. Awaiting owner confirmation.**
+**Status: confirmed by the owner and fixed in this branch. Nothing to implement.**
 
-The site publishes `negotiationsondemand@gmail.com` in 10 places. Every other
+The site published `negotiationsondemand@gmail.com` in 10 places. Every other
 identifier on the property uses `negotiator**s**ondemand`:
 
 - Calendly: `calendly.com/negotiatorsondemand/...`
@@ -23,22 +23,26 @@ identifier on the property uses `negotiator**s**ondemand`:
 - Sister site: `negotiatorsondemand.com`
 - The account this repo is administered from: `negotiatorsondemand@gmail.com`
 
-So the published address is `negotiation-s-ondemand` where everything else is
-`negotiator-s-ondemand`. If that is a typo, then every "email me directly" link —
-including the fallback shown when the lead form fails — has been sending mail
-into a void, and the `/api/lead` error copy tells failed leads to use it.
+The published address was `negotiation-s-ondemand` where everything else is
+`negotiator-s-ondemand`. Every "email me directly" link — including the fallback
+shown when the lead form fails, and the `/api/lead` error copy that tells failed
+leads to use it — was sending mail to an address the owner does not read.
 
-This is the highest-value item in this document and also the one most dangerous
-to guess at. **The owner must confirm which address is correct.**
+The owner confirmed `negotiatorsondemand@gmail.com` as correct. All 10
+occurrences were replaced:
 
-Once confirmed, if a change is needed, it is one command:
+| File | Count | Where |
+|---|---|---|
+| `contact.html` | 4 | `mailto:` card href, its visible body copy, the form-note `mailto:`, the JS `FALLBACK` string |
+| `api/lead.js` | 3 | the 503 unconfigured message, the 502 insert-failure message, the 500 catch-all |
+| `index.html` | 2 | the `Organization` entity's `email` in JSON-LD, the footer `mailto:` |
+| `llms.txt` | 1 | the `## Contact` line |
 
-```bash
-grep -rl 'negotiationsondemand@gmail.com' --include='*.html' --include='*.js' --include='*.txt' . \
-  | xargs sed -i 's/negotiationsondemand@gmail\.com/CONFIRMED_ADDRESS_HERE/g'
-```
+Verified after the change: zero occurrences of the old address remain, `api/lead.js`
+and `contact.html`'s inline script both pass `node --check`, and the JSON-LD on
+every page still parses with `Organization.email` reading correctly.
 
-Affected: `contact.html` ×4, `index.html` ×2, `api/lead.js` ×3, `llms.txt` ×1.
+No further action. `verify.sh` asserts this stays fixed.
 
 ---
 
@@ -641,7 +645,6 @@ seven. Real estate is the flagship vertical, which makes it the conspicuous one.
 
 # Done criteria
 
-Run `./docs/agent-backlog/verify.sh`. All checks must print `PASS`.
-
-T1 is expected to report `BLOCKED` until the owner answers it. That is correct
-and is not a failure.
+Run `./docs/agent-backlog/verify.sh`. Every check must print `PASS`, including
+the two T1 regression guards — those already pass before you start and must
+still pass when you finish.
