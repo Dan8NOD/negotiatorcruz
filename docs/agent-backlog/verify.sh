@@ -56,10 +56,17 @@ if [ -f nod-coin-176.png ] && [ -f nod-coin-64.png ]; then
 else
   fail "T2  in-use coin sizes intact"
 fi
-has   "T3  ad honours prefers-reduced-motion" index.html '.mm-adlivedot,.mm-adtab.listen{animation:none}'
-has   "T4  rotator bails on reduced-motion"   index.html "if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;"
-has   "T4  rotator skips hidden tab"          index.html 'if (document.hidden) return;'
-has   "T4  rotator skips off-screen"          index.html 'if (box.bottom < 0 || box.top > innerHeight) return;'
+# The ad's CSS and JS moved out of index.html into assets/ when the CSP work
+# dropped 'unsafe-inline' from script-src. Same code, new home.
+has   "T3  ad honours prefers-reduced-motion" assets/mini-ad.css '.mm-adlivedot,.mm-adtab.listen{animation:none}'
+has   "T4  rotator bails on reduced-motion"   assets/mini-ad.js "if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;"
+has   "T4  rotator skips hidden tab"          assets/mini-ad.js 'if (document.hidden) return;'
+has   "T4  rotator skips off-screen"          assets/mini-ad.js 'if (box.bottom < 0 || box.top > innerHeight) return;'
+# No inline <script> may come back: script-src 'self' would refuse to run it.
+for f in "${PAGES[@]}" 404.html; do
+  [ -f "$f" ] || continue
+  lacks "CSP $f has no inline <script>" "$f" '<script>'
+done
 has   "T5  hero parallax clamped"             assets/site.js 'Math.min(scrollY, 600)'
 has   "T5  skyline parallax clamped"          assets/site.js 'Math.min(scrollY, 900)'
 lacks "T5  old hero cutoff removed"           assets/site.js 'if (y < 600)'
