@@ -14,26 +14,29 @@
   var toggle = document.querySelector('.nav-toggle');
   var links = document.querySelector('.nav-links');
   if (toggle && links) {
-    toggle.addEventListener('click', function () {
-      var open = links.classList.toggle('open');
+    /* One place that owns the open/closed state. The three call sites below
+       used to each set the class, aria-expanded and the glyph by hand, and the
+       aria-label was set once in the markup and never updated — so the button
+       still announced itself as "Open menu" while the menu was open. */
+    var setMenu = function (open) {
+      links.classList.toggle('open', open);
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+      toggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
       toggle.textContent = open ? '✕' : '☰';
+    };
+
+    toggle.addEventListener('click', function () {
+      setMenu(!links.classList.contains('open'));
     });
     // Close the menu after tapping a link (same-page anchors would otherwise
     // leave the panel covering the target).
     links.addEventListener('click', function (e) {
-      if (e.target.tagName === 'A' && links.classList.contains('open')) {
-        links.classList.remove('open');
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.textContent = '☰';
-      }
+      if (e.target.tagName === 'A' && links.classList.contains('open')) setMenu(false);
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && links.classList.contains('open')) {
-        links.classList.remove('open');
-        toggle.setAttribute('aria-expanded', 'false');
-        toggle.textContent = '☰';
-        toggle.focus();
+        setMenu(false);
+        toggle.focus(); // return focus to the control that opened the panel
       }
     });
   }
@@ -96,16 +99,18 @@
       if (hTick) return;
       hTick = true;
       requestAnimationFrame(function () {
-        var y = scrollY;
-        if (y < 600) heroPx.style.transform = 'translateY(' + y * 0.18 + 'px)';
+        // Clamp rather than skip: bailing out past the cutoff leaves the layer
+        // stuck at whatever offset the last handled frame gave it.
+        var y = Math.min(scrollY, 600);
+        heroPx.style.transform = 'translateY(' + y * 0.18 + 'px)';
         hTick = false;
       });
     }, { passive: true });
   }
 
   /* ---- Skyline parallax -------------------------------------------- */
-  // back 0.10x, front 0.25x, rAF-throttled. Only runs while the hero is
-  // plausibly on screen (scrollY < 900) to avoid pointless work.
+  // back 0.10x, front 0.25x, rAF-throttled. Scroll offset is clamped at 900px,
+  // past which the hero is off screen and the layers hold their end position.
   var back = document.querySelector('.skyline.back');
   var front = document.querySelector('.skyline.front');
   if (back && front) {
@@ -114,11 +119,9 @@
       if (tick) return;
       tick = true;
       requestAnimationFrame(function () {
-        var y = scrollY;
-        if (y < 900) {
-          back.style.transform = 'translateY(' + y * 0.1 + 'px)';
-          front.style.transform = 'translateY(' + y * 0.25 + 'px)';
-        }
+        var y = Math.min(scrollY, 900);
+        back.style.transform = 'translateY(' + y * 0.1 + 'px)';
+        front.style.transform = 'translateY(' + y * 0.25 + 'px)';
         tick = false;
       });
     }, { passive: true });

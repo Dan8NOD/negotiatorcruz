@@ -14,8 +14,12 @@
 <meta property="og:image" content="https://negotiatorcruz.com/og-card.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Negotiators Cruz — the NOD challenge coin on a dark gold-lit background">
 <meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#08080f">
 <link rel="icon" href="/nod-coin-64.png">
+<link rel="apple-touch-icon" href="/nod-coin-176.png">
+<link rel="preconnect" href="https://calendly.com">
 <link rel="stylesheet" href="/assets/site.css">
 <script type="application/ld+json">
 {
@@ -45,7 +49,7 @@
       "logo": "https://negotiatorcruz.com/nod-coin-176.png",
       "founder": { "@id": "https://negotiatorcruz.com/#dan" },
       "areaServed": "US",
-      "email": "negotiationsondemand@gmail.com"
+      "email": "negotiatorsondemand@gmail.com"
     },
     {
       "@type": "Service",
@@ -95,7 +99,7 @@
     <span class="badge">🔴 TikTok Live Daily</span>
   </div>
   <div class="actions">
-    <a href="https://calendly.com/negotiatorsondemand/corporate-training" target="_blank" rel="noopener" class="cta">Get Negotiator Cruz →</a>
+    <a href="https://calendly.com/negotiatorsondemand/corporate-training-call" target="_blank" rel="noopener" class="cta">Get Negotiator Cruz →</a>
     <a href="https://negotiatorsondemand.com/MixMatch.html?utm_source=negotiatorcruz&utm_medium=hero&utm_campaign=try" target="_blank" rel="noopener" class="cta ghost">Try MixMatch Free</a>
   </div>
   <div class="socials">
@@ -173,6 +177,13 @@
   .mm-adbody{grid-template-columns:1fr;gap:6px}
   .mm-adtab{font-size:10px;padding:4px 8px}
 }
+/* This block is pasted into several sites, so it carries its own
+   reduced-motion guard rather than relying on the host page's stylesheet. */
+@media(prefers-reduced-motion:reduce){
+  .mm-adlivedot,.mm-adtab.listen{animation:none}
+  .mm-adframe,.mm-adbody{transition:none}
+  .mm-adframe:hover{transform:none}
+}
 </style>
 <script>
 (function(){
@@ -207,8 +218,14 @@
       }, 200);
     }
     render('deck');
+    // Static for reduced-motion users: they still get the full first scene.
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     var idx = 0;
     setInterval(function(){
+      // Skip the swap when nobody can see it — background tab, or scrolled past.
+      if (document.hidden) return;
+      var box = wrap.getBoundingClientRect();
+      if (box.bottom < 0 || box.top > innerHeight) return;
       idx = (idx + 1) % order.length;
       var key = order[idx];
       tabs.forEach(function(t){ t.classList.toggle('on', t.getAttribute('data-scene') === key); });
@@ -293,7 +310,7 @@
         <li>25 Script Pack (digital + printed)</li>
         <li>Recording of practice rounds</li>
       </ul>
-      <a href="https://calendly.com/negotiatorsondemand/corporate-training" target="_blank" rel="noopener" class="buy">Book a Training Day</a>
+      <a href="https://calendly.com/negotiatorsondemand/corporate-training-call" target="_blank" rel="noopener" class="buy">Book a Training Day</a>
     </div>
 
     <!-- Multi-Day (Premium) -->
@@ -328,7 +345,7 @@
   <h3>Any team that persuades for a living</h3>
   <p class="lede">Negotiators. Persuaders. Influencers. Communicators. Mediators. Anyone whose job is to move another human from where they are to where you need them to be.</p>
   <div class="industries">
-    <div class="industry">Real Estate</div>
+    <div class="industry">🏠 Real Estate</div>
     <div class="industry">💻 SaaS Sales</div>
     <div class="industry">🛡️ Insurance</div>
     <div class="industry">💰 Finance</div>
@@ -424,8 +441,8 @@
 <div class="cta-section">
   <h3>Your team's next deal is waiting.</h3>
   <p>15-minute call. No pitch. We talk about your people, your pipeline, and whether a training day makes sense.</p>
-  <a href="https://calendly.com/negotiatorsondemand/corporate-training" target="_blank" rel="noopener" class="cta">Get Negotiator Cruz →</a>
-  <span class="calendly-url">calendly.com/negotiatorsondemand/corporate-training</span>
+  <a href="https://calendly.com/negotiatorsondemand/corporate-training-call" target="_blank" rel="noopener" class="cta">Get Negotiator Cruz →</a>
+  <span class="calendly-url">calendly.com/negotiatorsondemand/corporate-training-call</span>
 </div>
 
 <!-- CHANNELS -->
@@ -492,9 +509,9 @@
     <a href="https://negotiatorsondemand.com">Consumer products</a>
     <a href="https://negotiatorsondemand.com/MixMatch.html">MixMatch</a>
     <a href="https://dancruzhomes.com">Homes (builds)</a>
-    <a href="mailto:negotiationsondemand@gmail.com">Email</a>
+    <a href="mailto:negotiatorsondemand@gmail.com">Email</a>
   </div>
-  <p style="margin-top:18px;font-size:11px;color:var(--dim);opacity:.7">Published author · Marine veteran · Chicago, IL · 1,000+ live practice sessions since 2024</p>
+  <p style="margin-top:18px;font-size:11px;color:var(--dim)">Published author · Marine veteran · Chicago, IL · 1,000+ live practice sessions since 2024</p>
 </footer>
 
 <script src="/assets/site.js" defer></script>
