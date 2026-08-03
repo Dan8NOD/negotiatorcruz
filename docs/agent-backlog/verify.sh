@@ -31,7 +31,8 @@ lacks() {
 
 echo "T1  contact email (fixed — regression guard)"
 n=$(grep -roF 'negotiationsondemand@gmail.com' \
-      --include='*.html' --include='*.js' --include='*.txt' . 2>/dev/null | wc -l)
+      --include='*.html' --include='*.js' --include='*.txt' \
+      --exclude-dir=node_modules . 2>/dev/null | wc -l)
 if [ "$n" -eq 0 ]; then
   pass "old address gone"
 else
@@ -41,8 +42,14 @@ fi
 # was hardened. (Briefly 13, when contact.html routed to email while the booking
 # link was dead; those reverted once a real Calendly event existed.)
 # Bump this deliberately if a new user-facing route is added.
+#
+# Counts shipped files only. test/ and e2e/ also assert this address -- that is
+# the suite doing its job, not a site occurrence, and folding them in here would
+# make the number move whenever coverage changes.
 n=$(grep -roF 'negotiatorsondemand@gmail.com' \
-      --include='*.html' --include='*.js' --include='*.txt' . 2>/dev/null | wc -l)
+      --include='*.html' --include='*.js' --include='*.txt' \
+      --exclude-dir=node_modules --exclude-dir=test --exclude-dir=e2e \
+      . 2>/dev/null | wc -l)
 if [ "$n" -eq 11 ]; then
   pass "correct address in all 11 places"
 else
@@ -68,7 +75,7 @@ echo "Booking links (regression guard)"
 # "corporate-training-call" contains "corporate-training" as a substring.
 ACTIVE="corporate-training-call virtualcoffeewithdan"
 used=$(grep -rhoE 'calendly\.com/negotiatorsondemand/[a-z0-9-]+' \
-         --include='*.html' --include='*.txt' . 2>/dev/null \
+         --include='*.html' --include='*.txt' --exclude-dir=node_modules . 2>/dev/null \
        | sed 's|.*/||' | sort -u)
 bad=""
 for slug in $used; do
