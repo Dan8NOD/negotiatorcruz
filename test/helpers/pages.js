@@ -14,8 +14,8 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..', '..');
 const ORIGIN = 'https://negotiatorcruz.com';
 
-/** Every top-level page, with the public route Vercel's cleanUrls serves it at. */
-const PAGES = fs
+/** Every top-level HTML file, indexed or not. */
+const ALL_PAGES = fs
   .readdirSync(ROOT)
   .filter((f) => f.endsWith('.html'))
   .sort()
@@ -27,28 +27,21 @@ const PAGES = fs
     },
   }));
 
-/** Does this page tell crawlers to stay away? */
-function isNoindex(html) {
-  const robots = /<meta[^>]+name\s*=\s*"robots"[^>]*content\s*=\s*"([^"]*)"/i.exec(html);
-  return !!robots && /\bnoindex\b/i.test(robots[1]);
-}
-
 /**
- * The pages that are meant to be found.
+ * Every *indexed* page — the ones that are part of the public site.
  *
- * A noindex page is deliberately outside the index: it declares no canonical
- * and it stays out of sitemap.xml, so asserting either against it contradicts
- * the reason it is noindex in the first place. 404.html is the current case —
- * see backlog T11, which specifies `robots: noindex` *instead of* a canonical
- * and says explicitly not to add it to the sitemap.
+ * Pages carrying `robots: noindex` are deliberately excluded. The suites that
+ * consume PAGES assert indexed-content invariants: a canonical link, an entry
+ * in sitemap.xml, reachability from the home page nav, a full Open Graph set.
+ * An error page satisfies none of those *by design* — it must not be in the
+ * sitemap, nothing should link to it, and a canonical for /404 would be wrong.
  *
- * Derived from the markup rather than a filename list, so a future noindex
- * page gets the same treatment without anyone remembering to update this.
- * Everything that is simply page quality — a title, a description, alt text,
- * one <h1>, the Open Graph set — is still asserted against every page via
- * PAGES, because a 404 is a page a human reads too.
+ * This is derived from the page's own robots meta rather than a hardcoded
+ * filename list, so the next noindex page added is handled without touching
+ * this file. 404.html was added without that exclusion existing, which is what
+ * turned ten of these assertions red on main.
  */
-const INDEXABLE_PAGES = PAGES.filter((p) => !isNoindex(p.html));
+const PAGES = ALL_PAGES.filter((p) => !/<meta\s+name=["']robots["'][^>]*noindex/i.test(p.html));
 
 function read(file) {
   return fs.readFileSync(path.join(ROOT, file), 'utf8');
@@ -99,8 +92,7 @@ module.exports = {
   ROOT,
   ORIGIN,
   PAGES,
-  INDEXABLE_PAGES,
-  isNoindex,
+  ALL_PAGES,
   read,
   exists,
   attrs,

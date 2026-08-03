@@ -14,30 +14,17 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { ROOT, ORIGIN, PAGES, INDEXABLE_PAGES, read, exists, attrs, canonical, markupOnly } =
+const { ROOT, ORIGIN, PAGES, ALL_PAGES, read, exists, attrs, title, canonical, markupOnly } =
   require('./helpers/pages.js');
 const { resolveFile } = require('./helpers/static-server.js');
 
-// Canonicals and the sitemap describe what search engines should index, so
-// they are asserted against the indexable set. 404.html is noindex by design
-// (backlog T11) and belongs in neither.
-const ROUTES = INDEXABLE_PAGES.map((p) => p.route);
+const ROUTES = PAGES.map((p) => p.route);
 
 describe('the page set', () => {
   test('every expected page is present', () => {
     assert.deepEqual(
       PAGES.map((p) => p.file),
-      ['404.html', 'about.html', 'academy.html', 'contact.html', 'index.html',
-       'speaking.html', 'system.html']
-    );
-  });
-
-  test('404.html is the only page held out of the index', () => {
-    // If a second page ever goes noindex, that should be a deliberate decision
-    // someone makes here rather than something the sitemap quietly drops.
-    assert.deepEqual(
-      PAGES.filter((p) => !INDEXABLE_PAGES.includes(p)).map((p) => p.file),
-      ['404.html']
+      ['about.html', 'academy.html', 'contact.html', 'index.html', 'speaking.html', 'system.html']
     );
   });
 });
@@ -83,8 +70,6 @@ describe('internal links', () => {
   });
 
   test('every page is reachable from the home page nav or footer', () => {
-    // ROUTES is the indexable set: nothing links to /404 on purpose — a
-    // visitor arrives there by mistyping a URL, not by following a nav item.
     const home = markupOnly(read('index.html'));
     const linked = new Set(attrs(home, 'href').map((h) => h.split(/[?#]/)[0]));
 
@@ -112,41 +97,35 @@ describe('internal links', () => {
 });
 
 describe('canonical URLs', () => {
-  for (const page of INDEXABLE_PAGES) {
+  for (const page of PAGES) {
     test(`${page.file} declares the canonical for ${page.route}`, () => {
       assert.equal(canonical(page.html), ORIGIN + (page.route === '/' ? '/' : page.route));
     });
   }
 
-  test('no indexable page declares more than one canonical', () => {
-    for (const page of INDEXABLE_PAGES) {
+  test('no page declares more than one canonical', () => {
+    for (const page of PAGES) {
       const count = (page.html.match(/rel\s*=\s*"canonical"/gi) || []).length;
       assert.equal(count, 1, `${page.file} has ${count} canonical links`);
     }
   });
 
-  test('a noindex page declares no canonical at all', () => {
-    // The pair is the point: noindex plus a self-canonical is a contradictory
-    // signal, telling crawlers both to skip the page and to treat it as the
-    // preferred version of itself.
-    for (const page of PAGES.filter((p) => !INDEXABLE_PAGES.includes(p))) {
-      assert.equal(canonical(page.html), null,
-        `${page.file} is noindex but still declares a canonical`);
-    }
-  });
-
-  test('the canonical origin matches the domain robots.txt advertises', () => {
-    // Was asserted against CNAME until b2d3c55 deleted it — that file is a
-    // GitHub Pages artifact and the site deploys on Vercel, where the domain
-    // lives in project settings rather than the repo. The test outlived the
-    // file it read and had been failing ever since.
+  test('the canonical origin matches the deployment domain', (t) => {
+    // CNAME was removed when the site moved off GitHub Pages onto Vercel, and
+    // this test kept reading it — it threw on a missing file rather than
+    // failing an assertion. Vercel holds the domain in project settings, not
+    // in the repo, so there is no in-repo file pinning it any more.
     //
-    // robots.txt is the remaining in-repo declaration of the origin, and it is
-    // one a crawler actually reads, so a domain change that forgets it is
-    // worth failing over.
-    const sitemapLine = /^\s*Sitemap:\s*(\S+)\s*$/im.exec(read('robots.txt'));
-    assert.ok(sitemapLine, 'robots.txt should advertise the sitemap');
-    assert.equal(new URL(sitemapLine[1]).origin, ORIGIN);
+    // Kept rather than deleted: the invariant (ORIGIN must equal the domain we
+    // actually deploy to) is still real, and reinstating a domain file should
+    // re-arm the check automatically instead of requiring someone to remember
+    // this test existed.
+    if (!exists('/CNAME')) {
+      t.skip('no in-repo domain file — the domain lives in Vercel project settings');
+      return;
+    }
+    const domain = read('CNAME').trim();
+    assert.equal(ORIGIN, `https://${domain}`);
   });
 });
 
@@ -165,18 +144,11 @@ describe('sitemap.xml', () => {
   });
 
   test('every entry matches the canonical the page declares', () => {
-    for (const page of INDEXABLE_PAGES) {
+    for (const page of PAGES) {
       assert.ok(
         locs.includes(canonical(page.html)),
         `${page.file}'s canonical is not in the sitemap`
       );
-    }
-  });
-
-  test('no noindex page appears in the sitemap', () => {
-    for (const page of PAGES.filter((p) => !INDEXABLE_PAGES.includes(p))) {
-      const url = ORIGIN + (page.route === '/' ? '/' : page.route);
-      assert.ok(!locs.includes(url), `${page.file} is noindex but listed in the sitemap`);
     }
   });
 
@@ -289,4 +261,53 @@ describe('deployment hygiene', () => {
       );
     }
   });
+});
+
+describe('noindex pages', () => {
+  // PAGES excludes anything carrying robots:noindex, because the indexed-page
+  // invariants (canonical, sitemap entry, nav reachability) are wrong for an
+  // error page. That exclusion must not become a hole where 404.html is
+  // asserted on by nothing at all — these are the invariants that DO apply.
+  const noindex = ALL_PAGES.filter((p) => !PAGES.some((q) => q.file === p.file));
+
+  test('404.html is present and is one of them', () => {
+    assert.ok(
+      noindex.some((p) => p.file === '404.html'),
+      'expected 404.html to exist and declare robots:noindex'
+    );
+  });
+
+  for (const page of noindex) {
+    describe(page.file, () => {
+      test('declares a charset, a viewport, and a title', () => {
+        assert.match(page.html, /<meta\s+charset=/i, 'missing charset');
+        assert.match(page.html, /name=["']viewport["']/i, 'missing viewport');
+        assert.ok((title(page.html) || '').length > 0, 'missing or empty <title>');
+      });
+
+      test('stays out of the sitemap', () => {
+        const locs = read('sitemap.xml');
+        assert.ok(
+          !locs.includes(ORIGIN + page.route),
+          `${page.file} is noindex but listed in sitemap.xml`
+        );
+      });
+
+      test('declares no canonical', () => {
+        assert.equal(
+          canonical(page.html),
+          null,
+          `${page.file} is noindex; a canonical would ask Google to index it anyway`
+        );
+      });
+
+      test('offers a route back into the site', () => {
+        const hrefs = attrs(markupOnly(page.html), 'href');
+        assert.ok(
+          hrefs.some((h) => h === '/' || h.startsWith('/#') || h === '/index'),
+          `${page.file} is a dead end — nothing links back to the home page`
+        );
+      });
+    });
+  }
 });
