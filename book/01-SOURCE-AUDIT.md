@@ -248,13 +248,29 @@ the standard a team holds itself to.
 
 ---
 
-## 5. Open decisions
+## 5. Decisions — resolved
 
-Two, and both change the shape of 33 chapters. Flagged for Dan:
+Both settled by Dan. These are now binding on the rewrite.
 
-1. **Levels vs. Stages** — adopt the reconciliation in §2.3 (Stages = the
-   sequence you run, Levels = the certification ladder), or keep the book on
-   Levels alone and revise the website instead?
-2. **Replace or fork** — does this become the 2nd edition, superseding the
-   consumer version, or a separate corporate edition running alongside it under
-   the negotiatorcruz.com brand?
+**1. Architecture — Stages spine, Levels as certification ladder.**
+The reconciliation in §2.3 is adopted. Read → Disarm → Steer → Close is the
+sequence run inside a negotiation and becomes the book's spine. Level 1 / 2 / 3
+survive as the certification ladder — the order an operator is trained and
+signed off in. Written up in Ch 2, and it's what makes manager certification
+(and the annual licensing tier) coherent rather than bolted on.
+
+**2. Edition — separate corporate title.**
+The 1st Edition stays live on Kindle as the consumer book under
+negotiatorsondemand.com. This becomes a distinct corporate title under
+negotiatorcruz.com. Consequences for the rewrite:
+
+- The seven consumer chapters are **cut without hesitation** — they aren't
+  being destroyed, they remain the other book. No need to preserve a consumer
+  on-ramp inside this one.
+- Voice can commit fully to the organizational reader. No hedging toward the
+  individual buyer.
+- The two books should **cross-reference in one direction only**: consumer →
+  corporate. The corporate manual should not send a VP toward a book about
+  negotiating a free coffee.
+- New title needed. Working direction: *The Cruz Protocol: A Field Manual for
+  Commercial Negotiation.* `[NEEDS: Dan's call]`
