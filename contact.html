@@ -14,10 +14,55 @@
 <meta property="og:image" content="https://negotiatorcruz.com/og-card.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Negotiators Cruz — the NOD challenge coin on a dark gold-lit background">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="robots" content="index,follow">
+<meta name="theme-color" content="#08080f">
 <link rel="icon" href="/nod-coin-64.png">
+<link rel="apple-touch-icon" href="/nod-coin-176.png">
+<link rel="preconnect" href="https://calendly.com">
 <link rel="stylesheet" href="/assets/site.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "url": "https://negotiatorcruz.com/contact",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How fast do you reply?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Usually within a day. I'm on TikTok Live two hours a day Monday to Saturday, so if it's urgent, the call booking is faster than the form."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do you travel?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — based in Chicago, travel billed at cost. Virtual sessions are available for the Negotiator Hour and keynotes; the intensives work far better in person because the roleplay rounds need a room."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will you tell me not to book you?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Regularly. If your team hasn't opened the free app and your problem is motivation rather than method, a training day is the wrong purchase and I'd rather say so on a 15-minute call than after you've paid."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can you do a pilot before we commit the whole team?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. A common route is a Negotiator Hour with the sales lead first, then a one-day for the floor if it lands. Costs $500 to find out instead of $5,000."
+      }
+    }
+  ]
+}
+</script>
 </head>
 <body>
 <a class="skip" href="#main">Skip to content</a>
@@ -44,7 +89,7 @@
   <p class="tagline">Tell me who your people negotiate against and what keeps going wrong.</p>
   <p class="sub">I'll give you a straight read on whether a training day is the right move — including when the answer is "run the free app for a month first and don't pay me anything."</p>
   <div class="actions">
-    <a href="https://calendly.com/negotiatorsondemand/corporate-training" target="_blank" rel="noopener" class="cta">Book straight into my calendar →</a>
+    <a href="https://calendly.com/negotiatorsondemand/corporate-training-call" target="_blank" rel="noopener" class="cta">Book straight into my calendar →</a>
     <a href="#form" class="cta ghost">Or send a message</a>
   </div>
 </div>
@@ -53,7 +98,7 @@
   <h2>Fastest Route</h2>
   <h3>Pick the one that fits</h3>
   <div class="grid g3">
-    <a class="card" href="https://calendly.com/negotiatorsondemand/corporate-training" target="_blank" rel="noopener" style="text-decoration:none;display:block">
+    <a class="card" href="https://calendly.com/negotiatorsondemand/corporate-training-call" target="_blank" rel="noopener" style="text-decoration:none;display:block">
       <div class="icon">📅</div>
       <h4 style="color:var(--gold-2)">Corporate training call →</h4>
       <p>Team training, keynotes, multi-day immersives. 15 minutes, straight into my calendar.</p>
@@ -63,10 +108,10 @@
       <h4 style="color:var(--gold-2)">Book a Negotiator Hour →</h4>
       <p>$500, private, on your actual deal. Best if you've got a live negotiation this week.</p>
     </a>
-    <a class="card" href="mailto:negotiationsondemand@gmail.com" style="text-decoration:none;display:block">
+    <a class="card" href="mailto:negotiatorsondemand@gmail.com" style="text-decoration:none;display:block">
       <div class="icon">✉️</div>
       <h4 style="color:var(--gold-2)">Email me directly →</h4>
-      <p>negotiationsondemand@gmail.com — I read everything that isn't a pitch deck.</p>
+      <p>negotiatorsondemand@gmail.com — I read everything that isn't a pitch deck.</p>
     </a>
   </div>
 </section>
@@ -139,8 +184,8 @@
     <p class="form-note">
       Goes straight to me — no CRM sequence, no drip campaign, no list.
       If you'd rather skip the form,
-      <a href="mailto:negotiationsondemand@gmail.com" style="color:var(--gold)">email me</a>
-      or <a href="https://calendly.com/negotiatorsondemand/corporate-training" target="_blank" rel="noopener" style="color:var(--gold)">book the call</a>.
+      <a href="mailto:negotiatorsondemand@gmail.com" style="color:var(--gold)">email me</a>
+      or <a href="https://calendly.com/negotiatorsondemand/corporate-training-call" target="_blank" rel="noopener" style="color:var(--gold)">book the call</a>.
     </p>
   </form>
 </section>
@@ -187,7 +232,7 @@
     <a href="/contact">Contact</a>
     <a href="https://negotiatorsondemand.com">Consumer products</a>
   </div>
-  <p style="margin-top:18px;font-size:11px;color:var(--dim);opacity:.7">Published author · Marine veteran · Chicago, IL · 1,000+ live practice sessions since 2024</p>
+  <p style="margin-top:18px;font-size:11px;color:var(--dim)">Published author · Marine veteran · Chicago, IL · 1,000+ live practice sessions since 2024</p>
 </footer>
 
 <script src="/assets/site.js" defer></script>
@@ -218,7 +263,7 @@
   }
 
   var FALLBACK =
-    ' You can also email negotiationsondemand@gmail.com directly.';
+    ' You can also email negotiatorsondemand@gmail.com directly.';
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
@@ -238,21 +283,30 @@
     btn.textContent = 'Sending…';
     msg.className = 'form-msg';
 
+    /* fetch has no default timeout, so a stalled connection never settles and
+       the button sits on "Sending…" forever with no way back. Give up at 15s —
+       longer than the server's own 8s upstream abort, so a real 504 still wins
+       the race and shows its more specific message. */
+    var ctl = window.AbortController ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctl) ctl.abort(); }, 15000);
+
     fetch('/api/lead', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
+      body: JSON.stringify(data),
+      signal: ctl ? ctl.signal : undefined
     })
       .then(function (r) {
         return r.json().catch(function () { return { ok: r.ok }; });
       })
       .then(function (out) {
+        clearTimeout(timer);
         if (out && out.ok) {
           form.reset();
           say('ok',
             "Got it — thanks. I'll come back to you within a day. If it's " +
             'urgent, book straight into my calendar instead: ' +
-            'calendly.com/negotiatorsondemand/corporate-training');
+            'calendly.com/negotiatorsondemand/corporate-training-call');
           btn.textContent = 'Sent ✓';
           return; // leave the button disabled to prevent double-sends
         }
@@ -260,8 +314,11 @@
         btn.disabled = false;
         btn.textContent = original;
       })
-      .catch(function () {
-        say('err', 'Network error — the message didn\'t send.' + FALLBACK);
+      .catch(function (err) {
+        clearTimeout(timer);
+        say('err', (err && err.name === 'AbortError'
+          ? 'That took too long and timed out — the message didn\'t send.'
+          : 'Network error — the message didn\'t send.') + FALLBACK);
         btn.disabled = false;
         btn.textContent = original;
       });

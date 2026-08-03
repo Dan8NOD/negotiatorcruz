@@ -28,13 +28,45 @@ const MAX = { name: 120, email: 200, phone: 40, message: 4000, context: 400 };
 const HITS = new Map();
 const WINDOW_MS = 60_000;
 const LIMIT = 5;
+/* Each entry is an IP plus at most LIMIT+1 timestamps, so a few thousand of
+   them is well under a megabyte — cheap insurance against evicting a real
+   offender just because the site had a good traffic day. */
+const CEILING = 2000;
+
+/* Vercel's default function ceiling is 10s. Abort the upstream call before
+   that so a hung PostgREST returns a real error the visitor can act on,
+   instead of the platform killing us mid-request with no response body. */
+const UPSTREAM_TIMEOUT_MS = 8000;
 
 function throttled(ip) {
   const now = Date.now();
+
   const hits = (HITS.get(ip) || []).filter((t) => now - t < WINDOW_MS);
   hits.push(now);
+
+  /* Delete-then-set moves this IP to the end of the Map. Map preserves
+     insertion order and re-setting an existing key does not update it, so
+     without the delete the iteration order below would be arrival order
+     rather than recency. */
+  HITS.delete(ip);
   HITS.set(ip, hits);
-  if (HITS.size > 500) HITS.clear(); // crude ceiling on memory growth
+
+  /* Bound memory by evicting the least-recently-seen IPs — the front of the
+     map after the shuffle above.
+
+     This used to be a flat HITS.clear() at the ceiling, which reset every
+     counter in the map. That is backwards: the traffic pushing the map past
+     its ceiling is exactly the traffic worth counting, so a burst of unique
+     IPs handed whoever was hammering the endpoint a clean slate at the moment
+     the limit mattered most. Evicting by recency drops idle visitors instead
+     and leaves an active offender's count intact. */
+  if (HITS.size > CEILING) {
+    for (const k of HITS.keys()) {
+      if (HITS.size <= CEILING) break;
+      if (k !== ip) HITS.delete(k);
+    }
+  }
+
   return hits.length > LIMIT;
 }
 
@@ -58,7 +90,7 @@ module.exports = async function handler(req, res) {
     // Don't imply the visitor did something wrong.
     return res.status(503).json({
       ok: false,
-      error: 'The form is not configured yet. Please email negotiationsondemand@gmail.com.',
+      error: 'The form is not configured yet. Please email negotiatorsondemand@gmail.com.',
     });
   }
 
@@ -118,9 +150,13 @@ module.exports = async function handler(req, res) {
   const props = {};
   for (const [k, v] of ctx) props[k.toLowerCase().replace(/\s+/g, '_')] = v;
 
+  const abort = new AbortController();
+  const timer = setTimeout(() => abort.abort(), UPSTREAM_TIMEOUT_MS);
+
   try {
     const r = await fetch(`${url.replace(/\/$/, '')}/rest/v1/${TABLE}`, {
       method: 'POST',
+      signal: abort.signal,
       headers: {
         apikey: `${key}`,
         Authorization: `Bearer ${key}`,
@@ -145,17 +181,29 @@ module.exports = async function handler(req, res) {
       return res.status(502).json({
         ok: false,
         error:
-          'Something broke on our end. Please email negotiationsondemand@gmail.com and I\'ll get straight back to you.',
+          'Something broke on our end. Please email negotiatorsondemand@gmail.com and I\'ll get straight back to you.',
       });
     }
 
     return res.status(200).json({ ok: true });
   } catch (err) {
+    if (err && err.name === 'AbortError') {
+      // Upstream never answered. The lead is lost either way, so the only
+      // useful thing we can do is hand back a route that doesn't depend on us.
+      console.error('lead: supabase timed out after', UPSTREAM_TIMEOUT_MS, 'ms');
+      return res.status(504).json({
+        ok: false,
+        error:
+          'The form timed out before it saved. Please email negotiatorsondemand@gmail.com and I\'ll get straight back to you.',
+      });
+    }
     console.error('lead: unexpected error', err);
     return res.status(500).json({
       ok: false,
       error:
-        'Something broke on our end. Please email negotiationsondemand@gmail.com and I\'ll get straight back to you.',
+        'Something broke on our end. Please email negotiatorsondemand@gmail.com and I\'ll get straight back to you.',
     });
+  } finally {
+    clearTimeout(timer);
   }
 };
