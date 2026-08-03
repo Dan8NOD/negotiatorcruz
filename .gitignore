@@ -1,0 +1,16 @@
+node_modules/
+
+# Playwright output
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Node test runner coverage output
+coverage/
+
+.DS_Store
+*.log
+.env
+.env.local
+.vercel
