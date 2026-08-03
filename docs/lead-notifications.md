@@ -1,18 +1,20 @@
 # Getting told when a lead arrives
 
 `/api/lead` inserts a row into `lead_submissions` with `status: 'new'` and
-returns `200`. That is the whole of it — nothing in this repo emails, texts, or
-pings anyone. Until one of the routes below exists, the contact page's promise
-that a message "goes straight to me" depends on somebody remembering to open the
-table.
+returns `200`. Nothing in this repo emails, texts, or pings anyone. A database
+trigger now forwards each new lead to an Edge Function that logs it (Route C),
+so there is a record outside the table — but until Route A or B is set up, the
+contact page's promise that a message "goes straight to me" still depends on
+somebody going to look.
 
 The notification is deliberately **not** in `api/lead.js`. A send in the request
 path is one more thing that can fail or hang while a visitor waits on the submit
 button, and that path was hardened against exactly that. Firing after the row is
 committed means a broken notification can no longer cost you the lead itself.
 
-Both routes need a Supabase dashboard login, so they are written out here rather
-than done for you.
+Route C below is **wired and running now** — leads reach the `claude-webhook`
+Edge Function's logs. It does not yet send you anything; Routes A and B are the
+two ways to turn it into an actual alert, and both need a dashboard login.
 
 Project: `iubxycckgrplbpdbncfk` · table: `public.lead_submissions`
 
@@ -78,10 +80,14 @@ Best if you want it working today and might later fan out to SMS or a CRM.
    - Body: `{{record__message}}`, plus `{{record__email}}` and `{{record__phone}}`
 5. Turn the Zap on.
 
-**Filtering by site:** `lead_submissions` has a `site` column because more than
-one of your properties writes to it. A plain webhook fires for all of them. To
-get only this site's leads, add a **Filter by Zapier** step: continue only if
-`record__site` **exactly matches** `negotiatorcruz`.
+**Filtering by site:** `lead_submissions` has a `site` column because nine of
+your properties write to it. A plain webhook fires for all of them. To get only
+this site's leads, add a **Filter by Zapier** step: continue only if
+`record__site` **contains** `negotiatorcruz`.
+
+Use *contains*, not *exactly matches* — this site is written under two different
+values, `negotiatorcruz` and `negotiatorcruz.com`. See "The `site` column is
+inconsistent" below.
 
 ---
 
@@ -95,6 +101,14 @@ alerts sent to**. On the free tier, the shared `onboarding@resend.dev` sender ca
 only deliver to your own account address. Sending to anything else needs a
 verified domain.
 
+> **This replaces Route C.** It deliberately reuses the same
+> `public.notify_new_lead()` function and `notify_new_lead_trg` trigger names, so
+> running it upgrades the live logging-only wiring into a real email alert in
+> place. Nothing to uninstall first — but be aware you are overwriting, not
+> adding alongside.
+
+`pg_net` is already installed (Route C needed it), so there is nothing to enable.
+
 Run this in **Supabase → SQL Editor**. Replace the key and the recipient.
 
 ```sql
@@ -104,12 +118,8 @@ Run this in **Supabase → SQL Editor**. Replace the key and the recipient.
 alter database postgres set app.resend_key = 're_your_key_here';
 ```
 
-Then **reconnect** (the setting only applies to new connections — reload the SQL
-Editor tab), and run:
-
-Enable **pg_net** first from **Database → Extensions** (search `pg_net`, toggle
-it on). Enabling it from the UI avoids guessing which schema the extension
-installs into — it exposes `net.http_post` either way.
+Then **reconnect** — the setting only applies to new connections, so reload the
+SQL Editor tab — and run:
 
 ```sql
 create or replace function public.notify_new_lead()
@@ -158,17 +168,58 @@ execute function public.notify_new_lead();
 `net.http_post` queues the request and returns immediately, so the insert is
 never held up waiting on Resend.
 
----
+One thing to carry over from the live Route C version if you adopt this: wrap the
+`perform net.http_post(...)` in a `begin ... exception when others then raise
+warning ... end;` block. This is an `AFTER INSERT` trigger, so an uncaught error
+rolls the insert back — a broken alert would destroy the lead it was meant to
+announce.
 
 ---
 
-## Route C — the existing `claude-webhook` Edge Function
+## Route C — `claude-webhook` — **WIRED AND LIVE**
 
-The project already has a `claude-webhook` function. As of this writing it is a
-receiver stub: it validates the JSON, logs the payload, and returns
-`{"ok":true,"received":true}`. Useful as a wiring target while you build the
-notification out, since the Edge Function logs give you a record of every lead
-even before an alert exists.
+This is the one currently running. Applied as migration
+`notify_new_lead_via_claude_webhook`.
+
+Every insert into `lead_submissions` where `site` is `negotiatorcruz` or
+`negotiatorcruz.com` now POSTs to the `claude-webhook` Edge Function, which
+validates the JSON, logs the payload and returns `{"ok":true,"received":true}`.
+
+**This logs. It does not yet notify.** Leads land in the Edge Function logs
+(Dashboard → Edge Functions → claude-webhook → Logs) rather than in your inbox.
+To turn it into a real alert, either extend the function with a send step or
+switch to Route A or B above.
+
+Verified end to end on 2026-08-03: a test insert fired the trigger, `pg_net`
+recorded `status_code 200` with body `{"ok":true,"received":true}` 24ms later,
+and the function logged `POST | 200 | .../claude-webhook`. Both test rows were
+deleted afterwards.
+
+To inspect or change it:
+
+```sql
+-- what the trigger sends, and whether it is still attached
+select pg_get_functiondef('public.notify_new_lead'::regproc);
+select tgname, pg_get_triggerdef(oid) from pg_trigger
+ where tgrelid = 'public.lead_submissions'::regclass and not tgisinternal;
+
+-- delivery history
+select id, status_code, left(content,200) as body, error_msg, created
+  from net._http_response order by created desc limit 20;
+
+-- turn it off without dropping anything
+alter table public.lead_submissions disable trigger notify_new_lead_trg;
+```
+
+Two deliberate choices in that trigger worth knowing about:
+
+- **It swallows its own errors.** The send is wrapped in a `begin/exception`
+  block that downgrades any failure to a warning. It is an `AFTER INSERT`
+  trigger, so an uncaught exception would roll the insert back — a broken
+  notification would destroy the lead it was meant to announce.
+- **It carries an `Authorization` header.** `claude-webhook` has `verify_jwt`
+  enabled, so without it every call returns 401. The header holds the public
+  anon key, which grants nothing the browser does not already have.
 
 **It has `verify_jwt: true`, which will silently break a database webhook
 pointed at it.** An unauthenticated call gets:
