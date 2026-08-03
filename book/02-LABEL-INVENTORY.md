@@ -1,9 +1,16 @@
-# Source Inventory — what we can write before the PDF lands
+# Source Inventory — the shipped copy behind "THE WORDS"
 
-`00-ARCHITECTURE.md` says the Kindle PDF is pending and that final tool→chapter
-assignment gets locked against it. That is still true. What follows is the
-material that **already exists in structured form** and does not need the PDF to
-be drafted against.
+**Status update.** The source is no longer pending — Dan supplied the EPUB
+(*NOD Academy, 1st Edition*) and it has been read in full. The diagnosis and the
+old→new chapter mapping are in `01-SOURCE-AUDIT.md`; the chapter map is locked.
+
+That makes this inventory more useful, not less. The 1st Edition supplies the
+*doctrine* to rewrite; the tables below supply the *scripts*. They are
+complementary sources, and neither one alone would produce a usable manual: the
+book is 450 words a chapter with almost no verbatim copy, and these tables are
+verbatim copy with no surrounding instruction.
+
+What follows is the material that **already exists in structured form**.
 
 Two live sources, both in the NOD-ify Supabase project (`iubxycckgrplbpdbncfk`):
 

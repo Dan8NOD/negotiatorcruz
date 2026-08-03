@@ -14,7 +14,7 @@ It's a **consumer self-improvement manual with a training community attached**,
 and it's a good one for that job. The chapter template is already
 manual-shaped (Core idea → body → Real-world example → The move → Try it this
 week → Nugget → ASCII diagram). The instincts are right. The *category* is wrong
-for a $15–20K corporate install.
+for a $40–55K corporate install.
 
 Current structure: three Levels — Listening, Dialogue, Collaboration — with the
 Staircase metaphor and a graduation test at each level (free coffee, free
@@ -110,8 +110,10 @@ Protocol internally and you're paid annually instead of per-event.
 
 18,100 words across 33 chapters averages ~450 words per chapter. On Kindle at
 $10 that's fine. In print at $50, and as the credentialing artifact behind a
-$20K engagement, it is thin — and a corporate buyer will register that
-physically before they register it intellectually.
+$40–55K engagement, it is thin — and a corporate buyer will register that
+physically before they register it intellectually. At the old ladder this was a
+weakness; at the new one it is disqualifying, because the manual is what a
+committee reads instead of meeting Dan.
 
 Target ~70,000 words. Roughly 2,000 per chapter. That is not padding: the
 seven-part chapter spine (standard, triggers, scripts, what good sounds like,

@@ -8,6 +8,13 @@ mapped to stages — this is where Section 3 "THE WORDS" comes from).
 **Decisions locked:** Stages = the sequence, Levels = the certification ladder ·
 Separate corporate title, consumer 1st Edition stays live.
 
+**Drafting rule for remaining chapters.** Section 3 ("THE WORDS") is assembled
+from the 544 shipped lines in `02-LABEL-INVENTORY.md`, not invented. Shipped
+copy has been reviewed and used; invented scripts read plausible and drill
+soft. Where a chapter's family has no shipped lines, that's flagged rather than
+filled. Ch 1–3 and Ch 6 were drafted before the inventory existed and their
+script boxes should be reconciled against it in the consistency pass.
+
 | # | Chapter | Part | Status |
 |---|---|---|---|
 | 1 | The Negotiation Is Already Running | 0 · Standard | ✅ drafted |
