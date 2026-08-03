@@ -37,35 +37,45 @@ if [ "$n" -eq 0 ]; then
 else
   fail "old address is back in $n place(s)"
 fi
-# 11 = the original 10, plus the 504 timeout message added when the lead path
-# was hardened. Bump this deliberately if a new user-facing route is added.
+# 13 = the original 10, the 504 timeout message added when the lead path was
+# hardened, and two routes added on contact.html when the dead booking CTAs were
+# replaced (the hero's "email me directly" and the post-submit urgent path).
+# Bump this deliberately if a new user-facing route is added.
 n=$(grep -roF 'negotiatorsondemand@gmail.com' \
       --include='*.html' --include='*.js' --include='*.txt' . 2>/dev/null | wc -l)
-if [ "$n" -eq 11 ]; then
-  pass "correct address in all 11 places"
+if [ "$n" -eq 13 ]; then
+  pass "correct address in all 13 places"
 else
-  fail "expected 11 occurrences of the correct address, found $n"
+  fail "expected 13 occurrences of the correct address, found $n"
 fi
 
 echo
-echo "Booking link (fixed — regression guard)"
-# calendly.com/negotiatorsondemand/corporate-training 404s: the event does not
-# exist. It was the primary CTA on all six pages. Live events are 15min, 30min
-# and virtualcoffeewithdan. This guard is offline on purpose -- it catches the
-# dead slug returning, not whether Calendly is up.
-n=$(grep -roF 'negotiatorsondemand/corporate-training' \
-      --include='*.html' --include='*.txt' . 2>/dev/null | wc -l)
-if [ "$n" -eq 0 ]; then
-  pass "dead corporate-training slug gone"
+echo "Booking links (regression guard)"
+# The Calendly account has exactly one ACTIVE event type: virtualcoffeewithdan.
+# Confirmed against the Calendly API, not by HTTP status -- calendly.com returns
+# 200 with an empty client-rendered shell for a slug that is deactivated or
+# absent, so a status-code probe reports those as healthy when they are not.
+#
+#   corporate-training  no such event      (404)
+#   15min               no such event      (200, empty shell)
+#   30min / 60min       exist but INACTIVE (200, empty shell)
+#
+# Only link a slug after confirming active:true via the API.
+for dead in corporate-training 15min 30min 60min; do
+  n=$(grep -roF "calendly.com/negotiatorsondemand/$dead" \
+        --include='*.html' --include='*.txt' . 2>/dev/null | wc -l)
+  if [ "$n" -eq 0 ]; then
+    pass "no links to non-bookable /$dead"
+  else
+    fail "$n link(s) to non-bookable /$dead"
+  fi
+done
+n=$(grep -roF 'calendly.com/negotiatorsondemand/virtualcoffeewithdan' \
+      --include='*.html' . 2>/dev/null | wc -l)
+if [ "$n" -gt 0 ]; then
+  pass "Negotiator Hour points at the one active event ($n links)"
 else
-  fail "dead corporate-training slug is back in $n place(s)"
-fi
-n=$(grep -roF 'calendly.com/negotiatorsondemand/15min' \
-      --include='*.html' --include='*.txt' . 2>/dev/null | wc -l)
-if [ "$n" -eq 14 ]; then
-  pass "booking link in all 14 places"
-else
-  fail "expected 14 booking links, found $n"
+  fail "the active virtualcoffeewithdan event is no longer linked"
 fi
 
 echo
