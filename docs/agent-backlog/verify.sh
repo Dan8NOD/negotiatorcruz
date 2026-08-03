@@ -37,45 +37,50 @@ if [ "$n" -eq 0 ]; then
 else
   fail "old address is back in $n place(s)"
 fi
-# 13 = the original 10, the 504 timeout message added when the lead path was
-# hardened, and two routes added on contact.html when the dead booking CTAs were
-# replaced (the hero's "email me directly" and the post-submit urgent path).
+# 11 = the original 10, plus the 504 timeout message added when the lead path
+# was hardened. (Briefly 13, when contact.html routed to email while the booking
+# link was dead; those reverted once a real Calendly event existed.)
 # Bump this deliberately if a new user-facing route is added.
 n=$(grep -roF 'negotiatorsondemand@gmail.com' \
       --include='*.html' --include='*.js' --include='*.txt' . 2>/dev/null | wc -l)
-if [ "$n" -eq 13 ]; then
-  pass "correct address in all 13 places"
+if [ "$n" -eq 11 ]; then
+  pass "correct address in all 11 places"
 else
-  fail "expected 13 occurrences of the correct address, found $n"
+  fail "expected 11 occurrences of the correct address, found $n"
 fi
 
 echo
 echo "Booking links (regression guard)"
-# The Calendly account has exactly one ACTIVE event type: virtualcoffeewithdan.
-# Confirmed against the Calendly API, not by HTTP status -- calendly.com returns
-# 200 with an empty client-rendered shell for a slug that is deactivated or
-# absent, so a status-code probe reports those as healthy when they are not.
+# Verify a slug against the Calendly API, never by HTTP status: calendly.com
+# returns 200 with an empty client-rendered shell for a slug that is deactivated
+# or absent, so a status-code probe reports those as healthy when they are not.
+# Check for real <meta name="description"> content, or read active:true from the
+# API. State when this list was last confirmed:
 #
-#   corporate-training  no such event      (404)
-#   15min               no such event      (200, empty shell)
-#   30min / 60min       exist but INACTIVE (200, empty shell)
+#   corporate-training-call  ACTIVE, 15min, free   created 2026-08-03
+#   virtualcoffeewithdan     ACTIVE, 60min, paid   the $500 Negotiator Hour
+#   30min / 60min            INACTIVE              (200, empty shell)
+#   corporate-training       never existed         (404)
+#   15min                    never existed         (200, empty shell)
 #
-# Only link a slug after confirming active:true via the API.
-for dead in corporate-training 15min 30min 60min; do
-  n=$(grep -roF "calendly.com/negotiatorsondemand/$dead" \
-        --include='*.html' --include='*.txt' . 2>/dev/null | wc -l)
-  if [ "$n" -eq 0 ]; then
-    pass "no links to non-bookable /$dead"
-  else
-    fail "$n link(s) to non-bookable /$dead"
-  fi
+# Allowlist, not a denylist: extract every Calendly slug the site references and
+# assert each one is a confirmed-active event. A denylist missed that
+# "corporate-training-call" contains "corporate-training" as a substring.
+ACTIVE="corporate-training-call virtualcoffeewithdan"
+used=$(grep -rhoE 'calendly\.com/negotiatorsondemand/[a-z0-9-]+' \
+         --include='*.html' --include='*.txt' . 2>/dev/null \
+       | sed 's|.*/||' | sort -u)
+bad=""
+for slug in $used; do
+  case " $ACTIVE " in
+    *" $slug "*) ;;
+    *) bad="$bad $slug" ;;
+  esac
 done
-n=$(grep -roF 'calendly.com/negotiatorsondemand/virtualcoffeewithdan' \
-      --include='*.html' . 2>/dev/null | wc -l)
-if [ "$n" -gt 0 ]; then
-  pass "Negotiator Hour points at the one active event ($n links)"
+if [ -z "$bad" ]; then
+  pass "every Calendly slug used is active ($(echo "$used" | tr '\n' ' '))"
 else
-  fail "the active virtualcoffeewithdan event is no longer linked"
+  fail "links to non-bookable slug(s):$bad"
 fi
 
 echo
