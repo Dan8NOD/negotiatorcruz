@@ -30,8 +30,17 @@ lacks() {
 }
 
 echo "T1  contact email (fixed — regression guard)"
+# Counts cover what the site publishes, so the test suites are excluded: a
+# spec asserting on the address is not a page a visitor can read, and counting
+# them made this guard fail on the very commit that fixed the specs.
+# practice-lab/ is excluded because it is a staged package for
+# negotiatorsondemand.com, not a route on this site — see its README.
+SCAN_EXCLUDES=(--exclude-dir=test --exclude-dir=e2e --exclude-dir=practice-lab
+               --exclude-dir=node_modules --exclude-dir=.git)
+
 n=$(grep -roF 'negotiationsondemand@gmail.com' \
-      --include='*.html' --include='*.js' --include='*.txt' . 2>/dev/null | wc -l)
+      --include='*.html' --include='*.js' --include='*.txt' \
+      "${SCAN_EXCLUDES[@]}" . 2>/dev/null | wc -l)
 if [ "$n" -eq 0 ]; then
   pass "old address gone"
 else
@@ -42,7 +51,8 @@ fi
 # link was dead; those reverted once a real Calendly event existed.)
 # Bump this deliberately if a new user-facing route is added.
 n=$(grep -roF 'negotiatorsondemand@gmail.com' \
-      --include='*.html' --include='*.js' --include='*.txt' . 2>/dev/null | wc -l)
+      --include='*.html' --include='*.js' --include='*.txt' \
+      "${SCAN_EXCLUDES[@]}" . 2>/dev/null | wc -l)
 if [ "$n" -eq 11 ]; then
   pass "correct address in all 11 places"
 else
