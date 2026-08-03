@@ -1,12 +1,4 @@
-# SPECIMEN CHAPTER
-
-*Written to show the voice, structure, and density of the rewrite before we
-commit 33 chapters to it. Content drawn from the published Protocol material;
-placeholders marked `[NEEDS: ...]` are where Dan's real field material goes.*
-
----
-
-# Chapter 5 — The Label
+# Chapter 6 — Labeling
 
 **Part I · READ**
 
@@ -214,11 +206,11 @@ because they are unremarkable. Say them flatly, the way you'd say the weather.
 
 ---
 
-## FIELD CARD 05 — THE LABEL
+## FIELD CARD 06 — LABELING
 
 ```
 ┌──────────────────────────────────────────────────────────┐
-│  THE LABEL                          Stage 1 · READ       │
+│  LABELING                           Part I · READ        │
 ├──────────────────────────────────────────────────────────┤
 │  Name their emotion out loud. Then stop.                 │
 │                                                          │

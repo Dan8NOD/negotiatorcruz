@@ -115,9 +115,13 @@ strongest single artifact in the whole funnel.
 
 ## 4. The 33 chapters
 
-Proposed re-architecture. Six parts, each mapped to what it's doing in the
-funnel. Final tool→chapter assignment gets locked against the existing
-31-tool catalog once the PDF lands.
+> **Superseded.** The source has now been read in full. The authoritative
+> old→new chapter mapping lives in **`01-SOURCE-AUDIT.md` §4**, built against
+> the actual 1st Edition contents. The part structure below held up; the
+> chapter counts per part shifted to make room for Part V (Applications),
+> which replaces the seven consumer-scenario chapters.
+
+Six parts, each mapped to what it's doing in the funnel.
 
 ### Part 0 — The Standard (Ch 1–3) · *sells the system*
 The most commercially important part of the book. This is what a VP reads
