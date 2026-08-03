@@ -1,7 +1,9 @@
 # The Manual — Rewrite Architecture
 
 **Working title direction:** *The Cruz Protocol: A Field Manual for Commercial Negotiation*
-**Source:** Dan Cruz / Negotiators on Demand (Kindle edition) — PDF pending
+**Source:** Dan Cruz / Negotiators on Demand (Kindle edition) — read in full;
+diagnosis and old→new mapping in `01-SOURCE-AUDIT.md`. Scripted-line and tool
+assets already shipped in the app are inventoried in `02-LABEL-INVENTORY.md`.
 **Job of this book:** raise the price of the author.
 
 ---
@@ -35,18 +37,35 @@ gets on a call. Everything in the rewrite serves that.
 |---|---|---|
 | Memoir / dream | Speaker | $2–5K, one-time, no follow-on |
 | Tips & tactics | Trainer | $5–8K, commodity, price-shopped |
-| **Documented system with rubrics** | **Methodology owner** | **$15–20K install + retainer** |
+| **Documented system with rubrics** | **Methodology owner** | **$40–55K install + retainer** |
 
-The current ladder tops out at $15–20K for the multi-day immersive. A manual
-that reads as infrastructure supports that number without discounting, and
-opens the rung above it that doesn't exist yet: **licensed internal
-certification** — where a client's own managers are certified to run the
-Protocol, and Dan is paid annually rather than per-event.
+**The ladder moved on 2026-08-03.** The published rates are now $1,500/hr for
+the Negotiator Hour, $12,500 for the one-day intensive, and $40–55K for the
+multi-day immersive. Every number here is stated against that ladder, not the
+old $500 / $5K / $15–20K one.
+
+This raises the stakes on the rewrite rather than relaxing them. At $15–20K a
+buyer can approve on impression — it fits inside a director's discretionary
+budget in most organizations. At $40–55K it goes to committee, and a committee
+does not buy an impression. It buys a documented methodology with a named
+implementation plan and an audit instrument, from a person who wrote the
+standard. **The manual is now load-bearing.** It is the artifact that makes a
+$40K line item defensible to someone who will never meet Dan before signing.
+
+That is the whole reason the price could move. A trainer without a manual
+price-shops against every other trainer. A methodology owner with a published
+standard has no comparison set — which is what the rewrite is buying.
+
+The manual also opens the rung above the ladder that doesn't exist yet:
+**licensed internal certification** — where a client's own managers are
+certified to run the Protocol, and Dan is paid annually rather than per-event.
+Chapter 33's scorecard is the proof that rung is real; a rubric a client's own
+manager can run is, by definition, a thing that can be licensed.
 
 Rung 3 is the pivot point of the whole ladder. Right now the site tells
 buyers, correctly, "buy this before you buy anything else from me." That
 means the book is doing the qualifying *and* the pricing. It has to read like
-the $20K thing is the natural next step, not the upsell.
+the $40K thing is the natural next step, not the upsell.
 
 ---
 

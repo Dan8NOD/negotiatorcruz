@@ -1,7 +1,9 @@
 # Rewrite Progress
 
 Working docs: `00-ARCHITECTURE.md` (standard) · `01-SOURCE-AUDIT.md` (diagnosis
-+ old→new mapping, §5 has the settled decisions).
++ old→new mapping, §5 has the settled decisions) · `02-LABEL-INVENTORY.md`
+(the 544 shipped scripted lines and 16 tool write-ups already in Supabase,
+mapped to stages — this is where Section 3 "THE WORDS" comes from).
 
 **Decisions locked:** Stages = the sequence, Levels = the certification ladder ·
 Separate corporate title, consumer 1st Edition stays live.
@@ -21,7 +23,7 @@ Separate corporate title, consumer 1st Edition stays live.
 | 11 | Naming Your Own Weakness First | II · Disarm | — |
 | 12 | The Power of "No" | II · Disarm | — |
 | 13 | Validation | II · Disarm | — |
-| 14 | The Discipline of Not Defending | II · Disarm | — |
+| 14 | The Discipline of Not Defending | II · Disarm | ✅ drafted |
 | 15 | The Calibrated Question | III · Steer | — |
 | 16 | How and What, Never Why | III · Steer | — |
 | 17 | Paraphrase and Summary | III · Steer | — |
@@ -38,9 +40,9 @@ Separate corporate title, consumer 1st Edition stays live.
 | 28 | Claims, Disputes, and Escalation | V · Applications | — |
 | 29 | Negotiating Internally — Up, Down, Sideways | V · Applications | — |
 | 30 | When the Protocol Fails | V · Applications | — |
-| 31 | The 30-Day Rollout | VI · Installation | — |
+| 31 | The 30-Day Rollout | VI · Installation | ✅ drafted |
 | 32 | Coaching the Floor | VI · Installation | — |
-| 33 | The Manager's Scorecard | VI · Installation | — |
+| 33 | The Manager's Scorecard | VI · Installation | ✅ drafted |
 
 **Front/back matter:** not started. Write last — front matter is the Amazon
 "Look Inside" sample and the highest-traffic real estate in the business.
@@ -61,6 +63,11 @@ the places real material has to go in.
 | Ch 6 | Decision on the affect-labeling / fMRI claim carried over from 1st Ed. Ch 7: cite the UCLA research properly, or soften the claim. As written it overreaches. |
 | Front matter | Confirm the credentials line. Site says 1,000+ live sessions since 2024; book intro says five years and 1,000+ sessions. These don't agree — pick one and use it everywhere. |
 | Throughout | Real corporate cases for Part V (renewal, procurement, claims). These chapters are where the buyer sees themselves; invented examples would be obvious. |
+| Ch 14 | Confirm the chapter's scope is the Attack Decoder rather than a broader survey of defending — the audit locked the title, not the contents. |
+| Ch 14 | Three real opening attack lines, one per type (defensive / unheard / tactical), from actual sessions. Invented attacks run too polite and the drill goes soft. |
+| Ch 31 | One real before/after on talk-time ratio or concessions-after-silence from a client floor. The rollout reads as theory without a number that actually moved. |
+| Ch 33 | Real inter-rater data — even two managers × ten tapes — to make the rubric defensible rather than plausible. |
+| Pricing | The ladder moved 2026-08-03 to $1,500 / $12,500 / $40–55K. `00-ARCHITECTURE.md` §1 is updated; anything downstream quoting the old numbers needs the same pass. |
 
 ## Carried over for removal
 
