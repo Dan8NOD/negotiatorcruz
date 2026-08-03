@@ -31,20 +31,63 @@ lacks() {
 
 echo "T1  contact email (fixed — regression guard)"
 n=$(grep -roF 'negotiationsondemand@gmail.com' \
-      --include='*.html' --include='*.js' --include='*.txt' . 2>/dev/null | wc -l)
+      --include='*.html' --include='*.js' --include='*.txt' \
+      --exclude-dir=node_modules . 2>/dev/null | wc -l)
 if [ "$n" -eq 0 ]; then
   pass "old address gone"
 else
   fail "old address is back in $n place(s)"
 fi
 # 11 = the original 10, plus the 504 timeout message added when the lead path
-# was hardened. Bump this deliberately if a new user-facing route is added.
+# was hardened. (Briefly 13, when contact.html routed to email while the booking
+# link was dead; those reverted once a real Calendly event existed.)
+# Bump this deliberately if a new user-facing route is added.
+#
+# Counts shipped files only. test/ and e2e/ also assert this address -- that is
+# the suite doing its job, not a site occurrence, and folding them in here would
+# make the number move whenever coverage changes.
 n=$(grep -roF 'negotiatorsondemand@gmail.com' \
-      --include='*.html' --include='*.js' --include='*.txt' . 2>/dev/null | wc -l)
+      --include='*.html' --include='*.js' --include='*.txt' \
+      --exclude-dir=node_modules --exclude-dir=test --exclude-dir=e2e \
+      . 2>/dev/null | wc -l)
 if [ "$n" -eq 11 ]; then
   pass "correct address in all 11 places"
 else
   fail "expected 11 occurrences of the correct address, found $n"
+fi
+
+echo
+echo "Booking links (regression guard)"
+# Verify a slug against the Calendly API, never by HTTP status: calendly.com
+# returns 200 with an empty client-rendered shell for a slug that is deactivated
+# or absent, so a status-code probe reports those as healthy when they are not.
+# Check for real <meta name="description"> content, or read active:true from the
+# API. State when this list was last confirmed:
+#
+#   corporate-training-call  ACTIVE, 15min, free   created 2026-08-03
+#   virtualcoffeewithdan     ACTIVE, 60min, paid   the $500 Negotiator Hour
+#   30min / 60min            INACTIVE              (200, empty shell)
+#   corporate-training       never existed         (404)
+#   15min                    never existed         (200, empty shell)
+#
+# Allowlist, not a denylist: extract every Calendly slug the site references and
+# assert each one is a confirmed-active event. A denylist missed that
+# "corporate-training-call" contains "corporate-training" as a substring.
+ACTIVE="corporate-training-call virtualcoffeewithdan"
+used=$(grep -rhoE 'calendly\.com/negotiatorsondemand/[a-z0-9-]+' \
+         --include='*.html' --include='*.txt' --exclude-dir=node_modules . 2>/dev/null \
+       | sed 's|.*/||' | sort -u)
+bad=""
+for slug in $used; do
+  case " $ACTIVE " in
+    *" $slug "*) ;;
+    *) bad="$bad $slug" ;;
+  esac
+done
+if [ -z "$bad" ]; then
+  pass "every Calendly slug used is active ($(echo "$used" | tr '\n' ' '))"
+else
+  fail "links to non-bookable slug(s):$bad"
 fi
 
 echo

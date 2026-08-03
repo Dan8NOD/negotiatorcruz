@@ -1,0 +1,21 @@
+# Keep the deployment exactly what it is today: a static site plus the one
+# function in api/. None of the test tooling belongs in the build.
+#
+# package.json is excluded on purpose. Uploading it would make Vercel run an
+# install step it has never needed — api/lead.js is deliberately
+# dependency-free — and @playwright/test would pull a browser download into
+# every deploy. Excluding it keeps Vercel detecting this as a static site,
+# which is the behaviour the site already has in production.
+package.json
+package-lock.json
+playwright.config.js
+
+test/
+e2e/
+node_modules/
+test-results/
+playwright-report/
+coverage/
+
+.github/
+TESTING.md
