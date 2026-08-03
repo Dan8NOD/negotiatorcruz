@@ -36,9 +36,14 @@ weight**, where weight is how much that chapter does before anyone pays:
 | 19 | 18 | Trading: Never Give, Always Swap | 1 | 2 | 2 |
 | 20 | 19 | Anchoring | 1 | 2 | 2 |
 | 21 | 20 | Deadline Dynamics | 1 | 2 | 2 |
-| 22 | 3 | How to Use This Manual | 0 | 3 | 0 |
+| 22 | 21 | No-Oriented Questions | 1 | 2 | 2 |
+| 23 | 22 | The "That's Right" Summary | 1 | 2 | 2 |
+| 24 | 23 | The Fairness Standard | 1 | 2 | 2 |
+| 25 | 24 | Reframing | 1 | 2 | 2 |
+| 26 | 25 | One More Thing | 1 | 2 | 2 |
+| 27 | 3 | How to Use This Manual | 0 | 3 | 0 |
 
-**Total open gaps:** 22 across 22 drafted chapters.
+**Total open gaps:** 27 across 27 drafted chapters.
 
 Undrafted chapters are not listed — their gaps do not exist yet. Ch 26-30
 (Part V) will dominate this table once drafted, which is the argument for

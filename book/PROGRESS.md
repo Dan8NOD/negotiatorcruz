@@ -53,11 +53,11 @@ script boxes should be reconciled against it in the consistency pass.
 | 18 | Trading — Never Give, Always Swap | III · Steer | ✅ drafted |
 | 19 | Anchoring *(retitled)* | III · Steer | ✅ drafted |
 | 20 | Deadline Dynamics | III · Steer | ✅ drafted |
-| 21 | No-Oriented Questions | IV · Close | — |
-| 22 | The "That's Right" Summary | IV · Close | — |
-| 23 | "Fair" and Multiple Offers | IV · Close | — |
-| 24 | Reframing | IV · Close | — |
-| 25 | The Six-Second Hold | IV · Close | — |
+| 21 | No-Oriented Questions | IV · Close | ✅ drafted |
+| 22 | The "That's Right" Summary | IV · Close | ✅ drafted |
+| 23 | The Fairness Standard *(retitled)* | IV · Close | ✅ drafted |
+| 24 | Reframing | IV · Close | ✅ drafted |
+| 25 | One More Thing *(retitled)* | IV · Close | ✅ drafted |
 | 26 | The Renewal and the Price Increase | V · Applications | — |
 | 27 | Procurement and the Committee You Can't See | V · Applications | — |
 | 28 | Claims, Disputes, and Escalation | V · Applications | — |
@@ -97,6 +97,9 @@ the places real material has to go in.
 | Steer leftovers | Four Steer families still have no chapter: `vision` (13), `belief` (13), `focus` (12), `elevation` (12) — 50 lines. `vision` likely merges into Ch 24 (Reframing); the other three need a decision. |
 | Ch 19 | **Retitle confirmation.** Locked map said "The Ackerman System" (from 1st Ed Ch 13). Checked the catalog *before* drafting this time — the shipped families are `anchor` (probing their number) and `bracket` (ranges). Ackerman is one move inside anchoring, not the subject. Retitled to **Anchoring**, widened to probe/bracket/set, with the ladder kept as a section. |
 | Gaps | `GAP-INTAKE.md` turns all 22 open gaps into questions to answer rather than prose to write. Answer six questions per chapter, in fragments, out of order — that's enough to draft from. |
+| Ch 23 | **Retitle.** Map said "'Fair' and Multiple Offers." The shipped `fairness` family is not the F-word as leverage — all 12 lines are *you offering fairness as a standing invitation to be corrected*. MESO has no shipped lines at all. Retitled **The Fairness Standard**. |
+| Ch 25 | **Retitle.** Map said "The Six-Second Hold," but that is already taught in Ch 8 and Ch 15; a third pass is repetition. The `onemore` family had no chapter and is the move that finishes a negotiation. Retitled **One More Thing**. |
+| **`belief` family** | **Needs a decision — this is the standout unhoused material.** 13 lines, and they are not commercial negotiation: *"It seems like somewhere along the way, you started believing you don't get to ask for what you actually want."* The trigger names core beliefs — uselessness, hopelessness, worthlessness. This is the deepest writing in the whole catalog and it has no home in the locked map. Options: an advanced chapter of its own, fold into Ch 29 (Negotiating Internally), or hold it for a second book. It should not be quietly absorbed. |
 | Pricing | The ladder moved 2026-08-03 to $1,500 / $12,500 / $40–55K. `00-ARCHITECTURE.md` §1 is updated; anything downstream quoting the old numbers needs the same pass. |
 | Front/back matter, Ch 24 | **Dream-material removal — not yet verified, because nothing it applies to has been drafted.** When these get written, confirm: no "Dream Spine" framing survives in front matter (the underlying doctrine may, per audit §2.2, but not the dream language); "The Unseen Layer" does not appear anywhere in back matter; and if the `vision` family (Power of Hopes & Dreams, 13 lines) merges into Ch 24, it's reworded into corporate outcome/objective language rather than ported over with the consumer-edition "dream" framing intact. This is a plan today, not a diff — check the actual draft against this list, don't assume the removal list did the work. |
 
