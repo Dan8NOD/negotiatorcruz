@@ -158,6 +158,46 @@ never held up waiting on Resend.
 
 ---
 
+---
+
+## Route C — the existing `claude-webhook` Edge Function
+
+The project already has a `claude-webhook` function. As of this writing it is a
+receiver stub: it validates the JSON, logs the payload, and returns
+`{"ok":true,"received":true}`. Useful as a wiring target while you build the
+notification out, since the Edge Function logs give you a record of every lead
+even before an alert exists.
+
+**It has `verify_jwt: true`, which will silently break a database webhook
+pointed at it.** An unauthenticated call gets:
+
+```
+HTTP 401  {"code":"UNAUTHORIZED_NO_AUTH_HEADER","message":"Missing authorization header"}
+```
+
+Two ways round it, both fine:
+
+- **Add the header to the hook.** In the webhook's HTTP Headers section add
+  `Authorization: Bearer <anon key>`. The anon key is safe here — it grants no
+  more than the browser already has.
+- **Turn `verify_jwt` off** for that function, which is what the project's other
+  receivers (`stripe-webhook`, `subscribe-convertkit`, `broker`) already do. If
+  you do this, the function is publicly callable, so it should verify a shared
+  secret header of its own before acting on a payload.
+
+Confirmed working with the anon key:
+
+```bash
+curl -X POST "https://iubxycckgrplbpdbncfk.supabase.co/functions/v1/claude-webhook" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <anon key>" \
+  -d '{"message":"hello from claude"}'
+# {"ok":true,"received":true}
+```
+
+Note this route logs but does not notify. To get an actual alert it still needs
+a send step — either extend the function to call Resend, or use Route A/B.
+
 ## Confirm it works
 
 Submit the real form at `/contact` with your own address. The alert should
