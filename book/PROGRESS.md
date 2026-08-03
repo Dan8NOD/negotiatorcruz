@@ -26,10 +26,10 @@ script boxes should be reconciled against it in the consistency pass.
 | 7 | Mirroring | I · Read | ✅ drafted |
 | 8 | Tactical Silence | I · Read | ✅ drafted |
 | 9 | Reading the Decision Structure | I · Read | ✅ drafted |
-| 10 | The Accusation Audit | II · Disarm | — |
-| 11 | Naming Your Own Weakness First | II · Disarm | — |
-| 12 | The Power of "No" | II · Disarm | — |
-| 13 | Validation | II · Disarm | — |
+| 10 | The Accusation Audit | II · Disarm | ✅ drafted |
+| 11 | The Negative Label *(retitled)* | II · Disarm | ✅ drafted |
+| 12 | The Power of "No" | II · Disarm | ✅ drafted |
+| 13 | Validation | II · Disarm | ✅ drafted |
 | 14 | The Discipline of Not Defending | II · Disarm | ✅ drafted |
 | 15 | The Calibrated Question | III · Steer | — |
 | 16 | How and What, Never Why | III · Steer | — |
@@ -74,6 +74,8 @@ the places real material has to go in.
 | Ch 14 | Three real opening attack lines, one per type (defensive / unheard / tactical), from actual sessions. Invented attacks run too polite and the drill goes soft. |
 | Ch 31 | One real before/after on talk-time ratio or concessions-after-silence from a client floor. The rollout reads as theory without a number that actually moved. |
 | Ch 33 | Real inter-rater data — even two managers × ten tapes — to make the rubric defensible rather than plausible. |
+| Ch 11 | **Retitle confirmation.** Locked map said "Naming Your Own Weakness First." The shipped `negatives` family (25 lines) is broader — it names the bad thing in the room whoever it belongs to, not just your own weakness. Retitled to **The Negative Label** to match the material. Revert if you'd rather keep the original scope. |
+| Ch 30 | The `acknowledge` family (12 lines) has no home in the current map. Every line names deadlock — *"Sounds like that's a no," "It looks like there's nothing I can say to change your mind."* That is Ch 30 (When the Protocol Fails) material and it should live there. Confirm. |
 | Pricing | The ladder moved 2026-08-03 to $1,500 / $12,500 / $40–55K. `00-ARCHITECTURE.md` §1 is updated; anything downstream quoting the old numbers needs the same pass. |
 
 ---
