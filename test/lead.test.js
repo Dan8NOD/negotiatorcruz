@@ -9,6 +9,10 @@
 
 'use strict';
 
+// Unique, well-formed addresses for ceiling tests (RFC 5737 / RFC 1918 space).
+const floodIp = (i) =>
+  `10.${Math.floor(i / 65536) % 256}.${Math.floor(i / 256) % 256}.${i % 256}`;
+
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 
@@ -119,52 +123,46 @@ describe('throttle', () => {
     assert.equal(res.statusCode, 429);
   });
 
-  test('a flood of fresh IPs does not clear an active offender\'s history', async () => {
-    // This used to assert the opposite, and was right to flag it: the ceiling
-    // called HITS.clear(), so anyone cycling addresses past it also wiped the
-    // history of whoever was already being throttled — handing an attacker a
-    // clean slate at the exact moment the limit mattered. api/lead.js now
-    // evicts least-recently-seen instead, which is the per-key eviction the
-    // original version of this test suggested as the fix.
+  test('an idle visitor is evicted once the map passes its ceiling', async () => {
+    // api/lead.js bounds memory at CEILING entries by evicting the
+    // least-recently-seen IPs. A visitor who stopped submitting before the
+    // flood is exactly that, so their history goes and their next request is
+    // clean. Best-effort throttle on an ephemeral instance — acceptable, but a
+    // real property that should not change by accident.
     stubFetch();
-    const offender = '198.51.100.12';
+    const victim = '198.51.100.12';
+    for (let i = 0; i < 5; i++) await call({ body: valid(), ip: victim });
 
-    // Use the offender's full quota, then keep them active while a flood of
-    // unrelated addresses pushes the map past its ceiling. Staying active is
-    // the point: LRU evicts the idle, which is the behaviour we want.
-    for (let i = 0; i < 5; i++) await call({ body: valid(), ip: offender });
-
-    let blocked = 0;
-    const attempts = 40;
-    for (let i = 0; i < attempts; i++) {
-      for (let j = 0; j < 60; j++) {
-        await call({ body: valid(), ip: `192.0.2.${j}.${i}` });
-      }
-      const res = await call({ body: valid(), ip: offender });
-      if (res.statusCode === 429) blocked += 1;
+    // One more from the victim would be the 6th and get a 429. First push the
+    // map past CEILING (2000) with unrelated addresses so the idle victim,
+    // now the least-recently-seen key, is evicted.
+    for (let i = 0; i < 2100; i++) {
+      await call({ body: valid(), ip: floodIp(i) });
     }
 
-    assert.ok(
-      blocked > attempts * 0.9,
-      `offender was let through ${attempts - blocked}/${attempts} times after a flood`
-    );
+    const res = await call({ body: valid(), ip: victim });
+    assert.equal(res.statusCode, 200, 'an idle visitor should have been evicted by the flood');
   });
 
-  test('an idle IP is the one evicted when the ceiling is crossed', async () => {
-    // The flip side of the rule above: eviction has to fall on someone, and it
-    // should fall on visitors who have gone quiet rather than on live traffic.
+  test('an active offender survives a flood of unique IPs', async () => {
+    // This is the property the ceiling exists to protect, and the one the
+    // previous flat HITS.clear() got backwards: a burst of unique addresses
+    // used to wipe every counter, handing whoever was hammering the endpoint a
+    // clean slate at the exact moment the limit mattered. Eviction is by
+    // recency now, so an offender who keeps submitting stays at the recent end
+    // of the map and keeps their count.
     stubFetch();
-    const idle = '198.51.100.99';
-    for (let i = 0; i < 5; i++) await call({ body: valid(), ip: idle });
+    const offender = '198.51.100.99';
+    for (let i = 0; i < 5; i++) await call({ body: valid(), ip: offender });
 
-    // 2000 is the ceiling in api/lead.js; comfortably exceed it while the idle
-    // address sends nothing at all.
+    // Flood past the ceiling, but keep the offender active throughout.
     for (let i = 0; i < 2100; i++) {
-      await call({ body: valid(), ip: `203.0.113.${i % 256}.${Math.floor(i / 256)}` });
+      await call({ body: valid(), ip: floodIp(i) });
+      if (i % 100 === 0) await call({ body: valid(), ip: offender });
     }
 
-    const res = await call({ body: valid(), ip: idle });
-    assert.equal(res.statusCode, 200, 'an IP that went quiet should have been evicted');
+    const res = await call({ body: valid(), ip: offender });
+    assert.equal(res.statusCode, 429, 'a flood of unique IPs cleared an active offender');
   });
 
   test('a missing x-forwarded-for falls back to a shared "unknown" bucket', async () => {
