@@ -14,8 +14,8 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..', '..');
 const ORIGIN = 'https://negotiatorcruz.com';
 
-/** Every top-level page, with the public route Vercel's cleanUrls serves it at. */
-const PAGES = fs
+/** Every top-level HTML file, indexed or not. */
+const ALL_PAGES = fs
   .readdirSync(ROOT)
   .filter((f) => f.endsWith('.html'))
   .sort()
@@ -26,6 +26,22 @@ const PAGES = fs
       return read(file);
     },
   }));
+
+/**
+ * Every *indexed* page — the ones that are part of the public site.
+ *
+ * Pages carrying `robots: noindex` are deliberately excluded. The suites that
+ * consume PAGES assert indexed-content invariants: a canonical link, an entry
+ * in sitemap.xml, reachability from the home page nav, a full Open Graph set.
+ * An error page satisfies none of those *by design* — it must not be in the
+ * sitemap, nothing should link to it, and a canonical for /404 would be wrong.
+ *
+ * This is derived from the page's own robots meta rather than a hardcoded
+ * filename list, so the next noindex page added is handled without touching
+ * this file. 404.html was added without that exclusion existing, which is what
+ * turned ten of these assertions red on main.
+ */
+const PAGES = ALL_PAGES.filter((p) => !/<meta\s+name=["']robots["'][^>]*noindex/i.test(p.html));
 
 function read(file) {
   return fs.readFileSync(path.join(ROOT, file), 'utf8');
@@ -76,6 +92,7 @@ module.exports = {
   ROOT,
   ORIGIN,
   PAGES,
+  ALL_PAGES,
   read,
   exists,
   attrs,
