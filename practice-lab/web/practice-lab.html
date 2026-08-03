@@ -215,7 +215,7 @@
 <script type="module">
 import {
   SKUS, SEAT_SKUS, DURATION_HOURS, DEFAULT_SEAT_CAP, formatCents,
-  cohortAmountCents, YOUTUBE_URL,
+  cohortAmountCents, YOUTUBE_URL, REMIT_TO,
 } from '/practice-lab/pricing.js';
 
 // Supabase connection. NOD-ify already defines this globally on its other
@@ -254,10 +254,29 @@ function show(el, text, kind) {
 
 let sessions = [];
 
+/**
+ * Three different things leave this page with no session on screen, and only
+ * one of them is "there isn't one yet".
+ *
+ * Reporting a failed fetch as "dates being finalised" is the expensive
+ * mistake: a session may be open and on sale, and the visitor is told it does
+ * not exist and given nothing to do about it. On the page whose entire job is
+ * capturing the one buyer in the room, that loses the sale outright and looks
+ * like nothing went wrong. A misconfigured key is the same lie for the same
+ * reason — we cannot see the sessions, so we must not claim there are none.
+ */
+function showLoadFailure() {
+  $('session-when').textContent = 'We could not load the next session just now.';
+  $('session-seats').innerHTML =
+    'Please refresh, or <a href="mailto:' + REMIT_TO.email + '">email us</a> ' +
+    'and we will hold you a seat.';
+  $('session-price').textContent = '';
+  $('book-btn').disabled = true;
+}
+
 async function loadSessions() {
   if (!SB_KEY) {
-    $('session-when').textContent = 'Session dates are being finalised.';
-    return;
+    throw new Error('Supabase publishable key is not configured on this page');
   }
   const res = await fetch(
     `${SB_URL}/rest/v1/sessions?status=eq.open&order=starts_at.asc&select=id,title,starts_at,seat_cap`,
@@ -378,7 +397,7 @@ $('i-submit').addEventListener('click', async () => {
 
 loadSessions().catch((err) => {
   console.error(err);
-  $('session-when').textContent = 'Session dates are being finalised.';
+  showLoadFailure();
 });
 </script>
 </body>
