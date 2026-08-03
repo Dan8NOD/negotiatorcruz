@@ -108,8 +108,8 @@ in that phase — you're simply the only one who knows it isn't.
 backwards from it. Everything between that review and this call happened
 without you, and you can ask about it.
 
-**"Marcus in finance has some questions."** A name you didn't have. Marcus is
-now the most important person in the deal and you have never spoken to him.
+**"Rachel in finance has some questions."** A name you didn't have. Rachel is
+now the most important person in the deal and you have never spoken to them.
 Chapter 9 is about what to do next.
 
 **"We're just gathering information right now."** Almost never true, and it's

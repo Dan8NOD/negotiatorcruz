@@ -20,12 +20,12 @@ script boxes should be reconciled against it in the consistency pass.
 | 1 | The Negotiation Is Already Running | 0 · Standard | ✅ drafted |
 | 2 | The Four Stages | 0 · Standard | ✅ drafted |
 | 3 | How to Use This Manual | 0 · Standard | ✅ drafted |
-| 4 | Diagnose Before You Ask | I · Read | — |
-| 5 | The Emotion Vocabulary | I · Read | — |
+| 4 | Diagnose Before You Ask | I · Read | ✅ drafted |
+| 5 | The Emotion Vocabulary | I · Read | ✅ drafted |
 | 6 | Labeling | I · Read | ✅ drafted |
-| 7 | Mirroring | I · Read | — |
-| 8 | Tactical Silence | I · Read | — |
-| 9 | Reading the Decision Structure | I · Read | — |
+| 7 | Mirroring | I · Read | ✅ drafted |
+| 8 | Tactical Silence | I · Read | ✅ drafted |
+| 9 | Reading the Decision Structure | I · Read | ✅ drafted |
 | 10 | The Accusation Audit | II · Disarm | — |
 | 11 | Naming Your Own Weakness First | II · Disarm | — |
 | 12 | The Power of "No" | II · Disarm | — |
@@ -68,13 +68,66 @@ the places real material has to go in.
 | Ch 2 | A deal that stalled because a stage was skipped — ideally Disarm — and what changed when the sequence ran in order. |
 | Ch 6 | A negotiation where a label surfaced an obstacle nobody had stated. Corporate, committee behind it. |
 | Ch 6 | Decision on the affect-labeling / fMRI claim carried over from 1st Ed. Ch 7: cite the UCLA research properly, or soften the claim. As written it overreaches. |
-| Front matter | Confirm the credentials line. Site says 1,000+ live sessions since 2024; book intro says five years and 1,000+ sessions. These don't agree — pick one and use it everywhere. |
-| Throughout | Real corporate cases for Part V (renewal, procurement, claims). These chapters are where the buyer sees themselves; invented examples would be obvious. |
+| ~~Front matter~~ | ~~Confirm the credentials line.~~ **RESOLVED** — see Credentials below. |
+| ~~Throughout~~ | ~~Real corporate cases for Part V.~~ **RESOLVED** — Dan is supplying real cases. See Part V rule below. |
 | Ch 14 | Confirm the chapter's scope is the Attack Decoder rather than a broader survey of defending — the audit locked the title, not the contents. |
 | Ch 14 | Three real opening attack lines, one per type (defensive / unheard / tactical), from actual sessions. Invented attacks run too polite and the drill goes soft. |
 | Ch 31 | One real before/after on talk-time ratio or concessions-after-silence from a client floor. The rollout reads as theory without a number that actually moved. |
 | Ch 33 | Real inter-rater data — even two managers × ten tapes — to make the rubric defensible rather than plausible. |
 | Pricing | The ladder moved 2026-08-03 to $1,500 / $12,500 / $40–55K. `00-ARCHITECTURE.md` §1 is updated; anything downstream quoting the old numbers needs the same pass. |
+
+---
+
+## Credentials — settled
+
+Practice began during Covid. **Seven years of deliberate practice, five of them
+hosting weekly sessions.** Use that formulation, or a subset of it, everywhere —
+front matter, back matter, site, and any evidence block that reaches for
+authority.
+
+Two things to keep straight, because they are different claims:
+
+- *Seven years* is the practice. It starts at Covid and runs to now.
+- *Five years* is the hosting — the Saturday sessions, the 1,000+ live reps,
+  the part with witnesses.
+
+Do **not** write "since 2024." That number is on the site now and it
+undersells the record by three years. The 1st Edition's "five years and 1,000+
+sessions" was closer but conflated practice with hosting. The corrected line
+is the one above, and it should replace both.
+
+## Part V — real cases only
+
+Dan is supplying the case material for Chapters 26–30 himself. No invented
+scenarios, no composites, no illustrative-but-fictional client stories. Where a
+case is missing, the slot stays a `[NEEDS:]` flag until real material arrives —
+an empty flag is honest, a plausible invention is not, and Part V is precisely
+where a corporate reader would catch the difference.
+
+This extends the standing no-fabrication rule; it does not replace it. The rule
+applies to every chapter. Part V is called out because it's the part most
+likely to tempt a writer into filling a gap.
+
+## Contact route — settled
+
+The `negotiationsondemand@gmail.com` address is **not a typo** and should not be
+corrected anywhere. Previously listed for removal in error; struck below.
+
+Dan's preference is to route people to a **short domain** rather than an email
+address. `negotiatorsondemand.com` is long and hard to spell out loud, which is
+the actual problem being solved.
+
+**Recommendation:** use `negotiatorcruz.com`. It is fourteen characters shorter
+than negotiatorsondemand.com, it is already the corporate brand this manual
+belongs to, and it is spellable on a phone call in one pass. `nodnews.com` is
+shorter still but it is a news property — sending a corporate buyer there
+mid-decision lands them somewhere with different intent and no booking path.
+Keep nodnews for what it is.
+
+One caveat for the site specifically: the contact-form failure message needs a
+route that isn't the thing that just failed. A domain works; a Calendly link
+works better, since it's a separate system and can't be down for the same
+reason. `[NEEDS: Dan's call on the exact string]`
 
 ## Carried over for removal
 
@@ -87,6 +140,6 @@ Tracked so nothing gets missed in the final pass:
   Tactics" / "covert persuasion". Contradicts the Pledge (audit §2.5)
 - Consumer level tests (free coffee, free upgrade) — replace with corporate
   certification tests per Ch 2's Level table
-- `negotiationsondemand@gmail.com` in the front matter — typo, should be
-  `negotiatorsondemand@gmail.com`. Same typo is currently baked into the site's
-  test suite; flagged on PR #6.
+- ~~`negotiationsondemand@gmail.com` in the front matter~~ — **struck.** Not a
+  typo. Confirmed by Dan; leave every instance alone. See "Contact route" above
+  for the separate question of routing people to a short domain instead.
