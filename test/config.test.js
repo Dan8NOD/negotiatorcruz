@@ -32,10 +32,16 @@ describe('vercel.json', () => {
 });
 
 describe('security headers', () => {
-  const global = (vercel.headers || []).find((h) => h.source === '/:path*');
+  const headers = vercel.headers || [];
+  const global = headers.find((h) => h.source === '/(.*)' || h.source === '/:path*');
+  const root = headers.find((h) => h.source === '/');
 
   test('a header rule covers every path', () => {
-    assert.ok(global, 'no /:path* header block in vercel.json');
+    assert.ok(global, 'no catch-all security header block in vercel.json');
+  });
+
+  test('a header rule covers the homepage', () => {
+    assert.ok(root, 'no / security header block in vercel.json');
   });
 
   const expected = {
@@ -49,6 +55,12 @@ describe('security headers', () => {
       const found = global.headers.find((h) => h.key === key);
       assert.ok(found, `${key} is not set`);
       assert.equal(found.value, value);
+
+      if (root) {
+        const rootFound = root.headers.find((h) => h.key === key);
+        assert.ok(rootFound, `${key} is not set on /`);
+        assert.equal(rootFound.value, value);
+      }
     });
   }
 
@@ -62,6 +74,19 @@ describe('security headers', () => {
         new RegExp(`${feature}=\\(\\)`),
         `${feature} is not disabled`
       );
+    }
+
+    if (root) {
+      const rootPolicy = root.headers.find((h) => h.key === 'Permissions-Policy');
+      assert.ok(rootPolicy, 'Permissions-Policy is not set on /');
+
+      for (const feature of ['camera', 'microphone', 'geolocation']) {
+        assert.match(
+          rootPolicy.value,
+          new RegExp(`${feature}=\\(\\)`),
+          `${feature} is not disabled on /`
+        );
+      }
     }
   });
 });
