@@ -24,6 +24,8 @@ script boxes should be reconciled against it in the consistency pass.
 - `audio/` — **generated.** Narration scripts, one `.txt` per segment. Markdown
   stripped, tables spoken as sentences, script boxes read as quotes, dialogue
   rendered as "They say / You say", ASCII field cards omitted as visual-only.
+- `GAP-INTAKE.md` — the extraction questions for every open gap. Answer these
+  rather than writing cases.
 - `GAP-INDEX.md` — **generated.** Where real material is still needed, ranked by
   gaps × commercial weight.
 - `tools/build.py` — regenerates `audio/` and `GAP-INDEX.md`. Run after editing
@@ -48,9 +50,9 @@ script boxes should be reconciled against it in the consistency pass.
 | 15 | The Calibrated Question | III · Steer | ✅ drafted |
 | 16 | The Asking Label *(retitled)* | III · Steer | ✅ drafted |
 | 17 | Paraphrase and Summary | III · Steer | ✅ drafted |
-| 18 | Trading — Never Give, Always Swap | III · Steer | — |
-| 19 | The Ackerman System | III · Steer | — |
-| 20 | Deadline Dynamics | III · Steer | — |
+| 18 | Trading — Never Give, Always Swap | III · Steer | ✅ drafted |
+| 19 | Anchoring *(retitled)* | III · Steer | ✅ drafted |
+| 20 | Deadline Dynamics | III · Steer | ✅ drafted |
 | 21 | No-Oriented Questions | IV · Close | — |
 | 22 | The "That's Right" Summary | IV · Close | — |
 | 23 | "Fair" and Multiple Offers | IV · Close | — |
@@ -93,6 +95,8 @@ the places real material has to go in.
 | Ch 16 | **Retitle confirmation.** Locked map said "How and What, Never Why." That's a grammar rule, not a chapter — it governs every calibrated question and now lives inside Ch 15. The shipped `asking` family (10 lines) had no home and is a genuinely distinct tool: get the answer without asking the question. Retitled to **The Asking Label**. Second instance of the same drift — see Ch 11. |
 | Mapping | **Pattern worth noting.** Both retitles (Ch 11, Ch 16) are slots the audit described as "Ch N expanded" — invented before the shipped catalog was available. The remaining un-drafted "expanded" slots should be checked against their families before drafting, not after. |
 | Steer leftovers | Four Steer families still have no chapter: `vision` (13), `belief` (13), `focus` (12), `elevation` (12) — 50 lines. `vision` likely merges into Ch 24 (Reframing); the other three need a decision. |
+| Ch 19 | **Retitle confirmation.** Locked map said "The Ackerman System" (from 1st Ed Ch 13). Checked the catalog *before* drafting this time — the shipped families are `anchor` (probing their number) and `bracket` (ranges). Ackerman is one move inside anchoring, not the subject. Retitled to **Anchoring**, widened to probe/bracket/set, with the ladder kept as a section. |
+| Gaps | `GAP-INTAKE.md` turns all 22 open gaps into questions to answer rather than prose to write. Answer six questions per chapter, in fragments, out of order — that's enough to draft from. |
 | Pricing | The ladder moved 2026-08-03 to $1,500 / $12,500 / $40–55K. `00-ARCHITECTURE.md` §1 is updated; anything downstream quoting the old numbers needs the same pass. |
 
 ---

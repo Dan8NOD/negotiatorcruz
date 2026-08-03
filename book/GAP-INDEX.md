@@ -33,9 +33,12 @@ weight**, where weight is how much that chapter does before anyone pays:
 | 16 | 15 | The Calibrated Question | 1 | 2 | 2 |
 | 17 | 16 | The Asking Label | 1 | 2 | 2 |
 | 18 | 17 | Paraphrase and Summary | 1 | 2 | 2 |
-| 19 | 3 | How to Use This Manual | 0 | 3 | 0 |
+| 19 | 18 | Trading: Never Give, Always Swap | 1 | 2 | 2 |
+| 20 | 19 | Anchoring | 1 | 2 | 2 |
+| 21 | 20 | Deadline Dynamics | 1 | 2 | 2 |
+| 22 | 3 | How to Use This Manual | 0 | 3 | 0 |
 
-**Total open gaps:** 19 across 19 drafted chapters.
+**Total open gaps:** 22 across 22 drafted chapters.
 
 Undrafted chapters are not listed — their gaps do not exist yet. Ch 26-30
 (Part V) will dominate this table once drafted, which is the argument for

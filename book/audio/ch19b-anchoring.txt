@@ -1,0 +1,63 @@
+Chapter 19 - Anchoring
+
+Part 2 of 2 · The Practice
+
+Part III · STEER
+
+Part 1 of 2 covers the standard, when to reach for it, the words, and what good sounds like.
+
+The drill
+
+"Where's It From." Twenty minutes, pairs.
+The counterpart states a number and a one-line justification. Real ones from
+ real deals.
+The operator may only use anchor probes. Four minutes, no counter-offers, no
+ defending their own price.
+Goal: get the counterpart to say what the number is genuinely built on - or
+ to admit it isn't built on anything.
+Then the bracket round: the operator must obtain a range without naming a
+ figure.
+Swap. Compare how many numbers survived the probe.
+
+Most rooms discover that a third to a half of the numbers they've been treating
+as constraints dissolve under two questions. That discovery does more for a
+floor's confidence than any amount of anchoring theory.
+
+Scored on
+
+Metric: Probe before counter. Target: Every counterpart number probed before any counter-offer. Binary.
+
+Metric: Numbers that dissolved. Target: Count of figures that changed or lost their justification under probing. Track monthly.
+
+Metric: Range obtained. Target: A range in the counterpart's words before either side names a point. Binary.
+
+Metric: Ladder discipline. Target: Concessions decelerate. Any equal or growing step scores as a failure.
+
+Metric: Non-round final. Target: Final number is precise, not round. Binary.
+
+Metric: Trades between steps. Target: Each ladder step paired with an ask. Zero unreciprocated steps.
+
+Failure mode
+
+Countering a number you never tested. They say sixty. The rep, trained to
+never accept the first offer, counters at seventy-five - and in doing so has
+accepted that sixty is a real number and that this negotiation is about the gap
+between two figures.
+
+It might not have been a real number. Two questions would have established
+that. Instead the rep has legitimized the anchor and converted a conversation
+about value into arithmetic, which is the terrain where the buyer with the
+tighter constraint always wins.
+
+What it looks like on tape: a counter-offer inside sixty seconds of their
+number, with no question in between.
+
+The recovery: you can still probe after countering, but you must own the
+sequence.
+
+Quote. I jumped to a counter without asking the obvious thing. Where did the sixty come from? End quote.
+
+The second failure mode: even concessions. The rep moves 10, then 10, then
+From the buyer's chair that is not a floor, it is a rate - and the correct
+response to a rate is to keep asking. Every equal step you take is a promise
+that another one exists.
