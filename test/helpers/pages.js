@@ -14,18 +14,33 @@ const path = require('node:path');
 const ROOT = path.resolve(__dirname, '..', '..');
 const ORIGIN = 'https://negotiatorcruz.com';
 
-/** Every top-level page, with the public route Vercel's cleanUrls serves it at. */
-const PAGES = fs
+/**
+ * Error documents are not content pages, and the difference is not cosmetic:
+ * they carry `noindex` and deliberately have no canonical, stay out of the
+ * sitemap, and are unreachable from the nav. Running the per-page content
+ * assertions against them fails on every one of those properties — for being
+ * correct. They get their own suite instead; see ERROR_PAGES.
+ */
+const ERROR_FILES = new Set(['404.html']);
+
+const asPage = (file) => ({
+  file,
+  route: file === 'index.html' ? '/' : '/' + file.replace(/\.html$/, ''),
+  get html() {
+    return read(file);
+  },
+});
+
+const ALL_HTML = fs
   .readdirSync(ROOT)
   .filter((f) => f.endsWith('.html'))
-  .sort()
-  .map((file) => ({
-    file,
-    route: file === 'index.html' ? '/' : '/' + file.replace(/\.html$/, ''),
-    get html() {
-      return read(file);
-    },
-  }));
+  .sort();
+
+/** Every indexable page, with the public route Vercel's cleanUrls serves it at. */
+const PAGES = ALL_HTML.filter((f) => !ERROR_FILES.has(f)).map(asPage);
+
+/** Error documents, held to their own rules. */
+const ERROR_PAGES = ALL_HTML.filter((f) => ERROR_FILES.has(f)).map(asPage);
 
 function read(file) {
   return fs.readFileSync(path.join(ROOT, file), 'utf8');
@@ -76,6 +91,7 @@ module.exports = {
   ROOT,
   ORIGIN,
   PAGES,
+  ERROR_PAGES,
   read,
   exists,
   attrs,

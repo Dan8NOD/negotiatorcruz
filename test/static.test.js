@@ -14,8 +14,9 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { ROOT, ORIGIN, PAGES, read, exists, attrs, canonical, markupOnly } =
-  require('./helpers/pages.js');
+const {
+  ROOT, ORIGIN, PAGES, ERROR_PAGES, read, exists, attrs, meta, title, canonical, markupOnly,
+} = require('./helpers/pages.js');
 const { resolveFile } = require('./helpers/static-server.js');
 
 const ROUTES = PAGES.map((p) => p.route);
@@ -110,10 +111,59 @@ describe('canonical URLs', () => {
     }
   });
 
-  test('the canonical origin matches the domain in CNAME', () => {
-    const domain = read('CNAME').trim();
-    assert.equal(ORIGIN, `https://${domain}`);
+  test('every canonical, og:url and sitemap entry shares one origin', () => {
+    // This used to read the domain out of CNAME. That file was a GitHub Pages
+    // artifact and was removed once it was confirmed Vercel serves the domain,
+    // so there is no longer a single file naming it. Cross-checking the three
+    // places the origin actually appears is a stronger check anyway: a stray
+    // http:// or a www. drift shows up here rather than passing silently.
+    const urls = [
+      ...PAGES.map((p) => canonical(p.html)),
+      ...PAGES.map((p) => meta(p.html, 'og:url')),
+      ...(read('sitemap.xml').match(/<loc>([^<]+)<\/loc>/g) || []).map((l) =>
+        l.replace(/<\/?loc>/g, '')
+      ),
+    ].filter(Boolean);
+
+    assert.ok(urls.length >= PAGES.length * 3, 'expected a canonical, og:url and sitemap entry per page');
+    for (const url of urls) {
+      assert.ok(url.startsWith(ORIGIN + '/'), `${url} does not start with ${ORIGIN}`);
+    }
   });
+});
+
+describe('error documents', () => {
+  for (const page of ERROR_PAGES) {
+    test(`${page.file} is marked noindex`, () => {
+      assert.match(meta(page.html, 'robots') || '', /noindex/);
+    });
+
+    test(`${page.file} declares no canonical`, () => {
+      // A canonical on an error page tells search engines the URL they hit is
+      // the authoritative version of something. It is not.
+      assert.equal(canonical(page.html), null);
+    });
+
+    test(`${page.file} stays out of the sitemap`, () => {
+      const locs = read('sitemap.xml');
+      assert.ok(!locs.includes(page.route), `${page.route} should not be advertised`);
+    });
+
+    test(`${page.file} still carries a title and a usable description`, () => {
+      assert.ok((title(page.html) || '').length > 10, 'error pages still get a real title');
+      assert.ok(
+        (meta(page.html, 'description') || '').length >= 50,
+        'description should say what happened and where to go'
+      );
+    });
+
+    test(`${page.file} offers a route back into the site`, () => {
+      // The whole point of a custom 404: a dead end costs the visitor.
+      const links = attrs(markupOnly(page.html), 'href').filter((h) => h.startsWith('/'));
+      assert.ok(links.includes('/'), 'should link home');
+      assert.ok(links.includes('/contact'), 'should offer the booking route');
+    });
+  }
 });
 
 describe('sitemap.xml', () => {

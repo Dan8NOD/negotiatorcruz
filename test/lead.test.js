@@ -63,7 +63,7 @@ describe('configuration guard', () => {
   test('the 503 blames the site, not the visitor, and offers a way through', async () => {
     stubFetch();
     const res = await call({ body: valid(), noEnv: true });
-    assert.match(res.body.error, /negotiationsondemand@gmail\.com/);
+    assert.match(res.body.error, /negotiatorsondemand@gmail\.com/);
     assert.doesNotMatch(res.body.error, /invalid|required|wrong/i);
   });
 });
@@ -119,24 +119,52 @@ describe('throttle', () => {
     assert.equal(res.statusCode, 429);
   });
 
-  test('crossing 500 tracked IPs resets everyone rather than growing forever', async () => {
-    // The memory ceiling in api/lead.js clears the whole map, so an attacker
-    // who cycles through 500 addresses also clears the history of anyone
-    // already being throttled. Acceptable for a best-effort throttle on an
-    // ephemeral instance, but it is a real property and should not change by
-    // accident — a per-key eviction would be the fix if this ever matters.
+  test('a flood of fresh IPs does not clear an active offender\'s history', async () => {
+    // This used to assert the opposite, and was right to flag it: the ceiling
+    // called HITS.clear(), so anyone cycling addresses past it also wiped the
+    // history of whoever was already being throttled — handing an attacker a
+    // clean slate at the exact moment the limit mattered. api/lead.js now
+    // evicts least-recently-seen instead, which is the per-key eviction the
+    // original version of this test suggested as the fix.
     stubFetch();
-    const victim = '198.51.100.12';
-    for (let i = 0; i < 5; i++) await call({ body: valid(), ip: victim });
+    const offender = '198.51.100.12';
 
-    // One more from the victim would be the 6th and get a 429. First, flood
-    // the map past its ceiling with unrelated addresses.
-    for (let i = 0; i < 501; i++) {
-      await call({ body: valid(), ip: `192.0.2.${i % 256}.${Math.floor(i / 256)}` });
+    // Use the offender's full quota, then keep them active while a flood of
+    // unrelated addresses pushes the map past its ceiling. Staying active is
+    // the point: LRU evicts the idle, which is the behaviour we want.
+    for (let i = 0; i < 5; i++) await call({ body: valid(), ip: offender });
+
+    let blocked = 0;
+    const attempts = 40;
+    for (let i = 0; i < attempts; i++) {
+      for (let j = 0; j < 60; j++) {
+        await call({ body: valid(), ip: `192.0.2.${j}.${i}` });
+      }
+      const res = await call({ body: valid(), ip: offender });
+      if (res.statusCode === 429) blocked += 1;
     }
 
-    const res = await call({ body: valid(), ip: victim });
-    assert.equal(res.statusCode, 200, 'the flood cleared the victim\'s history too');
+    assert.ok(
+      blocked > attempts * 0.9,
+      `offender was let through ${attempts - blocked}/${attempts} times after a flood`
+    );
+  });
+
+  test('an idle IP is the one evicted when the ceiling is crossed', async () => {
+    // The flip side of the rule above: eviction has to fall on someone, and it
+    // should fall on visitors who have gone quiet rather than on live traffic.
+    stubFetch();
+    const idle = '198.51.100.99';
+    for (let i = 0; i < 5; i++) await call({ body: valid(), ip: idle });
+
+    // 2000 is the ceiling in api/lead.js; comfortably exceed it while the idle
+    // address sends nothing at all.
+    for (let i = 0; i < 2100; i++) {
+      await call({ body: valid(), ip: `203.0.113.${i % 256}.${Math.floor(i / 256)}` });
+    }
+
+    const res = await call({ body: valid(), ip: idle });
+    assert.equal(res.statusCode, 200, 'an IP that went quiet should have been evicted');
   });
 
   test('a missing x-forwarded-for falls back to a shared "unknown" bucket', async () => {
@@ -482,7 +510,7 @@ describe('failure paths', () => {
     const thrown = await call({ body: valid() });
 
     for (const res of [upstream, thrown]) {
-      assert.match(res.body.error, /negotiationsondemand@gmail\.com/);
+      assert.match(res.body.error, /negotiatorsondemand@gmail\.com/);
     }
   });
 
