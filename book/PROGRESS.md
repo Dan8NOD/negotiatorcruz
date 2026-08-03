@@ -15,6 +15,20 @@ soft. Where a chapter's family has no shipped lines, that's flagged rather than
 filled. Ch 1–3 and Ch 6 were drafted before the inventory existed and their
 script boxes should be reconciled against it in the consistency pass.
 
+## Repo layout
+
+- `chapters/` — **canonical.** Every chapter is split into two segments:
+  `chNNa-*.md` (Part 1 · The Method — standard, triggers, the words, what good
+  sounds like) and `chNNb-*.md` (Part 2 · The Practice — drill, scoring,
+  failure mode, evidence slot, field card). Edit these.
+- `audio/` — **generated.** Narration scripts, one `.txt` per segment. Markdown
+  stripped, tables spoken as sentences, script boxes read as quotes, dialogue
+  rendered as "They say / You say", ASCII field cards omitted as visual-only.
+- `GAP-INDEX.md` — **generated.** Where real material is still needed, ranked by
+  gaps × commercial weight.
+- `tools/build.py` — regenerates `audio/` and `GAP-INDEX.md`. Run after editing
+  any chapter: `python3 book/tools/build.py`
+
 | # | Chapter | Part | Status |
 |---|---|---|---|
 | 1 | The Negotiation Is Already Running | 0 · Standard | ✅ drafted |

@@ -1,0 +1,108 @@
+Chapter 31 - The 30-Day Rollout
+
+Part 1 of 2 · The Method
+
+Part VI · Installation
+
+The Standard
+
+A rollout is the four-week sequence that converts a team who has read this
+manual into a team who runs it under pressure. It is not a training event. An
+event is something that happens to your people; a rollout is something your
+managers do, on a schedule, with recordings and a score.
+
+The distinction matters because the failure mode of negotiation training is
+well documented and it is not "the material was wrong." It is decay. A team
+comes out of a strong session at high confidence, runs the new behavior for
+roughly seventy-two hours, hits one live call where it doesn't work cleanly,
+and reverts. By day twenty the floor sounds exactly like it did before,
+everyone remembers the training fondly, and nothing on the pipeline report
+moved.
+
+This chapter exists to defeat day twenty. Everything in it is built around one
+principle: a behavior that is not recorded and scored within a week of being
+taught will not survive the month. Not because your people are lazy. Under
+quota pressure, humans revert to whatever is automatic - and four weeks is
+roughly what it takes to make a new sentence automatic.
+
+You run this yourself. It requires no outside facilitator, and it works
+unassisted. That is a deliberate design choice, and an honest one: if you run
+these four weeks properly you will get most of the available result. What you
+will not get is the part that depends on someone watching your reps negotiate
+and telling them the specific thing they personally are doing wrong - and that
+gap is the real argument for an install, not anything withheld from this page.
+
+When to reach for it
+
+Run the full four weeks when:
+A team has just been through the manual, a training day, or both. The
+ rollout is the retention layer. Without it the day is entertainment.
+You've inherited a floor with no shared negotiation language. Four weeks
+ gives you a vocabulary your coaching can reference.
+Win rates are fine but margins are eroding. This is the specific signature
+ of a team that concedes to close. Weeks 2 and 4 target it directly.
+
+Do not run it when:
+You can't protect fifteen minutes on Monday for four consecutive weeks. A
+ rollout that skips week 3 is worse than no rollout - it teaches your floor
+ that initiatives here are optional, which raises the cost of the next one.
+You aren't willing to record. Every mechanism in this chapter depends on
+ reviewable tape. Coaching from memory reliably produces coaching about
+ personality rather than behavior.
+Your team's problem is qualification, not negotiation. Reps losing to "no
+ decision" are not losing on negotiation technique. Fix the pipeline first;
+ this rollout will not help and will cost you a month of credibility.
+Fewer than four people. Below that, run individual coaching rounds. The
+ drills in this chapter depend on pairs and an observer.
+
+The words
+
+The rollout has its own scripts - not negotiation lines, but the four sentences
+a manager says to launch it. These matter more than they look. The most common
+way a rollout dies is a manager introducing it apologetically.
+
+THE LAUNCH - Monday of week 1, before any drill
+
+Quote. For the next four weeks we're running one tool at a time. Fifteen minutes Monday, recorded calls Wednesday and Thursday, fifteen minutes Friday to score them. That's the whole commitment. I'm not adding anything else to your week and I'm not taking the four weeks back. End quote.
+
+THE RECORDING FRAME - say this before anyone objects to it
+
+Quote. We're recording so I can coach the sentence, not the person. If I coach from memory I end up telling you that you sounded unsure, which is useless. With tape I can tell you that you labeled and then kept talking for nine seconds. That, you can fix. End quote.
+
+THE STALL - week 3, when adoption visibly drops
+
+Quote. It stopped working this week for most of you. That's the part of the curve where people quit, so we're not going to. Bring me the call where it went worst and we'll run that one. End quote.
+
+THE HANDOFF - Friday of week 4
+
+Quote. From Monday this stops being a program and becomes how we review calls. Same scorecard, same fifteen minutes, no end date. End quote.
+
+That last one is the entire point of the rollout. A program that ends leaves
+nothing behind. A program that converts into your standing call-review format
+has permanently changed how the floor works.
+
+What good sounds like
+
+You are watching for three signals over the four weeks, in this order.
+
+Week 1–2 - awkwardness. Your reps will sound stilted, and several will tell
+you the labels feel fake. This is correct and you should say so out loud. A new
+sentence delivered smoothly in week 1 usually means the rep isn't actually
+changing anything - they've mapped the new tool onto what they already did.
+Visible awkwardness is evidence of genuine behavior change.
+
+Week 3 - the dip. Adoption drops, complaints rise, and at least one senior
+rep will explain that this doesn't work in your particular market. Expect it on
+schedule. It is not feedback about the method; it is what the end of the novelty
+period feels like from the inside. Managers who treat the week-3 dip as a signal
+to stop are the single largest cause of failed rollouts.
+
+Week 4 - unprompted use. The signal you actually want: a rep uses a tool in
+a call you weren't reviewing, and mentions it in passing as though it were
+obvious. That is the behavior going automatic. When you hear it, name it in
+front of the floor.
+
+What you are not listening for is enthusiasm. Enthusiasm peaks in week 1 and
+predicts nothing. Talk-time ratios in week 4 predict everything.
+
+Continues in Part 2 of 2 - the drill, the scoring, and the failure mode.

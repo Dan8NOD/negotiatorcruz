@@ -1,0 +1,128 @@
+# Chapter 33 — The Manager's Scorecard
+
+### Part 2 of 2 · The Practice
+
+**Part VI · Installation**
+
+*Part 1 of 2 covers the standard, when to reach for it, the words, and what good sounds like.*
+
+---
+
+## The drill
+
+```
+THE TWELVE-ROW SCORECARD
+Score each row 0 or 1 from a recording. No half points — a
+half point is a judgment about intent, and intent is not
+auditable.
+
+READ                                                        0/1
+ 1  Talk-time ratio under 40% across the call
+ 2  At least one label offered before any number was named
+ 3  A label was followed by silence (no addendum, no "…right?")
+ 4  A correction from the other side was taken cleanly, not defended
+ 5  The decision structure was surfaced — who else has to be comfortable
+
+DISARM                                                      0/1
+ 6  A likely objection was named by the rep before the other side raised it
+ 7  No defending: no justification of price/terms without being asked twice
+
+STEER                                                       0/1
+ 8  A calibrated (how/what) question preceded the first number
+ 9  No unrequested concession — the rep never improved their own offer
+    without the other side asking
+10  A summary was offered and drew agreement
+
+CLOSE                                                       0/1
+11  Silence was held after the final number (≥5 seconds)
+12  A clear next action with an owner and a date
+
+TOTAL  ___ / 12
+```
+
+**Reading the total:**
+
+| Score | Read |
+|---|---|
+| 0–4 | The Protocol is not being run. Start at row 1 and nothing else. |
+| 5–7 | Floor average. Normal. Pick the lowest-value single row. |
+| 8–10 | Strong. Coach the two rows they never score on — those are the plateau. |
+| 11–12 | Score a harder call. This one wasn't a negotiation. |
+
+That last line is not a joke. A perfect score usually means the counterparty had
+already decided, and a call with no resistance in it teaches nobody anything.
+
+**Rows 9 and 11 carry the money.** If you track only two rows across a floor,
+track those. Unrequested concessions and failure to hold silence after a number
+are, in combination, the most reliably expensive habits on a sales team, and
+both are visible on tape without any interpretation at all.
+
+---
+
+## Scored on
+
+The instrument itself gets audited. A scorecard practice is working when:
+
+1. **Inter-rater agreement within 2 points.** Two managers score the same tape
+   independently and land within two. If they don't, the rows are being read as
+   opinions and the rubric needs re-reading, not the reps.
+2. **Self-score convergence.** Rep self-scores move toward manager scores over
+   eight weeks. This is the transfer metric — it is what "capability" actually
+   means in practice.
+3. **Tape submission above 70%.** Below that, the number you are looking at
+   describes your most confident reps and nobody else.
+4. **Floor median moving, not floor top.** A rising median is capability. A
+   rising top is one person having a good month.
+
+`[NEEDS: real inter-rater data from a client floor — even two managers × ten
+tapes would make the rubric defensible rather than plausible. Highest-value
+missing item in this chapter.]`
+
+---
+
+## Failure mode
+
+**How it goes wrong:** the scorecard gets attached to compensation, or to a
+performance review, or to a leaderboard on the wall. Within two cycles reps
+submit only their best tape, self-scores inflate, managers stop finding low
+rows because low rows have consequences, and the instrument reports that
+everyone is excellent while nothing on the pipeline changes.
+
+**What it looks like:** scores rise steadily and margin doesn't. Median jumps
+more than two points in a month. Nobody argues with a row anymore.
+
+**The recovery:** hard. Announce plainly that scores are out of the review
+process, then score only your own calls in public for two weeks. The practice
+recovers roughly a quarter after the incentive is removed — which is the reason
+to simply never connect them.
+
+**The second failure mode** is scoring everything. A manager who reviews eleven
+tapes a week burns out inside a month and the practice dies with them. Two tapes
+per rep per week, one row of feedback each. The instrument is designed for
+sustainability, not coverage — a scorecard run for a year at two calls a week
+beats a thorough one abandoned in March.
+
+---
+
+## Field Card — The Manager's Scorecard
+
+```
+SCORE THE CALL, NOT THE PERSON.  Timestamp + behavior + question.
+
+READ     1 talk-time <40%      2 label before number      3 label then silence
+         4 correction taken cleanly                       5 decision structure surfaced
+DISARM   6 objection named first                          7 no undefended defending
+STEER    8 calibrated Q before number   9 no unrequested concession
+        10 summary drew agreement
+CLOSE   11 silence held ≥5s after number               12 next action, owner, date
+
+TOTAL /12   0–4 start at row 1 · 5–7 floor · 8–10 coach the plateau · 11–12 harder call
+
+MONEY ROWS  9 and 11.  Track these two if you track nothing else.
+
+DELIVER     one row, never twelve.  "Next two calls, only row __."
+
+NEVER       tied to comp · scored from memory · mid-deal · 12 rows to a new hire
+
+HEALTHY     2 managers within 2 pts · self-scores converging · ≥70% tape · median moving
+```
