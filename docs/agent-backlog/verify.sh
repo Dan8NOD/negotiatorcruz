@@ -99,10 +99,17 @@ if [ -f nod-coin-176.png ] && [ -f nod-coin-64.png ]; then
 else
   fail "T2  in-use coin sizes intact"
 fi
-has   "T3  ad honours prefers-reduced-motion" index.html '.mm-adlivedot,.mm-adtab.listen{animation:none}'
-has   "T4  rotator bails on reduced-motion"   index.html "if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;"
-has   "T4  rotator skips hidden tab"          index.html 'if (document.hidden) return;'
-has   "T4  rotator skips off-screen"          index.html 'if (box.bottom < 0 || box.top > innerHeight) return;'
+# The ad's CSS and JS moved out of index.html into assets/ when the CSP work
+# dropped 'unsafe-inline' from script-src. Same code, new home.
+has   "T3  ad honours prefers-reduced-motion" assets/mini-ad.css '.mm-adlivedot,.mm-adtab.listen{animation:none}'
+has   "T4  rotator bails on reduced-motion"   assets/mini-ad.js "if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;"
+has   "T4  rotator skips hidden tab"          assets/mini-ad.js 'if (document.hidden) return;'
+has   "T4  rotator skips off-screen"          assets/mini-ad.js 'if (box.bottom < 0 || box.top > innerHeight) return;'
+# No inline <script> may come back: script-src 'self' would refuse to run it.
+for f in "${PAGES[@]}" 404.html; do
+  [ -f "$f" ] || continue
+  lacks "CSP $f has no inline <script>" "$f" '<script>'
+done
 has   "T5  hero parallax clamped"             assets/site.js 'Math.min(scrollY, 600)'
 has   "T5  skyline parallax clamped"          assets/site.js 'Math.min(scrollY, 900)'
 lacks "T5  old hero cutoff removed"           assets/site.js 'if (y < 600)'
@@ -127,6 +134,27 @@ echo
 echo "Batch 3 — infra and polish"
 has "T10 assets cache header" vercel.json '"source": "/assets/(.*)"'
 has "T10 image cache header"  vercel.json 'max-age=604800'
+
+# Production serves the bare "/" without the headers that every other path
+# gets, so the security block is declared twice: once as a catch-all and once
+# explicitly for "/". The two must stay identical — see docs/csp.md.
+if command -v python3 >/dev/null 2>&1; then
+  if python3 - <<'PY'
+import json, sys
+rules = json.load(open('vercel.json'))['headers']
+by_src = {r['source']: {h['key']: h['value'] for h in r['headers']} for r in rules}
+root, catch = by_src.get('/'), by_src.get('/(.*)')
+if root is None or catch is None:
+    sys.exit('missing "/" or "/(.*)" header rule')
+if root != catch:
+    sys.exit('"/" and "/(.*)" header sets have drifted apart')
+if 'Content-Security-Policy' not in root:
+    sys.exit('no CSP on the root rule')
+PY
+  then pass "root and catch-all header sets match"
+  else fail "root and catch-all header sets match"
+  fi
+fi
 if [ -f 404.html ]; then
   pass "T11 404.html exists"
   has   "T11 404 is noindex"          404.html '<meta name="robots" content="noindex">'
