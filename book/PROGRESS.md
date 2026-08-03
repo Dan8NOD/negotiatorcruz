@@ -98,6 +98,7 @@ the places real material has to go in.
 | Ch 19 | **Retitle confirmation.** Locked map said "The Ackerman System" (from 1st Ed Ch 13). Checked the catalog *before* drafting this time — the shipped families are `anchor` (probing their number) and `bracket` (ranges). Ackerman is one move inside anchoring, not the subject. Retitled to **Anchoring**, widened to probe/bracket/set, with the ladder kept as a section. |
 | Gaps | `GAP-INTAKE.md` turns all 22 open gaps into questions to answer rather than prose to write. Answer six questions per chapter, in fragments, out of order — that's enough to draft from. |
 | Pricing | The ladder moved 2026-08-03 to $1,500 / $12,500 / $40–55K. `00-ARCHITECTURE.md` §1 is updated; anything downstream quoting the old numbers needs the same pass. |
+| Front/back matter, Ch 24 | **Dream-material removal — not yet verified, because nothing it applies to has been drafted.** When these get written, confirm: no "Dream Spine" framing survives in front matter (the underlying doctrine may, per audit §2.2, but not the dream language); "The Unseen Layer" does not appear anywhere in back matter; and if the `vision` family (Power of Hopes & Dreams, 13 lines) merges into Ch 24, it's reworded into corporate outcome/objective language rather than ported over with the consumer-edition "dream" framing intact. This is a plan today, not a diff — check the actual draft against this list, don't assume the removal list did the work. |
 
 ---
 
@@ -154,7 +155,10 @@ reason. `[NEEDS: Dan's call on the exact string]`
 
 ## Carried over for removal
 
-Tracked so nothing gets missed in the final pass:
+Tracked so nothing gets missed in the final pass. **None of this is verified
+yet** — front/back matter and Ch 24 are still un-drafted, so this list is a
+plan for the writer to check against, not a record of work already done. See
+the "Front/back matter, Ch 24" row in the NEEDS table above.
 
 - The Dream Spine front-matter section — doctrine survives (audit §2.2), sourcing goes
 - **The Unseen Layer** back-matter section — remove entirely
