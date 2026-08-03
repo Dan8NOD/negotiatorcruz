@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Negotiation Practice Lab — training request one-pager</title>
+<meta name="description" content="One page for your L&amp;D or HR contact: what the Negotiation Practice Lab is, what it costs, and how to pay for it.">
+<link rel="canonical" href="https://negotiatorsondemand.com/practice-lab/one-pager">
+
+<style>
+  /* Deliberately light, not the site's dark theme. This page exists to be
+     printed to PDF and forwarded to an administrator, and a black page costs
+     an HR department a toner cartridge to print. */
+  :root{ --ink:#15161c; --dim:#4d5060; --line:#d6d8e0; --gold:#8a6a1f; --wash:#f7f5ef; }
+  *{box-sizing:border-box}
+  html,body{margin:0;background:#e9eaee}
+  body{font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+       color:var(--ink);padding:26px 16px}
+  .sheet{max-width:760px;margin:0 auto;background:#fff;padding:40px 46px 34px;
+         box-shadow:0 2px 18px rgba(0,0,0,.16);border-radius:3px}
+  .top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;
+       border-bottom:2px solid var(--gold);padding-bottom:14px;margin-bottom:20px}
+  h1{font-size:25px;margin:0 0 3px;letter-spacing:-.015em}
+  .org{font-size:12px;letter-spacing:.15em;text-transform:uppercase;color:var(--gold);font-weight:700}
+  .pricebox{text-align:right;white-space:nowrap}
+  .pricebox .amt{font-size:27px;font-weight:700;line-height:1}
+  .pricebox .per{font-size:12px;color:var(--dim)}
+  .lede{font-size:15.5px;margin:0 0 20px;max-width:64ch}
+  h2{font-size:12px;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);
+     margin:20px 0 8px;font-weight:700}
+  ul{margin:0;padding-left:19px} li{margin:6px 0}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:20px 34px}
+  @media(max-width:620px){.cols{grid-template-columns:1fr}}
+  dl{margin:0;display:grid;grid-template-columns:auto 1fr;gap:5px 12px;font-size:14.5px}
+  dt{color:var(--dim)} dd{margin:0}
+  .box{background:var(--wash);border:1px solid var(--line);border-radius:6px;padding:13px 16px;
+       margin-top:8px;font-size:14.5px}
+  footer{margin-top:22px;padding-top:13px;border-top:1px solid var(--line);
+         font-size:13px;color:var(--dim);display:flex;justify-content:space-between;
+         gap:16px;flex-wrap:wrap}
+  a{color:#7a5c14}
+  .print{max-width:760px;margin:0 auto 14px;text-align:right}
+  .print button{background:#15161c;color:#fff;border:0;border-radius:7px;padding:9px 17px;
+                font:inherit;font-size:14px;font-weight:600;cursor:pointer}
+
+  @media print{
+    /* One page, no browser chrome, no button. */
+    @page{ size:letter; margin:14mm; }
+    html,body{background:#fff;padding:0}
+    .sheet{box-shadow:none;max-width:none;padding:0;border-radius:0}
+    .print{display:none}
+    body{font-size:11.4pt;line-height:1.4}
+    h1{font-size:20pt} .pricebox .amt{font-size:20pt}
+    a{text-decoration:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="print"><button id="pdf" type="button">Save as PDF</button></div>
+
+<div class="sheet">
+  <div class="top">
+    <div>
+      <div class="org">Negotiators on Demand</div>
+      <h1 id="title">Negotiation Practice Lab</h1>
+    </div>
+    <div class="pricebox">
+      <div class="amt" id="price">&mdash;</div>
+      <div class="per">per seat</div>
+    </div>
+  </div>
+
+  <p class="lede" id="lede">
+    A four-hour live, instructor-led session in which participants run mock
+    negotiations against a trained counterpart and receive individual, recorded
+    feedback on their performance.
+  </p>
+
+  <div class="cols">
+    <div>
+      <h2>What participants can do afterwards</h2>
+      <ul>
+        <li><b>Open a negotiation without conceding position</b> — structure the
+            first exchange so the opening number is not set by the other side.</li>
+        <li><b>Handle objections without discounting</b> — respond to price and
+            terms pressure using tested verbal technique rather than concession.</li>
+        <li><b>Use tactical empathy under pressure</b> — labels, mirrors and
+            calibrated questions, drilled to the point of recall in live conditions.</li>
+        <li><b>De-escalate a hostile counterparty</b> — recognise and defuse
+            adversarial dynamics before they cost the relationship or the deal.</li>
+        <li><b>Self-assess on tape</b> — each participant leaves with a recorded
+            round and a scored breakdown of what to change.</li>
+      </ul>
+    </div>
+
+    <div>
+      <h2>Format</h2>
+      <dl>
+        <dt>Delivery</dt><dd>Live virtual, instructor-led</dd>
+        <dt>Duration</dt><dd id="fmt-hours">4 hours</dd>
+        <dt>Group size</dt><dd id="fmt-cap">Capped at 12 participants</dd>
+        <dt>Prerequisites</dt><dd>None; designed for working professionals</dd>
+        <dt>Audience</dt><dd>Mediators, agents, sales, procurement, recruiters</dd>
+      </dl>
+
+      <h2>Cost and payment</h2>
+      <dl>
+        <dt>Per seat</dt><dd id="pay-seat">&mdash;</dd>
+        <dt>Private team session</dt><dd id="pay-cohort">&mdash;</dd>
+        <dt>Payment</dt><dd>Credit card, or <b>invoice on request</b></dd>
+        <dt>Terms</dt><dd id="pay-terms">Net 30 on invoiced orders</dd>
+      </dl>
+    </div>
+  </div>
+
+  <div class="box">
+    <b>Budget classification.</b> This is external, skills-based professional
+    development and is normally payable from a learning-and-development,
+    training, or continuing-education budget line. An itemised invoice is issued
+    on request for accounts payable, and
+    <b id="w9">a W-9 is available on request</b>.
+  </div>
+
+  <h2>Remit to</h2>
+  <dl>
+    <dt>Business name</dt><dd id="remit-name">Negotiators on Demand</dd>
+    <dt>Billing email</dt><dd id="remit-email">negotiatorsondemand@gmail.com</dd>
+  </dl>
+
+  <h2>Credentials</h2>
+  <p style="margin:0">
+    The method is demonstrated publicly and unscripted on the Negotiators on
+    Demand channel, where full mock negotiations are run start to finish:
+    <a id="yt" href="https://www.youtube.com/@Negotiators">youtube.com/@Negotiators</a>
+  </p>
+
+  <footer>
+    <span>To book or request an invoice:
+      <a id="contact" href="mailto:negotiatorsondemand@gmail.com">negotiatorsondemand@gmail.com</a>
+    </span>
+    <span><a href="https://negotiatorsondemand.com/practice-lab">negotiatorsondemand.com/practice-lab</a></span>
+  </footer>
+</div>
+
+<script type="module">
+// Rendered from the pricing module, not typed in. A price change in
+// config/pricing.js propagates to this page without anyone remembering to edit
+// it — which is the difference between a template and a static file that goes
+// stale the first time the number moves.
+import {
+  SKUS, DURATION_HOURS, DEFAULT_SEAT_CAP, formatCents, REMIT_TO,
+  PRODUCT_NAME, YOUTUBE_URL, INVOICE_DAYS_UNTIL_DUE,
+} from '/practice-lab/pricing.js';
+
+const $ = (id) => document.getElementById(id);
+const seat   = SKUS.seat_open;
+const cohort = SKUS.cohort_private;
+
+$('title').textContent  = PRODUCT_NAME;
+$('price').textContent   = formatCents(seat.amountCents);
+$('lede').textContent =
+  `A ${DURATION_HOURS}-hour live, instructor-led session in which participants ` +
+  `run mock negotiations against a trained counterpart and receive individual, ` +
+  `recorded feedback on their performance.`;
+
+$('fmt-hours').textContent = `${DURATION_HOURS} hours`;
+$('fmt-cap').textContent   = `Capped at ${DEFAULT_SEAT_CAP} participants`;
+
+$('pay-seat').innerHTML   = `<b>${formatCents(seat.amountCents)}</b>`;
+$('pay-cohort').textContent =
+  `${formatCents(cohort.amountCents)} for up to ${cohort.seatCount} seats ` +
+  `(+${formatCents(cohort.extraSeatCents)} per additional seat)`;
+$('pay-terms').textContent = `Net ${INVOICE_DAYS_UNTIL_DUE} on invoiced orders`;
+
+$('remit-name').textContent  = REMIT_TO.businessName;
+$('remit-email').textContent = REMIT_TO.email;
+$('w9').textContent          = REMIT_TO.w9Note.replace(/\.$/, '').toLowerCase()
+  .replace(/^a /, 'a ');
+$('contact').textContent = REMIT_TO.email;
+$('contact').href        = `mailto:${REMIT_TO.email}`;
+$('yt').href             = YOUTUBE_URL;
+$('yt').textContent      = YOUTUBE_URL.replace(/^https?:\/\/(www\.)?/, '');
+
+$('pdf').addEventListener('click', () => window.print());
+</script>
+</body>
+</html>
