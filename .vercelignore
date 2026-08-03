@@ -19,3 +19,9 @@ coverage/
 
 .github/
 TESTING.md
+
+# practice-lab/ is a product of negotiatorsondemand.com, staged here only
+# because this session could not attach the NOD-ify repository it belongs to.
+# Excluding it keeps a landing page for a different property off this domain.
+# See practice-lab/README.md before moving it.
+practice-lab/

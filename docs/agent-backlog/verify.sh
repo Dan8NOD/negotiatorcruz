@@ -30,9 +30,17 @@ lacks() {
 }
 
 echo "T1  contact email (fixed — regression guard)"
+# Counts cover what the site publishes, so the test suites are excluded: a
+# spec asserting on the address is not a page a visitor can read, and counting
+# them made this guard fail on the very commit that fixed the specs.
+# practice-lab/ is excluded because it is a staged package for
+# negotiatorsondemand.com, not a route on this site — see its README.
+SCAN_EXCLUDES=(--exclude-dir=test --exclude-dir=e2e --exclude-dir=practice-lab
+               --exclude-dir=node_modules --exclude-dir=.git)
+
 n=$(grep -roF 'negotiationsondemand@gmail.com' \
       --include='*.html' --include='*.js' --include='*.txt' \
-      --exclude-dir=node_modules . 2>/dev/null | wc -l)
+      "${SCAN_EXCLUDES[@]}" . 2>/dev/null | wc -l)
 if [ "$n" -eq 0 ]; then
   pass "old address gone"
 else
@@ -48,8 +56,7 @@ fi
 # make the number move whenever coverage changes.
 n=$(grep -roF 'negotiatorsondemand@gmail.com' \
       --include='*.html' --include='*.js' --include='*.txt' \
-      --exclude-dir=node_modules --exclude-dir=test --exclude-dir=e2e \
-      . 2>/dev/null | wc -l)
+      "${SCAN_EXCLUDES[@]}" . 2>/dev/null | wc -l)
 if [ "$n" -eq 11 ]; then
   pass "correct address in all 11 places"
 else
@@ -75,7 +82,7 @@ echo "Booking links (regression guard)"
 # "corporate-training-call" contains "corporate-training" as a substring.
 ACTIVE="corporate-training-call virtualcoffeewithdan"
 used=$(grep -rhoE 'calendly\.com/negotiatorsondemand/[a-z0-9-]+' \
-         --include='*.html' --include='*.txt' --exclude-dir=node_modules . 2>/dev/null \
+         --include='*.html' --include='*.txt' "${SCAN_EXCLUDES[@]}" . 2>/dev/null \
        | sed 's|.*/||' | sort -u)
 bad=""
 for slug in $used; do

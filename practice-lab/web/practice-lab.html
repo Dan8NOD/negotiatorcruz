@@ -1,0 +1,404 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Negotiation Practice Lab — Negotiators on Demand</title>
+<meta name="description" content="Four hours, live, in a group capped at 12. Mock negotiations against a trained counterpart, for professionals who already negotiate for a living.">
+<link rel="canonical" href="https://negotiatorsondemand.com/practice-lab">
+<meta name="theme-color" content="#08080f">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Negotiators on Demand">
+<meta property="og:title" content="Negotiation Practice Lab">
+<meta property="og:description" content="Four hours, live, capped at 12. Mock negotiations for people who already negotiate for a living.">
+<meta property="og:url" content="https://negotiatorsondemand.com/practice-lab">
+
+<style>
+  :root{
+    --bg:#08080f; --panel:#0f1018; --line:#23242f;
+    --ink:#e9e9f0; --dim:#a0a1ae; --gold:#d8b25c; --gold-2:#f0cd82;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);
+       font:16px/1.65 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
+  h1{font-size:clamp(30px,5.5vw,48px);line-height:1.12;margin:0 0 14px;letter-spacing:-.02em}
+  h2{font-size:clamp(21px,3.2vw,27px);margin:0 0 12px;letter-spacing:-.01em}
+  .acc{color:var(--gold-2)}
+  .kicker{color:var(--gold);font-size:12px;letter-spacing:.16em;text-transform:uppercase;
+          font-weight:700;margin-bottom:12px}
+  header.hero{padding:64px 0 40px;border-bottom:1px solid var(--line)}
+  .tagline{color:var(--dim);font-size:clamp(17px,2.3vw,20px);max-width:60ch;margin:0 0 26px}
+  section{padding:44px 0;border-bottom:1px solid var(--line)}
+  .facts{display:flex;flex-wrap:wrap;gap:10px;margin:22px 0 0;padding:0;list-style:none}
+  .facts li{background:var(--panel);border:1px solid var(--line);border-radius:999px;
+            padding:7px 15px;font-size:14px;color:var(--dim)}
+  .facts b{color:var(--ink);font-weight:600}
+  ul.plain{padding-left:20px;color:var(--dim)} ul.plain li{margin:9px 0}
+  ul.plain b{color:var(--ink)}
+  .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+  .cta{display:inline-block;background:linear-gradient(180deg,var(--gold-2),var(--gold));
+       color:#141006;font-weight:700;text-decoration:none;padding:14px 24px;border-radius:10px;
+       border:0;font-size:16px;cursor:pointer;font-family:inherit}
+  .cta.ghost{background:transparent;color:var(--gold-2);border:1px solid var(--gold);
+             box-shadow:inset 0 0 0 1px rgba(216,178,92,.12)}
+  .cta:disabled{opacity:.55;cursor:not-allowed}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:24px}
+  .embed{position:relative;padding-bottom:56.25%;height:0;overflow:hidden;border-radius:12px;
+         border:1px solid var(--line);background:#000;margin-top:18px}
+  .embed iframe{position:absolute;inset:0;width:100%;height:100%;border:0}
+  label{display:block;font-size:13px;color:var(--dim);margin:14px 0 5px;font-weight:600}
+  input,select{width:100%;background:#0a0b12;border:1px solid var(--line);color:var(--ink);
+               border-radius:9px;padding:11px 13px;font:inherit;font-size:15px}
+  input:focus,select:focus{outline:2px solid var(--gold);outline-offset:1px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+  @media(max-width:620px){.grid2{grid-template-columns:1fr}}
+  .note{color:var(--dim);font-size:14px}
+  .msg{margin-top:14px;padding:12px 14px;border-radius:9px;font-size:15px;display:none}
+  .msg.err{display:block;background:#2a1214;border:1px solid #5c2226;color:#f4b8bc}
+  .msg.ok{display:block;background:#0f2418;border:1px solid #245c3a;color:#a6e6c0}
+  footer{padding:34px 0 60px;color:var(--dim);font-size:14px}
+  a{color:var(--gold-2)}
+  .seatline{font-size:15px;color:var(--dim);margin-top:6px}
+  .price{font-size:15px;color:var(--dim);margin-top:10px}
+  .price b{color:var(--ink)}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="kicker">Negotiators on Demand</div>
+    <h1>Negotiation <span class="acc">Practice Lab</span></h1>
+    <p class="tagline">
+      Four hours, live, in a room capped at twelve. You run mock negotiations
+      against a counterpart trained to push back, using the crisis-negotiation
+      toolkit the FBI built — labels, mirrors, calibrated questions, accusation
+      audits — and you get scored on tape.
+    </p>
+    <ul class="facts">
+      <li><b id="f-hours">4</b> hours, live</li>
+      <li>Capped at <b id="f-cap">12</b></li>
+      <li>Virtual</li>
+      <li><b id="f-price">&mdash;</b> per seat</li>
+    </ul>
+  </div>
+</header>
+
+<section>
+  <div class="wrap">
+    <h2>Who it's for</h2>
+    <p class="note" style="max-width:62ch">
+      Professionals who already negotiate — people who will be back at it on
+      Monday whether or not they get better at it. This is a practice room, not
+      an introduction.
+    </p>
+    <ul class="plain">
+      <li><b>Mediators</b> — the toolkit sits directly on top of what you already do.</li>
+      <li><b>Real estate agents</b> — commission defense, offer battles, price reductions.</li>
+      <li><b>Sales</b> — the objection you keep conceding to, run until you don't.</li>
+      <li><b>Procurement and recruiters</b> — repeat-game negotiations where the relationship outlives the deal.</li>
+    </ul>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>See it before you buy it</h2>
+    <p class="note">
+      Every negotiation on the channel is unscripted and run start to finish.
+      Watch one, then decide whether you want to be the person in the chair.
+    </p>
+    <div class="embed">
+      <iframe
+        src="https://www.youtube.com/embed?listType=user_uploads&list=Negotiators"
+        title="Negotiators on Demand — mock negotiations"
+        loading="lazy" referrerpolicy="strict-origin-when-cross-origin"
+        allow="accelerometer; clipboard-write; encrypted-media; picture-in-picture"
+        allowfullscreen></iframe>
+    </div>
+    <p class="note" style="margin-top:12px">
+      <a id="yt-link" href="https://www.youtube.com/@Negotiators" rel="noopener">Open the channel on YouTube →</a>
+    </p>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Next session</h2>
+    <div class="panel">
+      <div id="session-when" style="font-size:19px;font-weight:600">Loading the next session…</div>
+      <div class="seatline" id="session-seats"></div>
+      <div class="price" id="session-price"></div>
+
+      <div class="actions">
+        <button class="cta" id="book-btn" disabled>Book my seat</button>
+        <a class="cta ghost" href="/practice-lab/one-pager">Get the one-pager for my employer</a>
+      </div>
+      <p class="note" style="margin-top:16px">
+        Most people reading this do not pay for their own training. The second
+        button is the one that gets it approved.
+      </p>
+    </div>
+
+    <div class="panel" id="book-form" style="display:none;margin-top:16px">
+      <h2 style="font-size:19px">Book a seat</h2>
+      <div class="grid2">
+        <div><label for="b-name">Your name</label><input id="b-name" autocomplete="name"></div>
+        <div><label for="b-email">Email</label><input id="b-email" type="email" autocomplete="email"></div>
+      </div>
+      <div class="grid2">
+        <div><label for="b-company">Company (optional)</label><input id="b-company" autocomplete="organization"></div>
+        <div><label for="b-sku">Rate</label><select id="b-sku"></select></div>
+      </div>
+      <div class="actions">
+        <button class="cta" id="book-submit">Continue to payment</button>
+      </div>
+      <div class="msg" id="book-msg" role="status"></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <h2>Ask your employer to pay</h2>
+    <p class="note" style="max-width:62ch">
+      Learning-and-development and professional-development budgets routinely
+      cover exactly this: a short, skills-based, externally-run session for
+      someone whose job already involves negotiating. In most organisations the
+      approval sits with your manager or an L&amp;D administrator, and the
+      request is a single email with a one-page attachment.
+    </p>
+    <p class="note" style="max-width:62ch">
+      That one page exists, it states the price plainly, and it says an invoice
+      is available — which is what an accounts-payable department needs before
+      it can say yes.
+    </p>
+    <div class="actions">
+      <a class="cta ghost" href="/practice-lab/one-pager">Open the one-pager →</a>
+    </div>
+
+    <div class="panel" style="margin-top:26px">
+      <h2 style="font-size:19px">Or ask us to invoice your company</h2>
+      <p class="note">
+        For a private session for your team only. We'll reply before anything is
+        sent — nothing is invoiced automatically.
+      </p>
+      <div class="grid2">
+        <div><label for="i-company">Company name</label><input id="i-company" autocomplete="organization"></div>
+        <div><label for="i-seats">Seats</label><input id="i-seats" type="number" min="1" max="200" value="12"></div>
+      </div>
+      <div class="grid2">
+        <div><label for="i-name">Billing contact name</label><input id="i-name" autocomplete="name"></div>
+        <div><label for="i-email">Billing contact email</label><input id="i-email" type="email"></div>
+      </div>
+      <label for="i-session">Preferred session</label>
+      <select id="i-session"></select>
+      <p class="note" id="i-quote" style="margin-top:14px"></p>
+      <div class="actions">
+        <button class="cta" id="i-submit">Request an invoice</button>
+      </div>
+      <div class="msg" id="i-msg" role="status"></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    Negotiators on Demand ·
+    <a href="mailto:negotiatorsondemand@gmail.com">negotiatorsondemand@gmail.com</a><br>
+    Payment by card or invoice. A W-9 is available on request.
+  </div>
+</footer>
+
+<script type="module">
+import {
+  SKUS, SEAT_SKUS, DURATION_HOURS, DEFAULT_SEAT_CAP, formatCents,
+  cohortAmountCents, YOUTUBE_URL, REMIT_TO,
+} from '/practice-lab/pricing.js';
+
+// Supabase connection. NOD-ify already defines this globally on its other
+// pages; the fallback keeps this page standalone-testable. The publishable key
+// is public by design — it grants exactly what the RLS policies allow, which
+// for this page is "read open sessions, minus the join link".
+const SB_URL = window.NOD_SUPABASE?.url  ?? 'https://iubxycckgrplbpdbncfk.supabase.co';
+const SB_KEY = window.NOD_SUPABASE?.anonKey ?? '';
+const BROKER = `${SB_URL}/functions/v1/broker`;
+
+const $ = (id) => document.getElementById(id);
+
+// Every number on this page comes from the pricing module. Nothing here is a
+// literal, which is the whole point of the module existing.
+$('f-hours').textContent = DURATION_HOURS;
+$('f-cap').textContent   = DEFAULT_SEAT_CAP;
+$('f-price').textContent = SKUS.seat_open.display;
+$('yt-link').href        = YOUTUBE_URL;
+
+for (const s of SEAT_SKUS) {
+  const o = document.createElement('option');
+  o.value = s.sku;
+  o.textContent = `${s.label} — ${formatCents(s.amountCents)}`;
+  $('b-sku').appendChild(o);
+}
+
+const fmtWhen = (iso) => new Date(iso).toLocaleString(undefined, {
+  weekday: 'long', month: 'long', day: 'numeric',
+  hour: 'numeric', minute: '2-digit', timeZoneName: 'short',
+});
+
+function show(el, text, kind) {
+  el.textContent = text;
+  el.className = `msg ${kind}`;
+}
+
+let sessions = [];
+
+/**
+ * Three different things leave this page with no session on screen, and only
+ * one of them is "there isn't one yet".
+ *
+ * Reporting a failed fetch as "dates being finalised" is the expensive
+ * mistake: a session may be open and on sale, and the visitor is told it does
+ * not exist and given nothing to do about it. On the page whose entire job is
+ * capturing the one buyer in the room, that loses the sale outright and looks
+ * like nothing went wrong. A misconfigured key is the same lie for the same
+ * reason — we cannot see the sessions, so we must not claim there are none.
+ */
+function showLoadFailure() {
+  $('session-when').textContent = 'We could not load the next session just now.';
+  $('session-seats').innerHTML =
+    'Please refresh, or <a href="mailto:' + REMIT_TO.email + '">email us</a> ' +
+    'and we will hold you a seat.';
+  $('session-price').textContent = '';
+  $('book-btn').disabled = true;
+}
+
+async function loadSessions() {
+  if (!SB_KEY) {
+    throw new Error('Supabase publishable key is not configured on this page');
+  }
+  const res = await fetch(
+    `${SB_URL}/rest/v1/sessions?status=eq.open&order=starts_at.asc&select=id,title,starts_at,seat_cap`,
+    { headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}` } },
+  );
+  if (!res.ok) throw new Error(`sessions ${res.status}`);
+  sessions = await res.json();
+
+  if (!sessions.length) {
+    // Honest rather than fake-urgent. A countdown to a session that does not
+    // exist is the fastest way to lose the one buyer who was going to pay.
+    $('session-when').textContent = 'The next date is being finalised.';
+    $('session-seats').textContent =
+      'Ask for the one-pager and we will tell you the moment it is set.';
+    return;
+  }
+
+  const next = sessions[0];
+  $('session-when').textContent = fmtWhen(next.starts_at);
+  $('session-price').innerHTML =
+    `<b>${SKUS.seat_open.display}</b> per seat · ${DURATION_HOURS} hours · ` +
+    `capped at ${next.seat_cap}`;
+
+  // Seats remaining is a definer function, not a table read — anon cannot see
+  // the registrations it counts.
+  const seatRes = await fetch(`${SB_URL}/rest/v1/rpc/session_seats_remaining`, {
+    method: 'POST',
+    headers: { apikey: SB_KEY, Authorization: `Bearer ${SB_KEY}`,
+               'Content-Type': 'application/json' },
+    body: JSON.stringify({ p_session_id: next.id }),
+  });
+  const left = seatRes.ok ? await seatRes.json() : null;
+  $('session-seats').textContent = typeof left === 'number'
+    ? (left > 0 ? `${left} of ${next.seat_cap} seats left` : 'This session is full')
+    : '';
+
+  $('book-btn').disabled = left === 0;
+
+  for (const s of sessions) {
+    const o = document.createElement('option');
+    o.value = s.id;
+    o.textContent = `${s.title} — ${fmtWhen(s.starts_at)}`;
+    $('i-session').appendChild(o);
+  }
+}
+
+$('book-btn').addEventListener('click', () => {
+  $('book-form').style.display = 'block';
+  $('b-name').focus();
+});
+
+$('book-submit').addEventListener('click', async () => {
+  const btn = $('book-submit');
+  const msg = $('book-msg');
+  if (!sessions.length) return show(msg, 'No session is open yet.', 'err');
+
+  btn.disabled = true;
+  show(msg, 'Opening secure checkout…', 'ok');
+  try {
+    const res = await fetch(`${BROKER}/practice-lab/checkout`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_id: sessions[0].id,
+        sku: $('b-sku').value,
+        email: $('b-email').value,
+        full_name: $('b-name').value,
+        company: $('b-company').value || null,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok || !data.url) throw new Error(data.error || 'Could not start checkout');
+    location.href = data.url;
+  } catch (err) {
+    show(msg, err.message, 'err');
+    btn.disabled = false;
+  }
+});
+
+function quote() {
+  const n = Number.parseInt($('i-seats').value, 10);
+  if (!Number.isInteger(n) || n < 1) return ($('i-quote').textContent = '');
+  const base = SKUS.cohort_private;
+  const extra = Math.max(0, n - base.seatCount);
+  $('i-quote').innerHTML = extra
+    ? `${formatCents(base.amountCents)} for the first ${base.seatCount} seats, ` +
+      `plus ${extra} × ${formatCents(base.extraSeatCents)} — ` +
+      `<b>${formatCents(cohortAmountCents(n))}</b>`
+    : `<b>${formatCents(cohortAmountCents(n))}</b> flat, up to ${base.seatCount} seats.`;
+}
+$('i-seats').addEventListener('input', quote);
+quote();
+
+$('i-submit').addEventListener('click', async () => {
+  const btn = $('i-submit');
+  const msg = $('i-msg');
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${BROKER}/practice-lab/invoice-request`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        company_name: $('i-company').value,
+        billing_contact_name: $('i-name').value,
+        billing_contact_email: $('i-email').value,
+        seat_count: Number.parseInt($('i-seats').value, 10),
+        session_id: $('i-session').value,
+      }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || 'Could not send the request');
+    show(msg, 'Sent. You will hear back before anything is invoiced.', 'ok');
+  } catch (err) {
+    show(msg, err.message, 'err');
+    btn.disabled = false;
+  }
+});
+
+loadSessions().catch((err) => {
+  console.error(err);
+  showLoadFailure();
+});
+</script>
+</body>
+</html>
