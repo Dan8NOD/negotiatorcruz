@@ -15,7 +15,8 @@
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 
-const { ORIGIN, PAGES, read, meta, title, canonical } = require('./helpers/pages.js');
+const { ORIGIN, PAGES, INDEXABLE_PAGES, read, meta, title, canonical } =
+  require('./helpers/pages.js');
 
 describe('document basics', () => {
   for (const page of PAGES) {
@@ -50,6 +51,13 @@ describe('document basics', () => {
     });
   }
 
+  test('og:url agrees with the canonical link on every indexable page', () => {
+    for (const page of INDEXABLE_PAGES) {
+      assert.equal(meta(page.html, 'og:url'), canonical(page.html),
+        `${page.file}: og:url and canonical disagree`);
+    }
+  });
+
   test('every page title is distinct', () => {
     const titles = PAGES.map((p) => title(p.html));
     assert.equal(new Set(titles).size, titles.length, 'two pages share a title');
@@ -72,9 +80,10 @@ describe('Open Graph and Twitter cards', () => {
         }
       });
 
-      test('og:url agrees with the canonical link', () => {
-        assert.equal(meta(page.html, 'og:url'), canonical(page.html));
-      });
+      // og:url is checked against the canonical only for indexable pages; a
+      // noindex page has no canonical to agree with. It still carries an
+      // og:url so a pasted link previews properly, which is asserted by the
+      // full-Open-Graph-set test above.
 
       test('og:image is absolute and sized for the card', () => {
         assert.match(meta(page.html, 'og:image'), new RegExp(`^${ORIGIN}/`));

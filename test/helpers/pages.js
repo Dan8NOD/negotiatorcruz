@@ -27,6 +27,29 @@ const PAGES = fs
     },
   }));
 
+/** Does this page tell crawlers to stay away? */
+function isNoindex(html) {
+  const robots = /<meta[^>]+name\s*=\s*"robots"[^>]*content\s*=\s*"([^"]*)"/i.exec(html);
+  return !!robots && /\bnoindex\b/i.test(robots[1]);
+}
+
+/**
+ * The pages that are meant to be found.
+ *
+ * A noindex page is deliberately outside the index: it declares no canonical
+ * and it stays out of sitemap.xml, so asserting either against it contradicts
+ * the reason it is noindex in the first place. 404.html is the current case —
+ * see backlog T11, which specifies `robots: noindex` *instead of* a canonical
+ * and says explicitly not to add it to the sitemap.
+ *
+ * Derived from the markup rather than a filename list, so a future noindex
+ * page gets the same treatment without anyone remembering to update this.
+ * Everything that is simply page quality — a title, a description, alt text,
+ * one <h1>, the Open Graph set — is still asserted against every page via
+ * PAGES, because a 404 is a page a human reads too.
+ */
+const INDEXABLE_PAGES = PAGES.filter((p) => !isNoindex(p.html));
+
 function read(file) {
   return fs.readFileSync(path.join(ROOT, file), 'utf8');
 }
@@ -76,6 +99,8 @@ module.exports = {
   ROOT,
   ORIGIN,
   PAGES,
+  INDEXABLE_PAGES,
+  isNoindex,
   read,
   exists,
   attrs,

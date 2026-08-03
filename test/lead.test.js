@@ -119,24 +119,43 @@ describe('throttle', () => {
     assert.equal(res.statusCode, 429);
   });
 
-  test('crossing 500 tracked IPs resets everyone rather than growing forever', async () => {
-    // The memory ceiling in api/lead.js clears the whole map, so an attacker
-    // who cycles through 500 addresses also clears the history of anyone
-    // already being throttled. Acceptable for a best-effort throttle on an
-    // ephemeral instance, but it is a real property and should not change by
-    // accident — a per-key eviction would be the fix if this ever matters.
+  test('a burst of unique IPs no longer wipes an existing counter', async () => {
+    // This test used to assert the opposite, and asserting it was the bug.
+    // The ceiling was a flat HITS.clear() at 500 tracked IPs, so cycling
+    // through 500 addresses reset every counter in the map — handing whoever
+    // was hammering the endpoint a clean slate at the exact moment the limit
+    // mattered. api/lead.js now evicts least-recently-seen entries against a
+    // ceiling of 2000 instead, and its comment explains why. The test was
+    // left behind documenting the weakness as if it were intended.
     stubFetch();
-    const victim = '198.51.100.12';
-    for (let i = 0; i < 5; i++) await call({ body: valid(), ip: victim });
+    const offender = '198.51.100.12';
+    for (let i = 0; i < 5; i++) await call({ body: valid(), ip: offender });
 
-    // One more from the victim would be the 6th and get a 429. First, flood
-    // the map past its ceiling with unrelated addresses.
+    // Well past the old 500 ceiling, comfortably under the new one, so no
+    // eviction should happen at all.
     for (let i = 0; i < 501; i++) {
       await call({ body: valid(), ip: `192.0.2.${i % 256}.${Math.floor(i / 256)}` });
     }
 
-    const res = await call({ body: valid(), ip: victim });
-    assert.equal(res.statusCode, 200, 'the flood cleared the victim\'s history too');
+    const res = await call({ body: valid(), ip: offender });
+    assert.equal(res.statusCode, 429, 'the flood must not have cleared the offender');
+  });
+
+  test('the map still bounds itself, dropping idle visitors first', async () => {
+    // The trade the eviction policy makes: memory stays bounded, and what
+    // gets dropped is whoever has been quiet longest rather than whoever is
+    // currently being counted. An idle visitor losing their history is
+    // harmless; an active offender losing theirs is the thing being prevented.
+    stubFetch();
+    const idle = '198.51.100.13';
+    for (let i = 0; i < 5; i++) await call({ body: valid(), ip: idle });
+
+    for (let i = 0; i < 2100; i++) {
+      await call({ body: valid(), ip: `203.0.113.${i % 256}.${Math.floor(i / 256)}` });
+    }
+
+    const res = await call({ body: valid(), ip: idle });
+    assert.equal(res.statusCode, 200, 'the longest-idle entry should have been evicted');
   });
 
   test('a missing x-forwarded-for falls back to a shared "unknown" bucket', async () => {
