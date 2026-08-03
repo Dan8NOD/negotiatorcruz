@@ -59,3 +59,32 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # rocketman/ is a side project staged in this repository (see
+  # rocketman/README.md). It gets its own job on purpose: the site's `npm test`
+  # and `npm run test:e2e` must stay exactly what they were, so a bug in a game
+  # can never turn negotiatorcruz.com's build red.
+  rocketman:
+    name: Rocketman
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Simulation tests
+        run: npm run test:rocketman
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser tests
+        run: npm run test:rocketman:e2e
