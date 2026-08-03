@@ -139,7 +139,12 @@ async function sourceFiles(dir = ROOT, out = []) {
       // must go through the module.
       if (entry.name === 'config' || entry.name === 'test') continue;
       await sourceFiles(full, out);
-    } else if (/\.(js|ts|html|md)$/.test(entry.name)) {
+    } else if (/\.(js|ts|html)$/.test(entry.name)) {
+      // Code and markup only. Prose is deliberately out of scope: the README
+      // recounts what the HR department actually paid, which is a historical
+      // fact rather than a live price, and the paragraph documenting this very
+      // guard has to be able to name the pattern it matches. Neither can
+      // misprice a sale, which is the thing being prevented.
       out.push(full);
     }
   }
