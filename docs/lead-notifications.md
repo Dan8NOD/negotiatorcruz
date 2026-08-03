@@ -145,11 +145,13 @@ $$;
 
 -- The WHEN clause is the site filter. Drop it to be alerted for every
 -- property that writes to this table, not just negotiatorcruz.
+--
+-- Both spellings on purpose -- see "The site column is inconsistent" below.
 drop trigger if exists notify_new_lead_trg on public.lead_submissions;
 create trigger notify_new_lead_trg
 after insert on public.lead_submissions
 for each row
-when (new.site = 'negotiatorcruz')
+when (new.site in ('negotiatorcruz', 'negotiatorcruz.com'))
 execute function public.notify_new_lead();
 ```
 
@@ -215,6 +217,31 @@ Either way the row still lands in `lead_submissions`. A failed notification does
 not fail the insert — that is the intended trade, and it also means a silent
 failure here is easy to miss. Check that the alert still fires after any change
 to the table.
+
+## The `site` column is inconsistent, and it will split your data
+
+`lead_submissions` is shared across nine properties, and `site` is what every
+cross-domain report groups by. Two writers disagree about this site's value:
+
+| Writer | Value written |
+|---|---|
+| `api/lead.js` (this repo's contact form) | `negotiatorcruz` |
+| `subscribe-convertkit` Edge Function (newsletter, shared) | `negotiatorcruz.com` |
+
+That function allowlists all nine properties as full hostnames —
+`dancruzhomes.com`, `fatcatpm.com`, `nodnews.com` and so on — so the convention
+across the project is clearly **with** the `.com`, and this repo is the outlier.
+
+It has not bitten yet only because no newsletter signup has come from this site.
+The moment one does, the same property starts reporting under two different
+keys and every "leads by site" figure quietly undercounts.
+
+The fix is a one-word change in `api/lead.js` (`site: 'negotiatorcruz'` →
+`'negotiatorcruz.com'`), but it is deliberately **not** made here: other
+properties in the account may already filter or report on the short form, and
+those repos are outside this one. Confirm nothing else depends on
+`negotiatorcruz` before changing it. The trigger above accepts both spellings so
+notifications keep working either way.
 
 ## Worth adding later
 
