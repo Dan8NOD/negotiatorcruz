@@ -31,9 +31,9 @@ script boxes should be reconciled against it in the consistency pass.
 | 12 | The Power of "No" | II · Disarm | ✅ drafted |
 | 13 | Validation | II · Disarm | ✅ drafted |
 | 14 | The Discipline of Not Defending | II · Disarm | ✅ drafted |
-| 15 | The Calibrated Question | III · Steer | — |
-| 16 | How and What, Never Why | III · Steer | — |
-| 17 | Paraphrase and Summary | III · Steer | — |
+| 15 | The Calibrated Question | III · Steer | ✅ drafted |
+| 16 | The Asking Label *(retitled)* | III · Steer | ✅ drafted |
+| 17 | Paraphrase and Summary | III · Steer | ✅ drafted |
 | 18 | Trading — Never Give, Always Swap | III · Steer | — |
 | 19 | The Ackerman System | III · Steer | — |
 | 20 | Deadline Dynamics | III · Steer | — |
@@ -76,6 +76,9 @@ the places real material has to go in.
 | Ch 33 | Real inter-rater data — even two managers × ten tapes — to make the rubric defensible rather than plausible. |
 | Ch 11 | **Retitle confirmation.** Locked map said "Naming Your Own Weakness First." The shipped `negatives` family (25 lines) is broader — it names the bad thing in the room whoever it belongs to, not just your own weakness. Retitled to **The Negative Label** to match the material. Revert if you'd rather keep the original scope. |
 | Ch 30 | The `acknowledge` family (12 lines) has no home in the current map. Every line names deadlock — *"Sounds like that's a no," "It looks like there's nothing I can say to change your mind."* That is Ch 30 (When the Protocol Fails) material and it should live there. Confirm. |
+| Ch 16 | **Retitle confirmation.** Locked map said "How and What, Never Why." That's a grammar rule, not a chapter — it governs every calibrated question and now lives inside Ch 15. The shipped `asking` family (10 lines) had no home and is a genuinely distinct tool: get the answer without asking the question. Retitled to **The Asking Label**. Second instance of the same drift — see Ch 11. |
+| Mapping | **Pattern worth noting.** Both retitles (Ch 11, Ch 16) are slots the audit described as "Ch N expanded" — invented before the shipped catalog was available. The remaining un-drafted "expanded" slots should be checked against their families before drafting, not after. |
+| Steer leftovers | Four Steer families still have no chapter: `vision` (13), `belief` (13), `focus` (12), `elevation` (12) — 50 lines. `vision` likely merges into Ch 24 (Reframing); the other three need a decision. |
 | Pricing | The ladder moved 2026-08-03 to $1,500 / $12,500 / $40–55K. `00-ARCHITECTURE.md` §1 is updated; anything downstream quoting the old numbers needs the same pass. |
 
 ---
