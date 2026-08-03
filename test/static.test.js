@@ -14,7 +14,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { ROOT, ORIGIN, PAGES, read, exists, attrs, canonical, markupOnly } =
+const { ROOT, ORIGIN, PAGES, ALL_PAGES, read, exists, attrs, title, canonical, markupOnly } =
   require('./helpers/pages.js');
 const { resolveFile } = require('./helpers/static-server.js');
 
@@ -110,7 +110,20 @@ describe('canonical URLs', () => {
     }
   });
 
-  test('the canonical origin matches the domain in CNAME', () => {
+  test('the canonical origin matches the deployment domain', (t) => {
+    // CNAME was removed when the site moved off GitHub Pages onto Vercel, and
+    // this test kept reading it — it threw on a missing file rather than
+    // failing an assertion. Vercel holds the domain in project settings, not
+    // in the repo, so there is no in-repo file pinning it any more.
+    //
+    // Kept rather than deleted: the invariant (ORIGIN must equal the domain we
+    // actually deploy to) is still real, and reinstating a domain file should
+    // re-arm the check automatically instead of requiring someone to remember
+    // this test existed.
+    if (!exists('/CNAME')) {
+      t.skip('no in-repo domain file — the domain lives in Vercel project settings');
+      return;
+    }
     const domain = read('CNAME').trim();
     assert.equal(ORIGIN, `https://${domain}`);
   });
@@ -248,4 +261,53 @@ describe('deployment hygiene', () => {
       );
     }
   });
+});
+
+describe('noindex pages', () => {
+  // PAGES excludes anything carrying robots:noindex, because the indexed-page
+  // invariants (canonical, sitemap entry, nav reachability) are wrong for an
+  // error page. That exclusion must not become a hole where 404.html is
+  // asserted on by nothing at all — these are the invariants that DO apply.
+  const noindex = ALL_PAGES.filter((p) => !PAGES.some((q) => q.file === p.file));
+
+  test('404.html is present and is one of them', () => {
+    assert.ok(
+      noindex.some((p) => p.file === '404.html'),
+      'expected 404.html to exist and declare robots:noindex'
+    );
+  });
+
+  for (const page of noindex) {
+    describe(page.file, () => {
+      test('declares a charset, a viewport, and a title', () => {
+        assert.match(page.html, /<meta\s+charset=/i, 'missing charset');
+        assert.match(page.html, /name=["']viewport["']/i, 'missing viewport');
+        assert.ok((title(page.html) || '').length > 0, 'missing or empty <title>');
+      });
+
+      test('stays out of the sitemap', () => {
+        const locs = read('sitemap.xml');
+        assert.ok(
+          !locs.includes(ORIGIN + page.route),
+          `${page.file} is noindex but listed in sitemap.xml`
+        );
+      });
+
+      test('declares no canonical', () => {
+        assert.equal(
+          canonical(page.html),
+          null,
+          `${page.file} is noindex; a canonical would ask Google to index it anyway`
+        );
+      });
+
+      test('offers a route back into the site', () => {
+        const hrefs = attrs(markupOnly(page.html), 'href');
+        assert.ok(
+          hrefs.some((h) => h === '/' || h.startsWith('/#') || h === '/index'),
+          `${page.file} is a dead end — nothing links back to the home page`
+        );
+      });
+    });
+  }
 });

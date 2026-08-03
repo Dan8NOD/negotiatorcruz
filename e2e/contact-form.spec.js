@@ -159,7 +159,7 @@ test.describe('failure handling', () => {
     const msg = page.locator('#lead-msg');
     await expect(msg).toHaveClass(/err/);
     await expect(msg).toContainText("That email address doesn't look right.");
-    await expect(msg).toContainText('negotiationsondemand@gmail.com');
+    await expect(msg).toContainText('negotiatorsondemand@gmail.com');
   });
 
   test('re-enables the button so the visitor can retry', async ({ page }) => {
@@ -190,7 +190,7 @@ test.describe('failure handling', () => {
     const msg = page.locator('#lead-msg');
     await expect(msg).toHaveClass(/err/);
     await expect(msg).toContainText("didn't go through");
-    await expect(msg).toContainText('negotiationsondemand@gmail.com');
+    await expect(msg).toContainText('negotiatorsondemand@gmail.com');
   });
 
   test('a 200 with a non-JSON body is still treated as success', async ({ page }) => {

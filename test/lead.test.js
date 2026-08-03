@@ -9,6 +9,10 @@
 
 'use strict';
 
+// Unique, well-formed addresses for ceiling tests (RFC 5737 / RFC 1918 space).
+const floodIp = (i) =>
+  `10.${Math.floor(i / 65536) % 256}.${Math.floor(i / 256) % 256}.${i % 256}`;
+
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
 
@@ -63,7 +67,7 @@ describe('configuration guard', () => {
   test('the 503 blames the site, not the visitor, and offers a way through', async () => {
     stubFetch();
     const res = await call({ body: valid(), noEnv: true });
-    assert.match(res.body.error, /negotiationsondemand@gmail\.com/);
+    assert.match(res.body.error, /negotiatorsondemand@gmail\.com/);
     assert.doesNotMatch(res.body.error, /invalid|required|wrong/i);
   });
 });
@@ -119,24 +123,46 @@ describe('throttle', () => {
     assert.equal(res.statusCode, 429);
   });
 
-  test('crossing 500 tracked IPs resets everyone rather than growing forever', async () => {
-    // The memory ceiling in api/lead.js clears the whole map, so an attacker
-    // who cycles through 500 addresses also clears the history of anyone
-    // already being throttled. Acceptable for a best-effort throttle on an
-    // ephemeral instance, but it is a real property and should not change by
-    // accident — a per-key eviction would be the fix if this ever matters.
+  test('an idle visitor is evicted once the map passes its ceiling', async () => {
+    // api/lead.js bounds memory at CEILING entries by evicting the
+    // least-recently-seen IPs. A visitor who stopped submitting before the
+    // flood is exactly that, so their history goes and their next request is
+    // clean. Best-effort throttle on an ephemeral instance — acceptable, but a
+    // real property that should not change by accident.
     stubFetch();
     const victim = '198.51.100.12';
     for (let i = 0; i < 5; i++) await call({ body: valid(), ip: victim });
 
-    // One more from the victim would be the 6th and get a 429. First, flood
-    // the map past its ceiling with unrelated addresses.
-    for (let i = 0; i < 501; i++) {
-      await call({ body: valid(), ip: `192.0.2.${i % 256}.${Math.floor(i / 256)}` });
+    // One more from the victim would be the 6th and get a 429. First push the
+    // map past CEILING (2000) with unrelated addresses so the idle victim,
+    // now the least-recently-seen key, is evicted.
+    for (let i = 0; i < 2100; i++) {
+      await call({ body: valid(), ip: floodIp(i) });
     }
 
     const res = await call({ body: valid(), ip: victim });
-    assert.equal(res.statusCode, 200, 'the flood cleared the victim\'s history too');
+    assert.equal(res.statusCode, 200, 'an idle visitor should have been evicted by the flood');
+  });
+
+  test('an active offender survives a flood of unique IPs', async () => {
+    // This is the property the ceiling exists to protect, and the one the
+    // previous flat HITS.clear() got backwards: a burst of unique addresses
+    // used to wipe every counter, handing whoever was hammering the endpoint a
+    // clean slate at the exact moment the limit mattered. Eviction is by
+    // recency now, so an offender who keeps submitting stays at the recent end
+    // of the map and keeps their count.
+    stubFetch();
+    const offender = '198.51.100.99';
+    for (let i = 0; i < 5; i++) await call({ body: valid(), ip: offender });
+
+    // Flood past the ceiling, but keep the offender active throughout.
+    for (let i = 0; i < 2100; i++) {
+      await call({ body: valid(), ip: floodIp(i) });
+      if (i % 100 === 0) await call({ body: valid(), ip: offender });
+    }
+
+    const res = await call({ body: valid(), ip: offender });
+    assert.equal(res.statusCode, 429, 'a flood of unique IPs cleared an active offender');
   });
 
   test('a missing x-forwarded-for falls back to a shared "unknown" bucket', async () => {
@@ -482,7 +508,7 @@ describe('failure paths', () => {
     const thrown = await call({ body: valid() });
 
     for (const res of [upstream, thrown]) {
-      assert.match(res.body.error, /negotiationsondemand@gmail\.com/);
+      assert.match(res.body.error, /negotiatorsondemand@gmail\.com/);
     }
   });
 
