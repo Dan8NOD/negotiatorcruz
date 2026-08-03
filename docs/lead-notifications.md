@@ -48,8 +48,14 @@ something that accepts an arbitrary payload (Route A), or you build the body
 yourself in SQL (Route B).
 
 Note the context fields are nested under `props` — `record.props.offer`, not
-`record.offer`. `record.message` already repeats that context as readable text
-above a `---` divider, so an alert that forwards `message` alone is complete.
+`record.offer`.
+
+`record.message` also repeats that same context as readable text above a `---`
+divider, then the visitor's own note below it. So you have a choice: forward
+`message` alone and get everything in one blob, or list the `props` fields as
+labelled lines and take only the part below the divider. Doing **both** prints
+company, team size and timeline twice, which is what the live Route B version
+was corrected for.
 
 ---
 
@@ -93,11 +99,15 @@ inconsistent" below.
 Applied as migration `notify_new_lead_via_resend_email`. Everything lives in
 Supabase: `pg_net` posts to Resend, and the trigger builds the email body itself.
 
+**Delivery confirmed** on 2026-08-03 — a test lead arrived in the
+`negotiatorsondemand@gmail.com` inbox, so the Resend account is registered to
+that address and the free-tier sender restriction below is satisfied.
+
 **Sender constraint:** on Resend's free tier the shared `onboarding@resend.dev`
 address can only deliver to the address the Resend account was registered with.
-Sending anywhere else needs a verified domain. A `200` from Resend means
-*accepted for delivery*, not delivered — if the alert never lands, that mismatch
-is the first thing to check.
+Sending anywhere else needs a verified domain. Note a `200` from Resend means
+*accepted*, not delivered — if alerts stop arriving, check that mismatch first,
+because nothing in the database will report it.
 
 ### The key lives in Vault, not in a database setting
 
@@ -136,6 +146,7 @@ as $$
 declare
   v_key   text;
   v_offer text := new.props ->> 'offer';
+  v_note  text;
 begin
   /* Never let a notification failure cost the lead. This is an AFTER INSERT
      trigger, so an uncaught exception rolls the insert back -- a broken alert
@@ -150,6 +161,20 @@ begin
       raise warning 'notify_new_lead: vault secret resend_api_key not found';
       return new;
     end if;
+
+    /* api/lead.js builds `message` as the context pairs, a '---' divider, then
+       the visitor's own note. The alert lists that context as labelled fields
+       already, so sending the whole message printed Company/Team/Timeline
+       twice. Take only the part below the divider.
+
+       split_part returns '' when the divider is absent -- which happens when no
+       context fields were filled and `message` is the bare note -- so nullif
+       falls back to the whole message. */
+    v_note := coalesce(
+      nullif(split_part(new.message, E'\n---\n', 2), ''),
+      new.message,
+      '(no message)'
+    );
 
     perform net.http_post(
       url     := 'https://api.resend.com/emails',
@@ -173,10 +198,13 @@ begin
           'Company: ' || coalesce(new.props ->> 'company', '—'),
           'Team:    ' || coalesce(new.props ->> 'team_size', '—'),
           'When:    ' || coalesce(new.props ->> 'timeline', '—'),
-          'Site:    ' || coalesce(new.site,  ''),
+          'Wants:   ' || coalesce(v_offer, '—'),
           '',
-          coalesce(new.message, '(no message)'),
+          'What keeps going wrong:',
+          v_note,
           '',
+          'Came from ' || coalesce(new.props ->> 'page', '(unknown page)')
+            || coalesce(' via ' || nullif(new.props ->> 'referrer', ''), ''),
           '— reply straight to this email to reach them')
       )
     );
@@ -201,10 +229,12 @@ execute function public.notify_new_lead();
 `net.http_post` queues the request and returns immediately, so the insert is
 never held up waiting on Resend.
 
-Verified end to end on 2026-08-03: a test insert fired the trigger and `pg_net`
-recorded `status_code 200` from Resend with a message id, 26ms after the insert.
-The test row was deleted afterwards, so the table is empty and the first real
-lead will not be sitting behind test noise.
+Verified end to end on 2026-08-03, in both shapes a real submission can take:
+a lead with full context (divider present) and a bare note with no context
+fields at all (divider absent, fallback path). Both returned `status_code 200`
+with a Resend message id, and the first arrived in the inbox. Test rows deleted
+afterwards, so the table is empty and the first real lead will not be sitting
+behind test noise.
 
 ---
 
