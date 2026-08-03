@@ -50,6 +50,10 @@ fi
 # was hardened. (Briefly 13, when contact.html routed to email while the booking
 # link was dead; those reverted once a real Calendly event existed.)
 # Bump this deliberately if a new user-facing route is added.
+#
+# Counts shipped files only. test/ and e2e/ also assert this address -- that is
+# the suite doing its job, not a site occurrence, and folding them in here would
+# make the number move whenever coverage changes.
 n=$(grep -roF 'negotiatorsondemand@gmail.com' \
       --include='*.html' --include='*.js' --include='*.txt' \
       "${SCAN_EXCLUDES[@]}" . 2>/dev/null | wc -l)
@@ -78,7 +82,7 @@ echo "Booking links (regression guard)"
 # "corporate-training-call" contains "corporate-training" as a substring.
 ACTIVE="corporate-training-call virtualcoffeewithdan"
 used=$(grep -rhoE 'calendly\.com/negotiatorsondemand/[a-z0-9-]+' \
-         --include='*.html' --include='*.txt' . 2>/dev/null \
+         --include='*.html' --include='*.txt' "${SCAN_EXCLUDES[@]}" . 2>/dev/null \
        | sed 's|.*/||' | sort -u)
 bad=""
 for slug in $used; do
