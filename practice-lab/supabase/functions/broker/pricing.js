@@ -100,22 +100,39 @@ export function formatCents(cents) {
 }
 
 /**
+ * Both cohort functions take the same argument and must agree on what counts
+ * as a seat, or the invoice and the quote can describe different sales. Shared
+ * so neither can be tightened without the other.
+ */
+function assertSeatCount(seatCount) {
+  if (!Number.isInteger(seatCount) || seatCount < 1) {
+    throw new TypeError(`seatCount must be a positive integer, got ${seatCount}`);
+  }
+}
+
+/**
  * What a private cohort of `seatCount` costs: the flat rate up to the included
  * 12, plus the per-seat rate beyond it.
  */
 export function cohortAmountCents(seatCount) {
   const base = SKUS.cohort_private;
-  if (!Number.isInteger(seatCount) || seatCount < 1) {
-    throw new TypeError(`seatCount must be a positive integer, got ${seatCount}`);
-  }
+  assertSeatCount(seatCount);
   const extra = Math.max(0, seatCount - base.seatCount);
   return base.amountCents + extra * base.extraSeatCents;
 }
 
 /** Invoice line items for a private cohort. The overage is its own line so an
- *  AP department can see what it is paying for without doing the arithmetic. */
+ *  AP department can see what it is paying for without doing the arithmetic.
+ *
+ *  Validates on the same terms as cohortAmountCents. It used to not: a null,
+ *  undefined or fractional seat count produced a single flat-rate line instead
+ *  of throwing, so a malformed order row reaching the invoice builder billed
+ *  the base rate with the overage silently dropped. The broker calls this with
+ *  a seat count off a stored order (index.ts), which is exactly where a bad
+ *  value would come from. */
 export function cohortLineItems(seatCount) {
   const base = SKUS.cohort_private;
+  assertSeatCount(seatCount);
   const extra = Math.max(0, seatCount - base.seatCount);
   const lines = [{
     description:
