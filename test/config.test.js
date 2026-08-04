@@ -102,17 +102,31 @@ describe('package.json', () => {
     assert.match(pkg.engines.node, />=\s*(2[0-9]|[3-9][0-9])/);
   });
 
-  test('the test script runs every test file in the repo', () => {
+  test('every test file in the repo is executed by some CI entry point', () => {
     // practice-lab/test/pricing.test.js sat unexecuted after it was added:
     // the glob only covered the root test/ directory, so sixteen assertions
     // about live Stripe prices passed CI by never running. A test file that
     // nobody runs is worse than no test file — it reads as coverage.
     //
-    // This walks the repo for test files and checks each one against the
-    // directories the "test" script actually globs, so the next sub-project
-    // added with its own tests fails here instead of going quietly dark.
-    const globbed = [...pkg.scripts.test.matchAll(/"([^"]*)\*\*[^"]*"/g)].map((m) => m[1]);
-    assert.ok(globbed.length > 0, 'could not parse any globs out of the test script');
+    // The check is against *every* `node --test` script rather than "test"
+    // alone, because the repo deliberately has more than one entry point:
+    // rocketman/ is a side project with its own CI job precisely so a bug in
+    // a game cannot redden the site's build. Its tests are run, just not by
+    // `npm test`. Checking only that one script would force the two suites
+    // back together and undo that separation.
+    //
+    // The `runsInCI` half below is what keeps this honest: a script that
+    // globs a directory but is never invoked by the workflow would otherwise
+    // let a file claim coverage it does not have.
+    const workflow = fs.readFileSync(path.join(ROOT, '.github/workflows/test.yml'), 'utf8');
+    const covered = [];
+    for (const [name, script] of Object.entries(pkg.scripts)) {
+      if (!script.includes('node --test')) continue;
+      const runsInCI = workflow.includes(`npm run ${name}`) || (name === 'test' && /run: npm test\b/.test(workflow));
+      if (!runsInCI) continue;
+      for (const m of script.matchAll(/"([^"]*)\*\*[^"]*"/g)) covered.push({ prefix: m[1], name });
+    }
+    assert.ok(covered.length > 0, 'no CI-invoked test script globs anything');
 
     const found = [];
     (function walk(dir) {
@@ -126,11 +140,21 @@ describe('package.json', () => {
 
     assert.ok(found.length > 0, 'expected to find test files');
 
-    const orphaned = found.filter((f) => !globbed.some((prefix) => f.startsWith(prefix)));
+    const orphaned = found.filter((f) => !covered.some((c) => f.startsWith(c.prefix)));
     assert.deepEqual(
       orphaned,
       [],
-      `these test files are never executed by "npm test":\n  ${orphaned.join('\n  ')}`
+      `these test files are never executed by any CI test script:\n  ${orphaned.join('\n  ')}`
+    );
+  });
+
+  test('the site suite still stops at the site', () => {
+    // The flip side of the check above: widening it to every entry point must
+    // not become licence to fold the game's suite into the site's. `npm test`
+    // is what gates negotiatorcruz.com, and it stays that way.
+    assert.ok(
+      !pkg.scripts.test.includes('rocketman'),
+      'npm test now runs the game suite — a mech pathing badly must not fail the site build'
     );
   });
 });
