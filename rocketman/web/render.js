@@ -108,6 +108,19 @@ export function createRenderer(canvas, world, viewerId) {
   /** Animation clock in frames. Presentation-only; ticks even when paused. */
   let frameClock = 0;
 
+  /**
+   * Camera shake. Decays every frame and is added to the world transform, so
+   * it moves the *view* and never the simulation — a shaken camera must not
+   * change where a click lands mid-explosion, which is why it is applied to
+   * the draw transform and not to `camera.x`.
+   */
+  let shake = 0;
+  let shakeX = 0;
+  let shakeY = 0;
+  const addShake = (amount) => {
+    shake = Math.min(14, shake + amount);
+  };
+
   function resize() {
     const ratio = window.devicePixelRatio || 1;
     canvas.width = Math.floor(canvas.clientWidth * ratio);
@@ -161,15 +174,22 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.fillStyle = '#05070b';
     ctx.fillRect(0, 0, w, h);
 
+    // Decay first, so a single explosion is a sharp hit rather than a wobble.
+    shake *= 0.86;
+    if (shake < 0.05) shake = 0;
+    shakeX = (Math.random() - 0.5) * shake;
+    shakeY = (Math.random() - 0.5) * shake;
+
     const s = scale();
     ctx.save();
-    ctx.translate(-camera.x * s, -camera.y * s);
+    ctx.translate(-camera.x * s + shakeX, -camera.y * s + shakeY);
     ctx.scale(camera.zoom, camera.zoom);
 
     ctx.drawImage(terrainLayer, 0, 0);
     ctx.drawImage(decalLayer, 0, 0);
 
     drawResources();
+    drawProps();
     drawBuildings(selection);
     drawPlacementPreview();
     drawStrikePreview();
@@ -262,6 +282,356 @@ export function createRenderer(canvas, world, viewerId) {
         }
       }
     }
+  }
+
+  /* ------------------------------------------------------------ props -- */
+
+  /**
+   * Destructible scenery, drawn with fake elevation.
+   *
+   * The trick that sells height on a top-down map is parallax: a tall thing's
+   * roof is offset *away from the camera centre* in proportion to how tall it
+   * is and how far off-axis it sits. Panning past a tower block then makes its
+   * silhouette lean, the way it would through a real lens, and the eye reads
+   * "tall" without any isometric projection.
+   *
+   * Drawn in y order so nearer buildings overlap further ones, and before
+   * units so a mech in the street is never hidden behind a house.
+   */
+  function drawProps() {
+    const { x0, y0, x1, y1 } = visibleBounds();
+    const list = [];
+    for (const e of world.entities.values()) {
+      if (e.kind !== 'prop' || e.dead) continue;
+      if (e.cx + e.size[0] < x0 || e.cx > x1 || e.cy + e.size[1] < y0 || e.cy > y1) continue;
+      if (!isExplored(world, viewerId, e.x, e.y)) continue;
+      list.push(e);
+    }
+    list.sort((a, b) => a.y - b.y);
+    for (const e of list) drawProp(e);
+  }
+
+  /** Roof offset for a prop of this height at this position. */
+  function elevation(e) {
+    const s = worldToScreen(e.x, e.y);
+    const cx = viewWidth() / 2;
+    const cy = viewHeight() / 2;
+    const lean = 0.09;
+    return {
+      dx: ((s.x - cx) / Math.max(1, cx)) * e.def.height * CELL * lean,
+      dy: ((s.y - cy) / Math.max(1, cy)) * e.def.height * CELL * lean - e.def.height * CELL * 0.34,
+    };
+  }
+
+  function drawProp(e) {
+    const px = e.cx * CELL;
+    const py = e.cy * CELL;
+    const pw = e.size[0] * CELL;
+    const ph = e.size[1] * CELL;
+    const hurt = e.hp / e.maxHp;
+    const { dx, dy } = elevation(e);
+
+    // Ground shadow, cast away from the light and scaled by height.
+    ctx.fillStyle = 'rgba(0,0,0,0.34)';
+    ctx.beginPath();
+    ctx.ellipse(px + pw / 2 + 4, py + ph / 2 + 5, pw * 0.62, ph * 0.44, 0, 0, TAU);
+    ctx.fill();
+
+    if (e.def.canopy) {
+      drawTree(e, px, py, pw, ph, dx, dy, hurt);
+    } else if (e.defId === 'statue') {
+      drawStatue(e, px, py, pw, ph, dx, dy, hurt);
+    } else if (e.def.volatile) {
+      drawVolatile(e, px, py, pw, ph, dx, dy, hurt);
+    } else {
+      drawBlock(e, px, py, pw, ph, dx, dy, hurt);
+    }
+
+    // Damage: cracks and smoke once it is genuinely hurt.
+    if (hurt < 0.55) {
+      if (Math.random() < (hurt < 0.3 ? 0.18 : 0.07)) {
+        addParticle('smoke', e.x + (Math.random() - 0.5) * e.size[0], e.y - e.def.height * 0.3);
+      }
+      if (hurt < 0.3 && Math.random() < 0.05) addParticle('flame', e.x, e.y - e.def.height * 0.2);
+    }
+    // A volatile prop under fire is a warning worth shouting.
+    if (e.def.volatile && hurt < 0.7) {
+      const pulse = 0.3 + 0.4 * Math.sin(frameClock * 0.3 + e.id);
+      glow(() => {
+        ctx.fillStyle = `rgba(255, 120, 60, ${pulse * 0.5})`;
+        ctx.beginPath();
+        ctx.arc(px + pw / 2 + dx, py + ph / 2 + dy, pw * 0.5, 0, TAU);
+        ctx.fill();
+      });
+    }
+  }
+
+  /**
+   * Palette for one building, hashed from its id.
+   *
+   * A street of twenty identical boxes reads as one asset stamped twenty
+   * times; a street of twenty *slightly different* boxes reads as a place
+   * people lived. Hashed rather than random so a house does not change colour
+   * between frames, and derived from the id so it survives a replay.
+   */
+  const HOUSE_TONES = [
+    { wall: '#3a3230', roof: '#4a3b34', trim: '#5c4a40' }, // brick
+    { wall: '#33383f', roof: '#414a55', trim: '#525d6a' }, // slate
+    { wall: '#3c3a33', roof: '#4d4a3d', trim: '#5f5b4a' }, // render
+    { wall: '#2f3a3a', roof: '#3c4a4a', trim: '#4b5c5c' }, // weatherboard
+    { wall: '#3d3436', roof: '#4e4044', trim: '#605055' }, // painted
+  ];
+
+  function toneFor(e) {
+    if (e.def.height > 2) return { wall: '#232d39', roof: '#39465a', trim: '#4a5a70' };
+    return HOUSE_TONES[Math.floor(hash2(e.id, e.cx + e.cy) * HOUSE_TONES.length) % HOUSE_TONES.length];
+  }
+
+  /** A building: walls from footprint to roof, then a lit roof plate. */
+  function drawBlock(e, px, py, pw, ph, dx, dy, hurt) {
+    const storeys = e.def.storeys || 3;
+    const tone = toneFor(e);
+    const pitched = e.def.height <= 1.2;
+    const rx = px + dx;
+    const ry = py + dy;
+
+    // Side walls as quads from each footprint corner to its roof corner.
+    const wall = ctx.createLinearGradient(px, py + ph, rx, ry);
+    wall.addColorStop(0, shade(tone.wall, -0.4));
+    wall.addColorStop(1, tone.wall);
+    ctx.fillStyle = wall;
+    ctx.beginPath();
+    ctx.moveTo(px, py + ph);
+    ctx.lineTo(px + pw, py + ph);
+    ctx.lineTo(rx + pw, ry + ph);
+    ctx.lineTo(rx, ry + ph);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(px + pw, py);
+    ctx.lineTo(px + pw, py + ph);
+    ctx.lineTo(rx + pw, ry + ph);
+    ctx.lineTo(rx + pw, ry);
+    ctx.closePath();
+    ctx.fillStyle = shade(tone.wall, -0.55);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(px, py);
+    ctx.lineTo(px, py + ph);
+    ctx.lineTo(rx, ry + ph);
+    ctx.lineTo(rx, ry);
+    ctx.closePath();
+    ctx.fillStyle = shade(tone.wall, -0.25);
+    ctx.fill();
+
+    // Windows up the visible wall, dimming as the building is wrecked.
+    const rows = Math.min(storeys, 9);
+    for (let r = 0; r < rows; r++) {
+      const t = (r + 0.6) / (rows + 0.2);
+      const wy = py + ph + (ry + ph - (py + ph)) * t;
+      const wx = px + (rx - px) * t;
+      for (let c = 0; c < Math.max(1, Math.round(pw / 9)); c++) {
+        const lit = hash2(e.id + r * 7, c * 13) > 0.45 && hurt > 0.4;
+        if (lit) {
+          // Lit windows go through the glow pass, so a street at distance
+          // reads as inhabited rather than as speckle.
+          const gx = wx + 3 + c * 9;
+          const gy = wy - 2.5;
+          glow(() => {
+            ctx.fillStyle = 'rgba(255, 206, 130, 0.5)';
+            ctx.fillRect(gx, gy, 4, 2.5);
+          });
+        }
+        ctx.fillStyle = lit ? 'rgba(255, 224, 170, 0.75)' : 'rgba(10, 14, 20, 0.72)';
+        ctx.fillRect(wx + 3 + c * 9, wy - 2.5, 4, 2.5);
+      }
+    }
+
+    // Roof. Suburbia gets a pitch with a ridge line and a chimney; anything
+    // tall gets a flat deck, because that is what tall buildings have.
+    const roof = ctx.createLinearGradient(rx, ry, rx + pw * 0.6, ry + ph);
+    roof.addColorStop(0, tone.trim);
+    roof.addColorStop(1, shade(tone.roof, -0.3));
+    ctx.fillStyle = roof;
+    ctx.fillRect(rx, ry, pw, ph);
+
+    if (pitched) {
+      // Two slopes meeting at a ridge: the lit side, then the ridge itself.
+      ctx.fillStyle = shade(tone.roof, 0.12);
+      ctx.beginPath();
+      ctx.moveTo(rx, ry);
+      ctx.lineTo(rx + pw, ry);
+      ctx.lineTo(rx + pw * 0.5, ry + ph * 0.52);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255,255,255,0.16)';
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.moveTo(rx + 1, ry + ph * 0.52);
+      ctx.lineTo(rx + pw - 1, ry + ph * 0.52);
+      ctx.stroke();
+      // Chimney, on the half of the roof the hash picks.
+      const cx = rx + pw * (hash2(e.cx, e.cy) > 0.5 ? 0.26 : 0.7);
+      ctx.fillStyle = shade(tone.wall, -0.3);
+      ctx.fillRect(cx - 2, ry + ph * 0.2, 4, 5);
+    } else {
+      ctx.fillStyle = 'rgba(255,255,255,0.07)';
+      ctx.fillRect(rx, ry, pw, 2);
+    }
+
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(rx + 0.5, ry + 0.5, pw - 1, ph - 1);
+
+    // Rooftop clutter on the big ones — it is what stops a tower reading as a
+    // grey box from above.
+    if (e.def.height > 2) {
+      ctx.fillStyle = '#1c242e';
+      ctx.fillRect(rx + pw * 0.2, ry + ph * 0.25, pw * 0.28, ph * 0.28);
+      ctx.fillRect(rx + pw * 0.58, ry + ph * 0.55, pw * 0.22, ph * 0.2);
+      // Aircraft warning light.
+      if ((frameClock >> 4) % 4 === 0) {
+        glow(() => {
+          ctx.fillStyle = 'rgba(255, 90, 80, 0.95)';
+          ctx.beginPath();
+          ctx.arc(rx + pw * 0.5, ry + ph * 0.5, 2.2, 0, TAU);
+          ctx.fill();
+        });
+      }
+    }
+  }
+
+  /** A tree: trunk to the footprint, canopy above, swaying slightly. */
+  function drawTree(e, px, py, pw, ph, dx, dy, hurt) {
+    const bx = px + pw / 2;
+    const by = py + ph / 2;
+    const sway = Math.sin(frameClock * 0.03 + e.id) * 1.4;
+    const tx = bx + dx + sway;
+    const ty = by + dy;
+
+    ctx.strokeStyle = '#241d16';
+    ctx.lineWidth = 3.5;
+    ctx.beginPath();
+    ctx.moveTo(bx, by + 2);
+    ctx.lineTo(tx, ty + 3);
+    ctx.stroke();
+
+    // Canopy as overlapping blobs, browning as it burns down.
+    const green = hurt > 0.5 ? 1 : 0.45 + hurt;
+    const r = pw * 0.42;
+    for (let i = 0; i < 4; i++) {
+      const a = (i / 4) * TAU + e.id;
+      const ox = Math.cos(a) * r * 0.34;
+      const oy = Math.sin(a) * r * 0.28;
+      ctx.fillStyle = `rgba(${Math.round(38 + (1 - green) * 60)}, ${Math.round(62 * green + 18)}, ${Math.round(34 * green + 14)}, 0.95)`;
+      ctx.beginPath();
+      ctx.arc(tx + ox, ty + oy, r * 0.62, 0, TAU);
+      ctx.fill();
+    }
+    ctx.fillStyle = `rgba(${Math.round(60 + (1 - green) * 60)}, ${Math.round(92 * green + 20)}, ${Math.round(52 * green + 16)}, 0.9)`;
+    ctx.beginPath();
+    ctx.arc(tx - r * 0.2, ty - r * 0.22, r * 0.5, 0, TAU);
+    ctx.fill();
+  }
+
+  /** A monument: plinth, figure, and a cold metal highlight. */
+  function drawStatue(e, px, py, pw, ph, dx, dy) {
+    const bx = px + pw / 2;
+    const by = py + ph / 2;
+
+    ctx.fillStyle = '#2a3340';
+    ctx.fillRect(px + 3, py + ph * 0.45, pw - 6, ph * 0.5);
+    ctx.fillStyle = '#38434f';
+    ctx.fillRect(px + 4.5, py + ph * 0.45, pw - 9, 3);
+
+    const tx = bx + dx;
+    const ty = by + dy;
+    ctx.strokeStyle = '#6d7c8c';
+    ctx.lineWidth = 4;
+    ctx.beginPath();
+    ctx.moveTo(bx, py + ph * 0.5);
+    ctx.lineTo(tx, ty);
+    ctx.stroke();
+    ctx.fillStyle = '#7d8c9c';
+    ctx.beginPath();
+    ctx.arc(tx, ty - 3, 4, 0, TAU);
+    ctx.fill();
+    // An outstretched arm, so the silhouette is a figure and not a post.
+    ctx.strokeStyle = '#6d7c8c';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty + 2);
+    ctx.lineTo(tx + 9, ty - 5);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(190, 210, 230, 0.35)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(tx - 1.5, ty + 8);
+    ctx.lineTo(tx - 1.5, ty - 4);
+    ctx.stroke();
+  }
+
+  /** Fuel: a canopy on posts, pumps beneath, hazard stripes. */
+  function drawVolatile(e, px, py, pw, ph, dx, dy, hurt) {
+    // Tanks are cylinders; stations have a forecourt canopy.
+    if (e.defId === 'tank') {
+      const cx = px + pw / 2;
+      const cy = py + ph / 2;
+      ctx.fillStyle = '#2b3540';
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + 3, pw * 0.34, ph * 0.24, 0, 0, TAU);
+      ctx.fill();
+      const body = ctx.createLinearGradient(cx - pw * 0.34, 0, cx + pw * 0.34, 0);
+      body.addColorStop(0, '#39434f');
+      body.addColorStop(0.4, '#4a5765');
+      body.addColorStop(1, '#2b333d');
+      ctx.fillStyle = body;
+      ctx.fillRect(cx - pw * 0.34, cy + dy, pw * 0.68, cy + 3 - (cy + dy));
+      ctx.fillStyle = '#54626f';
+      ctx.beginPath();
+      ctx.ellipse(cx + dx * 0.4, cy + dy, pw * 0.34, ph * 0.22, 0, 0, TAU);
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(255, 170, 60, 0.6)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(cx - pw * 0.34, cy - 2);
+      ctx.lineTo(cx + pw * 0.34, cy - 2);
+      ctx.stroke();
+      return;
+    }
+
+    // Pumps on the forecourt.
+    ctx.fillStyle = '#2c3641';
+    for (let i = 0; i < 2; i++) {
+      ctx.fillRect(px + pw * (0.22 + i * 0.42), py + ph * 0.45, 5, 8);
+    }
+    // Canopy, floating on its posts.
+    const rx = px + dx;
+    const ry = py + dy;
+    ctx.strokeStyle = '#39434f';
+    ctx.lineWidth = 2.5;
+    for (const fx of [px + 5, px + pw - 5]) {
+      ctx.beginPath();
+      ctx.moveTo(fx, py + ph - 3);
+      ctx.lineTo(fx + dx, ry + ph - 3);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#3d4956';
+    ctx.fillRect(rx - 2, ry, pw + 4, ph * 0.62);
+    ctx.fillStyle = hurt > 0.7 ? '#e05a3c' : '#8a3a2a';
+    ctx.fillRect(rx - 2, ry, pw + 4, 3.5);
+    ctx.fillStyle = 'rgba(255,255,255,0.1)';
+    ctx.fillRect(rx - 2, ry + 3.5, pw + 4, 1.5);
+    // Underside light, the classic forecourt glow.
+    glow(() => {
+      const g = ctx.createRadialGradient(rx + pw / 2, ry + ph * 0.7, 0, rx + pw / 2, ry + ph * 0.7, pw * 0.7);
+      g.addColorStop(0, 'rgba(255, 230, 170, 0.25)');
+      g.addColorStop(1, 'rgba(255, 210, 140, 0)');
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(rx + pw / 2, ry + ph * 0.7, pw * 0.7, 0, TAU);
+      ctx.fill();
+    });
   }
 
   /* -------------------------------------------------------- buildings -- */
@@ -981,11 +1351,24 @@ export function createRenderer(canvas, world, viewerId) {
       p.ttl = p.maxTtl = opts.ttl || 16;
     } else if (type === 'debris') {
       const a = Math.random() * TAU;
-      const v = 0.05 + Math.random() * 0.12;
+      const v = 0.05 + Math.random() * (opts.speed || 0.12);
       p.vx = Math.cos(a) * v;
       p.vy = Math.sin(a) * v - 0.08;
       p.ttl = p.maxTtl = 20 + Math.random() * 16;
-      p.size = 2 + Math.random() * 3;
+      p.size = opts.size || 2 + Math.random() * 3;
+      // Tumbling debris reads as mass; a sliding square reads as a sprite.
+      p.spin = (Math.random() - 0.5) * 0.4;
+      p.angle = Math.random() * TAU;
+    } else if (type === 'ember') {
+      // Slow-rising sparks that outlive the fireball — what makes a big
+      // explosion feel like it left something burning.
+      p.vx = (Math.random() - 0.5) * 0.03;
+      p.vy = -0.01 - Math.random() * 0.02;
+      p.ttl = p.maxTtl = 40 + Math.random() * 50;
+      p.size = 1.5 + Math.random() * 1.5;
+    } else if (type === 'groundfire') {
+      p.ttl = p.maxTtl = opts.ttl || 120;
+      p.size = opts.size || 6;
     } else if (type === 'trail') {
       p.ttl = p.maxTtl = 12 + Math.random() * 8;
       p.size = 2.5;
@@ -1005,7 +1388,10 @@ export function createRenderer(canvas, world, viewerId) {
     for (const p of state.sparks) {
       p.x += p.vx;
       p.y += p.vy;
-      if (p.type === 'debris') p.vy += 0.008; // gravity
+      if (p.type === 'debris') {
+        p.vy += 0.008; // gravity
+        p.angle += p.spin;
+      }
       if (p.type === 'smoke') p.size *= 1.02;
       p.ttl--;
     }
@@ -1025,8 +1411,12 @@ export function createRenderer(canvas, world, viewerId) {
           ctx.arc(x, y, p.size, 0, TAU);
           ctx.fill();
         } else if (p.type === 'debris') {
+          ctx.save();
+          ctx.translate(x, y);
+          ctx.rotate(p.angle || 0);
           ctx.fillStyle = `rgba(30, 34, 40, ${life})`;
-          ctx.fillRect(x - p.size / 2, y - p.size / 2, p.size, p.size * 0.8);
+          ctx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 0.8);
+          ctx.restore();
         } else if (p.type === 'dust') {
           ctx.fillStyle = `rgba(120, 118, 108, ${life * 0.3})`;
           ctx.beginPath();
@@ -1065,6 +1455,22 @@ export function createRenderer(canvas, world, viewerId) {
         ctx.beginPath();
         ctx.arc(x, y, r, 0, TAU);
         ctx.stroke();
+      } else if (p.type === 'ember') {
+        const heat = life * life;
+        ctx.fillStyle = `rgba(255, ${120 + Math.round(heat * 110)}, ${Math.round(heat * 90)}, ${life})`;
+        ctx.fillRect(x - p.size / 2, y - p.size / 2, p.size, p.size);
+      } else if (p.type === 'groundfire') {
+        // A licking flame that stays put, for fuel that is still burning.
+        const flick = 0.75 + 0.25 * Math.sin(frameClock * 0.4 + x);
+        const r = p.size * (0.6 + life * 0.5) * flick;
+        const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+        g.addColorStop(0, `rgba(255, 235, 190, ${life * 0.8})`);
+        g.addColorStop(0.35, `rgba(255, 150, 60, ${life * 0.6})`);
+        g.addColorStop(1, 'rgba(180, 50, 20, 0)');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.arc(x, y, r, 0, TAU);
+        ctx.fill();
       } else if (p.type === 'trail') {
         ctx.fillStyle = `rgba(200, 200, 205, ${life * 0.35})`;
         ctx.beginPath();
@@ -1372,6 +1778,42 @@ export function createRenderer(canvas, world, viewerId) {
     return `rgb(${r},${g},${b})`;
   }
 
+  /**
+   * One explosion, at a scale.
+   *
+   * Everything that blows up goes through here so a big blast is visibly the
+   * same event as a small one rather than a different effect: a white core
+   * that dies fast, a fireball that expands and cools, a shockwave ring, an
+   * outward spray of tumbling debris, smoke that rises and keeps rising, and
+   * embers that outlive all of it. Plus a kick to the camera, scaled — which
+   * is most of what separates "a sprite played" from "something detonated".
+   */
+  function fireball(x, y, radius, scale) {
+    addParticle('flash', x, y, { size: 8 + scale * 22 });
+    addParticle('ring', x, y, { size: radius, ttl: Math.round(12 + scale * 14) });
+    if (scale > 0.6) addParticle('ring', x, y, { size: radius * 1.6, ttl: Math.round(18 + scale * 16) });
+
+    const fire = Math.round(5 + scale * 16);
+    for (let i = 0; i < fire; i++) {
+      addParticle('fire', x, y, { speed: 0.04 + scale * 0.11, size: 4 + scale * 7 });
+    }
+    for (let i = 0; i < Math.round(3 + scale * 11); i++) addParticle('smoke', x, y);
+    for (let i = 0; i < Math.round(4 + scale * 10); i++) {
+      addParticle('debris', x, y, { speed: 0.08 + scale * 0.14 });
+    }
+    for (let i = 0; i < Math.round(scale * 14); i++) addParticle('ember', x, y);
+
+    stampScorch(x, y, Math.max(0.8, radius * 0.85));
+
+    // Shake falls off with distance from the camera centre, so a blast across
+    // the map is felt faintly and one under your feet is not.
+    const s = worldToScreen(x, y);
+    const dx = s.x - viewWidth() / 2;
+    const dy = s.y - viewHeight() / 2;
+    const away = Math.sqrt(dx * dx + dy * dy) / Math.max(1, viewWidth());
+    addShake(scale * 11 * Math.max(0, 1 - away));
+  }
+
   /** Stamp a scorch mark + crater into the persistent decal layer. */
   function stampScorch(x, y, radius) {
     const px = x * CELL;
@@ -1409,27 +1851,33 @@ export function createRenderer(canvas, world, viewerId) {
           break;
         case 'explosion': {
           const big = !!ev.big;
-          addParticle('flash', ev.x, ev.y, { size: big ? 22 : 10 });
-          addParticle('ring', ev.x, ev.y, { size: big ? (ev.radius || 3) : 1.2, ttl: big ? 22 : 14 });
-          const fire = big ? 14 : 6;
-          for (let i = 0; i < fire; i++) {
-            addParticle('fire', ev.x, ev.y, { speed: big ? 0.12 : 0.06, size: big ? 8 : 5 });
-          }
-          const smoke = big ? 10 : 4;
-          for (let i = 0; i < smoke; i++) addParticle('smoke', ev.x, ev.y);
-          for (let i = 0; i < (big ? 10 : 5); i++) addParticle('debris', ev.x, ev.y);
-          stampScorch(ev.x, ev.y, ev.radius || (big ? 2.5 : 1));
+          fireball(ev.x, ev.y, big ? (ev.radius || 3) : 1.2, big ? 1 : 0.45);
           break;
         }
         case 'death': {
           const building = ev.kind === 'building';
-          addParticle('flash', ev.x, ev.y, { size: building ? 18 : 9 });
-          for (let i = 0; i < (building ? 12 : 7); i++) {
-            addParticle('fire', ev.x, ev.y, { speed: 0.09, size: building ? 7 : 5 });
+          const prop = ev.kind === 'prop';
+          // A prop's own scale comes from its footprint, so a tower block
+          // collapses like a tower block and a fence post does not.
+          const scale = building ? 0.9 : prop ? Math.min(1.1, 0.4 + (ev.height || 1) * 0.22) : 0.4;
+          fireball(ev.x, ev.y, 1 + scale * 2, scale);
+
+          if (prop && ev.volatile) {
+            // Fuel keeps burning after the blast — the lingering fire is what
+            // makes a wrecked forecourt somewhere you still do not want to be.
+            for (let i = 0; i < 5; i++) {
+              addParticle('groundfire', ev.x + (Math.random() - 0.5) * 2.2, ev.y + (Math.random() - 0.5) * 1.6, {
+                ttl: 100 + Math.random() * 100,
+                size: 5 + Math.random() * 5,
+              });
+            }
           }
-          for (let i = 0; i < (building ? 12 : 6); i++) addParticle('smoke', ev.x, ev.y);
-          for (let i = 0; i < (building ? 12 : 8); i++) addParticle('debris', ev.x, ev.y);
-          stampScorch(ev.x, ev.y, building ? 2 : 0.9);
+          if (prop && (ev.height || 0) > 2) {
+            // A tall building throws its rubble outward as it comes down.
+            for (let i = 0; i < 14; i++) {
+              addParticle('debris', ev.x, ev.y, { speed: 0.2, size: 3 + Math.random() * 4 });
+            }
+          }
           break;
         }
         case 'leapStart':

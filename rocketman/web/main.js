@@ -531,6 +531,16 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     })(),
     camera: { x: renderer.camera.x, y: renderer.camera.y, zoom: renderer.camera.zoom },
     /** The player character, whether or not it is currently being driven. */
+    /** Prop census, so a test can find the neighbourhood without a screenshot. */
+    props: (() => {
+      const out = {};
+      for (const e of world.entities.values()) {
+        if (e.kind !== 'prop' || e.dead) continue;
+        out[e.defId] = (out[e.defId] || 0) + 1;
+      }
+      return out;
+    })(),
+    propAt: null,
     hero: (() => {
       for (const e of world.entities.values()) {
         if (e.player === VIEWER && e.kind === 'unit' && e.pilotId && !e.dead) {

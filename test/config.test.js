@@ -164,4 +164,16 @@ describe('package.json', () => {
       `these test scripts exist but no CI job runs them:\n  ${unwired.join('\n  ')}`
     );
   });
+  test('the site suite still stops at the site', () => {
+    // The flip side of the two guards above. Widening "run" to the union of
+    // every runner is correct, but it must not become licence to satisfy a
+    // future failure by dropping rocketman/ into `npm test`. That script is
+    // what gates negotiatorcruz.com, and a mech pathing badly is not a reason
+    // to fail the site's build — which is the entire reason the game has its
+    // own job. A comment saying so is not enforceable; this is.
+    assert.ok(
+      !pkg.scripts.test.includes('rocketman'),
+      'npm test now runs the game suite — a bug in a side project must not redden the site build'
+    );
+  });
 });

@@ -8,7 +8,7 @@
  */
 
 import { TICKS_PER_SECOND } from './content.js';
-import { applyDamage, disable, rangeTo } from './entities.js';
+import { applyDamage, disable, rangeTo, isCombatant } from './entities.js';
 import { beginLeap } from './movement.js';
 import { nearestWalkable } from './grid.js';
 import { len } from './numeric.js';
@@ -103,7 +103,7 @@ export function activateAbility(world, e, x, y, slot = CHASSIS_SLOT) {
       const index = world.index;
       const targets = index ? index.query(x, y, def.radius + 1) : [];
       for (const other of targets) {
-        if (other.dead || other.player === e.player) continue;
+        if (other.dead || other.player === e.player || !isCombatant(other)) continue;
         if (len(other.x - x, other.y - y) > def.radius) continue;
         disable(world, other, def.disable);
       }
@@ -245,7 +245,7 @@ export function suggestAbility(world, e, index) {
       // Deploy when something is in deployed range; pack up when nothing is.
       const inSiegeRange = index
         .query(e.x, e.y, 15)
-        .some((o) => !o.dead && o.player !== e.player && rangeTo(e, o) > 4);
+        .some((o) => !o.dead && isCombatant(o) && o.player !== e.player && rangeTo(e, o) > 4);
       if (inSiegeRange !== e.deployed) return { x: e.x, y: e.y };
       return null;
     }

@@ -11,6 +11,8 @@
  * mech can see over that rock" has never lost anyone a game.
  */
 
+import { isCombatant } from './entities.js';
+
 /** Recompute cadence. Four ticks is 200ms — imperceptible, and 4× cheaper. */
 export const VISION_INTERVAL = 4;
 
@@ -92,7 +94,7 @@ export function isExplored(world, playerId, x, y) {
 export function visibleEnemies(world, playerId) {
   const out = [];
   for (const e of world.entities.values()) {
-    if (e.dead || e.player === playerId) continue;
+    if (e.dead || e.player === playerId || !isCombatant(e)) continue;
     if (isVisible(world, playerId, e.x, e.y)) out.push(e);
   }
   return out;

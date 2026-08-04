@@ -117,6 +117,11 @@ function mapFixture() {
       resourceMax: Array.from(map.resourceMax),
       starts: map.starts.map((s) => ({ x: s.x, y: s.y })),
       fields: (map.fields || []).map((f) => ({ x: f.x, y: f.y })),
+      // Scenery is generated from the same seeded stream as the terrain, so
+      // it belongs in the conformance surface: a Swift port that furnished a
+      // map differently would otherwise pass every check and still be playing
+      // a different game.
+      props: (map.props || []).map((p) => ({ defId: p.defId, cx: p.cx, cy: p.cy })),
     });
   }
   return { maps };
