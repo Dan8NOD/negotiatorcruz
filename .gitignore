@@ -14,3 +14,6 @@ coverage/
 .env
 .env.local
 .vercel
+
+# generated book builds
+build/
