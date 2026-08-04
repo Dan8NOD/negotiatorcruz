@@ -37,15 +37,39 @@ def part_of(n):
 
 # ───────────────────────── inline markdown ─────────────────────────
 
+def smarten(s):
+    """Typographer's quotes for prose. Runs only on text that has already had
+    its code spans stashed, and never on fenced blocks (those bypass inline()
+    entirely), so literal quotes in scripts and cards are untouched.
+
+    Double quotes alternate open/close statefully within the fragment rather
+    than by lookbehind: context rules fail on this corpus's interrupted-speech
+    endings ("so what if we—"), where a quote directly after an em dash must
+    CLOSE. Alternation gets every balanced fragment right by construction.
+    Apostrophes keep contextual rules — they are mostly not paired."""
+    out, open_q = [], False
+    for ch in s:
+        if ch == '"':
+            out.append("\u201c" if not open_q else "\u201d")
+            open_q = not open_q
+        else:
+            out.append(ch)
+    s = "".join(out)
+    s = re.sub(r"(?<=[\w.,!?\u201d])'", "\u2019", s)   # can't, reps', …"'
+    s = re.sub(r"(^|[\s\(\[\{—–\-*_])'(?=\w)", "\\1\u2018", s)
+    s = s.replace("'", "\u2019")                        # anything left: closer
+    return s
+
 def inline(s):
     """Escape, then apply inline markup. Code spans are pulled out first so
-    their contents never get treated as markup."""
+    their contents never get treated as markup or smart-quoted."""
     spans = []
     def stash(m):
         spans.append(m.group(1))
         return f"\x00{len(spans)-1}\x00"
     s = re.sub(r"`([^`]+)`", stash, s)
     s = html.escape(s, quote=False)
+    s = smarten(s)
     s = re.sub(r"\*\*(.+?)\*\*", r"<strong>\1</strong>", s)
     s = re.sub(r"(?<![\*\w])\*([^\*\n]+?)\*(?!\*)", r"<em>\1</em>", s)
     s = re.sub(r"\[([^\]]+)\]\((https?://[^\)]+)\)", r'<a href="\2">\1</a>', s)
@@ -71,7 +95,12 @@ def blocks(md):
                 buf.append(lines[i]); i += 1
             i += 1
             body = html.escape("\n".join(buf), quote=False)
-            out.append(f'<pre class="card">{body}</pre>')
+            # E-readers do not horizontal-scroll <pre>; a line that doesn't fit
+            # is simply clipped. Step wide cards down so the widest line fits a
+            # phone-sized column instead of losing its right edge.
+            width = max((len(l) for l in buf), default=0)
+            cls = "card wide" if width > 84 else "card"
+            out.append(f'<pre class="{cls}">{body}</pre>')
             continue
 
         # table
@@ -228,6 +257,13 @@ pre.card { font-family: "Courier New", monospace; font-size: .68em; line-height:
            white-space: pre; overflow-x: auto; background: #f6f4ee;
            border: 1px solid #ddd6c4; border-left: 3px solid #b08b3f;
            padding: .7em .8em; margin: 1em 0; page-break-inside: avoid; }
+pre.card.wide { font-size: .58em; line-height: 1.3; }
+/* Phone-portrait columns are the only surface too narrow for a 78-char card.
+   E-ink Kindles are >=758px and never match; KF8 and app readers honour
+   media queries. Smaller but complete beats larger with the right edge cut. */
+@media (max-width: 480px) {
+  pre.card { font-size: .46em; padding: .6em .5em; }
+}
 blockquote.pull { margin: 1.1em 6%; padding-left: .9em; border-left: 3px solid #b08b3f;
                   font-style: italic; }
 blockquote.gap, p.gap { background: #fdf6e3; border: 1px dashed #c9a227;

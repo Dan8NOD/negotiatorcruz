@@ -109,20 +109,28 @@ beats a thorough one abandoned in March.
 ```
 SCORE THE CALL, NOT THE PERSON.  Timestamp + behavior + question.
 
-READ     1 talk-time <40%      2 label before number      3 label then silence
-         4 correction taken cleanly                       5 decision structure surfaced
-DISARM   6 objection named first                          7 no undefended defending
+READ     1 talk-time <40%
+         2 label before number
+         3 label then silence
+         4 correction taken cleanly
+         5 decision structure surfaced
+DISARM   6 objection named first
+         7 no undefended defending
 STEER    8 calibrated Q before number   9 no unrequested concession
         10 summary drew agreement
-CLOSE   11 silence held ≥5s after number               12 next action, owner, date
+CLOSE   11 silence held ≥5s after number
+        12 next action, owner, date
 
-TOTAL /12   0–4 start at row 1 · 5–7 floor · 8–10 coach the plateau · 11–12 harder call
+TOTAL /12   0–4 start at row 1 · 5–7 floor ·
+            8–10 coach the plateau · 11–12 harder call
 
 MONEY ROWS  9 and 11.  Track these two if you track nothing else.
 
 DELIVER     one row, never twelve.  "Next two calls, only row __."
 
-NEVER       tied to comp · scored from memory · mid-deal · 12 rows to a new hire
+NEVER       tied to comp · scored from memory · mid-deal ·
+            12 rows to a new hire
 
-HEALTHY     2 managers within 2 pts · self-scores converging · ≥70% tape · median moving
+HEALTHY     2 managers within 2 pts · self-scores converging ·
+            ≥70% tape · median moving
 ```

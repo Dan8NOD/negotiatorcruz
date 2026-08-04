@@ -112,9 +112,11 @@ WEEK 4  CLOSE   no-oriented Qs, the hold → concessions after silence
 MONDAY 15   2 min standard · 3 min demo (bad, then good)
             7 min pairs, 3 rounds, rotate · 3 min observers report NUMBERS
 
-EXPECT      wk 1–2 awkward (good) · wk 3 dip (on schedule) · wk 4 unprompted use
+EXPECT      wk 1–2 awkward (good) · wk 3 dip (on schedule) ·
+            wk 4 unprompted use
 
-AUDIT       talk-time <40% · 4/4 drills · ≥70% tape · 0 concessions-after-silence
+AUDIT       talk-time <40% · 4/4 drills · ≥70% tape ·
+            0 concessions-after-silence
 
 DON'T       skip wk 3 · score people instead of calls · let reps pick the tape
 ```

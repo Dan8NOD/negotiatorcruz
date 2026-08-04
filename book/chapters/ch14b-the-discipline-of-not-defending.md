@@ -98,14 +98,18 @@ DECODE (then stop talking — 3 seconds minimum)
 
 RESPOND
   DEFENSIVE   "That reaction makes complete sense given what's on the line."
-  UNHEARD     "You're doing more processing here than you're getting credit for."
+  UNHEARD     "You're doing more processing here than
+               you're getting credit for."
   TACTICAL    "It sounds like you're waiting for me to just accept where this
                landed."  — then silence.
 
 AIM SLIGHTLY WRONG.  The correction is the diagnosis.
 
-NEVER       defend first · change the subject · decode twice in one conversation ·
-            decode while you're angry · argue with the correction you just earned
+NEVER       defend first · change the subject ·
+            decode twice in one conversation ·
+            decode while you're angry ·
+            argue with the correction you just earned
 
-SCORED      label-before-defense Y/N · ≥3s silence · type correct >60% · 0 subject changes
+SCORED      label-before-defense Y/N · ≥3s silence ·
+            type correct >60% · 0 subject changes
 ```
