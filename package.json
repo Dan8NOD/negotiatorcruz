@@ -11,7 +11,9 @@
     "test:all": "npm test && npm run test:e2e",
     "test:rocketman": "node --test \"rocketman/test/**/*.test.js\"",
     "test:rocketman:e2e": "playwright test -c rocketman/playwright.config.cjs",
-    "serve": "node test/helpers/static-server.js"
+    "serve": "node test/helpers/static-server.js",
+    "rocketman:fixtures": "node rocketman/tools/export-fixtures.mjs",
+    "test:rocketman:swift": "swift test --package-path rocketman/swift"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0"

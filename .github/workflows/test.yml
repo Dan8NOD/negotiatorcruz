@@ -83,8 +83,33 @@ jobs:
       - name: Simulation tests
         run: npm run test:rocketman
 
+      # The Swift port asserts against fixtures exported from this engine, so
+      # stale fixtures would let the port "pass" against a version of the game
+      # that no longer exists. Regenerating and diffing is the only way to make
+      # a deliberate behaviour change in engine/ show up as a decision about
+      # the port rather than as silence.
+      - name: Conformance fixtures are current
+        run: |
+          npm run rocketman:fixtures
+          git diff --exit-code --stat rocketman/swift/Tests/RocketmanKitTests/Fixtures \
+            || { echo "::error::Engine behaviour changed. Commit the regenerated fixtures and re-check the Swift port."; exit 1; }
+
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
       - name: Browser tests
         run: npm run test:rocketman:e2e
+
+  # The Swift port of the engine (rocketman/swift). Runs in the official Swift
+  # container so it needs no Mac: RocketmanKit is deliberately free of UIKit and
+  # SpriteKit, which is what lets the conformance suite run on every push rather
+  # than only when someone opens Xcode.
+  rocketman-swift:
+    name: Rocketman (Swift)
+    runs-on: ubuntu-latest
+    container: swift:6.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conformance tests
+        run: swift test --package-path rocketman/swift
