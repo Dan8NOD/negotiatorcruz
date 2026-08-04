@@ -266,6 +266,74 @@ export const WEAPONS = {
     targets: ['ground', 'air'],
     spread: 0.03,
   },
+  /* ---- the drop's salvaged and stolen hardware ------------------------ */
+
+  railspike: {
+    id: 'railspike',
+    name: 'Railspike',
+    damage: 54,
+    type: DAMAGE.ENERGY,
+    range: 11.5,
+    cooldown: secs(3.4),
+    projectile: 'shell',
+    speed: 70,
+    /** Cannot depress onto anything already standing on top of it. */
+    minRange: 3,
+    targets: ['ground', 'air'],
+    spread: 0.015,
+  },
+  stormrepeater: {
+    id: 'stormrepeater',
+    name: 'Storm Repeater',
+    damage: 6,
+    type: DAMAGE.KINETIC,
+    range: 4.6,
+    cooldown: secs(0.15),
+    projectile: 'tracer',
+    speed: 40,
+    targets: ['ground', 'air'],
+    spread: 0.1,
+  },
+  thermite: {
+    id: 'thermite',
+    name: 'Thermite Launcher',
+    damage: 38,
+    type: DAMAGE.EXPLOSIVE,
+    range: 6.4,
+    cooldown: secs(3),
+    projectile: 'rocket',
+    speed: 13,
+    splash: { radius: 1.9, falloff: 0.45 },
+    targets: ['ground'],
+    spread: 0.12,
+  },
+  arcprojector: {
+    id: 'arcprojector',
+    name: 'Arc Projector',
+    damage: 6,
+    type: DAMAGE.EMP,
+    range: 5.6,
+    cooldown: secs(1.5),
+    projectile: 'beam',
+    speed: 0,
+    splash: { radius: 2.2, falloff: 0.8 },
+    targets: ['ground', 'air'],
+    spread: 0,
+  },
+  talon: {
+    id: 'talon',
+    name: 'Talon Missiles',
+    damage: 24,
+    type: DAMAGE.EXPLOSIVE,
+    range: 9,
+    cooldown: secs(1.7),
+    projectile: 'rocket',
+    speed: 28,
+    salvo: { count: 2, interval: 3 },
+    splash: { radius: 0.7, falloff: 0.5 },
+    targets: ['ground', 'air'],
+    spread: 0.05,
+  },
 };
 
 /**
@@ -273,6 +341,9 @@ export const WEAPONS = {
  * Rocketman engagement rewards attention rather than a-move. Each is a small
  * tagged record; sim/abilities.js is the only place that interprets the tags.
  */
+/** The ability every named pilot carries, on top of their chassis ability. */
+export const HERO_ABILITY = 'skyfall';
+
 export const ABILITIES = {
   jumpjet: {
     id: 'jumpjet',
@@ -337,6 +408,29 @@ export const ABILITIES = {
     cooldown: secs(30),
     targeted: true,
     hint: 'Disables enemy weapons and movement in a wide area.',
+  },
+  /**
+   * The crew ability. Every named pilot carries it in a second slot, on top
+   * of whatever their chassis already mounts.
+   *
+   * Half the map on a fifteen-second cooldown is an enormous amount of reach,
+   * and that is the point: a handful of machines that can be anywhere is the
+   * premise of *Just You and Your Rocket Crew*. It is also exactly why it is
+   * hero-only — the same range on a buildable chassis would make defending
+   * anything meaningless, and the AI cannot field heroes at all.
+   */
+  skyfall: {
+    id: 'skyfall',
+    name: 'Skyfall',
+    kind: 'leap',
+    /** Cells. Half a standard 72-cell map. */
+    distance: 36,
+    duration: secs(1.5),
+    cooldown: secs(15),
+    targeted: true,
+    /** Mounted in the hero slot only, never by a chassis definition. */
+    heroOnly: true,
+    hint: 'Burn the drop pod reserve and cross half the battlefield. 15s.',
   },
 };
 
@@ -586,6 +680,74 @@ export const UNITS = {
     tier: 2,
     builtAt: 'hangar',
     hint: 'Air superiority first, ground harassment second.',
+  },
+  /* ---- hero chassis: unique machines, never trained ------------------- */
+
+  corvid: {
+    id: 'corvid',
+    name: 'Corvid',
+    faction: 'ascendancy',
+    role: 'siege',
+    cost: 1400,
+    buildTime: secs(20),
+    hp: 520,
+    shield: 240,
+    shieldRegen: 20,
+    armor: ARMOR.LIGHT,
+    speed: 3.4,
+    sight: 12,
+    layer: 'ground',
+    radius: 0.44,
+    hardpoints: ['railspike'],
+    ability: 'dash',
+    tier: 2,
+    /** No `builtAt`: hero chassis are placed by the campaign, never built.
+     *  Keeping them off both faction rosters also keeps the AI's options —
+     *  and therefore the faction balance the tests pin — exactly as they were. */
+    heroOnly: true,
+    hint: 'A rail gun on legs. Outranges every turret and hates being closed on.',
+  },
+  cinder: {
+    id: 'cinder',
+    name: 'Cinder',
+    faction: 'ascendancy',
+    role: 'brawler',
+    cost: 1300,
+    buildTime: secs(19),
+    hp: 900,
+    shield: 200,
+    shieldRegen: 18,
+    armor: ARMOR.HEAVY,
+    speed: 3.2,
+    sight: 7.5,
+    layer: 'ground',
+    radius: 0.52,
+    hardpoints: ['stormrepeater', 'thermite'],
+    ability: 'overshield',
+    tier: 2,
+    heroOnly: true,
+    hint: 'Walks in and burns everything at arm’s length. Shreds light, melts structures.',
+  },
+  revenant: {
+    id: 'revenant',
+    name: 'Revenant',
+    faction: 'bulwark',
+    role: 'support',
+    cost: 1500,
+    buildTime: secs(22),
+    hp: 760,
+    shield: 300,
+    shieldRegen: 24,
+    armor: ARMOR.MEDIUM,
+    speed: 3.5,
+    sight: 9,
+    layer: 'ground',
+    radius: 0.48,
+    hardpoints: ['arcprojector', 'talon'],
+    ability: 'empburst',
+    tier: 2,
+    heroOnly: true,
+    hint: 'Bulwark hardware, repainted badly. Disables what it cannot kill.',
   },
 };
 

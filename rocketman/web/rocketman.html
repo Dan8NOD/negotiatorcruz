@@ -72,6 +72,108 @@
         letter-spacing: -0.01em;
       }
 
+
+      /* ---------------------------------------------------- roster bar -- */
+
+      #roster {
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
+        padding: 6px 10px;
+        background: var(--panel);
+        border-top: 1px solid var(--line);
+        min-height: 54px;
+      }
+
+      #rosterList {
+        display: flex;
+        align-items: stretch;
+        gap: 6px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .rosterAll,
+      .rosterChip {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1px;
+        min-width: 74px;
+        padding: 5px 9px;
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        border-left-width: 3px;
+        border-radius: 7px;
+        text-align: left;
+        line-height: 1.25;
+        transition: border-color 0.12s, transform 0.12s;
+      }
+
+      .rosterAll:hover,
+      .rosterChip:hover {
+        transform: translateY(-2px);
+        border-color: var(--accent);
+      }
+
+      .rosterChip strong,
+      .rosterAll strong {
+        font-size: 12px;
+        font-weight: 650;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 96px;
+      }
+
+      .rosterChip em,
+      .rosterAll em {
+        font-style: normal;
+        font-size: 10.5px;
+        color: var(--muted);
+      }
+
+      /* A named pilot is not a unit count — give the crew its own weight. */
+      .rosterChip.pilot {
+        border-left-color: #ffd166;
+        min-width: 96px;
+      }
+
+      .rosterChip.pilot strong {
+        color: #ffd166;
+      }
+
+      /* Skyfall ready reads at a glance, because a 15s cooldown is a clock
+         the player is genuinely managing. */
+      .rosterChip.jump em::after {
+        content: " · ⇱";
+        color: var(--accent);
+      }
+
+      .rosterChip .hpbar {
+        height: 3px;
+        border-radius: 2px;
+        background: #0a0f15;
+        overflow: hidden;
+      }
+
+      .rosterChip .hpbar i {
+        display: block;
+        height: 100%;
+        background: var(--good);
+      }
+
+      .rosterChip.hurt .hpbar i {
+        background: var(--warn);
+      }
+
+      .rosterChip.down {
+        opacity: 0.35;
+      }
+
       /* -------------------------------------------------------- screens -- */
 
       .screen {
@@ -1084,7 +1186,9 @@
           <div><span>Queue an order</span><kbd>Shift</kbd></div>
           <div><span>Attack-move</span><kbd>A</kbd></div>
           <div><span>Stop / Hold position</span><kbd>S</kbd> <kbd>H</kbd></div>
-          <div><span>Fire ability</span><kbd>F</kbd></div>
+          <div><span>Fire chassis ability</span><kbd>F</kbd></div>
+          <div><span>Skyfall &mdash; cross half the map</span><kbd>G</kbd></div>
+          <div><span>Select every machine</span><kbd>All</kbd> button, bottom left</div>
           <div><span>Jump to idle Collector</span><kbd>E</kbd></div>
           <div><span>Jump to Command Rig</span><kbd>B</kbd></div>
           <div><span>Cycle army</span><kbd>Tab</kbd></div>
@@ -1146,6 +1250,15 @@
       <div id="field">
         <canvas id="view"></canvas>
         <aside id="objectives" hidden></aside>
+      </div>
+
+      <!-- Roster bar: every machine you own, one click from being selected
+           and centred. An RTS map is only as navigable as its shortcuts. -->
+      <div id="roster">
+        <button type="button" id="selectAll" class="rosterAll" title="Select every combat machine (Ctrl+A)">
+          <strong>All</strong><em>units</em>
+        </button>
+        <div id="rosterList"></div>
       </div>
 
       <div id="hud">

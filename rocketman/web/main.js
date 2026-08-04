@@ -25,7 +25,7 @@ import {
 } from '../engine/content.js';
 import { techAllows, availableBuildings } from '../engine/economy.js';
 import { VETERANCY, SELL_REFUND } from '../engine/content.js';
-import { abilityReady } from '../engine/abilities.js';
+import { abilityReady, CHASSIS_SLOT, HERO_SLOT } from '../engine/abilities.js';
 import { superweaponReady } from '../engine/economy.js';
 import { missionWorldConfig, missionOutcome, MISSIONS } from '../engine/campaign.js';
 import { describeObjective, objectiveProgressText } from '../engine/objectives.js';
@@ -359,6 +359,11 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     delete window.__rocketman;
   };
 
+  $('selectAll').onclick = () => {
+    const n = input.selectAllUnits();
+    toast(n ? `${n} machine${n === 1 ? '' : 's'} selected` : 'Nothing to select');
+  };
+
   $('missionName').textContent = `${watch ? 'Replay — ' : ''}${mission ? mission.name : 'Skirmish'}`;
   $('objectives').hidden = !mission;
   $('quitMatch').onclick = () => {
@@ -459,6 +464,18 @@ function startMatch(config, { mission, resume = null, watch = null }) {
         toast(`${VETERANCY[ev.rank].name} promotion`);
       } else if (ev.type === 'repairStalled' && ev.player === VIEWER) {
         toast('Repair stopped — out of scrap');
+      } else if (ev.type === 'reinforcement' && ev.player === VIEWER) {
+        // An unannounced arrival is the biggest thing that happens in a
+        // mission, so it gets the camera as well as the toast — otherwise it
+        // lands off-screen and the player finds it ten minutes later.
+        //
+        // The camera only. Selecting the newcomer would also hand them the
+        // cockpit mid-drive, which is jarring at best and, in a mission whose
+        // objective is "bring Ash home alive", a good way to get her killed
+        // while the player is looking somewhere else. Their chip is on the
+        // roster bar; taking the seat stays their decision.
+        toast(ev.message || `${ev.name || 'Reinforcements'} joined the fight`);
+        renderer.centreOn(ev.x, ev.y);
       }
     }
 
@@ -466,6 +483,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     // 20Hz is pure waste and makes buttons feel unclickable.
     if (world.tick % 5 === 0) {
       renderHud();
+      renderRoster();
       if (mission) renderObjectives();
     }
 
@@ -599,6 +617,80 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   function renderHud() {
     renderSelection();
     renderCommands();
+  }
+
+  /**
+   * The bottom roster: named pilots first, then one chip per unit type.
+   *
+   * This is the map's navigation, not decoration. An RTS on a 72-cell map
+   * with fog is only as easy to move around as its shortcuts, and hunting for
+   * a Collector by dragging the minimap is the worst of them.
+   */
+  function renderRoster() {
+    const list = $('rosterList');
+    const heroes = [];
+    const groups = new Map();
+
+    for (const e of world.entities.values()) {
+      if (e.player !== VIEWER || e.kind !== 'unit' || e.dead) continue;
+      if (e.pilotId) {
+        heroes.push(e);
+        continue;
+      }
+      const g = groups.get(e.defId) || { defId: e.defId, def: e.def, units: [] };
+      g.units.push(e);
+      groups.set(e.defId, g);
+    }
+    heroes.sort((a, b) => a.id - b.id);
+
+    // Rebuilding the whole bar every quarter-second would drop the scroll
+    // position and fight the mouse, so the shape is keyed and only rebuilt
+    // when the roster actually changes.
+    const key = [
+      ...heroes.map((e) => e.pilotId),
+      ...[...groups.values()].map((g) => `${g.defId}:${g.units.length}`),
+    ].join('|');
+    if (key !== list.dataset.key) {
+      list.dataset.key = key;
+      list.innerHTML = '';
+      for (const hero of heroes) list.appendChild(heroChip(hero));
+      for (const g of groups.values()) list.appendChild(groupChip(g));
+    }
+
+    // The live parts — hull and Skyfall readiness — are cheap to patch in
+    // place, so they update every pass without touching the DOM structure.
+    for (const hero of heroes) {
+      const chip = list.querySelector(`[data-pilot="${hero.pilotId}"]`);
+      if (!chip) continue;
+      const f = Math.max(0, hero.hp / hero.maxHp);
+      chip.querySelector('i').style.width = `${Math.round(f * 100)}%`;
+      chip.classList.toggle('hurt', f < 0.45);
+      chip.classList.toggle('jump', !!hero.heroAbility && hero.heroAbility.cooldown === 0);
+    }
+  }
+
+  function heroChip(hero) {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'rosterChip pilot';
+    chip.dataset.pilot = hero.pilotId;
+    chip.title = `${hero.pilotName} — ${hero.def.name}. Click to select and jump the camera there.`;
+    const short = (hero.pilotName || '').split(' ').pop().replace(/["]/g, '');
+    chip.innerHTML = `<strong>${short}</strong><em>${hero.def.name}</em>
+      <span class="hpbar"><i style="width:100%"></i></span>`;
+    chip.addEventListener('click', () => input.focusOn(hero));
+    return chip;
+  }
+
+  function groupChip(g) {
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'rosterChip';
+    chip.dataset.group = g.defId;
+    chip.title = `Select all ${g.def.name}s`;
+    chip.innerHTML = `<strong>${g.def.name}</strong><em>×${g.units.length}</em>`;
+    chip.addEventListener('click', () => input.selectByDefId(g.defId));
+    return chip;
   }
 
   function renderSelection() {
@@ -813,17 +905,17 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       panel.appendChild(row);
     }
 
-    // Ability button, shown whenever anything selected has one.
+    // Ability buttons: the chassis ability, plus the crew ability if a named
+    // pilot is in the selection. Two slots, two buttons, two cooldowns.
+    const abilityRow = document.createElement('div');
+    abilityRow.className = 'buttons';
+
     const withAbility = selected.filter((e) => e.ability);
     if (withAbility.length > 0) {
       const def = withAbility[0].ability.def;
-      const ready = withAbility.some((e) => abilityReady(world, e));
+      const ready = withAbility.some((e) => abilityReady(world, e, CHASSIS_SLOT));
       const cooling = Math.max(...withAbility.map((e) => e.ability.cooldown));
-
-      panel.appendChild(sectionTitle('Ability'));
-      const row = document.createElement('div');
-      row.className = 'buttons';
-      row.appendChild(
+      abilityRow.appendChild(
         commandButton({
           label: def.name,
           sub: ready ? 'Ready' : `${Math.ceil(cooling / TICKS_PER_SECOND)}s`,
@@ -832,10 +924,33 @@ function startMatch(config, { mission, resume = null, watch = null }) {
           disabled: !ready,
           reason: 'On cooldown',
           highlight: ready,
-          onClick: () => input.useAbility(),
+          onClick: () => input.useAbility(CHASSIS_SLOT),
         })
       );
-      panel.appendChild(row);
+    }
+
+    const withCrew = selected.filter((e) => e.heroAbility);
+    if (withCrew.length > 0) {
+      const def = withCrew[0].heroAbility.def;
+      const ready = withCrew.some((e) => abilityReady(world, e, HERO_SLOT));
+      const cooling = Math.max(...withCrew.map((e) => e.heroAbility.cooldown));
+      abilityRow.appendChild(
+        commandButton({
+          label: def.name,
+          sub: ready ? 'Ready' : `${Math.ceil(cooling / TICKS_PER_SECOND)}s`,
+          hint: def.hint,
+          hotkey: 'G',
+          disabled: !ready,
+          reason: 'Recharging',
+          highlight: ready,
+          onClick: () => input.useAbility(HERO_SLOT),
+        })
+      );
+    }
+
+    if (abilityRow.children.length > 0) {
+      panel.appendChild(sectionTitle(withCrew.length ? 'Abilities · Crew' : 'Ability'));
+      panel.appendChild(abilityRow);
     }
 
     if (panel.children.length === 0) {
@@ -880,6 +995,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   }
 
   renderHud();
+  renderRoster();
   if (mission) renderObjectives();
 }
 

@@ -17,6 +17,7 @@ import {
   VETERANCY,
   TICKS_PER_SECOND,
   damageMultiplier,
+  HERO_ABILITY,
 } from './content.js';
 import { occupy, vacate, footprint, nearestWalkable } from './grid.js';
 import { len } from './numeric.js';
@@ -112,6 +113,14 @@ export function spawnUnit(world, defId, playerId, x, y) {
           active: false,
         }
       : null,
+
+    /**
+     * Second ability slot, carried by named pilots only and granted by
+     * `makeHero` rather than by the chassis. A crew ability has to be a
+     * separate slot rather than a replacement, or recruiting a pilot would
+     * cost them the chassis ability their perk is written against.
+     */
+    heroAbility: null,
     disabledUntil: 0,
     /** Veterancy rank, and destroyed enemy value banked toward the next one. */
     vet: 0,
@@ -198,6 +207,26 @@ export function spawnBuilding(world, defId, playerId, cx, cy, { complete = false
   world.entities.set(e.id, e);
   world.events.push({ type: 'placed', id: e.id, defId, player: playerId, cx, cy });
   if (complete) onBuildingComplete(world, e);
+  return e;
+}
+
+/* --------------------------------------------------------------- heroes -- */
+
+/**
+ * Turn a freshly spawned machine into a named pilot's.
+ *
+ * The pilot fields are cosmetic — the renderer draws a gold cockpit, the
+ * debrief pays XP — but the crew ability is not: it is the reason a hero is
+ * worth protecting rather than a differently-coloured Kestrel.
+ */
+export function makeHero(world, e, { id, name, level }, abilities) {
+  e.pilotId = id;
+  e.pilotName = name;
+  e.pilotLevel = level || 1;
+  const def = abilities[HERO_ABILITY];
+  if (def) {
+    e.heroAbility = { id: HERO_ABILITY, def, cooldown: 0, activeUntil: 0, active: false };
+  }
   return e;
 }
 

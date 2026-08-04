@@ -361,6 +361,54 @@ export const PILOTS = {
       ],
     },
   },
+  halcyon: {
+    id: 'halcyon',
+    name: 'Tamsin "Halcyon" Vey',
+    chassis: 'corvid',
+    blurb:
+      'Spent the descent calmly reading out everyone else\'s altitude. Puts a railspike ' +
+      'through a reactor from outside turret range and calls it arithmetic.',
+    perk: {
+      name: 'Cold Maths',
+      hint: 'Railspike reaches 2 cells further and hits 20% harder.',
+      effects: [
+        { target: WEAPON, id: 'railspike', stat: 'range', op: 'add', value: 2 },
+        { target: WEAPON, id: 'railspike', stat: 'damage', op: 'mul', value: 1.2 },
+      ],
+    },
+  },
+  roan: {
+    id: 'roan',
+    name: 'Roan Ijaz',
+    chassis: 'cinder',
+    blurb:
+      'Walked six days out of the crater field dragging a Cinder\'s power core behind him. ' +
+      'Does not discuss it. Prefers to be the closest machine to the enemy.',
+    perk: {
+      name: 'Walk It In',
+      hint: 'Thermite splashes 40% wider and the Aegis field is 25% stronger.',
+      effects: [
+        { target: WEAPON, id: 'thermite', stat: 'splashRadius', op: 'mul', value: 1.4 },
+        { target: ABILITY, id: 'overshield', stat: 'amount', op: 'mul', value: 1.25 },
+      ],
+    },
+  },
+  ghost: {
+    id: 'ghost',
+    name: 'Iver "Ghost" Solveig',
+    chassis: 'revenant',
+    blurb:
+      'Listed as lost with the third wave. Came down inside Bulwark lines, spent eleven days ' +
+      'there, and walked out driving one of theirs.',
+    perk: {
+      name: 'Eleven Days',
+      hint: 'Arc Projector disables 30% wider and Skyfall recharges 20% faster.',
+      effects: [
+        { target: WEAPON, id: 'arcprojector', stat: 'splashRadius', op: 'mul', value: 1.3 },
+        { target: ABILITY, id: 'skyfall', stat: 'cooldown', op: 'mul', value: 0.8 },
+      ],
+    },
+  },
 };
 
 /** XP needed to reach each level. Index 0 is level 1. */

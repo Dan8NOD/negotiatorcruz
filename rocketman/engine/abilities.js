@@ -10,19 +10,30 @@
 import { TICKS_PER_SECOND } from './content.js';
 import { applyDamage, disable, rangeTo } from './entities.js';
 import { beginLeap } from './movement.js';
+import { nearestWalkable } from './grid.js';
 import { len } from './numeric.js';
 
+/**
+ * Which slot an ability call means.
+ *
+ * `ability` is the chassis ability; `heroAbility` is the crew ability a named
+ * pilot carries on top of it. Everything below is parameterised by slot rather
+ * than duplicated, so a third slot would be one more constant.
+ */
+export const CHASSIS_SLOT = 'ability';
+export const HERO_SLOT = 'heroAbility';
+
 /** Why an ability cannot fire right now, or null if it can. */
-export function abilityBlocker(world, e) {
-  if (!e.ability) return 'none';
+export function abilityBlocker(world, e, slot = CHASSIS_SLOT) {
+  if (!e[slot]) return 'none';
   if (e.dead) return 'dead';
   if (e.disabledUntil > world.tick) return 'disabled';
-  if (e.ability.cooldown > 0) return 'cooling';
+  if (e[slot].cooldown > 0) return 'cooling';
   return null;
 }
 
-export function abilityReady(world, e) {
-  return abilityBlocker(world, e) === null;
+export function abilityReady(world, e, slot = CHASSIS_SLOT) {
+  return abilityBlocker(world, e, slot) === null;
 }
 
 /**
@@ -32,10 +43,10 @@ export function abilityReady(world, e) {
  *
  * @returns {boolean} whether the ability actually went off.
  */
-export function activateAbility(world, e, x, y) {
-  if (!abilityReady(world, e)) return false;
+export function activateAbility(world, e, x, y, slot = CHASSIS_SLOT) {
+  if (!abilityReady(world, e, slot)) return false;
 
-  const a = e.ability;
+  const a = e[slot];
   const def = a.def;
 
   switch (def.kind) {
@@ -44,7 +55,21 @@ export function activateAbility(world, e, x, y) {
       const dy = y - e.y;
       const dist = len(dx, dy) || 1;
       const reach = Math.min(dist, def.distance);
-      beginLeap(world, e, e.x + (dx / dist) * reach, e.y + (dy / dist) * reach, def.duration);
+      let tx = e.x + (dx / dist) * reach;
+      let ty = e.y + (dy / dist) * reach;
+
+      // Land somewhere the machine can stand. A leap is allowed to *reach* a
+      // cell it could never have walked to — that is the tactical point — but
+      // it must not end up buried inside one. Cheap to ignore at six cells,
+      // not at thirty-six, where the target is often under fog.
+      if (e.layer !== 'air') {
+        const cell = nearestWalkable(world.map, Math.floor(tx), Math.floor(ty), 6);
+        if (cell) {
+          tx = cell.x + 0.5;
+          ty = cell.y + 0.5;
+        }
+      }
+      beginLeap(world, e, tx, ty, def.duration);
       break;
     }
 
@@ -98,13 +123,14 @@ export function activateAbility(world, e, x, y) {
 
   a.cooldown = def.cooldown;
   a.activeUntil = world.tick + (def.duration || 0);
-  world.events.push({ type: 'ability', id: e.id, ability: def.id, x, y });
+  world.events.push({ type: 'ability', id: e.id, ability: def.id, slot, x, y });
   return true;
 }
 
 /** Per-tick upkeep: cooldowns, expiries, deploy transitions, repair fields. */
 export function updateAbilities(world, e, index) {
   if (e.ability && e.ability.cooldown > 0) e.ability.cooldown--;
+  if (e.heroAbility && e.heroAbility.cooldown > 0) e.heroAbility.cooldown--;
 
   if (e.tempShieldUntil && world.tick >= e.tempShieldUntil) {
     e.tempShield = 0;

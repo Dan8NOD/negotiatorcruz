@@ -32,10 +32,17 @@ import {
   playerEntities,
   applyDamage,
   updateSelfRepair,
+  makeHero,
 } from './entities.js';
 import { setPath, clearPath, stepMovement, setSteer } from './movement.js';
 import { updateWeapons, updateProjectiles, maxRange, acquireTarget } from './combat.js';
-import { updateAbilities, updateShield, activateAbility } from './abilities.js';
+import {
+  updateAbilities,
+  updateShield,
+  activateAbility,
+  CHASSIS_SLOT,
+  HERO_SLOT,
+} from './abilities.js';
 import {
   recomputePower,
   updateConstruction,
@@ -104,6 +111,8 @@ export function createWorld({ seed = 1, players: playerConfigs, mapSize = 72, mi
     pilotsLost: new Set(),
     /** Superweapon strikes in the air, resolved on their landing tick. */
     pendingStrikes: [],
+    /** Indices of `mission.reinforcements` already delivered. */
+    reinforced: [],
   };
 
   playerConfigs.forEach((cfg, i) => {
@@ -203,9 +212,7 @@ function seedForces(world, player, start, setup = {}) {
     if (!record) continue;
     const p = ring(5.6);
     const unit = spawnUnit(world, record.chassis, player.id, p.x, p.y);
-    unit.pilotId = pilotId;
-    unit.pilotName = record.name;
-    unit.pilotLevel = record.level || 1;
+    makeHero(world, unit, { id: pilotId, name: record.name, level: record.level }, player.defs.abilities);
   }
 }
 
@@ -338,9 +345,13 @@ export function applyCommand(world, cmd) {
     }
 
     case 'ability': {
+      // `slot` picks the chassis ability or the crew ability; an absent slot
+      // means the chassis one, so every command recorded before heroes had a
+      // second ability still replays correctly.
+      const slot = cmd.slot === HERO_SLOT ? HERO_SLOT : CHASSIS_SLOT;
       for (const e of owned(cmd.ids)) {
-        if (!e.ability) continue;
-        activateAbility(world, e, cmd.x ?? e.x, cmd.y ?? e.y);
+        if (!e[slot]) continue;
+        activateAbility(world, e, cmd.x ?? e.x, cmd.y ?? e.y, slot);
       }
       break;
     }
@@ -597,6 +608,7 @@ export function tick(world, commands = []) {
   resolveStrikes(world);
   reap(world);
 
+  if (world.mission) deliverReinforcements(world);
   if (world.tick % REGROWTH.INTERVAL === 0) updateRegrowth(world);
 
   if (world.tick % VISION_INTERVAL === 0) {
@@ -715,6 +727,73 @@ function pursue(world, e, target) {
 function reap(world) {
   for (const [id, e] of world.entities) {
     if (e.dead) world.entities.delete(id);
+  }
+}
+
+/**
+ * Mid-mission arrivals.
+ *
+ * A mission can schedule a pilot to turn up at a given tick — someone the
+ * briefing never mentioned, walking out of the fog on your side. It is a
+ * story beat before it is a mechanic: the campaign is about who is left, and
+ * the drop scattered more people than the briefing knows about.
+ *
+ * Delivered from mission data on a tick comparison and nothing else, so it
+ * replays and resumes exactly like the rest of the simulation. Arrivals land
+ * near the player's landing zone rather than next to whatever they are
+ * fighting; with the crew's Skyfall they can close that gap in one jump.
+ */
+function deliverReinforcements(world) {
+  const scheduled = world.mission.reinforcements;
+  if (!scheduled || scheduled.length === 0) return;
+
+  for (let i = 0; i < scheduled.length; i++) {
+    const drop = scheduled[i];
+    if (world.tick < drop.at || world.reinforced.includes(i)) continue;
+    world.reinforced.push(i);
+
+    const player = world.players[drop.player || 0];
+    if (!player || player.defeated) continue;
+    const start = world.map.starts[player.id % world.map.starts.length];
+
+    const arrivals = [];
+    for (let n = 0; n < (drop.units || []).length; n++) {
+      const off = ringOffset(n + 1, 3.4);
+      const spot = nearestWalkable(world.map, Math.floor(start.x + off.x), Math.floor(start.y + off.y), 8);
+      if (!spot) continue;
+      arrivals.push(spawnUnit(world, drop.units[n], player.id, spot.x + 0.5, spot.y + 0.5));
+    }
+
+    if (drop.pilot) {
+      const record = (player.pilots || []).find((p) => p.id === drop.pilot);
+      const chassis = drop.chassis || (record && record.chassis);
+      if (chassis) {
+        const off = ringOffset(1, 5.2);
+        const spot = nearestWalkable(world.map, Math.floor(start.x + off.x), Math.floor(start.y + off.y), 8);
+        if (spot) {
+          const unit = spawnUnit(world, chassis, player.id, spot.x + 0.5, spot.y + 0.5);
+          makeHero(
+            world,
+            unit,
+            { id: drop.pilot, name: drop.name || (record && record.name) || drop.pilot, level: (record && record.level) || 1 },
+            player.defs.abilities
+          );
+          arrivals.push(unit);
+        }
+      }
+    }
+
+    if (arrivals.length === 0) continue;
+    world.events.push({
+      type: 'reinforcement',
+      player: player.id,
+      pilot: drop.pilot || null,
+      name: drop.name || null,
+      message: drop.message || null,
+      ids: arrivals.map((e) => e.id),
+      x: arrivals[0].x,
+      y: arrivals[0].y,
+    });
   }
 }
 

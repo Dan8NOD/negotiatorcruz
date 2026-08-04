@@ -48,7 +48,13 @@ function newPilot(id) {
  * can never drift out of step with the briefings that mention them.
  */
 export function rosterForMission(mission) {
-  return (mission.player.start && mission.player.start.heroes) || [];
+  const deploying = (mission.player.start && mission.player.start.heroes) || [];
+  // Pilots who turn up mid-mission are on the roster too — otherwise they
+  // would earn XP no profile could hold and vanish at the debrief. The
+  // briefing screen reads `start.heroes` directly, so including them here
+  // does not spoil the arrival.
+  const arriving = (mission.reinforcements || []).map((r) => r.pilot).filter(Boolean);
+  return [...deploying, ...arriving];
 }
 
 /** Add any pilots a mission needs who are not on the roster yet. */

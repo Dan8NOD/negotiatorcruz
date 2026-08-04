@@ -14,8 +14,8 @@ build step, no bundler and no runtime dependency.
 npm run serve                 # http://127.0.0.1:4321
 open http://127.0.0.1:4321/rocketman/web/rocketman.html
 
-npm run test:rocketman        # 356 simulation tests
-npm run test:rocketman:e2e    # 34 browser tests
+npm run test:rocketman        # 380 simulation tests
+npm run test:rocketman:e2e    # 38 browser tests
 ```
 
 ---
@@ -155,15 +155,55 @@ under pressure:
 | 6 | Longbow Country | Siege: range you cannot answer, a base you cannot abandon |
 | 7 | Just You and Your Rocket Crew | Everything, with the whole crew |
 
+### Skyfall
+
+Every named pilot carries a second ability on top of whatever their chassis
+mounts: a **36-cell leap on a fifteen-second cooldown** — half the map, every
+fifteen seconds.
+
+That is an enormous amount of reach, and it is the point. A crew that can be
+anywhere is the premise of the campaign, and it is what makes a mid-mission
+arrival at the landing zone useful rather than a twenty-second walk. It is
+also exactly why it is **hero-only**: the same range on a buildable chassis
+would make defending anything meaningless, and the AI cannot field heroes at
+all, so the balance the faction tests pin is untouched.
+
+Landings snap to standable ground. At six cells you can eyeball the target; at
+thirty-six it is routinely under fog and routinely a cliff, and burying the
+player character is not an option.
+
 ### The crew
 
-Five named pilots join as the story introduces them. Each flies one chassis,
+Eight named pilots join as the story introduces them. Each flies one chassis,
 gains XP from what they personally destroy, levels to 5, and unlocks a
 **signature perk at level 3** that applies only to the machine they are sitting
 in — Ash's jump jets recharge 35% faster; Sable's EMP holds two seconds longer.
 
 Pilots are the campaign's throughline. Losing one hurts in a way losing a
 numbered Kestrel never does, which is the entire reason they have names.
+
+**Three of them are not in any briefing.** A mission can schedule an arrival:
+a pilot the crew had written off walks out of the fog on your side, mid-fight.
+Halcyon turns up forty seconds into the first mission with a railspike, which
+is the biggest thing that can happen in a mission that otherwise has three
+machines and no economy. Ghost arrives in the middle of the hardest fight in
+the game, driving Bulwark hardware he did not ask permission for.
+
+Arrivals are mission data — a tick and a pilot — delivered on a tick
+comparison and nothing else, so they replay and resume exactly like the rest
+of the simulation. The briefing screen reads the deploying roster directly, so
+recruiting them into the profile does not spoil them.
+
+### Hero hardware
+
+Three chassis exist that nobody can build, carrying five weapons nobody else
+mounts:
+
+| Chassis | Pilot | Mounts | Reads as |
+|---|---|---|---|
+| **Corvid** | Halcyon | Railspike | A rail gun on legs — outranges every turret, hates being closed on |
+| **Cinder** | Roan | Storm Repeater + Thermite | Walks in and burns everything at arm's length |
+| **Revenant** | Ghost | Arc Projector + Talon Missiles | Stolen Bulwark hardware that disables what it cannot kill |
 
 ### Salvage and the Hangar
 
@@ -279,7 +319,8 @@ should be someone you drive rather than a token you click at.
 |---|---|
 | Drive your pilot | Arrow keys or `WASD` (hold two for a diagonal) |
 | Direct control on / off | `C` |
-| Fire ability | `F` |
+| Fire chassis ability | `F` |
+| **Skyfall** — cross half the map | `G` |
 
 Any right-click order takes the machine back off the sticks — clicking
 somewhere is an unambiguous statement that you have let go. Skirmish has no
@@ -296,6 +337,8 @@ hero, so it starts under the ordinary scheme.
 | Stop / Hold position | `S` / `H` |
 | Fire ability | `F` |
 | Pan the camera | Arrow keys, screen edge, or the minimap |
+| Jump to any machine | Click its chip on the roster bar |
+| Select every combat machine | **All** button, bottom left |
 | Jump to idle Collector | `E` |
 | Jump to Command Rig | `B` |
 | Cycle army | `Tab` |

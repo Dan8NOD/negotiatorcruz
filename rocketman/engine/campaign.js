@@ -21,7 +21,7 @@
  * like something, which is the only narrative job that matters in an RTS.
  */
 
-import { TICKS_PER_SECOND } from './content.js';
+import { TICKS_PER_SECOND, secs } from './content.js';
 import { missionRewards, PILOTS } from './progression.js';
 
 /** Ticks, from minutes — mission timers read better written this way. */
@@ -76,6 +76,21 @@ rig half-buried at the bottom of the second one. It still runs.
 
 We have an economy again. Barely.
 `.trim(),
+    /**
+     * Someone the briefing did not know about.
+     *
+     * Mission one is three machines and no economy, so an unannounced fourth
+     * walking out of the fog is the single biggest thing that can happen in
+     * it — and a railspike is exactly the tool for a listening post you were
+     * expected to walk up to.
+     */
+    reinforcements: [
+      {
+        at: secs(40),
+        pilot: 'halcyon',
+        message: 'Unregistered transponder on the ridge — it is one of ours.',
+      },
+    ],
     player: {
       faction: 'ascendancy',
       name: 'You',
@@ -137,7 +152,12 @@ yet. We do now.
 `.trim(),
     player: {
       faction: 'ascendancy',
-      start: { scrap: 2500, collectors: 3, units: ['vireo'], heroes: ['ash', 'nim'] },
+      start: {
+        scrap: 2500,
+        collectors: 3,
+        units: ['vireo'],
+        heroes: ['ash', 'nim', 'halcyon'],
+      },
     },
     enemy: {
       faction: 'bulwark',
@@ -183,13 +203,20 @@ and we walked through a turret emplacement that could not fire.
 He did not say anything about it afterwards. He just sat in the Ember with the
 canopy open for about an hour.
 `.trim(),
+    reinforcements: [
+      {
+        at: secs(75),
+        pilot: 'roan',
+        message: 'Roan Ijaz walked out of the crater field. He brought a Cinder.',
+      },
+    ],
     player: {
       faction: 'ascendancy',
       start: {
         scrap: 5000,
         collectors: 4,
         units: ['vireo', 'kestrel'],
-        heroes: ['ash', 'nim', 'box'],
+        heroes: ['ash', 'nim', 'box', 'halcyon'],
         buildings: ['refinery'],
       },
     },
@@ -248,7 +275,7 @@ She was right about that too.
         scrap: 7000,
         collectors: 5,
         units: ['kestrel', 'vireo', 'vireo'],
-        heroes: ['ash', 'nim', 'box', 'sable'],
+        heroes: ['ash', 'nim', 'box', 'sable', 'halcyon', 'roan'],
         buildings: ['refinery', 'foundry', 'reactor'],
         tech: ['techlab'],
       },
@@ -293,13 +320,25 @@ gone and with it their nearest source of Anvils.
 
 Wren landed with two-thirds of a wing and asked when we were going again.
 `.trim(),
+    /**
+     * The one the campaign has been holding back. Ghost was written off with
+     * the third wave; he arrives in the middle of the hardest fight in the
+     * game, driving Bulwark hardware he did not ask permission for.
+     */
+    reinforcements: [
+      {
+        at: mins(2.5),
+        pilot: 'ghost',
+        message: 'Bulwark contact in our rear — belay that. It is Solveig. He is alive.',
+      },
+    ],
     player: {
       faction: 'ascendancy',
       start: {
         scrap: 7000,
         collectors: 4,
         units: ['kestrel', 'vireo'],
-        heroes: ['ash', 'nim', 'box', 'sable', 'wren'],
+        heroes: ['ash', 'nim', 'box', 'sable', 'wren', 'halcyon', 'roan'],
         // "They have a working base and so do you" — the briefing's words. A
         // player opening with one Refinery against five structures is not that
         // mission, and once veterancy exists an early deficit compounds
@@ -367,7 +406,7 @@ The rig is intact. That was the whole job.
         scrap: 8000,
         collectors: 5,
         units: ['kestrel', 'kestrel', 'vireo'],
-        heroes: ['ash', 'nim', 'box', 'sable', 'wren'],
+        heroes: ['ash', 'nim', 'box', 'sable', 'wren', 'halcyon', 'roan', 'ghost'],
         buildings: ['refinery', 'foundry', 'reactor', 'techlab'],
       },
     },
@@ -428,7 +467,7 @@ It is enough. It was always going to be.
         scrap: 9000,
         collectors: 6,
         units: ['kestrel', 'kestrel', 'ember', 'vireo'],
-        heroes: ['ash', 'nim', 'box', 'sable', 'wren'],
+         heroes: ['ash', 'nim', 'box', 'sable', 'wren', 'halcyon', 'roan', 'ghost'],
         buildings: ['refinery', 'foundry', 'reactor', 'reactor', 'techlab'],
       },
     },

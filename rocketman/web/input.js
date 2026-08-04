@@ -17,7 +17,7 @@ import { canPlace } from '../engine/grid.js';
 import { withinBuildRadius } from '../engine/sim.js';
 import { isExplored } from '../engine/vision.js';
 import { techAllows, canAfford } from '../engine/economy.js';
-import { abilityReady } from '../engine/abilities.js';
+import { abilityReady, CHASSIS_SLOT, HERO_SLOT } from '../engine/abilities.js';
 import { superweaponReady } from '../engine/economy.js';
 
 /** Camera pan speed in cells per second. */
@@ -54,6 +54,8 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   let placementDefId = null;
   /** True while the player is picking a target for a targeted ability. */
   let abilityArmed = false;
+  /** Which ability slot the armed targeting belongs to. */
+  let armedSlot = CHASSIS_SLOT;
   /** The Lance whose strike is currently being aimed, if any. */
   let strikeEmitter = null;
 
@@ -159,7 +161,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   function announceSelection() {
     cancelPlacement();
     cancelStrike();
-    abilityArmed = false;
+    disarmAbility();
     retargetDriving();
     if (hooks.onSelectionChange) hooks.onSelectionChange(selectedEntities());
   }
@@ -223,6 +225,60 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     emit({ type: 'attackMove', player: viewerId, ids, x: wx, y: wy, queue: queued });
   }
 
+  /* ------------------------------------------------------ roster bar -- */
+
+  /*
+   * Selection helpers the bottom bar drives. They live here rather than in
+   * main.js because selection state does, and because a click on a portrait
+   * has to behave exactly like the equivalent keyboard or mouse action —
+   * including handing the cockpit over when direct control is engaged.
+   */
+
+  /** Centre the camera on something, and take the sticks if we are driving. */
+  function focusOn(e) {
+    if (!e || e.dead) return;
+    selectSingle(e, false);
+    renderer.centreOn(e.x, e.y);
+  }
+
+  /** Every combat machine we own. Collectors stay out of it — box-select
+   *  already refuses to grab them, and pulling the economy into an army
+   *  selection is how you accidentally send four Collectors at a turret. */
+  function selectAllUnits() {
+    selection.clear();
+    const combat = [];
+    for (const e of world.entities.values()) {
+      if (mine(e) && e.kind === 'unit' && !e.harvest) combat.push(e);
+    }
+    for (const e of combat) selection.add(e.id);
+    announceSelection();
+    if (combat.length) {
+      // Frame the group rather than one member, so "select all" also answers
+      // "where is my army".
+      let x = 0;
+      let y = 0;
+      for (const e of combat) {
+        x += e.x;
+        y += e.y;
+      }
+      renderer.centreOn(x / combat.length, y / combat.length);
+    }
+    return combat.length;
+  }
+
+  /** Every machine of one type, wherever it is — the roster bar's group chips. */
+  function selectByDefId(defId) {
+    selection.clear();
+    const hits = [];
+    for (const e of world.entities.values()) {
+      if (mine(e) && e.kind === 'unit' && e.defId === defId) hits.push(e);
+    }
+    for (const e of hits) selection.add(e.id);
+    announceSelection();
+    if (hits.length) renderer.centreOn(hits[0].x, hits[0].y);
+    return hits.length;
+  }
+
   /* --------------------------------------------------- direct control -- */
 
   /**
@@ -276,7 +332,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
       }
       cancelPlacement();
       cancelStrike();
-      abilityArmed = false;
+      disarmAbility();
       drivenId = unit.id;
       driving = true;
       // Driving something you cannot see selected is disorienting, so the
@@ -340,13 +396,13 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
 
   /* -------------------------------------------------------- abilities -- */
 
-  /** Units in the selection that have an ability off cooldown. */
-  function readyAbilityUnits() {
-    return selectedEntities().filter((e) => e.ability && abilityReady(world, e));
+  /** Units in the selection whose ability in `slot` is off cooldown. */
+  function readyAbilityUnits(slot = CHASSIS_SLOT) {
+    return selectedEntities().filter((e) => e[slot] && abilityReady(world, e, slot));
   }
 
-  function triggerAbility(wx, wy) {
-    const units = readyAbilityUnits();
+  function triggerAbility(wx, wy, slot = armedSlot) {
+    const units = readyAbilityUnits(slot);
     if (units.length === 0) {
       notify('No ability ready.');
       return false;
@@ -355,6 +411,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
       type: 'ability',
       player: viewerId,
       ids: units.map((e) => e.id),
+      slot,
       x: wx,
       y: wy,
     });
@@ -367,18 +424,21 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
    * abilities go off immediately — making the player click for a self-buff is
    * a click that carries no information.
    */
-  function useAbility() {
-    const units = readyAbilityUnits();
+  function useAbility(slot = CHASSIS_SLOT) {
+    const units = readyAbilityUnits(slot);
     if (units.length === 0) {
-      notify('No ability ready.');
+      notify(slot === HERO_SLOT ? 'Skyfall is still recharging.' : 'No ability ready.');
       return;
     }
-    const needsTarget = units.some((e) => e.ability.def.targeted);
+    const needsTarget = units.some((e) => e[slot].def.targeted);
     if (needsTarget) {
       abilityArmed = true;
-      notify(`${units[0].ability.def.name}: pick a target point.`);
+      armedSlot = slot;
+      // Skyfall reaches half the map, so the reticle has to show how far.
+      renderer.state.abilityAim = { radius: units[0][slot].def.distance || 0 };
+      notify(`${units[0][slot].def.name}: pick a target point.`);
     } else {
-      triggerAbility(units[0].x, units[0].y);
+      triggerAbility(units[0].x, units[0].y, slot);
     }
   }
 
@@ -395,7 +455,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
       return;
     }
     cancelPlacement();
-    abilityArmed = false;
+    disarmAbility();
     strikeEmitter = building;
     renderer.state.strikeAim = { radius: building.def.superweapon.radius };
     notify(`${building.def.superweapon.name} armed — pick a target.`);
@@ -404,6 +464,12 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   function cancelStrike() {
     strikeEmitter = null;
     renderer.state.strikeAim = null;
+  }
+
+  function disarmAbility() {
+    abilityArmed = false;
+    armedSlot = CHASSIS_SLOT;
+    renderer.state.abilityAim = null;
   }
 
   function fireStrike(wx, wy) {
@@ -513,7 +579,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
       if (placementDefId || abilityArmed || strikeEmitter) {
         cancelPlacement();
         cancelStrike();
-        abilityArmed = false;
+        disarmAbility();
         return;
       }
       const w = renderer.screenToWorld(x, y);
@@ -622,7 +688,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
       case 'escape':
         cancelPlacement();
         cancelStrike();
-        abilityArmed = false;
+        disarmAbility();
         setDriving(false);
         break;
       case 'a': {
@@ -637,7 +703,10 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
         emit({ type: 'hold', player: viewerId, ids: [...selection] });
         break;
       case 'f':
-        useAbility();
+        useAbility(CHASSIS_SLOT);
+        break;
+      case 'g':
+        useAbility(HERO_SLOT);
         break;
       case 'e': {
         // Jump to the next idle collector — the single most useful key in any
@@ -771,6 +840,9 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     armStrike,
     cancelStrike,
     useAbility,
+    selectAllUnits,
+    selectByDefId,
+    focusOn,
     sellSelected: (ids) => emit({ type: 'sell', player: viewerId, ids }),
     toggleRepair: (ids, on) => emit({ type: 'repair', player: viewerId, ids, on }),
     selectSingle,

@@ -93,6 +93,8 @@ export function createRenderer(canvas, world, viewerId) {
     hoverPixel: { x: 0, y: 0 },
     /** Set by input.js while a superweapon strike is being aimed. */
     strikeAim: null,
+    /** Set by input.js while a targeted ability is being aimed. */
+    abilityAim: null,
     /** Set by input.js while a structure is being sited. */
     placement: null,
     selectionBox: null,
@@ -171,6 +173,7 @@ export function createRenderer(canvas, world, viewerId) {
     drawBuildings(selection);
     drawPlacementPreview();
     drawStrikePreview();
+    drawAbilityPreview(selection);
     drawUnits(selection);
     drawProjectiles();
     drawEffects();
@@ -1106,6 +1109,56 @@ export function createRenderer(canvas, world, viewerId) {
       ctx.moveTo(x + Math.cos(b) * r * 0.4, y + Math.sin(b) * r * 0.4);
       ctx.lineTo(x + Math.cos(b) * r, y + Math.sin(b) * r);
       ctx.stroke();
+    }
+  }
+
+  /**
+   * Reach ring for a targeted ability being aimed.
+   *
+   * Skyfall crosses half the map, which is far enough that "click roughly
+   * over there" stops being good enough — the player needs to see whether the
+   * far ridge is actually in range before committing a fifteen-second
+   * cooldown. Drawn from the unit outward rather than at the cursor, because
+   * the question is how far *this machine* can go.
+   */
+  function drawAbilityPreview(selection) {
+    const aim = state.abilityAim;
+    if (!aim || !aim.radius) return;
+
+    for (const id of selection) {
+      const e = world.entities.get(id);
+      if (!e || e.dead) continue;
+      const x = e.x * CELL;
+      const y = e.y * CELL;
+      const r = aim.radius * CELL;
+
+      ctx.strokeStyle = 'rgba(140, 220, 255, 0.5)';
+      ctx.lineWidth = 1.5;
+      ctx.setLineDash([10, 8]);
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, TAU);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // The landing point, snapped the way the engine will snap it.
+      const w = screenToWorld(state.hoverPixel.x, state.hoverPixel.y);
+      const dx = w.x - e.x;
+      const dy = w.y - e.y;
+      const d = Math.sqrt(dx * dx + dy * dy) || 1;
+      const reach = Math.min(d, aim.radius);
+      const tx = (e.x + (dx / d) * reach) * CELL;
+      const ty = (e.y + (dy / d) * reach) * CELL;
+
+      ctx.strokeStyle = 'rgba(180, 235, 255, 0.9)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.arc(tx, ty, 9, 0, TAU);
+      ctx.moveTo(tx - 14, ty);
+      ctx.lineTo(tx + 14, ty);
+      ctx.moveTo(tx, ty - 14);
+      ctx.lineTo(tx, ty + 14);
+      ctx.stroke();
+      break; // one ring is enough; a group all leaps to the same point
     }
   }
 
