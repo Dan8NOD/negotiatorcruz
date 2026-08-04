@@ -10,6 +10,7 @@
 
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync, readdirSync } from 'node:fs';
 
 import { makeWorld, makeBareWorld, run, runAI, hashWorld, findEntity, countOf } from './helpers.js';
 import { createWorld, tick, applyCommand, visibleTo } from '../engine/sim.js';
@@ -71,6 +72,47 @@ describe('determinism', () => {
       Math.random = original;
     }
     assert.equal(calls, 0, `engine called Math.random ${calls} times`);
+  });
+
+  test('the engine never calls an implementation-approximated Math function', () => {
+    // Math.random is not the only way to lose determinism, and the other way is
+    // much harder to notice. ECMA-262 lets a conforming engine return whatever
+    // it likes, within tolerance, from hypot/sin/cos/atan2/pow and friends —
+    // so these differ between V8 and Safari's JavaScriptCore, and between both
+    // and the C library a Swift build links against. Measured on this game's
+    // coordinate range, Math.hypot and sqrt(dx*dx + dy*dy) disagree 37.9% of
+    // the time, by one unit in the last place. That is enough: distances gate
+    // arrival, targeting and damage falloff, so one flipped comparison sends
+    // two machines down different branches permanently.
+    //
+    // Distance goes through numeric.js. The two genuinely cosmetic uses —
+    // `facing` and `leapHeight`, both written by the engine and read only by
+    // the renderer — are named helpers in the same file, so adding a third is
+    // a deliberate act rather than a one-character edit.
+    const FORBIDDEN = [
+      'hypot', 'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'atan2',
+      'pow', 'exp', 'expm1', 'log', 'log2', 'log10', 'log1p', 'cbrt',
+      'sinh', 'cosh', 'tanh', 'asinh', 'acosh', 'atanh',
+    ];
+    const dir = new URL('../engine/', import.meta.url);
+    const offenders = [];
+
+    for (const file of readdirSync(dir).filter((f) => f.endsWith('.js'))) {
+      if (file === 'numeric.js') continue; // the one place they are allowed
+      const src = readFileSync(new URL(file, dir), 'utf8')
+        .replace(/\/\*[\s\S]*?\*\//g, '')
+        .replace(/\/\/[^\n]*/g, '');
+      for (const fn of FORBIDDEN) {
+        const hit = new RegExp(`Math\\.${fn}\\s*\\(`).exec(src);
+        if (hit) offenders.push(`${file}: Math.${fn}(`);
+      }
+    }
+
+    assert.deepEqual(
+      offenders,
+      [],
+      `use numeric.js instead:\n  ${offenders.join('\n  ')}`
+    );
   });
 });
 

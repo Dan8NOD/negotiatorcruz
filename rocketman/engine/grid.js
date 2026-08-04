@@ -12,6 +12,7 @@
 
 import { TERRAIN, TERRAIN_INFO } from './content.js';
 import { createRng } from './rng.js';
+import { len } from './numeric.js';
 
 /* ------------------------------------------------------------------ map -- */
 
@@ -133,7 +134,7 @@ function addFieldPair(map, cx, cy, r, amountPerCell, rng) {
   const shape = [];
   for (let y = cy - r; y <= cy + r; y++) {
     for (let x = cx - r; x <= cx + r; x++) {
-      const d = Math.hypot(x - cx, y - cy);
+      const d = len(x - cx, y - cy);
       if (d > r) continue;
       if (d > r * 0.55 && rng.chance(0.45)) continue;
       shape.push({ dx: x - cx, dy: y - cy, amount: Math.round(amountPerCell * (1 - (d / r) * 0.4)) });
@@ -338,7 +339,7 @@ export function findPath(map, sx, sy, gx, gy, { goalRadius = 0, maxNodes = 9000 
   open.push(startIdx, heuristic(sx, sy, gx, gy));
 
   const reached = (x, y) =>
-    goalRadius <= 0 ? x === gx && y === gy : Math.hypot(x - gx, y - gy) <= goalRadius;
+    goalRadius <= 0 ? x === gx && y === gy : len(x - gx, y - gy) <= goalRadius;
 
   let expanded = 0;
   let best = -1;

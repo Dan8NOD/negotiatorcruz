@@ -26,6 +26,7 @@ import {
 } from './entities.js';
 import { setPath } from './movement.js';
 import { inBounds } from './grid.js';
+import { len } from './numeric.js';
 
 /** A brownout never stops production dead — it grinds. */
 const MIN_PRODUCTION_RATE = 0.25;
@@ -227,7 +228,7 @@ export function nearestResourceCell(map, x, y, maxRadius = 30) {
   for (const field of map.fields) {
     for (const c of field.cells) {
       if (resourceAt(map, c.x, c.y) <= 0) continue;
-      const d = Math.hypot(c.x - ox, c.y - oy);
+      const d = len(c.x - ox, c.y - oy);
       if (d < bestD && d <= maxRadius) {
         bestD = d;
         best = c;
@@ -243,7 +244,7 @@ export function nearestDropOff(world, unit) {
   let bestD = Infinity;
   for (const b of playerEntities(world, unit.player, 'building')) {
     if (!b.def.dropOff || b.constructing) continue;
-    const d = Math.hypot(b.x - unit.x, b.y - unit.y);
+    const d = len(b.x - unit.x, b.y - unit.y);
     if (d < bestD) {
       bestD = d;
       best = b;
@@ -276,7 +277,7 @@ export function updateHarvester(world, e) {
     }
 
     case 'toField': {
-      const d = Math.hypot(e.x - (h.cell.x + 0.5), e.y - (h.cell.y + 0.5));
+      const d = len(e.x - (h.cell.x + 0.5), e.y - (h.cell.y + 0.5));
       if (d <= FIELD_REACH) {
         h.state = 'harvesting';
         e.path = [];
@@ -334,7 +335,7 @@ export function updateHarvester(world, e) {
       // banked the moment the player rebuilds.
       if (!target) return;
 
-      const d = Math.max(0, Math.hypot(e.x - target.x, e.y - target.y) - target.radius);
+      const d = Math.max(0, len(e.x - target.x, e.y - target.y) - target.radius);
       if (d <= DEPOT_REACH) {
         const player = world.players[e.player];
         player.scrap += Math.round(e.cargo);

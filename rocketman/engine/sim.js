@@ -55,6 +55,7 @@ import {
 import { createVision, updateVision, VISION_INTERVAL, isVisible } from './vision.js';
 import { resolveDefs } from './progression.js';
 import { prepareObjectives, evaluateObjectives, OBJECTIVE_INTERVAL } from './objectives.js';
+import { len, ringOffset, facingTo } from './numeric.js';
 
 export { TICKS_PER_SECOND };
 
@@ -160,10 +161,14 @@ function seedForces(world, player, start, setup = {}) {
   const faction = FACTIONS[player.faction];
   const wantsBase = setup.base !== false;
 
-  let angle = 0;
+  // Steps around a ring of fixed angular stride. The cos/sin come from a baked
+  // table rather than Math, so spawn positions are identical on every engine —
+  // see numeric.js. The arithmetic is unchanged, so are the positions.
+  let step = 0;
   const ring = (radius) => {
-    angle += 1.1;
-    return { x: start.x + Math.cos(angle) * radius, y: start.y + Math.sin(angle) * radius };
+    step += 1;
+    const off = ringOffset(step, radius);
+    return { x: start.x + off.x, y: start.y + off.y };
   };
 
   if (wantsBase) {
@@ -401,7 +406,7 @@ export function withinBuildRadius(world, playerId, size, cx, cy) {
   for (const b of playerEntities(world, playerId, 'building')) {
     if (b.constructing) continue;
     const reach = b.defId === 'command' ? BUILD_RADIUS : BUILD_RADIUS * 0.7;
-    if (Math.hypot(b.x - px, b.y - py) <= reach) return true;
+    if (len(b.x - px, b.y - py) <= reach) return true;
   }
   return false;
 }
@@ -454,7 +459,7 @@ function resolveStrikes(world) {
 
     for (const e of world.index.query(strike.x, strike.y, strike.radius + 2)) {
       if (e.dead) continue;
-      const d = Math.max(0, Math.hypot(e.x - strike.x, e.y - strike.y) - (e.radius || 0));
+      const d = Math.max(0, len(e.x - strike.x, e.y - strike.y) - (e.radius || 0));
       if (d > strike.radius) continue;
       const scale = 1 - (d / strike.radius) * (1 - strike.falloff);
       applyDamage(world, e, strike.damage * scale, strike.damageType, strike.owner);
@@ -630,7 +635,7 @@ function updateOrder(world, e) {
         break;
       }
 
-      const remaining = Math.hypot(e.x - order.x, e.y - order.y);
+      const remaining = len(e.x - order.x, e.y - order.y);
       if (remaining < 1.5) {
         nextOrder(world, e);
         break;
@@ -661,14 +666,14 @@ function pursue(world, e, target) {
 
   if (dist <= reach * 0.85) {
     if (e.path.length) clearPath(e);
-    e.facing = Math.atan2(target.y - e.y, target.x - e.x);
+    e.facing = facingTo(target.x - e.x, target.y - e.y);
     return;
   }
 
   // Deployed siege has to pack up before it can chase anything.
   if (e.deployed) return;
 
-  if (e.path.length === 0 || !e.pursuitAnchor || Math.hypot(target.x - e.pursuitAnchor.x, target.y - e.pursuitAnchor.y) > 1.5) {
+  if (e.path.length === 0 || !e.pursuitAnchor || len(target.x - e.pursuitAnchor.x, target.y - e.pursuitAnchor.y) > 1.5) {
     e.pursuitAnchor = { x: target.x, y: target.y };
     setPath(world, e, target.x, target.y, { goalRadius: Math.max(1, reach * 0.8) });
   }

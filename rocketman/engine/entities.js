@@ -19,6 +19,7 @@ import {
   damageMultiplier,
 } from './content.js';
 import { occupy, vacate, footprint, nearestWalkable } from './grid.js';
+import { len } from './numeric.js';
 
 /* --------------------------------------------------------------- create -- */
 
@@ -382,7 +383,7 @@ export function killEntity(world, e, sourceId = 0) {
     if (boom && !e.constructing) {
       for (const other of world.entities.values()) {
         if (other.dead || other.id === e.id) continue;
-        if (Math.hypot(other.x - e.x, other.y - e.y) > boom.radius) continue;
+        if (len(other.x - e.x, other.y - e.y) > boom.radius) continue;
         applyDamage(world, other, boom.damage, boom.type, e.id);
       }
       world.events.push({ type: 'explosion', x: e.x, y: e.y, radius: boom.radius, big: true });
@@ -429,7 +430,7 @@ export function buildSpatialIndex(world) {
           const bucket = buckets.get(gy * 4096 + gx);
           if (!bucket) continue;
           for (const e of bucket) {
-            if (Math.hypot(e.x - x, e.y - y) <= radius) out.push(e);
+            if (len(e.x - x, e.y - y) <= radius) out.push(e);
           }
         }
       }
@@ -439,7 +440,7 @@ export function buildSpatialIndex(world) {
 }
 
 export function distance(a, b) {
-  return Math.hypot(a.x - b.x, a.y - b.y);
+  return len(a.x - b.x, a.y - b.y);
 }
 
 /**

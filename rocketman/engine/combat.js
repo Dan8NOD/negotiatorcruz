@@ -8,6 +8,7 @@
  */
 
 import { applyDamage, disable, rangeTo, buildSpatialIndex, vetBonus } from './entities.js';
+import { len, facingTo } from './numeric.js';
 
 /** Idle units engage what wanders into range but do not chase it. */
 const LEASH = 1.05;
@@ -129,7 +130,7 @@ export function updateWeapons(world, e, index) {
     // Siege mortars cannot depress far enough to hit what is on top of them.
     if (weapon.def.minRange && dist < weapon.def.minRange) continue;
 
-    e.facing = Math.atan2(target.y - e.y, target.x - e.x);
+    e.facing = facingTo(target.x - e.x, target.y - e.y);
     // Rank raises rate of fire. Applied here rather than baked into the weapon
     // so a promotion takes effect on the very next trigger pull.
     weapon.cooldown = Math.max(1, Math.round(weapon.def.cooldown * vetBonus(e).cooldown));
@@ -199,7 +200,7 @@ function fireOnce(world, owner, weapon, target) {
     startX: owner.x,
     startY: owner.y,
     travelled: 0,
-    totalDistance: Math.hypot(target.x + jitterX - owner.x, target.y + jitterY - owner.y),
+    totalDistance: len(target.x + jitterX - owner.x, target.y + jitterY - owner.y),
     life: 200,
   });
 }
@@ -226,7 +227,7 @@ export function updateProjectiles(world) {
 
     const dx = p.tx - p.x;
     const dy = p.ty - p.y;
-    const dist = Math.hypot(dx, dy);
+    const dist = len(dx, dy);
 
     if (dist <= p.speed) {
       p.x = p.tx;
@@ -250,7 +251,7 @@ function impact(world, p) {
     const index = world.index || buildSpatialIndex(world);
     for (const e of index.query(p.x, p.y, radius + 1)) {
       if (e.dead) continue;
-      const d = Math.max(0, Math.hypot(e.x - p.x, e.y - p.y) - (e.radius || 0));
+      const d = Math.max(0, len(e.x - p.x, e.y - p.y) - (e.radius || 0));
       if (d > radius) continue;
       // Linear falloff to `falloff` of full damage at the rim.
       const scale = 1 - (d / radius) * (1 - p.splash.falloff);

@@ -9,6 +9,7 @@
 
 import { TICKS_PER_SECOND } from './content.js';
 import { findPath, smoothPath, isWalkable, nearestWalkable, moveCost } from './grid.js';
+import { len, facingTo, arcHeight } from './numeric.js';
 
 /** How close to a waypoint counts as arriving. */
 const WAYPOINT_EPS = 0.45;
@@ -100,7 +101,7 @@ export function stepMovement(world, e, index) {
 
   let dx = tx - e.x;
   let dy = ty - e.y;
-  const dist = Math.hypot(dx, dy);
+  const dist = len(dx, dy);
 
   const eps = last ? ARRIVE_EPS : WAYPOINT_EPS;
   if (dist <= eps) {
@@ -121,20 +122,20 @@ export function stepMovement(world, e, index) {
   const push = separation(world, e, index);
   let mx = dx + push.x;
   let my = dy + push.y;
-  const mlen = Math.hypot(mx, my) || 1;
+  const mlen = len(mx, my) || 1;
   mx = (mx / mlen) * speed;
   my = (my / mlen) * speed;
 
   const before = { x: e.x, y: e.y };
   moveWithSlide(world, e, mx, my);
 
-  e.facing = Math.atan2(my, mx);
+  e.facing = facingTo(mx, my);
   e.vx = e.x - before.x;
   e.vy = e.y - before.y;
 
   // Progress check: hemmed in by other units or a structure built across the
   // route. Re-plan rather than grinding against the obstacle forever.
-  if (Math.hypot(e.vx, e.vy) < speed * 0.25) {
+  if (len(e.vx, e.vy) < speed * 0.25) {
     if (++e.stuckTicks > STUCK_LIMIT) {
       e.stuckTicks = 0;
       if (e.pathGoal) {
@@ -168,7 +169,7 @@ function separation(world, e, index) {
     if (other.layer !== e.layer) continue;
     const dx = e.x - other.x;
     const dy = e.y - other.y;
-    const d = Math.hypot(dx, dy);
+    const d = len(dx, dy);
     const minDist = e.radius + other.radius;
     if (d >= minDist || d === 0) continue;
     const strength = (minDist - d) / minDist;
@@ -177,11 +178,11 @@ function separation(world, e, index) {
   }
 
   // Capped so avoidance nudges a unit sideways rather than reversing it.
-  const len = Math.hypot(px, py);
+  const push = len(px, py);
   const max = 0.85;
-  if (len > max) {
-    px = (px / len) * max;
-    py = (py / len) * max;
+  if (push > max) {
+    px = (px / push) * max;
+    py = (py / push) * max;
   }
   return { x: px, y: py };
 }
@@ -242,7 +243,7 @@ export function beginLeap(world, e, tx, ty, duration) {
   };
   e.path = [];
   e.pathGoal = null;
-  e.facing = Math.atan2(ty - e.y, tx - e.x);
+  e.facing = facingTo(tx - e.x, ty - e.y);
   world.events.push({ type: 'leapStart', id: e.id, x: e.x, y: e.y, tx, ty });
 }
 
@@ -269,6 +270,6 @@ function stepLeap(world, e) {
   e.x = leap.fromX + (leap.toX - leap.fromX) * t;
   e.y = leap.fromY + (leap.toY - leap.fromY) * t;
   /** Purely cosmetic; the renderer lifts the sprite by this much. */
-  e.leapHeight = Math.sin(t * Math.PI);
+  e.leapHeight = arcHeight(t);
   return false;
 }

@@ -19,6 +19,7 @@ import { techAllows, superweaponReady } from './economy.js';
 import { suggestAbility, abilityReady } from './abilities.js';
 import { visibleEnemies } from './vision.js';
 import { withinBuildRadius, BUILD_RADIUS } from './sim.js';
+import { len } from './numeric.js';
 
 export const DIFFICULTIES = {
   easy: {
@@ -153,7 +154,7 @@ function superweaponTarget(world, player) {
   for (const candidate of seen) {
     let value = 0;
     for (const other of seen) {
-      if (Math.hypot(other.x - candidate.x, other.y - candidate.y) > radius) continue;
+      if (len(other.x - candidate.x, other.y - candidate.y) > radius) continue;
       value += other.def.cost || 200;
     }
     if (value > bestValue) {
@@ -322,7 +323,7 @@ function nearestUnworkedField(world, player, hq) {
       0
     );
     if (remaining < 2000) continue;
-    const d = Math.hypot(field.x - hq.x, field.y - hq.y);
+    const d = len(field.x - hq.x, field.y - hq.y);
     if (d < bestD) {
       bestD = d;
       best = field;
@@ -407,7 +408,7 @@ function militaryCommands(world, player, army) {
   // Defence overrides everything: something is in the base right now.
   const hq = buildings.find((b) => b.defId === 'command');
   if (hq) {
-    const intruders = seen.filter((e) => Math.hypot(e.x - hq.x, e.y - hq.y) < 16);
+    const intruders = seen.filter((e) => len(e.x - hq.x, e.y - hq.y) < 16);
     if (intruders.length > 0) {
       ai.phase = 'defending';
       const target = intruders[0];
@@ -564,7 +565,7 @@ function enemyBase(world, player) {
 function enemyNear(world, player, point, radius) {
   for (const e of world.entities.values()) {
     if (e.dead || e.player === player.id) continue;
-    if (Math.hypot(e.x - point.x, e.y - point.y) <= radius) return true;
+    if (len(e.x - point.x, e.y - point.y) <= radius) return true;
   }
   return false;
 }

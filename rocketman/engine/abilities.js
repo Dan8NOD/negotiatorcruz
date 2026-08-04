@@ -10,6 +10,7 @@
 import { TICKS_PER_SECOND } from './content.js';
 import { applyDamage, disable, rangeTo } from './entities.js';
 import { beginLeap } from './movement.js';
+import { len } from './numeric.js';
 
 /** Why an ability cannot fire right now, or null if it can. */
 export function abilityBlocker(world, e) {
@@ -41,7 +42,7 @@ export function activateAbility(world, e, x, y) {
     case 'leap': {
       const dx = x - e.x;
       const dy = y - e.y;
-      const dist = Math.hypot(dx, dy) || 1;
+      const dist = len(dx, dy) || 1;
       const reach = Math.min(dist, def.distance);
       beginLeap(world, e, e.x + (dx / dist) * reach, e.y + (dy / dist) * reach, def.duration);
       break;
@@ -78,7 +79,7 @@ export function activateAbility(world, e, x, y) {
       const targets = index ? index.query(x, y, def.radius + 1) : [];
       for (const other of targets) {
         if (other.dead || other.player === e.player) continue;
-        if (Math.hypot(other.x - x, other.y - y) > def.radius) continue;
+        if (len(other.x - x, other.y - y) > def.radius) continue;
         disable(world, other, def.disable);
       }
       world.effects.push({
@@ -192,7 +193,7 @@ export function suggestAbility(world, e, index) {
       let bestCount = 2;
       for (const candidate of enemies) {
         const count = enemies.filter(
-          (o) => Math.hypot(o.x - candidate.x, o.y - candidate.y) <= def.radius
+          (o) => len(o.x - candidate.x, o.y - candidate.y) <= def.radius
         ).length;
         if (count > bestCount) {
           bestCount = count;

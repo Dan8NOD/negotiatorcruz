@@ -14,6 +14,7 @@
 
 import { playerEntities } from './entities.js';
 import { TICKS_PER_SECOND } from './content.js';
+import { len } from './numeric.js';
 
 /** How often objectives are re-checked. Five ticks is a quarter-second. */
 export const OBJECTIVE_INTERVAL = 5;
@@ -98,7 +99,7 @@ const KINDS = {
   /** Get any unit within radius of a point. */
   reach(world, o) {
     const arrived = playerEntities(world, o.player ?? 0, 'unit').some(
-      (u) => Math.hypot(u.x - o.x, u.y - o.y) <= (o.radius || 3)
+      (u) => len(u.x - o.x, u.y - o.y) <= (o.radius || 3)
     );
     return { done: arrived, progress: arrived ? 1 : 0, total: 1 };
   },
