@@ -1,8 +1,7 @@
 # The One-Page Method Summary
 
-*The blueprint calls this "the most photocopied page you produce" and says to
-design it last. It's drafted first instead — as the reaction object. Method
-name is the working candidate pending Dan's call.*
+*The blueprint calls this "the most photocopied page you produce." Name
+confirmed: Six Before Yes.*
 
 ---
 

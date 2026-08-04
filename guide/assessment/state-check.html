@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The State Check — What's Your Default Under Pressure? | Negotiators on Demand</title>
+<meta name="description" content="Two minutes, twelve questions. Find your default state when a negotiation gets uncomfortable — Torn, Ready, or Not Yet. You'll need it for Chapter 4 of Six Before Yes.">
+<meta property="og:title" content="The State Check — Six Before Yes">
+<meta property="og:description" content="Twelve questions. Your default state under pressure. Needed for Chapter 4.">
+<style>
+:root{--ink:#20180e;--paper:#fffdf8;--gold:#8a6a2f;--gold-d:#6f5526;--dim:#5b5343;--line:#e4dcc8}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font:17px/1.6 Georgia,'Times New Roman',serif;background:var(--paper);color:var(--ink);
+ display:flex;justify-content:center;padding:32px 16px 80px}
+.wrap{max-width:640px;width:100%}
+.kick{font:700 11px/1 Arial,sans-serif;letter-spacing:.28em;text-transform:uppercase;color:var(--gold)}
+h1{font-size:clamp(26px,5vw,34px);line-height:1.15;margin:10px 0 8px}
+.sub{color:var(--dim);font-style:italic;margin-bottom:26px}
+.bar{height:5px;background:var(--line);border-radius:3px;margin:0 0 26px;overflow:hidden}
+.bar i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s}
+.qcard{border:1px solid var(--line);border-radius:10px;padding:22px;background:#fff;box-shadow:0 1px 4px rgba(138,106,47,.07)}
+.qnum{font:700 11px/1 Arial,sans-serif;letter-spacing:.12em;color:var(--gold);text-transform:uppercase;margin-bottom:8px}
+.qtext{font-size:19px;line-height:1.4;margin-bottom:18px;font-weight:700;font-family:Arial,sans-serif}
+.opt{display:block;width:100%;text-align:left;font:16px/1.45 Georgia,serif;background:#faf7ee;border:1.5px solid var(--line);
+ border-radius:8px;padding:13px 15px;margin-bottom:10px;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--gold);background:#f5efdf}
+.res{display:none}
+.res.on{display:block;animation:up .4s ease}
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.state-name{font:800 34px/1 Arial,sans-serif;color:var(--gold-d);margin:6px 0 4px}
+.formula{font-family:Arial,sans-serif;font-size:15px;background:#f5efdf;border-left:3px solid var(--gold);
+ padding:10px 14px;margin:16px 0;border-radius:0 6px 6px 0}
+.res h3{font-family:Arial,sans-serif;font-size:13px;letter-spacing:.1em;text-transform:uppercase;color:var(--gold);margin:22px 0 8px}
+.res p{margin-bottom:12px}
+.res ul{margin:0 0 14px 20px}.res li{margin-bottom:7px}
+.mix{color:var(--dim);font-size:14px;font-style:italic;margin-top:4px}
+.cta{display:inline-block;background:var(--gold);color:#fff;text-decoration:none;font:700 15px Arial,sans-serif;
+ padding:13px 24px;border-radius:8px;margin-top:8px}
+.cta:hover{background:var(--gold-d)}
+.lead{margin-top:28px;border-top:1px solid var(--line);padding-top:20px}
+.lead input{width:100%;font:16px Georgia,serif;padding:11px 13px;border:1.5px solid var(--line);border-radius:8px;margin:8px 0}
+.lead button{background:var(--gold);color:#fff;border:0;font:700 15px Arial,sans-serif;padding:12px 22px;border-radius:8px;cursor:pointer}
+.note{font-size:13px;color:var(--dim);margin-top:8px}
+.foot{margin-top:36px;font-size:13px;color:var(--dim);text-align:center}
+.restart{background:none;border:none;color:var(--gold);font:14px Georgia,serif;text-decoration:underline;cursor:pointer;margin-top:14px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kick">Six Before Yes · The State Check</div>
+  <h1>What's your default under pressure?</h1>
+  <p class="sub">Twelve questions, two minutes. When a negotiation gets uncomfortable, you go
+  somewhere — everyone does. This tells you where. You'll need the answer to use
+  Chapter 4 on yourself.</p>
+
+  <div class="bar"><i id="bar"></i></div>
+  <div id="quiz" class="qcard"></div>
+
+  <div id="result" class="res qcard"></div>
+</div>
+
+<script>
+// T = Torn, R = Ready, N = Not Yet. Each answer votes for the state the
+// behaviour belongs to. Questions describe PRESSURE moments only — defaults
+// surface under discomfort, not on easy calls.
+const QS = [
+ {q:"They push back hard on your price. Your first instinct:",
+  o:[["Re-run both sides of the argument in your head — maybe they have a point.","T"],
+     ["Move to what would close it: “what number works?”","R"],
+     ["Let it sit. If it's real, it'll still be there next week.","N"]]},
+ {q:"An offer lands that's good but not great. You:",
+  o:[["List what you'd gain and what you'd regret, twice.","T"],
+     ["Take it and move on — done beats perfect.","R"],
+     ["Park it. No reason this has to be decided today.","N"]]},
+ {q:"Long silence on the other end of the phone. You feel:",
+  o:[["A pull to soften what you just said.","T"],
+     ["Irritation — say something, we're burning time.","R"],
+     ["Fine. Silence is the easiest part of the call.","N"]]},
+ {q:"A deadline you didn't set is suddenly this Friday. You:",
+  o:[["Feel the options narrowing and start weighing them urgently.","T"],
+     ["Good — deadlines make people decide. Use it.","R"],
+     ["Doubt it's real. Most deadlines aren't.","N"]]},
+ {q:"You've said yes, and that night something nags. You:",
+  o:[["Re-open it in your head for days.","T"],
+     ["Ignore it. Committed is committed.","R"],
+     ["Shrug — if it matters it'll come back around.","N"]]},
+ {q:"The other side asks: “so where do you stand?” You:",
+  o:[["Give an honest “I can see it both ways” — because you can.","T"],
+     ["State a position on the spot. Clarity now, adjust later.","R"],
+     ["Deflect. Committing early only costs you.","N"]]},
+ {q:"A colleague asks why the deal isn't signed yet. You think:",
+  o:[["Because signing wrong is worse than signing late.","T"],
+     ["Fair question — what am I waiting for?","R"],
+     ["Because it doesn't need to be. Where's the fire?","N"]]},
+ {q:"You get two competing offers. Honestly, you:",
+  o:[["Feel worse, not better — now there's a wrong answer.","T"],
+     ["Feel great. Leverage. Pick one and drive.","R"],
+     ["Feel confirmed: waiting brought options, waiting works.","N"]]},
+ {q:"Mid-negotiation, new information changes the picture. You:",
+  o:[["Re-open everything you'd tentatively settled.","T"],
+     ["Fold it in and keep moving — momentum matters more.","R"],
+     ["Take it as proof it was too early to decide anyway.","N"]]},
+ {q:"The thing you most often say to yourself afterward:",
+  o:[["“I should have thought about it longer.”","T"],
+     ["“I should have closed it sooner.”","R"],
+     ["“Good thing I didn't jump.”","N"]]},
+ {q:"Someone you trust says “just decide.” Your gut:",
+  o:[["They don't see how close the two options are.","T"],
+     ["They're right. Decide and go.","R"],
+     ["Deciding isn't the goal. The right moment is.","N"]]},
+ {q:"What actually costs you the most in negotiations:",
+  o:[["Deals that died while you were weighing them.","T"],
+     ["Terms you'd have improved by waiting a week.","R"],
+     ["Deals that quietly expired because you never engaged.","N"]]},
+];
+
+const STATES = {
+ T:{name:"TORN", formula:"Time = safety · Silence = doubt building",
+    read:"Under pressure you hold both sides of the argument at once — and keep holding them. That's not indecision; it's an honest read of real tradeoffs. But it has a bill: your deals die of deliberation more often than they die of bad terms, and pressure makes you re-open things you'd already settled.",
+    watch:["More options make you worse, not better. Under pressure, cut to two.",
+     "Your tell is re-litigating settled points. When you catch it, say the decision out loud to someone.",
+     "You read silence as doubt building. It usually isn't. Count six seconds before you soften anything.",
+     "What resolves you is permission, not information. Stop researching; ask yourself what you'd regret NOT doing."],
+    grid:"Read the TORN column first — it's you. Then notice how the tools aimed at you feel from the inside. That feeling is what your counterparts experience when you use them."},
+ R:{name:"READY", formula:"Time = waste · Silence = something's wrong",
+    read:"Under pressure you move. Decide, commit, drive to done — deliberation feels like leak. That bias wins you speed and costs you precision: you close deals a week before they'd have improved, and you read other people's thinking time as a problem to fix.",
+    watch:["Your tell is closing to end the discomfort, not the deal. Ask: am I finishing this or fleeing it?",
+     "Silence isn't malfunction. Someone processing is moving toward you — interrupting resets them.",
+     "You concede for speed. Before any give, name what comes back: never give, always swap.",
+     "The week you didn't wait usually had money in it. On anything over routine size, sleep on it once — on purpose."],
+    grid:"Read the READY column first — it's you. The 'worst move' row explains most of your lost deals: you re-open cases that were already won."},
+ N:{name:"NOT YET", formula:"Time = abundant · Silence = relief",
+    read:"Under pressure you defer — not from fear, from a genuine sense that most urgency is manufactured. You're right more often than not, which is what makes the miss expensive: real windows look exactly like fake ones from where you stand, and yours close quietly.",
+    watch:["Your tell is comfort. If a negotiation has never felt uncomfortable, you haven't engaged with it yet.",
+     "Test clocks instead of dismissing them: 'what actually breaks if this takes another week?' Sometimes something does.",
+     "Agreeableness that commits to nothing reads, from outside, as a dead lead. People stop bringing you their best options.",
+     "Pick one live deal and give it a real date — not soon, not this month. A date."],
+    grid:"Read the NOT YET column first — it's you. Then notice the 'reciprocity' row: your easy agreement costs you nothing, which is exactly why it convinces no one."}
+};
+
+let i=0, score={T:0,R:0,N:0};
+const quiz=document.getElementById('quiz'), bar=document.getElementById('bar'), res=document.getElementById('result');
+
+function ask(){
+ bar.style.width=(i/QS.length*100)+'%';
+ const q=QS[i];
+ // rotate answer order so state never maps to position
+ const opts=q.o.map((o,j)=>({o,j})).sort((a,b)=>((a.j+i)%3)-((b.j+i)%3));
+ quiz.innerHTML='<div class="qnum">Question '+(i+1)+' of '+QS.length+'</div><div class="qtext">'+q.q+'</div>'+
+  opts.map(({o})=>'<button class="opt" data-s="'+o[1]+'">'+o[0]+'</button>').join('');
+ quiz.querySelectorAll('.opt').forEach(b=>b.onclick=()=>{score[b.dataset.s]++;i++;i<QS.length?ask():finish();});
+}
+
+function finish(){
+ bar.style.width='100%';
+ const order=Object.entries(score).sort((a,b)=>b[1]-a[1]);
+ const top=order[0], second=order[1];
+ const s=STATES[top[0]];
+ const mixed=top[1]-second[1]<=1;
+ quiz.style.display='none';
+ res.className='res qcard on';
+ res.innerHTML=
+  '<div class="qnum">Your default under pressure</div>'+
+  '<div class="state-name">'+s.name+'</div>'+
+  '<div class="formula">'+s.formula+'</div>'+
+  (mixed?'<p class="mix">Close call: you also lean '+STATES[second[0]].name+' ('+top[1]+'–'+second[1]+'). Read both columns in Chapter 4.</p>':'')+
+  '<p>'+s.read+'</p>'+
+  '<h3>What to watch in yourself</h3><ul>'+s.watch.map(w=>'<li>'+w+'</li>').join('')+'</ul>'+
+  '<h3>How to use Chapter 4</h3><p>'+s.grid+'</p>'+
+  '<h3>Now practice it live</h3>'+
+  '<p>Reading your state is step one. Running the tools against it takes reps — which is what the Saturday sessions are for. First one’s free.</p>'+
+  '<a class="cta" href="https://negotiatorsondemand.com" target="_blank" rel="noopener">Join a Saturday session →</a>'+
+  '<div class="lead"><h3>Get your result emailed + the one-page method summary</h3>'+
+  '<form id="lf"><input type="text" name="name" placeholder="Name" required>'+
+  '<input type="email" name="email" placeholder="Email" required>'+
+  '<button type="submit">Send it to me</button>'+
+  '<p class="note" id="ln">No list-bombing. One email with your state and the Six Before Yes summary page.</p></form></div>'+
+  '<button class="restart" onclick="location.reload()">Retake it</button>';
+ document.getElementById('lf').onsubmit=async e=>{
+  e.preventDefault();
+  const f=e.target, n=document.getElementById('ln');
+  n.textContent='Sending…';
+  try{
+   const r=await fetch('/api/lead',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({name:f.name.value,email:f.email.value,
+     message:'State Check result: '+s.name+' ('+score.T+'T/'+score.R+'R/'+score.N+'N). Wants the Six Before Yes summary.',
+     context:'state-check'})});
+   n.textContent=r.ok?'Done — check your inbox.':'That didn’t go through — email negotiationsondemand@gmail.com and we’ll send it.';
+  }catch(_){n.textContent='That didn’t go through — email negotiationsondemand@gmail.com and we’ll send it.';}
+ };
+}
+ask();
+</script>
+
+<p class="foot">Six Before Yes · Negotiators on Demand · the state check takes the average
+reader 1 minute 50 seconds</p>
+<!--
+DEPLOYMENT NOTE
+Self-contained; no dependencies. The lead form posts to /api/lead — the
+existing serverless function on negotiatorcruz.com (name/email/message/context
+fields, matches api/lead.js contract).
+  - Hosted on negotiatorcruz.com: works as-is.
+  - Hosted on negotiatorsondemand.com: change the fetch URL to
+    https://negotiatorcruz.com/api/lead AND add that origin to the function's
+    CORS allowlist, or duplicate the function on the NOD deployment.
+The email fallback address is intentionally negotiationsondemand@gmail.com -
+confirmed correct, not a typo.
+-->
+</body>
+</html>

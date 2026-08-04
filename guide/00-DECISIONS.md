@@ -15,7 +15,9 @@ is where each stands.
 
 ---
 
-## 1. The method's name — `[NEEDS: Dan's call + trademark]`
+## 1. The method's name — **SETTLED: Six Before Yes**
+
+Confirmed by Dan 2026-08-05. `[NEEDS: trademark search before print]`
 
 The blueprint is right that this blocks everything and must be decided on
 purpose, and it's a naming-plus-legal act only Dan can complete. Three
@@ -23,7 +25,7 @@ candidates, with a recommendation:
 
 | Candidate | For | Against |
 |---|---|---|
-| **Six Before Yes** *(recommended)* | Consumer-friendly, states the thesis in three words — six moves happen before agreement. Quotable, spine-ready, survives being said aloud on TikTok Live. | Needs trademark search. |
+| **Six Before Yes** ✅ chosen | Consumer-friendly, states the thesis in three words — six moves happen before agreement. Quotable, spine-ready, survives being said aloud on TikTok Live. | Needs trademark search. |
 | The NOD Method | Safe, house-branded, zero explanation needed. | Generic; does no arguing on its own. |
 | The Stairway | Already NOD's motto ("walk the stairway"). | **Collides with the three Levels**, which already use the staircase as the *skill* ladder. Two staircases measuring different things is the exact book/site confusion we just fixed on the corporate side. Avoid. |
 
@@ -75,13 +77,15 @@ free** — negotiatorsondemand.com. It's the only offer that matches the book's
 practice-first argument: the book's own thesis is that reading isn't enough,
 so the call to action must be a rep, not another document.
 
-**The self-assessment hook** (the blueprint's "smartest structural move"):
-page four sends the reader to a short online test that returns their
-**default state under pressure** — the thing they do when a negotiation gets
-uncomfortable. The result is needed to use Chapter 4's parallel grid on
-themselves. Lead capture disguised as a reading instruction, exactly as the
-blueprint prescribes. `[NEEDS: build decision — this is an app/site feature,
-scoped separately]`
+**The self-assessment hook** — **BUILT**: `assessment/state-check.html`.
+Twelve questions, two minutes, returns the reader's default state under
+pressure (Torn / Ready / Not Yet) with a personalized read, what-to-watch
+list, and instructions for using Chapter 4's grid on themselves. Close scores
+report the secondary lean. Lead capture posts to the existing `/api/lead`
+function (name/email/message/context contract); CTA drives to the Saturday
+session. Self-contained single file — deployment notes in the HTML comment,
+including the CORS caveat if hosted on negotiatorsondemand.com rather than
+negotiatorcruz.com.
 
 ---
 
@@ -121,5 +125,16 @@ closes a chapter.
    reaction object. Done: `01-method-summary.md`
 3. **The parallel grid** — the photographable spread. Done: `02-parallel-grid.md`
 4. **Chapter 1** — the pitch chapter. Done: `ch1-the-problem.md`
-5. Chapters 2–7, one per session, devices interleaved
+5. ~~Chapters 2–7~~ — **all drafted** to the device kit: ch2 Know Your Exit,
+   ch3 Find the Stakes, ch4 Map the Room (carries the grid), ch5 Pick Your
+   Path, ch6 Run the Protocol, ch7 Lock and Log
 6. Front matter last (it's the sample), back matter after the CTA is confirmed
+
+## Manuscript status
+
+All seven chapters drafted. Open slots, all `[NEEDS:]`-flagged in place:
+**7 expert voices** (Dan soliciting — longest lead), **13 examples** (real
+cases, ~120 words each; several can be pulled from the same session stories
+that fill the manual's gap list), and the **trademark search** on Six Before
+Yes. Remaining writing: front matter (5pp) and back matter (7pp — the method
+summary page already exists).
