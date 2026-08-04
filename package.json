@@ -13,7 +13,8 @@
     "test:rocketman:e2e": "playwright test -c rocketman/playwright.config.cjs",
     "serve": "node test/helpers/static-server.js",
     "rocketman:fixtures": "node rocketman/tools/export-fixtures.mjs",
-    "test:rocketman:swift": "swift test --package-path rocketman/swift"
+    "test:rocketman:swift": "swift test --package-path rocketman/swift",
+    "rocketman:build": "node rocketman/tools/build-single-file.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0"
