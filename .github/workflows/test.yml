@@ -25,8 +25,20 @@ jobs:
         env:
           PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
 
-      - name: Run unit, static, SEO and config tests
+      - name: Run unit, static, SEO, config and pricing tests
         run: npm test
+        env:
+          # Arms the Practice Lab price-drift guard, which compares every local
+          # amount against what Stripe will actually charge. Without the secret
+          # that one test skips and the rest still run, so this is safe to leave
+          # unset -- but unset means a price edited in the Stripe dashboard
+          # stops being caught, which is exactly how the chat-token product came
+          # to advertise $15 while pinned to an archived $3 price.
+          #
+          # Use a RESTRICTED key, not the account secret key. The test only ever
+          # issues GET /v1/prices, so it needs read access to Products and
+          # nothing else. Stripe: Developers -> API keys -> Create restricted key.
+          STRIPE_SECRET_KEY: ${{ secrets.STRIPE_SECRET_KEY }}
 
       - name: Coverage for api/lead.js
         run: npm run test:coverage
