@@ -15,8 +15,10 @@
 import { CELL, BUILDINGS, UNITS, BUILD_ORDER } from '../engine/content.js';
 import { canPlace } from '../engine/grid.js';
 import { withinBuildRadius } from '../engine/sim.js';
+import { isExplored } from '../engine/vision.js';
 import { techAllows, canAfford } from '../engine/economy.js';
 import { abilityReady } from '../engine/abilities.js';
+import { superweaponReady } from '../engine/economy.js';
 
 /** Camera pan speed in cells per second. */
 const PAN_SPEED = 26;
@@ -33,6 +35,8 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   let placementDefId = null;
   /** True while the player is picking a target for a targeted ability. */
   let abilityArmed = false;
+  /** The Lance whose strike is currently being aimed, if any. */
+  let strikeEmitter = null;
 
   const emit = (cmd) => commands.push(cmd);
   const notify = (msg) => hooks.onMessage && hooks.onMessage(msg);
@@ -127,6 +131,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
 
   function announceSelection() {
     cancelPlacement();
+    cancelStrike();
     abilityArmed = false;
     if (hooks.onSelectionChange) hooks.onSelectionChange(selectedEntities());
   }
@@ -230,6 +235,48 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     }
   }
 
+  /* ------------------------------------------------------ superweapon -- */
+
+  /**
+   * Arm a superweapon strike. Deliberately a two-step action — arm, then click
+   * a point — because a one-click doomsday button is a misclick away from
+   * being wasted, and the charge takes four minutes to get back.
+   */
+  function armStrike(building) {
+    if (!building || !superweaponReady(building)) {
+      notify('The Lance is still charging.');
+      return;
+    }
+    cancelPlacement();
+    abilityArmed = false;
+    strikeEmitter = building;
+    renderer.state.strikeAim = { radius: building.def.superweapon.radius };
+    notify(`${building.def.superweapon.name} armed — pick a target.`);
+  }
+
+  function cancelStrike() {
+    strikeEmitter = null;
+    renderer.state.strikeAim = null;
+  }
+
+  function fireStrike(wx, wy) {
+    if (!strikeEmitter) return;
+    // Firing into unexplored ground would be a free map-wide snipe; the Lance
+    // can only hit what you have actually found.
+    if (!isExplored(world, viewerId, wx, wy)) {
+      notify('You cannot call a strike on ground you have never seen.');
+      return;
+    }
+    emit({
+      type: 'superweapon',
+      player: viewerId,
+      buildingId: strikeEmitter.id,
+      x: wx,
+      y: wy,
+    });
+    cancelStrike();
+  }
+
   /* -------------------------------------------------------- placement -- */
 
   function beginPlacement(defId) {
@@ -297,6 +344,11 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     const y = ev.clientY - rect.top;
 
     if (ev.button === 0) {
+      if (strikeEmitter) {
+        const w = renderer.screenToWorld(x, y);
+        fireStrike(w.x, w.y);
+        return;
+      }
       if (abilityArmed) {
         const w = renderer.screenToWorld(x, y);
         triggerAbility(w.x, w.y);
@@ -311,8 +363,9 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
       drag.x0 = drag.x1 = x;
       drag.y0 = drag.y1 = y;
     } else if (ev.button === 2) {
-      if (placementDefId || abilityArmed) {
+      if (placementDefId || abilityArmed || strikeEmitter) {
         cancelPlacement();
+        cancelStrike();
         abilityArmed = false;
         return;
       }
@@ -326,6 +379,8 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     pointer.x = ev.clientX - rect.left;
     pointer.y = ev.clientY - rect.top;
     pointer.inside = true;
+    renderer.state.hoverPixel.x = pointer.x;
+    renderer.state.hoverPixel.y = pointer.y;
 
     if (drag.active) {
       drag.x1 = pointer.x;
@@ -406,6 +461,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     switch (key) {
       case 'escape':
         cancelPlacement();
+        cancelStrike();
         abilityArmed = false;
         break;
       case 'a': {
@@ -540,7 +596,11 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     attachMinimap,
     beginPlacement,
     cancelPlacement,
+    armStrike,
+    cancelStrike,
     useAbility,
+    sellSelected: (ids) => emit({ type: 'sell', player: viewerId, ids }),
+    toggleRepair: (ids, on) => emit({ type: 'repair', player: viewerId, ids, on }),
     selectSingle,
     emit,
     get placementDefId() {
@@ -548,6 +608,9 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     },
     get abilityArmed() {
       return abilityArmed;
+    },
+    get strikeArmed() {
+      return !!strikeEmitter;
     },
   };
 }

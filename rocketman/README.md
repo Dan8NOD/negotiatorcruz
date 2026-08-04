@@ -14,8 +14,8 @@ build step, no bundler and no runtime dependency.
 npm run serve                 # http://127.0.0.1:4321
 open http://127.0.0.1:4321/rocketman/web/rocketman.html
 
-npm run test:rocketman        # 297 simulation tests
-npm run test:rocketman:e2e    # 19 browser tests
+npm run test:rocketman        # 334 simulation tests
+npm run test:rocketman:e2e    # 23 browser tests
 ```
 
 ---
@@ -90,6 +90,49 @@ turret in the game; undeployed it is scrap. The **Anvil** walks forward and does
 not stop, and the only problem is arriving at all.
 
 Rosters are exclusive; the Collector is the shared exception.
+
+### Veterancy
+
+Straight out of Command & Conquer, including the promotion rule: a machine is
+promoted once it has destroyed enemy value worth a multiple of its own cost.
+Scaling to cost is what lets a 300-scrap scout and a 1300-scrap siege mech
+share one rule without either being trivially or impossibly promoted.
+
+| Rank | Earned at | Damage | Rate of fire | Hull | Self-repair |
+|---|---|---|---|---|---|
+| Green | — | — | — | — | — |
+| Veteran | 3× own cost | +10% | +25% | +25% | — |
+| Elite | 9× own cost | +25% | +43% | +50% | 6 hp/s |
+
+Promotion heals by the hull it grants, so it lands mid-fight as a reprieve.
+Chevrons are drawn on the unit, because "this Kestrel is worth retreating" has
+to be readable without selecting it. Turrets earn rank too.
+
+This is also the mechanic that makes an early lead compound, which is why the
+campaign's closest mission is checked by a test.
+
+### Sell, repair, and the Orbital Lance
+
+Three more pieces of the C&C economy:
+
+- **Sell** returns half a structure's cost, scaled by how much of it is still
+  standing — Red Alert refunds a flat half, but scaling closes the "let it get
+  shot to bits, then cash it out" exploit. Your last Command Rig cannot be sold.
+- **Repair** patches a structure up, paying scrap in proportion to hull
+  restored. It stops at full and stops rather than going into debt.
+- **The Orbital Lance** is the superweapon: 3,500 scrap, a 60-power draw, a
+  four-minute charge, and a strike that ends a base. It lands where it was
+  aimed a second later regardless of what moves — a superweapon you can dodge
+  by walking is not one, and the telegraph is the counterplay. It needs power,
+  so the counter is the same as everything else here: kill the reactors and the
+  doomsday clock stops.
+
+### Scrap regrows
+
+Like Red Alert's ore. A partly worked cell recovers toward what it started
+with; a completely stripped one only comes back if a neighbour survived to
+seed it. Expanding stays the right move, and running out of map stops being
+the way long games end.
 
 ---
 
@@ -261,6 +304,8 @@ no key matching `/scrap|income|vision|sight|reveal|cheat/`.
 - **Robustness** — malformed commands are ignored rather than fatal (a command
   stream arriving over a network is untrusted input); units never end up
   standing inside terrain across a 3000-tick match.
+- **Faction balance** — ten skirmish seeds run to a result; the two factions
+  are expected to trade wins rather than one dominating.
 - **The campaign is completable** — the slowest test in the suite plays all
   seven missions end to end with the AI driving both sides and asserts each one
   is won. An objective nobody can satisfy looks perfectly healthy in every unit
@@ -307,6 +352,8 @@ determinism guarantee above, and expensive without it.
   numbers in `content.js` and `progression.js` to move.
 - The campaign's difficulty curve is set by the AI profile per mission. It has
   not been played by a human end to end, so missions 5-7 may be too easy or too
-  hard in ways only a real player will find.
+  hard in ways only a real player will find. Mission 5 is deliberately the
+  closest fight and veterancy makes early trades compound, so it is the one
+  most likely to need retuning.
 - A mission in progress cannot be saved — only campaign progress between
   missions.

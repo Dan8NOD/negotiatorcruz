@@ -8,8 +8,22 @@
  * counterweight; forgetting to build them is a choice, not a trap.
  */
 
-import { BUILDINGS, UNITS, TICKS_PER_SECOND } from './content.js';
-import { spawnUnit, onBuildingComplete, exitPoint, playerEntities, defsFor } from './entities.js';
+import {
+  BUILDINGS,
+  UNITS,
+  TICKS_PER_SECOND,
+  SELL_REFUND,
+  REPAIR,
+  REGROWTH,
+} from './content.js';
+import {
+  spawnUnit,
+  onBuildingComplete,
+  exitPoint,
+  playerEntities,
+  defsFor,
+  killEntity,
+} from './entities.js';
 import { setPath } from './movement.js';
 import { inBounds } from './grid.js';
 
@@ -337,6 +351,134 @@ export function updateHarvester(world, e) {
 
     default:
       h.state = 'idle';
+  }
+}
+
+/* --------------------------------------------- sell, repair, regrowth -- */
+
+/**
+ * Sell a structure for half its cost, scaled by how much of it is left.
+ *
+ * Red Alert refunds a flat half; scaling by remaining hull closes the obvious
+ * exploit — letting a building get shot to bits and then cashing it out for
+ * the same refund as an untouched one.
+ */
+export function sellBuilding(world, building) {
+  if (!building || building.dead || building.kind !== 'building') return 0;
+  const def = defsFor(world, building.player).buildings[building.defId];
+  const standing = building.constructing
+    ? building.buildProgress / building.buildTime
+    : building.hp / building.maxHp;
+
+  const refund = Math.round(def.cost * SELL_REFUND * standing);
+  const player = world.players[building.player];
+  player.scrap += refund;
+  player.scrapSpent -= refund;
+
+  world.events.push({
+    type: 'sold',
+    id: building.id,
+    player: building.player,
+    refund,
+    x: building.x,
+    y: building.y,
+  });
+  killEntity(world, building);
+  return refund;
+}
+
+/**
+ * Patch a structure up, paying as it goes. Repairing stops the moment the
+ * player runs out of scrap rather than going into debt, and cancels itself at
+ * full hull so the toggle never quietly drains an economy.
+ */
+export function updateRepair(world, e) {
+  if (!e.repairing || e.constructing) return;
+  if (e.hp >= e.maxHp) {
+    e.repairing = false;
+    return;
+  }
+
+  const def = defsFor(world, e.player).buildings[e.defId];
+  const player = world.players[e.player];
+
+  const perTick = (e.maxHp * REPAIR.RATE) / TICKS_PER_SECOND;
+  const heal = Math.min(perTick, e.maxHp - e.hp);
+  const price = (def.cost / e.maxHp) * heal * REPAIR.COST_RATIO;
+
+  if (player.scrap < price) {
+    e.repairing = false;
+    world.events.push({ type: 'repairStalled', id: e.id, player: e.player });
+    return;
+  }
+
+  player.scrap -= price;
+  player.scrapSpent += price;
+  e.hp = Math.min(e.maxHp, e.hp + heal);
+}
+
+/**
+ * Charge a superweapon. Unpowered means unarmed, so the counter to a Lance is
+ * the same as the counter to everything else in this game: kill the reactors.
+ */
+export function updateSuperweapon(world, e) {
+  const weapon = e.def.superweapon;
+  if (!weapon || e.constructing) return;
+  if (e.def.needsPower && !e.powered) return;
+  if (e.charge >= weapon.charge) return;
+
+  e.charge = Math.min(weapon.charge, (e.charge || 0) + 1);
+  if (e.charge >= weapon.charge) {
+    world.events.push({ type: 'superweaponReady', id: e.id, player: e.player });
+  }
+}
+
+export function superweaponReady(e) {
+  const weapon = e.def && e.def.superweapon;
+  return !!weapon && !e.constructing && e.charge >= weapon.charge && (!e.def.needsPower || e.powered);
+}
+
+/**
+ * Wreck fields recover slowly, the way Red Alert's ore does.
+ *
+ * A depleted cell only regrows if a neighbour still has something in it, so a
+ * field that is completely stripped stays dead and expanding remains the right
+ * move. Iteration is in index order with no randomness, so this is as
+ * deterministic as everything else in the engine.
+ */
+export function updateRegrowth(world) {
+  const { map } = world;
+
+  for (const field of map.fields) {
+    for (const cell of field.cells) {
+      const i = cell.y * map.width + cell.x;
+      const cap = map.resourceMax[i];
+      if (cap === 0) continue;
+
+      const current = map.resource[i];
+      if (current >= cap) continue;
+
+      if (current > 0) {
+        map.resource[i] = Math.min(cap, current + REGROWTH.AMOUNT);
+        continue;
+      }
+
+      // Empty: only comes back if something next to it survived.
+      let seeded = false;
+      for (let dy = -1; dy <= 1 && !seeded; dy++) {
+        for (let dx = -1; dx <= 1; dx++) {
+          if (dx === 0 && dy === 0) continue;
+          const nx = cell.x + dx;
+          const ny = cell.y + dy;
+          if (nx < 0 || ny < 0 || nx >= map.width || ny >= map.height) continue;
+          if (map.resource[ny * map.width + nx] > 0) {
+            seeded = true;
+            break;
+          }
+        }
+      }
+      if (seeded) map.resource[i] = Math.min(cap, REGROWTH.SEED_AMOUNT);
+    }
   }
 }
 

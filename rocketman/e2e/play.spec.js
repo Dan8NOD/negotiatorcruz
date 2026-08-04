@@ -418,3 +418,83 @@ test('campaign progress survives a reload', async ({ page }) => {
   await expect(page.locator('.mission:not(.locked)')).toHaveCount(2);
   await expect(page.locator('.mission').first()).toContainText('Cleared');
 });
+
+/* ------------------------------------------- sell, repair, superweapon -- */
+
+test('the build bar offers the Orbital Lance, locked until the tech exists', async ({ page }) => {
+  await startMatch(page);
+  await page.keyboard.press('b');
+
+  const lance = page.locator('#commands .cmd', { hasText: 'Orbital Lance' });
+  await expect(lance).toHaveCount(1);
+  // It needs a Tech Lab and a Hangar, so it must start unavailable.
+  await expect(page.locator('#commands .cmd.off', { hasText: 'Orbital Lance' })).toHaveCount(1);
+});
+
+test('selecting a structure offers Sell and Repair', async ({ page }) => {
+  await startMatch(page);
+  await page.keyboard.press('b');
+
+  const commands = page.locator('#commands');
+  await expect(commands).toContainText('Structure');
+  await expect(commands.locator('.cmd', { hasText: 'Repair' })).toHaveCount(1);
+  await expect(commands.locator('.cmd', { hasText: 'Sell' })).toHaveCount(1);
+});
+
+test('the last Command Rig cannot be sold', async ({ page }) => {
+  const match = await startMatch(page);
+  await page.keyboard.press('b');
+
+  // Selling your only HQ is a misclick that would end the match, so the
+  // button is disabled rather than merely ignored.
+  await expect(page.locator('#commands .cmd.off', { hasText: 'Sell' })).toHaveCount(1);
+
+  const state = await match.state();
+  expect(state.counts['0:command']).toBe(1);
+});
+
+test('a structure can be built and then sold back for scrap', async ({ page }) => {
+  const match = await startMatch(page);
+
+  await page.keyboard.press('b');
+  await page.keyboard.press('1'); // Reactor
+
+  let placed = null;
+  let spot = null;
+  for (const [x, y] of [
+    [440, 250],
+    [440, 480],
+    [980, 240],
+    [560, 200],
+    [900, 560],
+  ]) {
+    await page.mouse.move(x, y);
+    await page.mouse.click(x, y);
+    await page.waitForTimeout(400);
+    placed = await match.state();
+    if (placed.counts['0:reactor']) {
+      spot = [x, y];
+      break;
+    }
+  }
+  expect(placed.counts['0:reactor']).toBe(1);
+
+  // Let it finish, then select it and cash it out. The placement preview is
+  // centred on the cursor, so the reactor is under the pixel that built it.
+  await page.waitForTimeout(14000);
+  const built = await match.state();
+  expect(built.players[0].tech).toContain('reactor');
+
+  await page.mouse.click(spot[0], spot[1]);
+  await page.waitForTimeout(300);
+  await expect(page.locator('#selection')).toContainText('Reactor');
+
+  const before = await match.state();
+  await page.locator('#commands .cmd', { hasText: 'Sell' }).click();
+  await page.waitForTimeout(600);
+
+  const after = await match.state();
+  expect(after.counts['0:reactor']).toBeUndefined();
+  expect(after.players[0].scrap).toBeGreaterThan(before.players[0].scrap - 200);
+  expect(match.errors).toEqual([]);
+});

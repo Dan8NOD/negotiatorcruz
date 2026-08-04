@@ -14,6 +14,7 @@
  */
 
 import { CELL, TERRAIN_INFO, FACTIONS, UNITS, BUILDINGS } from '../engine/content.js';
+import { superweaponReady } from '../engine/economy.js';
 import { isVisible, isExplored } from '../engine/vision.js';
 
 const NEUTRAL = '#8b98a6';
@@ -44,6 +45,10 @@ export function createRenderer(canvas, world, viewerId) {
     /** Fractional progress through the current tick, for interpolation. */
     alpha: 0,
     hoverCell: { x: 0, y: 0 },
+    /** Cursor in screen pixels, for the superweapon reticle. */
+    hoverPixel: { x: 0, y: 0 },
+    /** Set by input.js while a superweapon strike is being aimed. */
+    strikeAim: null,
     /** Set by input.js while a structure is being sited. */
     placement: null,
     selectionBox: null,
@@ -113,6 +118,7 @@ export function createRenderer(canvas, world, viewerId) {
     drawResources();
     drawBuildings(selection);
     drawPlacementPreview();
+    drawStrikePreview();
     drawUnits(selection);
     drawProjectiles();
     drawEffects();
@@ -204,6 +210,33 @@ export function createRenderer(canvas, world, viewerId) {
       if (e.queue && e.queue.length > 0) {
         const item = e.queue[0];
         drawBar(px + 3, py + ph + 3, pw - 6, 3, 1 - item.remaining / item.total, '#4fb3ff');
+      }
+
+      // Being repaired: a pulsing outline, because a structure quietly eating
+      // your scrap should never be invisible.
+      if (e.repairing) {
+        const pulse = 0.4 + 0.35 * Math.sin(world.tick * 0.25);
+        ctx.strokeStyle = `rgba(87, 209, 106, ${pulse})`;
+        ctx.lineWidth = 2;
+        ctx.strokeRect(px - 1, py - 1, pw + 2, ph + 2);
+      }
+
+      // Superweapon charge, on the structure itself. A defender who can see
+      // the Lance can see how long they have.
+      if (e.def.superweapon && !e.constructing) {
+        const ready = superweaponReady(e);
+        const t = Math.min(1, (e.charge || 0) / e.def.superweapon.charge);
+        drawBar(px + 3, py + ph + 3, pw - 6, 4, t, ready ? '#ff5f5f' : '#ffb347');
+        if (ready) {
+          ctx.strokeStyle = `rgba(255, 95, 95, ${0.45 + 0.35 * Math.sin(world.tick * 0.2)})`;
+          ctx.lineWidth = 2;
+          ctx.strokeRect(px - 2, py - 2, pw + 4, ph + 4);
+        }
+      }
+
+      if (e.vet > 0) {
+        ctx.fillStyle = e.vet >= 2 ? '#ffd166' : '#d8e2ec';
+        for (let i = 0; i < e.vet; i++) ctx.fillRect(px + 4 + i * 5, py + 4, 3, 3);
       }
     }
   }
@@ -377,6 +410,30 @@ export function createRenderer(canvas, world, viewerId) {
     if (e.harvest && e.cargo > 0) {
       drawBar(x - r, y + r + 3, r * 2, 3, e.cargo / e.def.capacity, '#bed664');
     }
+
+    drawChevrons(e, x, y, r);
+  }
+
+  /**
+   * Rank chevrons, the way every Command & Conquer game has drawn them. This
+   * is the only cue that one Kestrel in a group of five is worth retreating,
+   * so it has to be visible without selecting the unit.
+   */
+  function drawChevrons(e, x, y, r) {
+    const rank = e.vet || 0;
+    if (rank <= 0) return;
+
+    ctx.strokeStyle = rank >= 2 ? '#ffd166' : '#d8e2ec';
+    ctx.lineWidth = 1.6;
+    const top = y - r - (e.maxShield > 0 ? 16 : 12);
+    for (let i = 0; i < rank; i++) {
+      const cy = top - i * 3.4;
+      ctx.beginPath();
+      ctx.moveTo(x - 4, cy + 2.4);
+      ctx.lineTo(x, cy);
+      ctx.lineTo(x + 4, cy + 2.4);
+      ctx.stroke();
+    }
   }
 
   function drawProjectiles() {
@@ -433,6 +490,24 @@ export function createRenderer(canvas, world, viewerId) {
       const size = spark.size * (0.4 + life);
       ctx.fillRect(spark.x * CELL - size / 2, spark.y * CELL - size / 2, size, size);
     }
+  }
+
+  /** The superweapon aiming reticle, while a strike is being targeted. */
+  function drawStrikePreview() {
+    const aim = state.strikeAim;
+    if (!aim) return;
+    const w = screenToWorld(state.hoverPixel.x, state.hoverPixel.y);
+
+    ctx.strokeStyle = 'rgba(255, 95, 95, 0.9)';
+    ctx.lineWidth = 2;
+    ctx.setLineDash([8, 6]);
+    ctx.beginPath();
+    ctx.arc(w.x * CELL, w.y * CELL, aim.radius * CELL, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    ctx.fillStyle = 'rgba(255, 95, 95, 0.12)';
+    ctx.fill();
   }
 
   function drawPlacementPreview() {

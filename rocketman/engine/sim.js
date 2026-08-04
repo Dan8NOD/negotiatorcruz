@@ -13,7 +13,15 @@
  * that makes deterministic lockstep possible later.
  */
 
-import { BUILDINGS, UNITS, FACTIONS, START, TICKS_PER_SECOND, TERRAIN } from './content.js';
+import {
+  BUILDINGS,
+  UNITS,
+  FACTIONS,
+  START,
+  TICKS_PER_SECOND,
+  TERRAIN,
+  REGROWTH,
+} from './content.js';
 import { createRng } from './rng.js';
 import { createMap, canPlace, nearestWalkable } from './grid.js';
 import {
@@ -22,6 +30,8 @@ import {
   buildSpatialIndex,
   rangeTo,
   playerEntities,
+  applyDamage,
+  updateSelfRepair,
 } from './entities.js';
 import { setPath, clearPath, stepMovement } from './movement.js';
 import { updateWeapons, updateProjectiles, maxRange, acquireTarget } from './combat.js';
@@ -36,6 +46,11 @@ import {
   canAfford,
   spend,
   techAllows,
+  sellBuilding,
+  updateRepair,
+  updateSuperweapon,
+  superweaponReady,
+  updateRegrowth,
 } from './economy.js';
 import { createVision, updateVision, VISION_INTERVAL, isVisible } from './vision.js';
 import { resolveDefs } from './progression.js';
@@ -86,6 +101,8 @@ export function createWorld({ seed = 1, players: playerConfigs, mapSize = 72, mi
     pilotKills: {},
     /** Pilots who did not walk away from this one. */
     pilotsLost: new Set(),
+    /** Superweapon strikes in the air, resolved on their landing tick. */
+    pendingStrikes: [],
   };
 
   playerConfigs.forEach((cfg, i) => {
@@ -315,6 +332,33 @@ export function applyCommand(world, cmd) {
       break;
     }
 
+    case 'sell': {
+      for (const e of owned(cmd.ids)) {
+        if (e.kind !== 'building') continue;
+        // The last Command Rig is not sellable. Cashing out your own HQ by
+        // accident is not a strategy, it is a misclick that ends the match.
+        if (e.defId === 'command' && playerEntities(world, cmd.player, 'building')
+          .filter((b) => b.defId === 'command').length <= 1) continue;
+        sellBuilding(world, e);
+      }
+      break;
+    }
+
+    case 'repair': {
+      for (const e of owned(cmd.ids)) {
+        if (e.kind !== 'building' || e.constructing) continue;
+        e.repairing = cmd.on === undefined ? !e.repairing : !!cmd.on;
+      }
+      break;
+    }
+
+    case 'superweapon': {
+      const emitter = world.entities.get(cmd.buildingId);
+      if (!emitter || emitter.dead || emitter.player !== cmd.player) break;
+      fireSuperweapon(world, emitter, cmd.x, cmd.y);
+      break;
+    }
+
     case 'rally': {
       const building = world.entities.get(cmd.buildingId);
       if (building && !building.dead && building.player === cmd.player && building.def.rally) {
@@ -360,6 +404,72 @@ export function withinBuildRadius(world, playerId, size, cx, cy) {
     if (Math.hypot(b.x - px, b.y - py) <= reach) return true;
   }
   return false;
+}
+
+/**
+ * Call in a superweapon strike.
+ *
+ * Deliberately not a projectile: it lands where it was aimed, a second later,
+ * regardless of what moves in the meantime. A weapon that can be dodged by
+ * walking is not a superweapon, and the telegraph is the counterplay — the
+ * defender gets a warning and a second to scatter.
+ */
+export function fireSuperweapon(world, emitter, x, y) {
+  const weapon = emitter.def.superweapon;
+  if (!weapon || !superweaponReady(emitter)) return false;
+
+  emitter.charge = 0;
+  world.pendingStrikes.push({
+    at: world.tick + TICKS_PER_SECOND,
+    x,
+    y,
+    radius: weapon.radius,
+    damage: weapon.damage,
+    damageType: weapon.type,
+    falloff: weapon.falloff,
+    owner: emitter.id,
+    player: emitter.player,
+  });
+
+  world.events.push({
+    type: 'superweaponFired',
+    id: emitter.id,
+    player: emitter.player,
+    x,
+    y,
+    radius: weapon.radius,
+  });
+  return true;
+}
+
+function resolveStrikes(world) {
+  if (world.pendingStrikes.length === 0) return;
+  const remaining = [];
+
+  for (const strike of world.pendingStrikes) {
+    if (world.tick < strike.at) {
+      remaining.push(strike);
+      continue;
+    }
+
+    for (const e of world.index.query(strike.x, strike.y, strike.radius + 2)) {
+      if (e.dead) continue;
+      const d = Math.max(0, Math.hypot(e.x - strike.x, e.y - strike.y) - (e.radius || 0));
+      if (d > strike.radius) continue;
+      const scale = 1 - (d / strike.radius) * (1 - strike.falloff);
+      applyDamage(world, e, strike.damage * scale, strike.damageType, strike.owner);
+    }
+
+    world.events.push({
+      type: 'explosion',
+      x: strike.x,
+      y: strike.y,
+      radius: strike.radius,
+      big: true,
+    });
+  }
+
+  world.pendingStrikes = remaining;
 }
 
 function assignOrder(world, e, order, queue) {
@@ -422,11 +532,13 @@ export function tick(world, commands = []) {
 
   for (const player of world.players) recomputePower(world, player);
 
-  // Structures: construction, then production.
+  // Structures: construction, then production, then upkeep.
   for (const e of world.entities.values()) {
     if (e.dead || e.kind !== 'building') continue;
     updateConstruction(world, e);
     updateProduction(world, e);
+    updateRepair(world, e);
+    updateSuperweapon(world, e);
   }
 
   // Units: abilities and shields before orders, so a leap ordered this tick
@@ -435,6 +547,7 @@ export function tick(world, commands = []) {
     if (e.dead || e.kind !== 'unit') continue;
     updateAbilities(world, e, world.index);
     updateShield(world, e);
+    updateSelfRepair(world, e);
     updateOrder(world, e);
   }
 
@@ -444,7 +557,10 @@ export function tick(world, commands = []) {
   }
 
   updateProjectiles(world);
+  resolveStrikes(world);
   reap(world);
+
+  if (world.tick % REGROWTH.INTERVAL === 0) updateRegrowth(world);
 
   if (world.tick % VISION_INTERVAL === 0) {
     for (const player of world.players) updateVision(world, player);

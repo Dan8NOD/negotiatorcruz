@@ -24,7 +24,9 @@ import {
   TICKS_PER_SECOND,
 } from '../engine/content.js';
 import { techAllows, availableBuildings } from '../engine/economy.js';
+import { VETERANCY, SELL_REFUND } from '../engine/content.js';
 import { abilityReady } from '../engine/abilities.js';
+import { superweaponReady } from '../engine/economy.js';
 import { missionWorldConfig, missionOutcome, MISSIONS } from '../engine/campaign.js';
 import { describeObjective, objectiveProgressText } from '../engine/objectives.js';
 import { recruitFor, applyMissionResult, buyUpgrade, nextMission } from '../engine/profile.js';
@@ -306,6 +308,14 @@ function startMatch(config, { mission }) {
         toast(ev.optional ? 'Bonus objective complete' : 'Objective complete');
       } else if (ev.type === 'objectiveFailed' && !ev.optional) {
         toast('Objective failed');
+      } else if (ev.type === 'superweaponReady' && ev.player === VIEWER) {
+        toast('Orbital Lance charged');
+      } else if (ev.type === 'superweaponFired' && ev.player !== VIEWER) {
+        toast('Incoming orbital strike');
+      } else if (ev.type === 'promoted' && world.entities.get(ev.id)?.player === VIEWER) {
+        toast(`${VETERANCY[ev.rank].name} promotion`);
+      } else if (ev.type === 'repairStalled' && ev.player === VIEWER) {
+        toast('Repair stopped — out of scrap');
       }
     }
 
@@ -433,10 +443,14 @@ function startMatch(config, { mission }) {
       const cargo = e.harvest
         ? `<div class="stat"><span>Cargo</span><b>${Math.round(e.cargo)} / ${e.def.capacity}</b></div>`
         : '';
+      const rank =
+        e.vet > 0
+          ? `<div class="stat"><span>Rank</span><b class="rank">${VETERANCY[e.vet].name}</b></div>`
+          : '';
       card.innerHTML = `
         <h4>${e.def.name}${e.pilotName ? ` <small>${e.pilotName}</small>` : ''}</h4>
         <div class="stat"><span>Hull</span><b>${Math.round(e.hp)} / ${e.maxHp}</b></div>
-        ${shield}${cargo}
+        ${shield}${cargo}${rank}
         <p class="hint">${e.def.hint || ''}</p>`;
       panel.appendChild(card);
       return;
@@ -549,6 +563,75 @@ function startMatch(config, { mission }) {
         });
         panel.appendChild(queue);
       }
+    }
+
+    // Structure orders. Sell and repair are the Command & Conquer economy
+    // controls: a damaged Refinery is worth patching, and a Foundry you have
+    // outgrown is worth half its cost back.
+    const structures = selected.filter((e) => e.kind === 'building' && !e.constructing);
+    if (structures.length > 0) {
+      const lance = structures.find((e) => e.def.superweapon);
+      panel.appendChild(sectionTitle('Structure'));
+      const row = document.createElement('div');
+      row.className = 'buttons';
+
+      if (lance) {
+        const ready = superweaponReady(lance);
+        const left = Math.ceil((lance.def.superweapon.charge - lance.charge) / TICKS_PER_SECOND);
+        row.appendChild(
+          commandButton({
+            label: lance.def.superweapon.name,
+            sub: ready ? 'Ready' : !lance.powered ? 'No power' : `${left}s`,
+            hint: lance.def.superweapon.hint,
+            disabled: !ready,
+            reason: lance.powered ? 'Still charging' : 'Unpowered',
+            highlight: ready,
+            onClick: () => input.armStrike(lance),
+          })
+        );
+      }
+
+      const damaged = structures.filter((e) => e.hp < e.maxHp);
+      const anyRepairing = structures.some((e) => e.repairing);
+      row.appendChild(
+        commandButton({
+          label: anyRepairing ? 'Stop repair' : 'Repair',
+          sub: anyRepairing ? 'Working' : `${damaged.length} damaged`,
+          hint: 'Patch a structure up, paying scrap as it goes.',
+          disabled: damaged.length === 0 && !anyRepairing,
+          reason: 'Nothing to repair',
+          highlight: anyRepairing,
+          onClick: () =>
+            input.toggleRepair(
+              structures.map((e) => e.id),
+              !anyRepairing
+            ),
+        })
+      );
+
+      const sellable = structures.filter(
+        (e) =>
+          e.defId !== 'command' ||
+          [...world.entities.values()].filter(
+            (b) => b.player === VIEWER && b.defId === 'command' && !b.dead
+          ).length > 1
+      );
+      const refund = sellable.reduce(
+        (n, e) => n + Math.round(defs.buildings[e.defId].cost * SELL_REFUND * (e.hp / e.maxHp)),
+        0
+      );
+      row.appendChild(
+        commandButton({
+          label: 'Sell',
+          sub: sellable.length ? `+${refund.toLocaleString()}` : '—',
+          hint: 'Scrap the structure for half its cost, scaled by what is left of it.',
+          disabled: sellable.length === 0,
+          reason: 'Your last Command Rig cannot be sold',
+          onClick: () => input.sellSelected(sellable.map((e) => e.id)),
+        })
+      );
+
+      panel.appendChild(row);
     }
 
     // Ability button, shown whenever anything selected has one.

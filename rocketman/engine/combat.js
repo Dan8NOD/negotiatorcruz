@@ -7,7 +7,7 @@
  * four rockets are going somewhere, even if the target dies to the first.
  */
 
-import { applyDamage, disable, rangeTo, buildSpatialIndex } from './entities.js';
+import { applyDamage, disable, rangeTo, buildSpatialIndex, vetBonus } from './entities.js';
 
 /** Idle units engage what wanders into range but do not chase it. */
 const LEASH = 1.05;
@@ -130,7 +130,9 @@ export function updateWeapons(world, e, index) {
     if (weapon.def.minRange && dist < weapon.def.minRange) continue;
 
     e.facing = Math.atan2(target.y - e.y, target.x - e.x);
-    weapon.cooldown = weapon.def.cooldown;
+    // Rank raises rate of fire. Applied here rather than baked into the weapon
+    // so a promotion takes effect on the very next trigger pull.
+    weapon.cooldown = Math.max(1, Math.round(weapon.def.cooldown * vetBonus(e).cooldown));
 
     if (weapon.def.salvo) {
       weapon.salvoLeft = weapon.def.salvo.count;
@@ -144,6 +146,7 @@ export function updateWeapons(world, e, index) {
 
 function fireOnce(world, owner, weapon, target) {
   const def = weapon.def;
+  const damage = def.damage * vetBonus(owner).damage;
   world.events.push({
     type: 'fire',
     id: owner.id,
@@ -156,7 +159,7 @@ function fireOnce(world, owner, weapon, target) {
 
   if (def.projectile === 'beam') {
     // Hitscan. Beams never miss, which is what they are paying for in range.
-    applyDamage(world, target, def.damage, def.type, owner.id);
+    applyDamage(world, target, damage, def.type, owner.id);
     if (def.disable) disable(world, target, def.disable);
     world.effects.push({
       type: 'beam',
@@ -186,7 +189,7 @@ function fireOnce(world, owner, weapon, target) {
     /** Rockets and tracers steer; shells commit to a spot on the ground. */
     targetId: def.arcing ? null : target.id,
     speed: def.speed / 20,
-    damage: def.damage,
+    damage,
     damageType: def.type,
     splash: def.splash || null,
     disableTicks: def.disable || 0,

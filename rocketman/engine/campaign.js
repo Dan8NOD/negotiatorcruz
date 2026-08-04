@@ -296,18 +296,31 @@ Wren landed with two-thirds of a wing and asked when we were going again.
     player: {
       faction: 'ascendancy',
       start: {
-        scrap: 6000,
+        scrap: 7000,
         collectors: 4,
         units: ['kestrel', 'vireo'],
         heroes: ['ash', 'nim', 'box', 'sable', 'wren'],
-        buildings: ['refinery'],
+        // "They have a working base and so do you" — the briefing's words. A
+        // player opening with one Refinery against five structures is not that
+        // mission, and once veterancy exists an early deficit compounds
+        // instead of merely hurting.
+        // "No tricks this time. They have a working base and so do you" — so
+        // the two sides open level. The briefing also has Wren flying a
+        // Harrier, which is tier-two tech; a player who cannot build a second
+        // one is being sold a mission the setup does not give them.
+        //
+        // This mission is deliberately the closest fight in the campaign, and
+        // veterancy makes early trades compound. If a balance change ever
+        // tips it, the campaign-completable test goes red rather than a
+        // player discovering it.
+        buildings: ['refinery', 'foundry', 'reactor', 'techlab'],
       },
     },
     enemy: {
       faction: 'bulwark',
       isAI: true,
       difficulty: 'normal',
-      start: { scrap: 8000, buildings: ['reactor', 'reactor', 'refinery', 'foundry', 'techlab'] },
+      start: { scrap: 7000, buildings: ['reactor', 'refinery', 'foundry', 'techlab'] },
     },
     objectives: [{ kind: 'destroyStructures', player: 1, text: 'Destroy the manufactory' }],
     bonusObjectives: [

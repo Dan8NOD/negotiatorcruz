@@ -22,6 +22,8 @@ export function createMap(seed, { width = 72, height = 72 } = {}) {
     height,
     terrain: new Uint8Array(width * height),
     resource: new Uint16Array(width * height),
+    /** The richness each cell started with — the ceiling regrowth restores to. */
+    resourceMax: new Uint16Array(width * height),
     /** Entity id occupying each cell, or 0. Structures only. */
     occupied: new Uint32Array(width * height),
     starts: [],
@@ -155,6 +157,7 @@ function stampField(map, cx, cy, shape, sign) {
     // onto itself and would otherwise have its own first stamp overwritten by
     // its second, quietly breaking the symmetry it was meant to guarantee.
     if (s.amount > map.resource[i]) map.resource[i] = s.amount;
+    if (s.amount > map.resourceMax[i]) map.resourceMax[i] = s.amount;
     cells.push({ x, y });
   }
   if (cells.length) map.fields.push({ x: cx, y: cy, cells });

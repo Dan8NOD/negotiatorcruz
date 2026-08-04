@@ -15,7 +15,7 @@
 import { BUILDINGS, UNITS, FACTIONS, TICKS_PER_SECOND } from './content.js';
 import { canPlace } from './grid.js';
 import { playerEntities, defsFor } from './entities.js';
-import { techAllows } from './economy.js';
+import { techAllows, superweaponReady } from './economy.js';
 import { suggestAbility, abilityReady } from './abilities.js';
 import { visibleEnemies } from './vision.js';
 import { withinBuildRadius, BUILD_RADIUS } from './sim.js';
@@ -96,8 +96,75 @@ export function updateAI(world, player) {
   commands.push(...constructionCommands(world, player, buildings));
   commands.push(...armyCommands(world, player, buildings, army, economyReserve(world, player, buildings, collectors)));
   commands.push(...militaryCommands(world, player, army));
+  commands.push(...upkeepCommands(world, player, buildings));
 
   return commands;
+}
+
+/**
+ * Repair what is worth repairing, and fire the superweapon when it is charged.
+ *
+ * Both are cheap to get wrong in the other direction: an AI that never repairs
+ * bleeds its base away one raid at a time, and a charged superweapon that is
+ * never fired is decoration.
+ */
+function upkeepCommands(world, player, buildings) {
+  const out = [];
+
+  // Repair below two-thirds hull, and only with scrap to spare — patching a
+  // Sensor Mast while the Foundry queue starves is a bad trade.
+  if (player.scrap > 1500) {
+    const hurt = buildings.filter(
+      (b) => !b.constructing && !b.repairing && b.hp < b.maxHp * 0.66
+    );
+    if (hurt.length) {
+      out.push({ type: 'repair', player: player.id, ids: hurt.map((b) => b.id), on: true });
+    }
+  }
+
+  for (const b of buildings) {
+    if (!superweaponReady(b)) continue;
+    const target = superweaponTarget(world, player);
+    if (target) {
+      out.push({
+        type: 'superweapon',
+        player: player.id,
+        buildingId: b.id,
+        x: target.x,
+        y: target.y,
+      });
+    }
+  }
+
+  return out;
+}
+
+/**
+ * Where to put a superweapon strike: the point covering the most enemy value
+ * it can currently see. Falls back to their base, because a strike on a known
+ * structure always beats holding the charge indefinitely.
+ */
+function superweaponTarget(world, player) {
+  const seen = visibleEnemies(world, player.id);
+  const radius = 5.5;
+
+  let best = null;
+  let bestValue = 0;
+  for (const candidate of seen) {
+    let value = 0;
+    for (const other of seen) {
+      if (Math.hypot(other.x - candidate.x, other.y - candidate.y) > radius) continue;
+      value += other.def.cost || 200;
+    }
+    if (value > bestValue) {
+      bestValue = value;
+      best = candidate;
+    }
+  }
+
+  if (best && bestValue >= 1500) return { x: best.x, y: best.y };
+  const base = enemyBase(world, player);
+  return base ? { x: base.x, y: base.y } : null;
 }
 
 /**
@@ -191,6 +258,15 @@ function nextStructure(world, player, buildings, owned, profile) {
   if (counted('foundry') < 2) return 'foundry';
   if (counted('sensor') < 1) return 'sensor';
   if (counted('hangar') < 2 && techAllows(world, player.id, 'hangar')) return 'hangar';
+  // The Lance is a late-game luxury: only once the economy can carry both its
+  // cost and its enormous power draw.
+  if (
+    counted('lance') < 1 &&
+    techAllows(world, player.id, 'lance') &&
+    player.powerMade - player.powerUsed > 70
+  ) {
+    return 'lance';
+  }
   return null;
 }
 

@@ -73,6 +73,75 @@ export const SHIELD = {
 };
 
 /**
+ * Veterancy — straight out of Command & Conquer.
+ *
+ * A machine that survives gets better at the job. Promotion is earned by
+ * destroying enemy value worth a multiple of your own cost, which is C&C's
+ * rule and a good one: it scales automatically, so a cheap scout that lives
+ * through a whole campaign promotes on merit rather than on luck.
+ *
+ * This is also the mechanic that makes retreating a damaged veteran worth
+ * doing. Losing a rank-2 Kestrel costs more than the 900 scrap on the
+ * invoice, and the player can see the chevrons.
+ */
+export const VETERANCY = [
+  { rank: 0, name: 'Green', killValue: 0, damage: 1, cooldown: 1, hull: 1, selfRepair: 0 },
+  {
+    rank: 1,
+    name: 'Veteran',
+    /** Destroyed enemy value needed, as a multiple of this unit's own cost. */
+    killValue: 3,
+    damage: 1.1,
+    /** Rate of fire: lower is faster. */
+    cooldown: 0.8,
+    hull: 1.25,
+    selfRepair: 0,
+  },
+  {
+    rank: 2,
+    name: 'Elite',
+    killValue: 9,
+    damage: 1.25,
+    cooldown: 0.7,
+    hull: 1.5,
+    /** Hull points per second. Elites repairing themselves is the C&C rule. */
+    selfRepair: 6,
+  },
+];
+
+/** Selling a structure returns half its cost, scaled by what is left standing. */
+export const SELL_REFUND = 0.5;
+
+/**
+ * Field repair. A damaged structure can be patched rather than replaced,
+ * paying scrap in proportion to the hull restored — cheaper than rebuilding,
+ * and the reason a half-dead Refinery is worth defending.
+ */
+export const REPAIR = {
+  /** Fraction of max hull restored per second. */
+  RATE: 0.06,
+  /** Scrap per hull point, as a fraction of cost-per-hull. */
+  COST_RATIO: 0.45,
+};
+
+/**
+ * Wreck fields slowly recover, the way Red Alert's ore does.
+ *
+ * Without this a long match ends in a mined-out stalemate where neither side
+ * can rebuild and nothing can resolve. Regrowth is slow enough that expanding
+ * to a fresh field is still the right move, and fast enough that running out
+ * of map is not the way games end.
+ */
+export const REGROWTH = {
+  /** Ticks between regrowth passes. */
+  INTERVAL: secs(6),
+  /** Scrap added per pass to a cell that still has something in it. */
+  AMOUNT: 26,
+  /** A depleted cell only comes back if a neighbour survived to seed it. */
+  SEED_AMOUNT: 12,
+};
+
+/**
  * Weapons. `cooldown` is between shots; a salvo fires `count` projectiles
  * `interval` ticks apart on a single trigger pull, which is what makes rocket
  * mechs feel like rocket mechs rather than machine guns.
@@ -627,6 +696,38 @@ export const BUILDINGS = {
     requires: ['techlab'],
     hint: 'Produces tier-two chassis, including air.',
   },
+  lance: {
+    id: 'lance',
+    name: 'Orbital Lance',
+    cost: 3500,
+    buildTime: secs(50),
+    hp: 900,
+    armor: ARMOR.STRUCTURE,
+    size: [3, 3],
+    power: -60,
+    sight: 6,
+    requires: ['techlab', 'hangar'],
+    /**
+     * The Command & Conquer superweapon, and the same bargain: enormous power
+     * draw, a charge you watch tick down, and a strike that ends a base. It
+     * exists to give a long game somewhere to go other than a stalemate.
+     *
+     * It needs power, so the counter is the same as everything else in this
+     * game — kill their reactors and the doomsday clock stops.
+     */
+    superweapon: {
+      id: 'orbital_lance',
+      name: 'Orbital Lance',
+      charge: secs(240),
+      radius: 5.5,
+      damage: 900,
+      type: DAMAGE.EXPLOSIVE,
+      falloff: 0.35,
+      hint: 'Calls a strike anywhere you can see. Four minutes to recharge.',
+    },
+    needsPower: true,
+    hint: 'Superweapon. Enormous power draw, and silent during a brownout.',
+  },
   turret: {
     id: 'turret',
     name: 'Turret',
@@ -692,6 +793,7 @@ export const BUILD_ORDER = [
   'hangar',
   'turret',
   'sensor',
+  'lance',
 ];
 
 /** Terrain classes. Index into these from the map's terrain array. */

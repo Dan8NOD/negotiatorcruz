@@ -14,6 +14,8 @@ import {
   WEAPONS,
   SHIELD,
   ABILITIES,
+  VETERANCY,
+  TICKS_PER_SECOND,
   damageMultiplier,
 } from './content.js';
 import { occupy, vacate, footprint, nearestWalkable } from './grid.js';
@@ -101,6 +103,9 @@ export function spawnUnit(world, defId, playerId, x, y) {
         }
       : null,
     disabledUntil: 0,
+    /** Veterancy rank, and destroyed enemy value banked toward the next one. */
+    vet: 0,
+    vetValue: 0,
     speedMul: 1,
     speedMulUntil: 0,
     tempShield: 0,
@@ -166,6 +171,15 @@ export function spawnBuilding(world, defId, playerId, cx, cy, { complete = false
     targetId: null,
     targetForced: false,
     disabledUntil: 0,
+    // Emplacements earn rank too — a turret that has held a choke point all
+    // game should be better at it than one that went up a minute ago.
+    vet: 0,
+    vetValue: 0,
+
+    /** Set while the player is paying to patch this structure up. */
+    repairing: false,
+    /** Superweapon charge, in ticks. Only ever non-null on a Lance. */
+    charge: def.superweapon ? 0 : null,
     dead: false,
   };
 
@@ -175,6 +189,61 @@ export function spawnBuilding(world, defId, playerId, cx, cy, { complete = false
   world.events.push({ type: 'placed', id: e.id, defId, player: playerId, cx, cy });
   if (complete) onBuildingComplete(world, e);
   return e;
+}
+
+/* ----------------------------------------------------------- veterancy -- */
+
+/**
+ * Veterancy multipliers for an entity's current rank.
+ *
+ * Read at the point of use rather than baked into the entity, because the
+ * shared definition tables must never be mutated and copying a whole def per
+ * promotion would be wasteful. Rank 0 returns all-ones, so the un-promoted
+ * path costs one array index and nothing else.
+ */
+export function vetBonus(e) {
+  return VETERANCY[e.vet || 0] || VETERANCY[0];
+}
+
+/**
+ * Credit a kill toward promotion, C&C style: a unit promotes once it has
+ * destroyed enemy value worth a multiple of its own cost. Scaling the
+ * threshold to cost is what lets a 300-scrap scout and a 1300-scrap siege
+ * mech share one rule without either being trivially or impossibly promoted.
+ */
+function creditKill(world, killer, victim) {
+  if (!killer || killer.dead) return;
+  const cost = killer.def.cost || 300;
+  killer.vetValue = (killer.vetValue || 0) + (victim.def.cost || 100);
+
+  const current = killer.vet || 0;
+  const next = VETERANCY[current + 1];
+  if (!next || killer.vetValue < next.killValue * cost) return;
+
+  promote(world, killer, current + 1);
+}
+
+function promote(world, e, rank) {
+  const previous = vetBonus(e);
+  e.vet = rank;
+  const now = vetBonus(e);
+
+  // Hull scales with rank, and promotion heals by the amount gained — a
+  // promotion mid-fight should feel like a reprieve, which is exactly what it
+  // is in every C&C game.
+  const base = e.maxHp / previous.hull;
+  const gained = Math.round(base * now.hull) - e.maxHp;
+  e.maxHp += gained;
+  e.hp = Math.min(e.maxHp, e.hp + gained);
+
+  world.events.push({ type: 'promoted', id: e.id, rank, x: e.x, y: e.y });
+}
+
+/** Elite machines patch themselves between engagements. */
+export function updateSelfRepair(world, e) {
+  const bonus = vetBonus(e);
+  if (bonus.selfRepair <= 0 || e.hp >= e.maxHp) return;
+  e.hp = Math.min(e.maxHp, e.hp + bonus.selfRepair / TICKS_PER_SECOND);
 }
 
 /**
@@ -291,6 +360,7 @@ export function killEntity(world, e, sourceId = 0) {
   const killer = world.entities.get(sourceId);
   if (killer && world.players[killer.player] && killer.player !== e.player) {
     world.players[killer.player].stats.killed++;
+    creditKill(world, killer, e);
 
     // Campaign bookkeeping: a named pilot's kills are worth XP, scaled by what
     // they killed, so a Collector is not worth the same as an Anvil.

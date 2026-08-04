@@ -9,6 +9,7 @@
 import { createWorld, tick } from '../engine/sim.js';
 import { updateAI } from '../engine/ai.js';
 import { vacate } from '../engine/grid.js';
+import { spawnBuilding } from '../engine/entities.js';
 
 /** A two-player world with nothing running yet. */
 export function makeWorld(overrides = {}) {
@@ -42,6 +43,24 @@ export function makeEmptyWorld(overrides = {}) {
     if (e.kind === 'building') vacate(world.map, e.size, e.cx, e.cy);
     world.entities.delete(id);
   }
+  return world;
+}
+
+/**
+ * An empty world that will still *run*.
+ *
+ * `checkVictory` ends a match the instant a player owns nothing, and a
+ * finished world ignores every subsequent tick. A test that empties the world
+ * and then runs a few hundred ticks to watch something charge, repair or
+ * regrow therefore measures exactly one tick and silently passes or fails for
+ * the wrong reason. Giving each player a Command Rig in its own corner keeps
+ * the clock running without putting anything near the middle of the map.
+ */
+export function makeArena(overrides = {}) {
+  const world = makeEmptyWorld(overrides);
+  const [a, b] = world.map.starts;
+  spawnBuilding(world, 'command', 0, a.x - 1, a.y - 1, { complete: true });
+  spawnBuilding(world, 'command', 1, b.x - 1, b.y - 1, { complete: true });
   return world;
 }
 
