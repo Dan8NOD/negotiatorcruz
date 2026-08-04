@@ -4,8 +4,8 @@
   "private": true,
   "description": "negotiatorcruz.com — static site plus the /api/lead serverless function. No runtime dependencies by design; everything here is dev-only tooling.",
   "scripts": {
-    "test": "node --test \"test/**/*.test.js\"",
-    "test:watch": "node --test --watch \"test/**/*.test.js\"",
+    "test": "node --test \"test/**/*.test.js\" \"practice-lab/test/**/*.test.js\"",
+    "test:watch": "node --test --watch \"test/**/*.test.js\" \"practice-lab/test/**/*.test.js\"",
     "test:coverage": "node --test --experimental-test-coverage \"test/**/*.test.js\"",
     "test:e2e": "playwright test",
     "test:all": "npm test && npm run test:e2e",
