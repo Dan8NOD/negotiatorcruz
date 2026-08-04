@@ -10,8 +10,10 @@
 
 const { test, describe } = require('node:test');
 const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
 
-const { ORIGIN, read } = require('./helpers/pages.js');
+const { ORIGIN, ROOT, read } = require('./helpers/pages.js');
 
 const vercel = JSON.parse(read('vercel.json'));
 
@@ -98,5 +100,37 @@ describe('package.json', () => {
 
   test('pins a Node version that supports the built-in test runner', () => {
     assert.match(pkg.engines.node, />=\s*(2[0-9]|[3-9][0-9])/);
+  });
+
+  test('the test script runs every test file in the repo', () => {
+    // practice-lab/test/pricing.test.js sat unexecuted after it was added:
+    // the glob only covered the root test/ directory, so sixteen assertions
+    // about live Stripe prices passed CI by never running. A test file that
+    // nobody runs is worse than no test file — it reads as coverage.
+    //
+    // This walks the repo for test files and checks each one against the
+    // directories the "test" script actually globs, so the next sub-project
+    // added with its own tests fails here instead of going quietly dark.
+    const globbed = [...pkg.scripts.test.matchAll(/"([^"]*)\*\*[^"]*"/g)].map((m) => m[1]);
+    assert.ok(globbed.length > 0, 'could not parse any globs out of the test script');
+
+    const found = [];
+    (function walk(dir) {
+      for (const entry of fs.readdirSync(path.join(ROOT, dir), { withFileTypes: true })) {
+        if (entry.name === 'node_modules' || entry.name.startsWith('.')) continue;
+        const rel = dir ? `${dir}/${entry.name}` : entry.name;
+        if (entry.isDirectory()) walk(rel);
+        else if (entry.name.endsWith('.test.js')) found.push(rel);
+      }
+    })('');
+
+    assert.ok(found.length > 0, 'expected to find test files');
+
+    const orphaned = found.filter((f) => !globbed.some((prefix) => f.startsWith(prefix)));
+    assert.deepEqual(
+      orphaned,
+      [],
+      `these test files are never executed by "npm test":\n  ${orphaned.join('\n  ')}`
+    );
   });
 });

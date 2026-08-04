@@ -2,14 +2,19 @@
   "name": "negotiatorcruz",
   "version": "1.0.0",
   "private": true,
-  "description": "negotiatorcruz.com — static site plus the /api/lead serverless function. No runtime dependencies by design; everything here is dev-only tooling.",
+  "description": "negotiatorcruz.com — static site plus the /api/lead serverless function. No runtime dependencies by design; everything here is dev-only tooling. `rocketman/` is a separate side project staged here; see rocketman/README.md.",
   "scripts": {
     "test": "node --test \"test/**/*.test.js\" \"practice-lab/test/**/*.test.js\"",
     "test:watch": "node --test --watch \"test/**/*.test.js\" \"practice-lab/test/**/*.test.js\"",
-    "test:coverage": "node --test --experimental-test-coverage \"test/**/*.test.js\"",
+    "test:coverage": "node --test --experimental-test-coverage \"test/**/*.test.js\" \"practice-lab/test/**/*.test.js\"",
     "test:e2e": "playwright test",
     "test:all": "npm test && npm run test:e2e",
-    "serve": "node test/helpers/static-server.js"
+    "test:rocketman": "node --test \"rocketman/test/**/*.test.js\"",
+    "test:rocketman:e2e": "playwright test -c rocketman/playwright.config.cjs",
+    "serve": "node test/helpers/static-server.js",
+    "rocketman:fixtures": "node rocketman/tools/export-fixtures.mjs",
+    "test:rocketman:swift": "swift test --package-path rocketman/swift",
+    "rocketman:build": "node rocketman/tools/build-single-file.mjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0"

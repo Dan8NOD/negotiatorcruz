@@ -1,0 +1,150 @@
+# Chapter 15 — The Calibrated Question
+
+### Part 1 of 2 · The Method
+
+**Part III · STEER**
+
+---
+
+## The Standard
+
+A calibrated question hands the problem to the other side and asks them to
+solve it.
+
+That's the mechanism, and it explains everything else about the tool. You are
+not asking for information — you often already have the information. You are
+transferring the *work* of finding a way forward onto the person whose
+constraints actually govern the answer. They know things you don't. They also
+own the outcome in a way you never will, and people execute answers they
+generated far more reliably than answers they were handed.
+
+The grammar is strict: **"How" and "What." Never "Why."** That is not a
+stylistic preference. "Why did you go that direction?" is heard as an
+accusation in every language this has been tested in — *why* demands
+justification, and a person justifying has stopped problem-solving. "What made
+that the right call?" asks the identical question and gets a real answer.
+
+This is where Stage 3 begins. Everything before it was diagnosis and defusing.
+This is the first tool that moves anyone.
+
+---
+
+## When to reach for it
+
+The shipped trigger is exact: **they pushed back, or said "I can't do that."**
+That sentence is the tool's home.
+
+Also reach for it when:
+
+- **You want a concession without asking for one.** "How am I supposed to do
+  that?" asks for nothing and frequently produces movement.
+- **You're about to give an ultimatum.** Every ultimatum has a calibrated
+  question hiding inside it that gets a better outcome.
+- **The deal is stuck and you don't know why.** "What's making this harder than
+  it needs to be?" is the general-purpose unstick.
+- **You want them to own implementation.** Questions about *how this will work*
+  produce a counterpart who has mentally started the project.
+
+Do **not** reach for it when:
+
+- **You haven't run Read and Disarm.** A calibrated question asked of someone
+  still defending lands as interrogation. This is the field's most common
+  failure and it's covered in Chapter 2 — the tool isn't broken, the sequence
+  is.
+- **You're using it to avoid saying something.** Answering a direct question
+  with a calibrated question is evasion, and it's obvious.
+- **You'll answer it yourself.** More on that below. If you can't hold the
+  silence, don't ask.
+
+---
+
+## The words
+
+```
+CALIBRATED — the pushback
+
+  "How am I supposed to do that?"
+  "What would need to be true for this to work?"
+  "What's making this harder than it needs to be?"
+  "What am I not seeing here?"
+
+CALIBRATED — finding the real constraint
+
+  "What about this is most important to you?"
+  "What's the one piece of this you're least willing to bend on?"
+  "What's driving the timeline on this?"
+  "How did you land on that number?"
+
+CALIBRATED — moving toward yes
+
+  "What would need to happen for this to be an easy yes?"
+  "How would you want this to go if there were no constraints at all?"
+
+CALIBRATED — implementation
+
+  "How do you want to handle it if we hit a snag halfway through?"
+  "How should we split this up so nothing falls through the cracks?"
+```
+
+**"How am I supposed to do that?"** is the most valuable sentence in the
+chapter and possibly in the stage. It is a refusal that isn't a refusal. You
+have declined without saying no, kept the relationship intact, and made their
+demand their own problem to solve. Delivered flat and genuinely curious — never
+exasperated — it produces one of two things: a better offer, or an explanation
+of the constraint that produced the bad one. Both are progress.
+
+**"How did you land on that number?"** is the cheapest anchor test available.
+Numbers arrive dressed as facts. This question asks them to undress it, and
+about half the time the answer reveals the number was constructed rather than
+calculated.
+
+The two implementation questions at the bottom deserve more use than they get.
+Asking someone *how we should handle a snag halfway through* presupposes that
+there is a halfway through — the deal is now something being planned rather
+than something being decided. That's a reframe (Chapter 24) smuggled inside a
+logistics question.
+
+### The grammar, in full
+
+| Don't say | Say |
+|---|---|
+| "Why did you go with them last time?" | "What made them the right call at the time?" |
+| "Why is the timeline so tight?" | "What's driving the timeline on this?" |
+| "You need to give us more lead time." | "How am I supposed to make that work on my end?" |
+| "Why can't you approve it?" | "What would need to happen for this to be an easy yes?" |
+| "Is the price the problem?" | "What about this is most important to you?" |
+
+Note the last row. A closed question gets a one-word answer and an open one
+gets a paragraph — and the paragraph is the point. Every calibrated question is
+open by construction; if yours can be answered with yes or no, it isn't
+calibrated yet.
+
+---
+
+## What good sounds like
+
+**A long answer.** The primary signal. Calibrated questions produce
+disproportionate talking, and the tail end of a long answer is where people
+stop delivering their prepared position and start thinking out loud.
+
+**They solve your problem for you.** *"Well — I suppose if you could hold the
+first invoice until the new fiscal year, I could probably get it through."*
+Nobody asked them to construct that. They constructed it because the question
+made the constraint theirs.
+
+**"That's a fair question."** Reliable tell that the question landed somewhere
+real. Usually followed by something they hadn't planned to say.
+
+**Their number gets a story.** "How did you land on that number?" producing
+*"honestly, it's what we paid last year plus a bit"* tells you the number has
+no floor under it.
+
+**What good does not sound like:** a short, flat answer. *"I just need it under
+sixty."* That's a question that landed as an interrogation, or one asked before
+Disarm was done. Don't ask another — go back a stage.
+
+---
+
+---
+
+*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*

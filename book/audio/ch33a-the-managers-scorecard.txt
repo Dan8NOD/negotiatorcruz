@@ -1,0 +1,99 @@
+Chapter 33 - The Manager's Scorecard
+
+Part 1 of 2 · The Method
+
+Part VI · Installation
+
+The Standard
+
+The scorecard is a twelve-row instrument for auditing a recorded negotiation
+against the four stages. It produces a number, and more importantly it produces
+a specific sentence a manager can say to a rep about a specific moment on a
+specific tape.
+
+It scores the call, never the person. That distinction is the whole instrument.
+"You're not confident on price" is an assessment of a human being, it cannot be
+disproved, and there is nothing to do with it on Monday. "At 4:12 you named a
+number, they went quiet, and eleven seconds later you took two points off it
+without being asked" is a description of a recording. It is checkable, it is
+fixable, and the rep can hear it without defending themselves.
+
+Every negotiation tool in this manual has a metric because of this chapter. A
+method that cannot be audited is a philosophy, and philosophies do not survive
+contact with a sales floor under quota. The scorecard is what makes the Protocol
+a standard rather than a point of view - and it is the reason a manager who has
+never met the author can run it correctly.
+
+When to reach for it
+
+Use the scorecard when:
+Reviewing any recorded negotiation, in or out of a rollout. It is the
+ standing format, not a program artifact.
+A deal closed at a worse number than it should have and nobody can say
+ where it went. The scorecard finds the moment.
+You are coaching someone who is already good. Strong reps plateau on the
+ two or three rows they never score on, and they generally cannot see which.
+You need to show a number to someone above you. Twelve rows across a
+ team, tracked monthly, is a defensible picture of capability.
+
+Do not use it when:
+The rep is in the deal right now and emotional about it. Score after, not
+ during. A scorecard delivered mid-deal reads as blame and will cost you the
+ tape.
+You only have your memory of the call. Scoring from recollection produces
+ scores about how the call felt, which is exactly what this instrument exists
+ to replace.
+It is the rep's first week. Score their calls yourself for context, but do
+ not walk a new hire through twelve rows of things they did wrong. Use one row.
+As an input to compensation. The moment a scorecard touches pay, tape
+ submission becomes adversarial and every number in it stops being true. This
+ is not a soft preference - it is the failure mode that ends the practice
+ permanently. See below.
+
+The words
+
+The scorecard is scored silently, then delivered. These are the four sentences
+that carry it.
+
+THE OPEN - before any row is read
+
+Quote. I scored the call, not you. Twelve rows, most calls land around six. If you come out at six you're where the floor is, not in trouble. End quote.
+
+THE BAD ROW - the format that makes a low score usable
+
+Quote. Row 9. At [timestamp] you [observable behavior]. What were you working with there? End quote.
+
+Timestamp, behavior, question. Never an adjective.
+
+THE GOOD ROW - do not skip these, and be as specific
+
+Quote. Row 4. At 2:40 they said 'that's not really the issue' and you said nothing for six seconds. That's where the call turned. End quote.
+
+THE CLOSE - one row, never twelve
+
+Quote. Next two calls, we're only working row 9. Everything else stays as it is. Bring me the tape Thursday. End quote.
+
+The last one is the discipline that makes the instrument work. Twelve rows of
+feedback produces zero behavior change; it produces a rep who feels generally
+bad at negotiating. One row produces one changed behavior, which is the entire
+achievable outcome of a coaching conversation.
+
+What good sounds like
+
+A rep who argues with a specific row. "I did label there, at 3:15." That is
+the instrument working exactly as designed - you are now both looking at the
+same tape, discussing an observable thing, and one of you is going to be right.
+Go to the tape. If they're right, say so in front of the room next time.
+
+A rep who scores their own call before the review. The point at which the
+standard has transferred. When self-scores land within a point or two of yours,
+that rep no longer needs you to review their calls, and you should tell them so.
+
+Silence on the good rows. Reps generally do not know which of their instincts
+are the strong ones, and will drop a good habit for a worse one if nobody ever
+named it.
+
+What is not good: agreement. A rep who accepts all twelve rows without
+friction has not engaged with any of them.
+
+Continues in Part 2 of 2 - the drill, the scoring, and the failure mode.

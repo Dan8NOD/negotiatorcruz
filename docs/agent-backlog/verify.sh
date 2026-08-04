@@ -51,16 +51,25 @@ fi
 # link was dead; those reverted once a real Calendly event existed.)
 # Bump this deliberately if a new user-facing route is added.
 #
+# 14 = the 11 above, plus 3 in guide/assessment/state-check.html (two runtime
+# fallback strings and the deployment note). Added 2026-08-04 when the Six
+# Before Yes assessment landed carrying the WRONG spelling, with a comment
+# asserting it was "confirmed correct, not a typo" -- it was not, and Dan
+# confirmed he does not read that inbox. guide/ is deliberately NOT added to
+# SCAN_EXCLUDES: unlike practice-lab/, it has no README staging it to another
+# repo and it deploys to either domain, so it stays under this guard. An
+# unwatched guide is precisely where this bug lived.
+#
 # Counts shipped files only. test/ and e2e/ also assert this address -- that is
 # the suite doing its job, not a site occurrence, and folding them in here would
 # make the number move whenever coverage changes.
 n=$(grep -roF 'negotiatorsondemand@gmail.com' \
       --include='*.html' --include='*.js' --include='*.txt' \
       "${SCAN_EXCLUDES[@]}" . 2>/dev/null | wc -l)
-if [ "$n" -eq 11 ]; then
-  pass "correct address in all 11 places"
+if [ "$n" -eq 14 ]; then
+  pass "correct address in all 14 places"
 else
-  fail "expected 11 occurrences of the correct address, found $n"
+  fail "expected 14 occurrences of the correct address, found $n"
 fi
 
 echo
@@ -72,7 +81,12 @@ echo "Booking links (regression guard)"
 # API. State when this list was last confirmed:
 #
 #   corporate-training-call  ACTIVE, 15min, free   created 2026-08-03
-#   virtualcoffeewithdan     ACTIVE, 60min, paid   the $500 Negotiator Hour
+#   virtualcoffeewithdan     ACTIVE, 60min, paid   the $1,500 Negotiator Hour
+#                                                  (repriced from $500 on
+#                                                  2026-08-03; the Calendly
+#                                                  charge amount is not exposed
+#                                                  by their API, so it can only
+#                                                  be confirmed in the UI)
 #   30min / 60min            INACTIVE              (200, empty shell)
 #   corporate-training       never existed         (404)
 #   15min                    never existed         (200, empty shell)

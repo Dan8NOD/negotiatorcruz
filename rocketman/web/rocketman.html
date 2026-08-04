@@ -1,0 +1,1276 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="robots" content="noindex, nofollow" />
+    <title>Rocketman — real-time strategy</title>
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23101720'/%3E%3Cpath d='M16 5l6 12-6 4-6-4z' fill='%234fb3ff'/%3E%3Cpath d='M13 22h6l-3 5z' fill='%23ff8a4c'/%3E%3C/svg%3E"
+    />
+    <meta
+      name="description"
+      content="Rocketman: a real-time strategy prototype. Base building and power economy in the Red Alert tradition, piloted mechs with shields and active abilities in the War Robots tradition."
+    />
+    <style>
+      /* ------------------------------------------------------------------
+         One stylesheet, no build step, no dependencies — the same constraint
+         the rest of this repository runs under. Colours are deliberately dark
+         and low-saturation so that faction colours and health bars are the
+         brightest things on screen; in an RTS the UI must never out-shout the
+         battlefield.
+         ------------------------------------------------------------------ */
+      :root {
+        --bg: #080b10;
+        --panel: #101720;
+        --panel-2: #16202b;
+        --line: #22303e;
+        --text: #d8e2ec;
+        --muted: #7f8fa0;
+        --accent: #4fb3ff;
+        --warn: #ff6b5f;
+        --good: #57d16a;
+        --scrap: #bed664;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      /* An author `display` rule outranks the UA stylesheet's `[hidden]`, so
+         without this the hidden game screen and result overlay stay laid out —
+         invisible, full-bleed, and swallowing every click on the menu. */
+      [hidden] {
+        display: none !important;
+      }
+
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--text);
+        font: 14px/1.45 ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+        overflow: hidden;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      button {
+        font: inherit;
+        color: inherit;
+        cursor: pointer;
+      }
+
+      h1,
+      h2,
+      h3,
+      h4,
+      h5 {
+        margin: 0;
+        font-weight: 650;
+        letter-spacing: -0.01em;
+      }
+
+
+      /* ---------------------------------------------------- roster bar -- */
+
+      #roster {
+        display: flex;
+        align-items: stretch;
+        gap: 8px;
+        padding: 6px 10px;
+        background: var(--panel);
+        border-top: 1px solid var(--line);
+        min-height: 54px;
+      }
+
+      #rosterList {
+        display: flex;
+        align-items: stretch;
+        gap: 6px;
+        overflow-x: auto;
+        overflow-y: hidden;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .rosterAll,
+      .rosterChip {
+        flex: 0 0 auto;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 1px;
+        min-width: 74px;
+        padding: 5px 9px;
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        border-left-width: 3px;
+        border-radius: 7px;
+        text-align: left;
+        line-height: 1.25;
+        transition: border-color 0.12s, transform 0.12s;
+      }
+
+      .rosterAll:hover,
+      .rosterChip:hover {
+        transform: translateY(-2px);
+        border-color: var(--accent);
+      }
+
+      .rosterChip strong,
+      .rosterAll strong {
+        font-size: 12px;
+        font-weight: 650;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 96px;
+      }
+
+      .rosterChip em,
+      .rosterAll em {
+        font-style: normal;
+        font-size: 10.5px;
+        color: var(--muted);
+      }
+
+      /* A named pilot is not a unit count — give the crew its own weight. */
+      .rosterChip.pilot {
+        border-left-color: #ffd166;
+        min-width: 96px;
+      }
+
+      .rosterChip.pilot strong {
+        color: #ffd166;
+      }
+
+      /* Skyfall ready reads at a glance, because a 15s cooldown is a clock
+         the player is genuinely managing. */
+      .rosterChip.jump em::after {
+        content: " · ⇱";
+        color: var(--accent);
+      }
+
+      .rosterChip .hpbar {
+        height: 3px;
+        border-radius: 2px;
+        background: #0a0f15;
+        overflow: hidden;
+      }
+
+      .rosterChip .hpbar i {
+        display: block;
+        height: 100%;
+        background: var(--good);
+      }
+
+      .rosterChip.hurt .hpbar i {
+        background: var(--warn);
+      }
+
+      .rosterChip.down {
+        opacity: 0.35;
+      }
+
+      /* -------------------------------------------------------- screens -- */
+
+      .screen {
+        position: fixed;
+        inset: 0;
+        overflow-y: auto;
+        padding: clamp(24px, 5vh, 64px) 20px;
+        background:
+          radial-gradient(1200px 600px at 50% -10%, #16283a 0%, transparent 60%),
+          var(--bg);
+      }
+
+      .screenTitle {
+        font-size: 30px;
+        margin-bottom: 18px;
+      }
+
+      button.primary {
+        background: var(--accent);
+        color: #04121d;
+        border: 0;
+        border-radius: 8px;
+        padding: 11px 26px;
+        font-weight: 700;
+      }
+
+      button.primary:hover {
+        filter: brightness(1.1);
+      }
+
+      button.ghost {
+        background: transparent;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 10px 20px;
+        color: var(--muted);
+      }
+
+      button.ghost:hover {
+        border-color: var(--accent);
+        color: var(--text);
+      }
+
+      button.ghost.danger:hover {
+        border-color: var(--warn);
+        color: var(--warn);
+      }
+
+      button.small {
+        padding: 5px 12px;
+        font-size: 12px;
+      }
+
+      .warnLine {
+        color: var(--warn);
+        font-size: 13px;
+        border: 1px solid var(--warn);
+        border-radius: 8px;
+        padding: 9px 13px;
+        margin: 0 0 22px;
+      }
+
+      /* ----------------------------------------------------- title modes -- */
+
+      .modes {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        margin-bottom: 26px;
+      }
+
+      .mode {
+        text-align: left;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 20px;
+        transition: border-color 0.15s, transform 0.15s;
+      }
+
+      .mode:hover {
+        transform: translateY(-2px);
+        border-color: var(--accent);
+      }
+
+      .mode.primary {
+        background: var(--panel-2);
+        color: var(--text);
+        border-color: var(--accent);
+      }
+
+      .mode strong {
+        display: block;
+        font-size: 22px;
+        margin-bottom: 3px;
+      }
+
+      .mode em {
+        display: block;
+        font-style: normal;
+        font-size: 13px;
+        color: var(--accent);
+        margin-bottom: 8px;
+      }
+
+      .mode span {
+        display: block;
+        font-size: 13px;
+        color: var(--muted);
+      }
+
+      /* ------------------------------------------------------- campaign -- */
+
+      .campaignHead {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 16px;
+      }
+
+      .campaignHead h2 {
+        font-size: clamp(24px, 4vw, 36px);
+      }
+
+      .salvageLine span {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .salvageLine b {
+        font-size: 20px;
+        color: var(--scrap);
+      }
+
+      .intro,
+      .debriefStory,
+      .brief pre {
+        white-space: pre-wrap;
+        font: inherit;
+        color: var(--muted);
+        background: var(--panel);
+        border-left: 2px solid var(--line);
+        border-radius: 0 8px 8px 0;
+        padding: 14px 18px;
+        margin: 0 0 22px;
+        max-width: 74ch;
+      }
+
+      .done {
+        color: var(--good);
+        margin: 0 0 18px;
+      }
+
+      .missionList {
+        display: grid;
+        gap: 8px;
+        margin-bottom: 24px;
+      }
+
+      .mission {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        text-align: left;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 13px 16px;
+        transition: border-color 0.15s, transform 0.15s;
+      }
+
+      .mission:not(.locked):hover {
+        transform: translateX(3px);
+        border-color: var(--accent);
+      }
+
+      .mission.locked {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+
+      .mission.cleared {
+        border-left: 3px solid var(--good);
+      }
+
+      .mission .no {
+        font: 600 18px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: var(--muted);
+      }
+
+      .mission .body {
+        flex: 1;
+        min-width: 0;
+      }
+
+      .mission strong {
+        display: block;
+        font-size: 16px;
+      }
+
+      .mission em {
+        display: block;
+        font-style: normal;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .mission .teaches,
+      .mission .record {
+        display: block;
+        font-size: 11.5px;
+        color: var(--accent);
+        margin-top: 3px;
+      }
+
+      .mission .record {
+        color: var(--good);
+      }
+
+      .mission .badge {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.07em;
+        color: var(--muted);
+      }
+
+      .campaignActions,
+      .briefActions {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 20px;
+      }
+
+      /* ------------------------------------------- briefing and debrief -- */
+
+      .brief,
+      .debriefCard {
+        max-width: 820px;
+      }
+
+      .brief .no {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--accent);
+      }
+
+      .brief h2,
+      .debriefCard h2 {
+        font-size: clamp(26px, 4vw, 38px);
+      }
+
+      .brief > em,
+      .debriefCard > em {
+        display: block;
+        font-style: normal;
+        color: var(--muted);
+        margin-bottom: 16px;
+      }
+
+      .debriefCard.won h2 {
+        color: var(--good);
+      }
+
+      .debriefCard.lost h2 {
+        color: var(--warn);
+      }
+
+      .obj {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        font-size: 13.5px;
+        padding: 5px 0;
+      }
+
+      .obj i {
+        width: 9px;
+        height: 9px;
+        flex: none;
+        border: 1px solid var(--muted);
+        border-radius: 2px;
+      }
+
+      .obj.bonus {
+        color: var(--muted);
+      }
+
+      .obj.bonus i {
+        border-radius: 50%;
+      }
+
+      .obj.done i,
+      .obj.complete i {
+        background: var(--good);
+        border-color: var(--good);
+      }
+
+      .obj.failed i {
+        background: var(--warn);
+        border-color: var(--warn);
+      }
+
+      .obj span {
+        margin-left: auto;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .briefObjectives,
+      .briefCrew,
+      .debriefObjectives {
+        margin: 18px 0;
+      }
+
+      .crewRow {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+
+      .crewChip {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 9px 13px;
+        font-size: 13px;
+      }
+
+      .crewChip strong {
+        display: block;
+      }
+
+      .crewChip em {
+        font-style: normal;
+        font-size: 12px;
+        color: var(--muted);
+      }
+
+      .crewChip.up {
+        border-color: var(--good);
+      }
+
+      .crewChip.down {
+        border-color: var(--warn);
+      }
+
+      .crewChip .perk {
+        display: block;
+        margin-top: 5px;
+        font-size: 11.5px;
+        color: var(--good);
+      }
+
+      .payout {
+        border-top: 1px solid var(--line);
+        margin: 16px 0;
+        padding-top: 10px;
+        max-width: 420px;
+      }
+
+      .payoutRow {
+        display: flex;
+        justify-content: space-between;
+        padding: 3px 0;
+        font-size: 13.5px;
+      }
+
+      .payoutRow span {
+        color: var(--muted);
+      }
+
+      .payoutRow.total {
+        border-top: 1px solid var(--line);
+        margin-top: 6px;
+        padding-top: 8px;
+        font-weight: 700;
+      }
+
+      .payoutRow.total b {
+        color: var(--scrap);
+      }
+
+      .crewXp {
+        margin: 18px 0;
+      }
+
+      /* --------------------------------------------------------- hangar -- */
+
+      .hangarCrew,
+      .branch {
+        margin-bottom: 26px;
+      }
+
+      .crewCard {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 14px 16px;
+        width: 280px;
+        font-size: 13px;
+      }
+
+      .crewCard.perked {
+        border-color: var(--good);
+      }
+
+      .crewCard strong {
+        display: block;
+        font-size: 15px;
+      }
+
+      .crewCard em {
+        font-style: normal;
+        color: var(--accent);
+        font-size: 12px;
+      }
+
+      .crewCard p {
+        color: var(--muted);
+        font-size: 12px;
+        margin: 8px 0;
+      }
+
+      .xpBar {
+        height: 4px;
+        background: var(--panel-2);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+
+      .xpBar i {
+        display: block;
+        height: 100%;
+        background: var(--accent);
+      }
+
+      .xpText {
+        display: block;
+        font-size: 11.5px;
+        color: var(--muted);
+        margin: 4px 0 6px;
+      }
+
+      .crewCard .perk {
+        display: block;
+        font-size: 11.5px;
+      }
+
+      .crewCard .perk.on {
+        color: var(--good);
+      }
+
+      .crewCard .perk.off {
+        color: var(--muted);
+      }
+
+      .upgradeGrid {
+        display: grid;
+        gap: 8px;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      }
+
+      .upgrade {
+        text-align: left;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 11px 14px;
+        transition: border-color 0.15s;
+      }
+
+      .upgrade:not(.off):not(.owned):hover {
+        border-color: var(--accent);
+      }
+
+      .upgrade.owned {
+        border-color: var(--good);
+        cursor: default;
+      }
+
+      .upgrade.off {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+
+      .upgrade strong {
+        display: block;
+        font-size: 13.5px;
+      }
+
+      .upgrade em {
+        display: block;
+        font-style: normal;
+        font-size: 12px;
+        color: var(--muted);
+        margin: 3px 0 6px;
+      }
+
+      .upgrade .price {
+        font-size: 12px;
+        color: var(--scrap);
+      }
+
+      .upgrade.owned .price {
+        color: var(--good);
+      }
+
+      .upgrade.off .price {
+        color: var(--muted);
+      }
+
+      .wrap {
+        max-width: 980px;
+        margin: 0 auto;
+      }
+
+      .brand {
+        font-size: clamp(38px, 7vw, 68px);
+        line-height: 1;
+        letter-spacing: -0.03em;
+        margin-bottom: 6px;
+      }
+
+      .brand span {
+        color: var(--accent);
+      }
+
+      .tagline {
+        color: var(--muted);
+        max-width: 60ch;
+        margin: 0 0 28px;
+      }
+
+      #factionList {
+        display: grid;
+        gap: 14px;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        margin-bottom: 24px;
+      }
+
+      .faction {
+        --faction: var(--accent);
+        text-align: left;
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        padding: 16px 18px;
+        transition: border-color 0.15s, transform 0.15s, background 0.15s;
+      }
+
+      .faction:hover {
+        transform: translateY(-2px);
+        border-color: var(--faction);
+      }
+
+      .faction.on {
+        border-color: var(--faction);
+        background: var(--panel-2);
+        box-shadow: inset 0 0 0 1px var(--faction);
+      }
+
+      .faction h3 {
+        color: var(--faction);
+        font-size: 20px;
+        margin-bottom: 6px;
+      }
+
+      .faction p {
+        color: var(--muted);
+        margin: 0 0 10px;
+        font-size: 13px;
+      }
+
+      .faction ul {
+        margin: 0;
+        padding-left: 16px;
+        font-size: 12.5px;
+        color: var(--muted);
+      }
+
+      .faction li {
+        margin-bottom: 3px;
+      }
+
+      .faction li b {
+        color: var(--text);
+      }
+
+      .setup {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        align-items: flex-end;
+        margin-bottom: 26px;
+      }
+
+      .field label {
+        display: block;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+        margin-bottom: 5px;
+      }
+
+      .field input,
+      .field select {
+        font: inherit;
+        background: var(--panel);
+        color: var(--text);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 9px 11px;
+        min-width: 140px;
+      }
+
+      #start {
+        background: var(--accent);
+        color: #04121d;
+        border: 0;
+        border-radius: 8px;
+        padding: 11px 26px;
+        font-weight: 700;
+      }
+
+      #start:hover {
+        filter: brightness(1.1);
+      }
+
+      .keys {
+        border-top: 1px solid var(--line);
+        padding-top: 20px;
+        display: grid;
+        gap: 8px 28px;
+        grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+        color: var(--muted);
+        font-size: 13px;
+      }
+
+      .keys div {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      kbd {
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        border-bottom-width: 2px;
+        border-radius: 5px;
+        padding: 1px 6px;
+        font: 600 11px/1.6 ui-monospace, SFMono-Regular, Menlo, monospace;
+        color: var(--text);
+      }
+
+      /* ----------------------------------------------------------- game -- */
+
+      #game {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        grid-template-rows: 40px 1fr auto;
+        padding: 0;
+        background: var(--bg);
+        overflow: hidden;
+      }
+
+      #field {
+        position: relative;
+        min-height: 0;
+      }
+
+      #objectives {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        width: 244px;
+        background: rgba(10, 16, 23, 0.9);
+        border: 1px solid var(--line);
+        border-radius: 9px;
+        padding: 10px 13px;
+        pointer-events: none;
+      }
+
+      #objectives .obj {
+        font-size: 12.5px;
+        padding: 3px 0;
+      }
+
+      #topbar {
+        display: flex;
+        align-items: center;
+        gap: 22px;
+        padding: 0 16px;
+        background: var(--panel);
+        border-bottom: 1px solid var(--line);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .readout {
+        display: flex;
+        align-items: baseline;
+        gap: 7px;
+      }
+
+      .readout span {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: var(--muted);
+      }
+
+      .readout b {
+        font-size: 16px;
+        font-weight: 650;
+      }
+
+      #scrap {
+        color: var(--scrap);
+      }
+
+      #power.warn {
+        color: var(--warn);
+      }
+
+      #topbar .spacer {
+        margin-left: auto;
+        color: var(--muted);
+        font-size: 12px;
+      }
+
+      #view {
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: crosshair;
+        touch-action: none;
+      }
+
+      #hud {
+        display: grid;
+        grid-template-columns: auto minmax(200px, 300px) 1fr;
+        gap: 12px;
+        padding: 10px 12px;
+        background: var(--panel);
+        border-top: 1px solid var(--line);
+        max-height: 34vh;
+      }
+
+      #minimap {
+        width: 184px;
+        height: 184px;
+        background: #050709;
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        cursor: pointer;
+        image-rendering: pixelated;
+      }
+
+      #selection,
+      #commands {
+        overflow-y: auto;
+        min-height: 0;
+      }
+
+      h5 {
+        font-size: 10.5px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        color: var(--muted);
+        margin: 2px 0 7px;
+      }
+
+      .hint {
+        color: var(--muted);
+        font-size: 12px;
+        margin: 4px 0 0;
+      }
+
+      .detail h4 {
+        font-size: 16px;
+        margin-bottom: 6px;
+      }
+
+      .stat {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        font-size: 12.5px;
+        padding: 2px 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .stat span {
+        color: var(--muted);
+      }
+
+      .chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+      }
+
+      .chip,
+      .queued {
+        position: relative;
+        overflow: hidden;
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        border-radius: 6px;
+        padding: 5px 8px;
+        font-size: 11.5px;
+        text-align: left;
+      }
+
+      .chip i,
+      .queued i {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        height: 2px;
+        background: var(--good);
+      }
+
+      .queued i {
+        background: var(--accent);
+      }
+
+      .buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+
+      .cmd {
+        position: relative;
+        background: var(--panel-2);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 11px 7px;
+        min-width: 104px;
+        text-align: left;
+        transition: border-color 0.12s, background 0.12s;
+      }
+
+      .cmd:hover:not(.off) {
+        border-color: var(--accent);
+      }
+
+      .cmd.ready {
+        border-color: var(--good);
+      }
+
+      .cmd.off {
+        opacity: 0.42;
+        cursor: not-allowed;
+      }
+
+      .cmd strong {
+        display: block;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .cmd em {
+        display: block;
+        font-style: normal;
+        font-size: 11px;
+        color: var(--muted);
+      }
+
+      .cmd kbd {
+        position: absolute;
+        top: 5px;
+        right: 6px;
+        font-size: 9.5px;
+        padding: 0 4px;
+      }
+
+      .queue {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-top: 8px;
+      }
+
+      /* -------------------------------------------------------- overlays -- */
+
+      #toast {
+        position: fixed;
+        left: 50%;
+        top: 64px;
+        transform: translate(-50%, -14px);
+        background: rgba(10, 16, 23, 0.94);
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 8px 16px;
+        font-size: 13px;
+        pointer-events: none;
+        opacity: 0;
+        transition: opacity 0.18s, transform 0.18s;
+      }
+
+      #toast.on {
+        opacity: 1;
+        transform: translate(-50%, 0);
+      }
+
+      #result {
+        position: fixed;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        background: rgba(4, 7, 11, 0.82);
+        backdrop-filter: blur(3px);
+      }
+
+      .resultCard {
+        background: var(--panel);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 28px 34px;
+        min-width: 300px;
+        text-align: left;
+      }
+
+      .resultCard h2 {
+        font-size: 30px;
+        margin-bottom: 14px;
+      }
+
+      .resultCard.won h2 {
+        color: var(--good);
+      }
+
+      .resultCard.lost h2 {
+        color: var(--warn);
+      }
+
+      .resultCard button {
+        margin-top: 18px;
+        width: 100%;
+        background: var(--accent);
+        color: #04121d;
+        border: 0;
+        border-radius: 8px;
+        padding: 11px;
+        font-weight: 700;
+      }
+
+      @media (max-width: 720px) {
+        #hud {
+          grid-template-columns: 1fr;
+          max-height: 44vh;
+        }
+
+        #minimap {
+          width: 130px;
+          height: 130px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Title -->
+    <main id="title" class="screen">
+      <div class="wrap">
+        <h1 class="brand">ROCKET<span>MAN</span></h1>
+        <p class="tagline">
+          A real-time strategy game. Build a base and fight over power the way Red Alert
+          taught you &mdash; then drop into the cockpit and drive your own mech through the
+          fight, shields up and one ability worth saving, the way War Robots did.
+        </p>
+
+        <div class="modes">
+          <!-- Hidden until an autosaved match actually parses; main.js decides. -->
+          <button type="button" id="resumeMatch" class="mode primary" hidden>
+            <strong>Resume</strong>
+            <em id="resumeSub">Back to the fight</em>
+            <span>Pick up the match you left, exactly where you left it.</span>
+          </button>
+          <button type="button" id="playCampaign" class="mode primary">
+            <strong>Campaign</strong>
+            <em id="campaignSub">Just You and Your Rocket Crew</em>
+            <span>Seven missions. Named pilots who level up, and permanent upgrades between them.</span>
+          </button>
+          <button type="button" id="playSkirmish" class="mode">
+            <strong>Skirmish</strong>
+            <em>One map, one opponent</em>
+            <span>Pick a faction and a difficulty. Nothing carries over.</span>
+          </button>
+        </div>
+
+        <p id="storageWarning" class="warnLine" hidden>
+          Local storage is unavailable in this browser, so campaign progress will only last
+          for this page load.
+        </p>
+
+        <div class="keys">
+          <div><span>Drive your pilot</span><kbd>&larr;</kbd> <kbd>&uarr;</kbd> <kbd>&darr;</kbd> <kbd>&rarr;</kbd> <kbd>WASD</kbd></div>
+          <div><span>Direct control on / off</span><kbd>C</kbd></div>
+          <div><span>Select / drag-select</span><kbd>Left mouse</kbd></div>
+          <div><span>Move, attack, harvest</span><kbd>Right mouse</kbd></div>
+          <div><span>Queue an order</span><kbd>Shift</kbd></div>
+          <div><span>Attack-move</span><kbd>A</kbd></div>
+          <div><span>Stop / Hold position</span><kbd>S</kbd> <kbd>H</kbd></div>
+          <div><span>Fire chassis ability</span><kbd>F</kbd></div>
+          <div><span>Skyfall &mdash; cross half the map</span><kbd>G</kbd></div>
+          <div><span>Select every machine</span><kbd>All</kbd> button, bottom left</div>
+          <div><span>Jump to idle Collector</span><kbd>E</kbd></div>
+          <div><span>Jump to Command Rig</span><kbd>B</kbd></div>
+          <div><span>Cycle army</span><kbd>Tab</kbd></div>
+          <div><span>Control groups</span><kbd>Ctrl</kbd> <kbd>0-9</kbd></div>
+          <div><span>Build menu</span><kbd>1-8</kbd></div>
+          <div><span>Pan the camera</span><kbd>Arrows</kbd> <kbd>Screen edge</kbd></div>
+          <div><span>Pause / speed</span><kbd>Space</kbd> <kbd>+</kbd> <kbd>-</kbd></div>
+          <div><span>Mute sound</span><kbd>M</kbd></div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Campaign mission select -->
+    <main id="campaign" class="screen" hidden></main>
+
+    <!-- Mission briefing -->
+    <main id="briefing" class="screen" hidden></main>
+
+    <!-- Upgrades and crew -->
+    <main id="hangar" class="screen" hidden></main>
+
+    <!-- Mission debrief -->
+    <main id="debrief" class="screen" hidden></main>
+
+    <!-- Skirmish setup -->
+    <main id="skirmish" class="screen" hidden>
+      <div class="wrap">
+        <h2 class="screenTitle">Skirmish</h2>
+        <div id="factionList"></div>
+        <div class="setup">
+          <div class="field">
+            <label for="difficulty">Opponent</label>
+            <select id="difficulty"></select>
+          </div>
+          <div class="field">
+            <label for="seed">Map seed</label>
+            <input id="seed" type="number" min="1" max="999999" />
+          </div>
+          <button type="button" id="start" class="primary">Deploy</button>
+          <button type="button" id="skirmishBack" class="ghost">Back</button>
+        </div>
+      </div>
+    </main>
+
+    <!-- The match -->
+    <div id="game" class="screen" hidden>
+      <div id="topbar">
+        <div class="readout"><span>Scrap</span><b id="scrap">0</b></div>
+        <div class="readout"><span>Power</span><b id="power">0 / 0</b></div>
+        <div class="readout"><span>Time</span><b id="clock">0:00</b></div>
+        <div class="readout"><span>Mission</span><b id="missionName">Skirmish</b></div>
+        <div class="readout" id="controlMode" hidden>
+          <span>Piloting</span><b id="controlName">&mdash;</b>
+        </div>
+        <div class="spacer">Space to pause &middot; +/- for speed &middot; C for direct control</div>
+        <button type="button" id="quitMatch" class="ghost small">Abandon</button>
+      </div>
+
+      <div id="field">
+        <canvas id="view"></canvas>
+        <aside id="objectives" hidden></aside>
+      </div>
+
+      <!-- Roster bar: every machine you own, one click from being selected
+           and centred. An RTS map is only as navigable as its shortcuts. -->
+      <div id="roster">
+        <button type="button" id="selectAll" class="rosterAll" title="Select every combat machine (Ctrl+A)">
+          <strong>All</strong><em>units</em>
+        </button>
+        <div id="rosterList"></div>
+      </div>
+
+      <div id="hud">
+        <canvas id="minimap" width="184" height="184"></canvas>
+        <div id="selection"></div>
+        <div id="commands"></div>
+      </div>
+    </div>
+
+    <div id="toast"></div>
+    <div id="result" hidden></div>
+
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>
