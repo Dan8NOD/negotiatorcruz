@@ -1,0 +1,173 @@
+# Chapter 6 — Run the Protocol
+
+**Part 2 · ENGAGE · Step 5 · 7 pages · the techniques chapter**
+
+---
+
+*[Chapter opener image. Then:]*
+
+**Chapter 6**
+
+## Run the Protocol
+
+Everything so far happened at a desk. This is the chapter where another
+human being talks back — with their own preparation, their own pressure, and
+their own idea of how this ends. The good news: you do not need to be
+brilliant in the room. You need to run four moves in the right order, and
+hold your nerve during the silences.
+
+---
+
+> **IN THIS CHAPTER**
+> §1 — The sequence: Read → Disarm → Steer → Close
+> §2 — Under fire: hostility, silence, and the pressure moves
+
+*Core question: how do I create movement without spending credibility?*
+
+---
+
+### §1 — The sequence
+
+In the room you run four stages, in order, every time. The order is the
+entire trick: each stage produces what the next one needs, and nearly every
+in-room failure is a stage run too early.
+
+**Read — diagnose before you ask.** Your only job at first is to find out
+what is actually happening: what they're feeling, what state they're in
+(Chapter 4's call), what's underneath the stated position (Chapter 3's
+homework, now tested live). The tools are small and unglamorous — repeat
+their last three words and stop talking; name what you observe: *"it sounds
+like this timeline has put you in a rough spot with your own team"* — then
+let the silence do the collecting. You are cleared to move on when you can
+name their state and their stake, with evidence from this room, not from
+your prep sheet.
+
+**Disarm — say the worst thing first.** Every negotiation has a list of
+things the other side believes about you and hasn't said. You say that list
+first: *"you probably think I'm just trying to squeeze you here."* An
+objection you've already voiced can't be deployed against you — it's spent.
+The rule that makes it work: say it and **stop**. No rebuttal, no "but." The
+moment you defend, the disarm converts back into an argument.
+
+**Steer — hand them the problem.** Move them with questions instead of
+pressure. The grammar is strict — *how* and *what*, never *why*, which is
+heard as an accusation in every language: *"How am I supposed to do that?"*
+· *"What would need to happen for this to be an easy yes?"* A demand
+produces resistance; the same demand as a How-question produces a
+counterpart working on your problem. And when you concede anything, it's a
+swap from Chapter 5's trade set, named in the same breath: *"if I move on
+price, what moves on your side?"*
+
+**Close — get out of the way.** Summarize their position better than they
+stated it, and listen for two words: *"that's right."* Not "you're right" —
+that's appeasement, the sound of someone ending a conversation. Then ask a
+question where *no* is the safe answer — *"is there any reason we can't
+proceed?"* — and hold six seconds of silence. Agreement given freely doesn't
+need re-securing next week. Agreement extracted does, endlessly.
+
+**OUR ADVICE.** When a call goes sideways, don't reach for a better line.
+Ask which stage you're actually in — it's almost always Steer, entered too
+early. Go back to Read out loud: *"I've been throwing solutions at this and
+I don't think I've understood where you're sitting. What's the hardest part
+of this for you?"*
+
+*[Figure 6 — the movement loop: the four stages drawn as a cycle, not a
+ladder, with a return arrow from every later stage back to Read, labelled
+"when in doubt." Inset note: "full drills for every tool: the companion
+manual."]*
+
+**EXAMPLE — The label that opened the room.** `[NEEDS: real case — one
+observation named out loud that changed a conversation's temperature.
+120 words.]`
+
+---
+
+### §2 — Under fire
+
+The sequence assumes a counterpart who engages. Rooms supply other kinds.
+
+> **METHOD — The pressure responses**
+>
+> **Against the hardball open** — an aggressive anchor, a take-it-or-leave-it:
+> don't counter a number you haven't tested. *"How did you land on that
+> number?"* Then silence. Half of all aggressive anchors are borrowed,
+> stale, or grief about a previous vendor wearing a price tag — and a
+> counter-offer would have legitimized them.
+>
+> **Against manufactured urgency:** test the mechanism, never obey the
+> clock. *"What actually breaks if this takes one more week?"* Real
+> deadlines have mechanisms; fake ones have adjectives.
+>
+> **Against hostility:** match energy, not volume. Keep your pace and pitch
+> flat while theirs rises — the room takes its temperature from the calmest
+> credible person in it. Then name what's happening rather than answering
+> it: *"it sounds like something here hit a nerve before we got to terms."*
+>
+> **Against silence:** hold it. Whoever speaks next usually gives up ground
+> — and the most expensive habit in amateur negotiation is improving your
+> own offer because the pause got uncomfortable. Count six seconds. Nothing
+> you've said needs a follow-up; it already landed.
+>
+> **Against the flat refusal:** one blunt no closes a door; a soft sequence
+> holds the line with the door open. Reflect it — *"how am I supposed to do
+> that?"* Name the gap — *"that's generous, it just doesn't work on my
+> side."* Decline once, warmly. Then their name, and thanks. Four no's,
+> no rupture.
+
+**FOCUS — The concession leak.** The single most expensive in-room behaviour
+is not a bad argument — it's the unprompted concession into a silence:
+*"...and obviously there's some flexibility on the fee."* Nobody asked. If
+you catch yourself mid-leak, convert it to a trade after the fact: *"I said
+there's flexibility and I meant it — if the start date moves to the first."*
+Not as good as never leaking. Far better than the alternative.
+
+**OUR ADVICE.** Record yourself — one real call, with permission. You will
+hear two things within ten minutes: your actual talk-time (double your
+estimate) and your own tells before you concede. No book, this one included,
+teaches as fast as that recording.
+
+**EXPERT VOICE.** `[NEEDS: named practitioner, 150–250 words — the chapter
+where a crisis-negotiation, law-enforcement, or hostage-adjacent voice earns
+its slot, on running a sequence under real pressure.]`
+
+> **DRILL — The hardened position, with the room watching**
+>
+> *Scenario:* A conference room, five of their people. Their lead states,
+> flatly: "Ninety or we're done. That's the number." Three moves are
+> available: (a) counter at seventy and split the difference, (b) hold your
+> price and restate your value case, (c) something else. The worked answer
+> explains why two of these cost you the next round.
+>
+> *Work it before reading on.*
+>
+> *Worked answer:* (a) legitimizes ninety instantly — the negotiation is now
+> arithmetic between two numbers, and their number got there first. Worse,
+> the audience just watched pressure work, which prices every future round.
+> (b) feels principled but answers a position with a position; in front of
+> their own people, their lead cannot climb down from "that's the number"
+> no matter how good your value case is — you've made backing down a public
+> loss. (c) is the Protocol run in order: don't answer the number at all.
+> Read — *"it sounds like this number isn't really about this deal."*
+> Probe — *"how did you land on ninety?"* — and six seconds of silence. In
+> a watched room, the question does something the counter can't: it gives
+> their lead a way to move *without* moving — explaining a number isn't
+> retreating from it. The explanation is where the real constraint finally
+> surfaces, and real constraints, unlike positions, can be traded with.
+
+---
+
+> **KEY POINTS TO REMEMBER**
+>
+> **§1 The sequence**
+> - Read → Disarm → Steer → Close. Every in-room failure is a stage run
+>   too early.
+> - Say their worst objection before they do, then stop. Defended disarms
+>   convert back into arguments.
+> - How and What, never Why. "That's right," never "you're right."
+>
+> **§2 Under fire**
+> - Never counter an untested number; never obey an untested clock.
+> - Match energy, not volume. Hold six seconds. Whoever speaks next gives
+>   ground.
+> - The costliest move in the room is the unprompted concession into a
+>   silence. Convert leaks to trades.

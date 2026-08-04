@@ -1,0 +1,126 @@
+# Chapter 27 — Procurement and the Committee You Can't See
+
+### Part 2 of 2 · The Practice
+
+**Part V · APPLICATIONS**
+
+*Part 1 of 2 covers the standard, when to reach for it, the words, and what good sounds like.*
+
+---
+
+## The drill
+
+**"Argue Against Yourself."** Twenty-five minutes.
+
+1. Each rep writes the **strongest case against their own proposal** — the
+   version the internal skeptic would present.
+2. They mark which parts they can answer in writing and which they can only
+   answer in person.
+3. Anything only answerable in person is a **structural risk**, because the
+   decision meeting won't have you in it. Those items either become documents
+   or they become losses.
+4. Then: who presents? Named, or unknown. Unknown is a red flag.
+5. Write the one question to ask this week that converts an unknown into a
+   name.
+
+Step 3 is the drill. Most reps discover that their strongest argument is one
+they deliver verbally, with conviction, in a room — and that the actual
+decision happens somewhere that argument cannot travel.
+
+---
+
+## Scored on
+
+| Metric | Target |
+|---|---|
+| **Presenter identified** | The person who will argue your case in your absence, by name. Binary. |
+| **Portable argument** | Every key claim answerable in a document, not only in person. |
+| **Disqualifier known** | The floor condition, in procurement's words. Binary. |
+| **Counter-argument surfaced** | The strongest internal objection, obtained before the decision meeting. |
+| **Stalled threads resolved** | Written processes that went quiet and got a definite answer after an exit-ramp message. |
+
+---
+
+## Failure mode
+
+**Selling to the person who likes you.** The rep invests in the enthusiastic
+champion, builds a relationship, and treats procurement as an obstacle to be
+endured. Then the decision goes to a committee where the champion is one voice
+among six, armed with an argument they cannot reproduce, against a scoring
+matrix that treats you as one of three.
+
+**On tape:** high rapport, no named presenter, no disqualifier, no written
+answer to the strongest counter-argument.
+
+**The recovery:**
+
+```
+  "I've been building this case with you, and you're going
+   to have to make it without me. What do you need from me
+   so it holds up in that room?"
+```
+
+That question reframes your champion from advocate to operator, and it hands
+them the thing they actually needed — ammunition, not enthusiasm.
+
+**The second failure mode: treating commoditization as an insult.** The rep,
+told they're being compared on price, becomes indignant and starts asserting
+differentiation loudly. Assertion is exactly what a scoring matrix is designed
+to neutralize. Differentiation that arrives as a claim scores nothing;
+differentiation that arrives as a compliance advantage, a risk reduction, or a
+cost the alternatives carry and you don't, scores.
+
+---
+
+> ### Evidence
+>
+> `[NEEDS: a real deal decided by people you never met. How did you reach them
+> — or how did you fail to? What made the argument portable, or what stopped it
+> travelling? 150–200 words.]`
+
+---
+
+## FIELD CARD 27 — PROCUREMENT
+
+```
+┌──────────────────────────────────────────────────────────┐
+│  PROCUREMENT                    Part V · APPLICATIONS    │
+├──────────────────────────────────────────────────────────┤
+│  Their job is to make you interchangeable.               │
+│  Not hostility — function.                               │
+│                                                          │
+│  THE REAL    The decision happens in a room you're not   │
+│  CONSTRAINT  in, described by someone who isn't you.     │
+│              Your argument must survive being repeated   │
+│              by a third party. Design for that.          │
+│                                                          │
+│  ASK         "When this gets discussed without me,       │
+│               who presents it?"                          │
+│              "If someone wanted to argue against this,   │
+│               what's the strongest thing they'd say?"    │
+│              "What would you need in writing to          │
+│               defend this internally?"                   │
+│                                                          │
+│  TO          "It seems like your job here is to make     │
+│  PROCUREMENT  sure we're comparable to two others."      │
+│              "What's the thing that would get us         │
+│               disqualified?"   ← ask about the FLOOR     │
+│              Flat delivery. Charm scores nothing.        │
+│                                                          │
+│  GONE QUIET  Exit ramp, not follow-up:                   │
+│              "Have you given up on this?"                │
+│              "Should I close your file?"                 │
+│              Release them and they reply.                │
+│                                                          │
+│  SCORED      Presenter named · argument portable in      │
+│              writing · disqualifier known · strongest    │
+│              counter-argument surfaced early             │
+│                                                          │
+│  FAILS WHEN  You sell to the person who likes you and    │
+│              arm them with enthusiasm instead of         │
+│              ammunition.                                 │
+│  RECOVER     "You're going to have to make this case     │
+│              without me. What do you need from me so     │
+│              it holds up in that room?"                  │
+└──────────────────────────────────────────────────────────┘
+```

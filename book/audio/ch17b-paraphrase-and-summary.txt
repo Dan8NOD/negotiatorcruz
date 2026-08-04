@@ -1,0 +1,70 @@
+Chapter 17 - Paraphrase and Summary
+
+Part 2 of 2 · The Practice
+
+Part III · STEER
+
+Part 1 of 2 covers the standard, when to reach for it, the words, and what good sounds like.
+
+The drill
+
+"Three, In Their Words." Twenty minutes, pairs, recorded.
+The counterpart talks about a real, complicated situation for four
+ minutes. The operator may use encouragers and nothing else.
+The operator then delivers a summary in three items, and must use the
+ counterpart's own vocabulary - their nouns, their adjectives, their framing.
+ No translation into the operator's language.
+The counterpart scores it out of three. One point per item they'd sign.
+Then the operator delivers the "isolate" version: what's agreed, what's
+ open.
+Swap.
+
+The scoring is what makes it work. Reps consistently believe they summarized
+accurately and consistently score two out of three, and the missing item is
+almost always the emotional one - they capture the logistics and drop the part
+about being burned before.
+
+The variant worth running: ban the operator from using any word the
+counterpart didn't use. It's harder than it sounds and it cures the habit of
+upgrading someone's plain description into your own commercial vocabulary,
+which is how "we got surprised by an invoice" becomes "billing transparency
+concerns" and stops being a real thing anyone said.
+
+Scored on
+
+Metric: Summary delivered before Close. Target: Binary, per deal. On most floors this is simply absent.
+
+Metric: Item count. Target: Three. Not two, not five.
+
+Metric: Their vocabulary. Target: Percentage of the summary's key nouns that came from the counterpart. Under 70% means it's been translated into your language.
+
+Metric: Accuracy score. Target: Items the counterpart would sign, out of three. Track over a month.
+
+Metric: Open item isolated. Target: Did the summary end by naming exactly what remains? Binary - this is the one with revenue attached.
+
+Metric: Paraphrase before disagreement. Target: Every disagreement preceded by a paraphrase.
+
+Failure mode
+
+Summarizing your own pitch. The rep announces a summary and then recaps the
+value proposition: "So we've talked about the implementation support, the SLA,
+and the pricing flexibility…"
+
+None of that is their position. It's yours, restated, wearing the costume of a
+summary. The counterpart hears a close being set up and re-braces, and the
+tool - which they would have found genuinely useful - is spent.
+
+What it looks like on tape: the summary's three items are all things the
+rep introduced.
+
+The recovery: name the switch and hand it over.
+
+Quote. That was my summary, not yours - let me try again. Everything you've told me: correct anything I get wrong. End quote.
+
+The second failure mode: the summary that omits the inconvenient item. The
+rep summarizes three things and quietly drops the objection they don't have an
+answer for. Counterparts notice this every single time, and what they conclude
+is not that you forgot. A summary's authority comes entirely from its
+completeness - the moment it becomes selective it converts from an instrument of
+trust into evidence of manoeuvring, and it takes the rest of the meeting with
+it.
