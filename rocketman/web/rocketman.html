@@ -1053,6 +1053,12 @@
         </p>
 
         <div class="modes">
+          <!-- Hidden until an autosaved match actually parses; main.js decides. -->
+          <button type="button" id="resumeMatch" class="mode primary" hidden>
+            <strong>Resume</strong>
+            <em id="resumeSub">Back to the fight</em>
+            <span>Pick up the match you left, exactly where you left it.</span>
+          </button>
           <button type="button" id="playCampaign" class="mode primary">
             <strong>Campaign</strong>
             <em id="campaignSub">Just You and Your Rocket Crew</em>
@@ -1083,6 +1089,7 @@
           <div><span>Control groups</span><kbd>Ctrl</kbd> <kbd>0-9</kbd></div>
           <div><span>Build menu</span><kbd>1-8</kbd></div>
           <div><span>Pause / speed</span><kbd>Space</kbd> <kbd>+</kbd> <kbd>-</kbd></div>
+          <div><span>Mute sound</span><kbd>M</kbd></div>
         </div>
       </div>
     </main>

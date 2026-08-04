@@ -14,8 +14,8 @@
  * racing each other to overwrite the save file.
  */
 
-import { createWorld, tick } from '../engine/sim.js';
-import { updateAI, DIFFICULTIES } from '../engine/ai.js';
+import { createWorld } from '../engine/sim.js';
+import { DIFFICULTIES } from '../engine/ai.js';
 import {
   FACTIONS,
   UNITS,
@@ -30,7 +30,25 @@ import { superweaponReady } from '../engine/economy.js';
 import { missionWorldConfig, missionOutcome, MISSIONS } from '../engine/campaign.js';
 import { describeObjective, objectiveProgressText } from '../engine/objectives.js';
 import { recruitFor, applyMissionResult, buyUpgrade, nextMission } from '../engine/profile.js';
-import { loadProfile, saveProfile, clearProfile, isEphemeral } from './storage.js';
+import {
+  createRecorder,
+  record,
+  advanceTick,
+  commandsAt,
+  rebuildWorld,
+  serializeMatch,
+  deserializeMatch,
+} from '../engine/replay.js';
+import {
+  loadProfile,
+  saveProfile,
+  clearProfile,
+  isEphemeral,
+  saveMatch,
+  loadMatch,
+  clearMatch,
+} from './storage.js';
+import { createSound } from './sound.js';
 import {
   renderCampaign,
   renderBriefing,
@@ -60,6 +78,10 @@ function showScreen(name) {
 let profile = loadProfile();
 /** Torn down between matches so a second match cannot inherit the first's loop. */
 let activeMatch = null;
+/** One sound system for the whole session, so the mute choice survives matches. */
+const sound = createSound();
+/** The last finished match's recording, for "Watch replay" on the end screens. */
+let lastRecording = null;
 
 function persist() {
   saveProfile(profile);
@@ -71,6 +93,7 @@ function boot() {
   $('playCampaign').addEventListener('click', openCampaign);
   $('playSkirmish').addEventListener('click', () => showScreen('skirmish'));
   $('skirmishBack').addEventListener('click', () => showScreen('title'));
+  $('resumeMatch').addEventListener('click', resumeSavedMatch);
 
   if (isEphemeral()) {
     $('storageWarning').hidden = false;
@@ -81,7 +104,47 @@ function boot() {
     ? `Next: ${String(pending.index).padStart(2, '0')} · ${pending.name}`
     : 'Campaign complete — replay for salvage';
 
+  refreshResumeButton();
   showScreen('title');
+}
+
+/* -------------------------------------------------------- resume & replay -- */
+
+/**
+ * The parsed autosave, if there is one worth offering. Parsing happens here,
+ * at read time, so a save corrupted while the tab was closed downgrades to
+ * "no Resume button" rather than to a button that crashes the page.
+ */
+function savedMatch() {
+  const raw = loadMatch();
+  if (!raw) return null;
+  const save = deserializeMatch(raw);
+  if (!save || save.ticks < 1) return null;
+  return save;
+}
+
+function refreshResumeButton() {
+  const save = savedMatch();
+  const button = $('resumeMatch');
+  button.hidden = !save;
+  if (!save) return;
+  const name = save.config.mission ? save.config.mission.name : 'Skirmish';
+  const seconds = Math.floor(save.ticks / TICKS_PER_SECOND);
+  $('resumeSub').textContent = `${name} — ${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, '0')} in`;
+}
+
+function resumeSavedMatch() {
+  const save = savedMatch();
+  if (!save) {
+    refreshResumeButton();
+    return;
+  }
+  startMatch(save.config, { mission: save.config.mission || null, resume: save });
+}
+
+function watchRecording(save) {
+  if (!save) return;
+  startMatch(save.config, { mission: save.config.mission || null, watch: save });
 }
 
 /* ------------------------------------------------------ campaign screens -- */
@@ -144,6 +207,9 @@ function finishMission(world, mission) {
       endMatch();
       launchMission(m);
     },
+    // Only offered when the debrief follows a live match this session — a
+    // debrief reached after a page reload has no recording to show.
+    onWatch: lastRecording ? () => watchRecording(lastRecording) : null,
   });
   showScreen('debrief');
 }
@@ -210,10 +276,26 @@ function endMatch() {
   activeMatch = null;
 }
 
-function startMatch(config, { mission }) {
+/**
+ * Start a match in one of three modes, all sharing one loop:
+ *
+ * - live (default): a fresh world, recorded as it is played.
+ * - resume: rebuild the world from `resume`'s command log — determinism means
+ *   re-simulation *is* loading — then keep playing and recording on the end
+ *   of the same log.
+ * - watch: rebuild from tick zero at viewing speed, feeding the log's
+ *   commands in at the ticks they were originally given. Input still selects
+ *   and pans; its commands are discarded rather than applied.
+ */
+function startMatch(config, { mission, resume = null, watch = null }) {
   endMatch();
 
-  const world = createWorld(config);
+  const world = resume ? rebuildWorld(resume) : createWorld(config);
+  const recorder = watch
+    ? null
+    : resume
+      ? { config: resume.config, log: resume.log }
+      : createRecorder(config);
   const canvas = $('view');
   const minimap = $('minimap');
   const renderer = createRenderer(canvas, world, VIEWER);
@@ -251,6 +333,8 @@ function startMatch(config, { mission }) {
     } else if (ev.key === '-') {
       clock.speed = Math.max(0.5, clock.speed / 2);
       toast(`Speed ×${clock.speed}`);
+    } else if (ev.key === 'm' || ev.key === 'M') {
+      toast(sound.toggleMute() ? 'Sound off' : 'Sound on');
     }
   };
   window.addEventListener('keydown', onKey);
@@ -261,11 +345,28 @@ function startMatch(config, { mission }) {
     delete window.__rocketman;
   };
 
-  $('missionName').textContent = mission ? mission.name : 'Skirmish';
+  $('missionName').textContent = `${watch ? 'Replay — ' : ''}${mission ? mission.name : 'Skirmish'}`;
   $('objectives').hidden = !mission;
-  $('quitMatch').onclick = () => (mission ? openCampaign() : showScreen('title'));
+  $('quitMatch').onclick = () => {
+    // Leaving a live match mid-fight is what the autosave is *for*: write the
+    // current recording so the title screen can offer to resume it. A finished
+    // or spectated match has nothing to come back to.
+    if (!watch) {
+      if (!world.over) saveMatch(serializeMatch(recorder, world.tick));
+      else clearMatch();
+    }
+    if (mission && !watch) {
+      openCampaign();
+    } else {
+      endMatch();
+      refreshResumeButton();
+      showScreen('title');
+    }
+  };
 
   let ended = false;
+  /** Ticks between autosaves — every five seconds of play, plus on quit. */
+  const AUTOSAVE_EVERY = 100;
 
   function frame(now) {
     if (match.stopped) return;
@@ -294,13 +395,26 @@ function startMatch(config, { mission }) {
   }
 
   function stepOnce() {
-    const commands = input.takeCommands();
-    for (const player of world.players) {
-      if (player.isAI && !player.defeated) commands.push(...updateAI(world, player));
+    // One definition of a turn, shared with resume and rebuild: player
+    // commands, then the AI, then the tick — advanceTick owns that order.
+    // When spectating, the mouse still selects and pans but its commands go
+    // nowhere; the log is the only author the simulation listens to.
+    let playerCommands;
+    if (watch) {
+      input.takeCommands();
+      playerCommands = commandsAt(watch, world.tick) || [];
+    } else {
+      playerCommands = input.takeCommands();
+      record(recorder, world.tick, playerCommands);
     }
-    tick(world, commands);
+    advanceTick(world, playerCommands);
+
+    if (!watch && world.tick % AUTOSAVE_EVERY === 0 && !world.over) {
+      saveMatch(serializeMatch(recorder, world.tick));
+    }
 
     renderer.consumeEvents(world.events);
+    sound.consume(world.events, world, renderer, VIEWER);
     input.pruneSelection();
 
     for (const ev of world.events) {
@@ -328,10 +442,19 @@ function startMatch(config, { mission }) {
 
     if (world.over && !ended) {
       ended = true;
+      if (!watch) {
+        // The fight is decided, so the mid-match save is spent — but the same
+        // recording, stamped at the final tick, becomes the replay.
+        clearMatch();
+        lastRecording = deserializeMatch(serializeMatch(recorder, world.tick));
+        refreshResumeButton();
+      }
       // Let the final explosion land before cutting to the debrief.
       setTimeout(() => {
         if (match.stopped) return;
-        if (mission) finishMission(world, mission);
+        // A spectated mission must not pay out twice — the live run already
+        // did. Replays of either mode end on the plain result card.
+        if (mission && !watch) finishMission(world, mission);
         else showResult();
       }, 1400);
     }
@@ -352,6 +475,8 @@ function startMatch(config, { mission }) {
     winner: world.winner,
     result: world.result,
     mission: mission ? mission.id : null,
+    mode: watch ? 'replay' : resume ? 'resumed' : 'live',
+    muted: sound.muted,
     selection: [...input.selection],
     objectives: world.objectives.map((o) => ({
       key: o.key,
@@ -665,7 +790,7 @@ function startMatch(config, { mission }) {
     }
   }
 
-  /** Skirmish end card. Missions get the campaign debrief instead. */
+  /** Skirmish end card — also the end card for any watched replay. */
   function showResult() {
     const overlay = $('result');
     if (!overlay.hidden) return;
@@ -675,20 +800,29 @@ function startMatch(config, { mission }) {
     overlay.hidden = false;
     overlay.innerHTML = `
       <div class="resultCard ${won ? 'won' : 'lost'}">
-        <h2>${won ? 'Victory' : 'Defeat'}</h2>
+        <h2>${watch ? 'Replay over' : won ? 'Victory' : 'Defeat'}</h2>
         <div class="stat"><span>Time</span><b>${formatTime(world.tick)}</b></div>
         <div class="stat"><span>Scrap mined</span><b>${Math.round(
           player.scrapMined
         ).toLocaleString()}</b></div>
         <div class="stat"><span>Kills</span><b>${player.stats.killed}</b></div>
         <div class="stat"><span>Losses</span><b>${player.stats.lost}</b></div>
+        ${!watch && lastRecording ? '<button type="button" id="watchReplay" class="ghost">Watch replay</button>' : ''}
         <button type="button" id="again">Back to menu</button>
       </div>`;
     $('again').addEventListener('click', () => {
       overlay.hidden = true;
       endMatch();
+      refreshResumeButton();
       showScreen('title');
     });
+    const watchButton = $('watchReplay');
+    if (watchButton) {
+      watchButton.addEventListener('click', () => {
+        overlay.hidden = true;
+        watchRecording(lastRecording);
+      });
+    }
   }
 
   renderHud();

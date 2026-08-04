@@ -79,3 +79,54 @@ export function clearProfile() {
 export function isEphemeral() {
   return store() === null;
 }
+
+/* ------------------------------------------------------------ match saves -- */
+
+/*
+ * The in-progress match, stored beside the profile under its own key. The
+ * format is engine/replay.js's serialised recording — config plus command log —
+ * so "load" here is only custody of the string; whether it still *means* a
+ * match is deserializeMatch's call, made at read time, every time.
+ */
+
+const MATCH_KEY = 'rocketman.match.v1';
+let memoryMatch = null;
+
+export function saveMatch(serialized) {
+  const ls = store();
+  if (!ls) {
+    memoryMatch = serialized;
+    return false;
+  }
+  try {
+    ls.setItem(MATCH_KEY, serialized);
+    return true;
+  } catch {
+    // A full quota mid-match should degrade to "resume works until the tab
+    // closes", not to a throw inside the game loop.
+    memoryMatch = serialized;
+    return false;
+  }
+}
+
+export function loadMatch() {
+  const ls = store();
+  if (!ls) return memoryMatch;
+  try {
+    return ls.getItem(MATCH_KEY);
+  } catch {
+    return memoryMatch;
+  }
+}
+
+export function clearMatch() {
+  memoryMatch = null;
+  const ls = store();
+  if (ls) {
+    try {
+      ls.removeItem(MATCH_KEY);
+    } catch {
+      /* nothing useful to do */
+    }
+  }
+}

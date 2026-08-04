@@ -261,6 +261,16 @@ export function renderDebrief(mission, outcome, before, after, handlers) {
   retry.type = 'button';
   retry.addEventListener('click', () => handlers.onRetry(mission));
   actions.appendChild(retry);
+
+  // Watch the match back. Only offered when main.js actually has a recording
+  // in hand, so the button never leads nowhere.
+  if (handlers.onWatch) {
+    const watch = el('button', 'ghost', 'Watch replay');
+    watch.type = 'button';
+    watch.id = 'debriefWatch';
+    watch.addEventListener('click', handlers.onWatch);
+    actions.appendChild(watch);
+  }
   card.appendChild(actions);
 
   root.appendChild(card);

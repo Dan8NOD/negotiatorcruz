@@ -323,23 +323,35 @@ Stage one is a playable skirmish with a working opponent, which is what exists.
 The ordering below is deliberate — each item is cheap *because* of the
 determinism guarantee above, and expensive without it.
 
-1. **Replays.** Record `(seed, commands)` and play it back. Almost free now;
-   it is the same data the sim already consumes.
-2. **Mid-mission save/resume.** `world` plus `rng.state()` serialises to JSON
-   as-is. (Campaign *progress* already persists; a match in flight does not.)
-3. **Art.** Every chassis is currently drawn from its stats — a polygon whose
+1. ~~**Replays.**~~ Done — `engine/replay.js`. A recording is the match config
+   plus the player's commands keyed by tick; the AI is not recorded because it
+   re-derives its decisions from the rebuilt world. "Watch replay" is on the
+   debrief and the skirmish result card.
+2. ~~**Mid-mission save/resume.**~~ Done, and it is the *same file* as a
+   replay: the match autosaves its recording every five seconds and on quit,
+   and Resume rebuilds by re-simulating the log — determinism means
+   re-simulation *is* loading. There is no separate snapshot format to
+   version or corrupt. (The `world`-plus-`rng.state()` snapshot this list
+   used to propose would have been exactly that second format.)
+3. ~~**Sound.**~~ Done — `web/sound.js`, synthesised from WebAudio primitives
+   with zero asset files, spatialised left/right from the camera, fed by the
+   same `world.events` stream the renderer reads. `M` mutes; the choice
+   persists.
+4. **Art.** Every chassis is currently drawn from its stats — a polygon whose
    silhouette comes from its role. That was a choice: the game had to be
    legible before it was pretty. Sprites drop into `render.js` alone.
-4. **Sound.** `world.events` already emits `fire`, `hit`, `explosion`, `death`,
-   `built`, `ability` with positions. Nothing else needs to change.
 5. **More maps.** `createMap` takes a seed and a size; multi-start and
    four-player symmetry are the natural next step.
 6. **Lockstep multiplayer.** The command queue is the network protocol.
-7. **The Apple port.** `engine/` is nine files of plain data and integer-ish
-   math with no platform dependencies, and `content.js` serialises to JSON
-   unchanged. A Swift/SpriteKit port replaces `web/` and ports `engine/`
-   function-for-function, with this suite as the reference oracle — run both
-   against the same seed and command stream and diff the fingerprints.
+7. **The Apple port.** Underway — `rocketman/swift/` holds RocketmanKit, the
+   engine ported to Swift with a bit-for-bit conformance harness against
+   fixtures exported from this engine (see `rocketman/swift/README.md`).
+   Numeric groundwork is done: the simulation computes distance only through
+   `engine/numeric.js`, because `Math.hypot` and friends are
+   implementation-approximated and differ between JS engines, let alone
+   languages. A Swift/SpriteKit front end replaces `web/`, with this suite as
+   the reference oracle — run both against the same seed and command stream
+   and diff the fingerprints.
 
 ### Known rough edges
 
@@ -355,5 +367,6 @@ determinism guarantee above, and expensive without it.
   hard in ways only a real player will find. Mission 5 is deliberately the
   closest fight and veterancy makes early trades compound, so it is the one
   most likely to need retuning.
-- A mission in progress cannot be saved — only campaign progress between
-  missions.
+- Resuming a long match re-simulates it from tick zero, which is exact but not
+  instant — a half-hour match takes a few seconds to rebuild. A periodic
+  snapshot checkpoint would bound it, at the cost of a second save format.
