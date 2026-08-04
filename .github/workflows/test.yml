@@ -59,3 +59,57 @@ jobs:
           name: playwright-report
           path: playwright-report/
           retention-days: 7
+
+  # rocketman/ is a side project staged in this repository (see
+  # rocketman/README.md). It gets its own job on purpose: the site's `npm test`
+  # and `npm run test:e2e` must stay exactly what they were, so a bug in a game
+  # can never turn negotiatorcruz.com's build red.
+  rocketman:
+    name: Rocketman
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Simulation tests
+        run: npm run test:rocketman
+
+      # The Swift port asserts against fixtures exported from this engine, so
+      # stale fixtures would let the port "pass" against a version of the game
+      # that no longer exists. Regenerating and diffing is the only way to make
+      # a deliberate behaviour change in engine/ show up as a decision about
+      # the port rather than as silence.
+      - name: Conformance fixtures are current
+        run: |
+          npm run rocketman:fixtures
+          git diff --exit-code --stat rocketman/swift/Tests/RocketmanKitTests/Fixtures \
+            || { echo "::error::Engine behaviour changed. Commit the regenerated fixtures and re-check the Swift port."; exit 1; }
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser tests
+        run: npm run test:rocketman:e2e
+
+  # The Swift port of the engine (rocketman/swift). Runs in the official Swift
+  # container so it needs no Mac: RocketmanKit is deliberately free of UIKit and
+  # SpriteKit, which is what lets the conformance suite run on every push rather
+  # than only when someone opens Xcode.
+  rocketman-swift:
+    name: Rocketman (Swift)
+    runs-on: ubuntu-latest
+    container: swift:6.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conformance tests
+        run: swift test --package-path rocketman/swift

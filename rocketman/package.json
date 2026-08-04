@@ -1,0 +1,7 @@
+{
+  "name": "rocketman",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Rocketman — a real-time strategy game. ES modules so the same engine files load in the browser and under `node --test`; the repo root stays CommonJS, and Node honours the nearest package.json."
+}
