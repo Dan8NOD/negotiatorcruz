@@ -20,10 +20,30 @@ import { occupy, vacate, footprint, nearestWalkable } from './grid.js';
 
 /* --------------------------------------------------------------- create -- */
 
-function makeWeapons(hardpoints = []) {
+/**
+ * A player's resolved stat tables.
+ *
+ * Campaign upgrades and pilot perks are baked into these once, before the
+ * world exists (see progression.js), so every read of a unit's stats goes
+ * through the owning player rather than the shared content tables. The
+ * fallback keeps bare test worlds and any un-upgraded player working.
+ */
+export function defsFor(world, playerId) {
+  const player = world.players[playerId];
+  return (player && player.defs) || FALLBACK_DEFS;
+}
+
+const FALLBACK_DEFS = {
+  units: UNITS,
+  buildings: BUILDINGS,
+  weapons: WEAPONS,
+  abilities: ABILITIES,
+};
+
+function makeWeapons(hardpoints = [], weaponTable) {
   return hardpoints.map((id) => ({
     id,
-    def: WEAPONS[id],
+    def: weaponTable[id],
     cooldown: 0,
     /** Rounds left in the current salvo, and the tick countdown between them. */
     salvoLeft: 0,
@@ -37,7 +57,8 @@ function makeWeapons(hardpoints = []) {
  * in continuous space and only consult the grid for pathing.
  */
 export function spawnUnit(world, defId, playerId, x, y) {
-  const def = UNITS[defId];
+  const defs = defsFor(world, playerId);
+  const def = defs.units[defId];
   if (!def) throw new Error(`unknown unit: ${defId}`);
 
   const e = {
@@ -68,10 +89,16 @@ export function spawnUnit(world, defId, playerId, x, y) {
     targetId: null,
     /** Set when the player explicitly ordered this attack, so the unit holds it. */
     targetForced: false,
-    weapons: makeWeapons(def.hardpoints),
+    weapons: makeWeapons(def.hardpoints, defs.weapons),
 
     ability: def.ability
-      ? { id: def.ability, def: ABILITIES[def.ability], cooldown: 0, activeUntil: 0, active: false }
+      ? {
+          id: def.ability,
+          def: defs.abilities[def.ability],
+          cooldown: 0,
+          activeUntil: 0,
+          active: false,
+        }
       : null,
     disabledUntil: 0,
     speedMul: 1,
@@ -101,7 +128,8 @@ export function spawnUnit(world, defId, playerId, x, y) {
  * forward-building a real risk rather than a free teleport.
  */
 export function spawnBuilding(world, defId, playerId, cx, cy, { complete = false } = {}) {
-  const def = BUILDINGS[defId];
+  const defs = defsFor(world, playerId);
+  const def = defs.buildings[defId];
   if (!def) throw new Error(`unknown building: ${defId}`);
 
   const e = {
@@ -134,7 +162,7 @@ export function spawnBuilding(world, defId, playerId, cx, cy, { complete = false
     rally: null,
     powered: true,
 
-    weapons: makeWeapons(def.hardpoints),
+    weapons: makeWeapons(def.hardpoints, defs.weapons),
     targetId: null,
     targetForced: false,
     disabledUntil: 0,
@@ -263,7 +291,18 @@ export function killEntity(world, e, sourceId = 0) {
   const killer = world.entities.get(sourceId);
   if (killer && world.players[killer.player] && killer.player !== e.player) {
     world.players[killer.player].stats.killed++;
+
+    // Campaign bookkeeping: a named pilot's kills are worth XP, scaled by what
+    // they killed, so a Collector is not worth the same as an Anvil.
+    if (killer.pilotId && world.pilotKills) {
+      const record = (world.pilotKills[killer.pilotId] ||= { kills: 0, value: 0 });
+      record.kills++;
+      record.value += e.def.cost || 100;
+    }
   }
+
+  // Losing a pilot is a mission fact the debrief has to be able to report.
+  if (e.pilotId && world.pilotsLost) world.pilotsLost.add(e.pilotId);
 
   if (e.kind === 'building') {
     vacate(world.map, e.size, e.cx, e.cy);

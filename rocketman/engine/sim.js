@@ -38,17 +38,27 @@ import {
   techAllows,
 } from './economy.js';
 import { createVision, updateVision, VISION_INTERVAL, isVisible } from './vision.js';
+import { resolveDefs } from './progression.js';
+import { prepareObjectives, evaluateObjectives, OBJECTIVE_INTERVAL } from './objectives.js';
 
 export { TICKS_PER_SECOND };
 
 /* ---------------------------------------------------------------- setup -- */
 
 /**
+ * Build a match.
+ *
+ * A skirmish passes two bare player configs. A campaign mission passes the
+ * same shape plus a `start` block describing the opening forces, a loadout of
+ * `upgrades` and `pilots`, and a `mission` with objectives. Both go through
+ * exactly this function, so anything true of a skirmish is true of a mission.
+ *
  * @param {object} options
  * @param {number} options.seed
- * @param {Array<{faction: string, name?: string, isAI?: boolean, difficulty?: string}>} options.players
+ * @param {Array<object>} options.players
+ * @param {object} [options.mission] Objectives and mission metadata.
  */
-export function createWorld({ seed = 1, players: playerConfigs, mapSize = 72 } = {}) {
+export function createWorld({ seed = 1, players: playerConfigs, mapSize = 72, mission = null } = {}) {
   const map = createMap(seed, { width: mapSize, height: mapSize });
 
   const world = {
@@ -65,6 +75,17 @@ export function createWorld({ seed = 1, players: playerConfigs, mapSize = 72 } =
     over: false,
     winner: null,
     players: [],
+
+    /** Campaign state. Null in a skirmish, and every read of it is guarded. */
+    mission,
+    missionStartTick: 0,
+    objectives: mission ? prepareObjectives(mission) : [],
+    /** 'won' | 'lost' once decided. */
+    result: null,
+    /** Per-pilot kill tallies, for XP at the debrief. */
+    pilotKills: {},
+    /** Pilots who did not walk away from this one. */
+    pilotsLost: new Set(),
   };
 
   playerConfigs.forEach((cfg, i) => {
@@ -74,7 +95,7 @@ export function createWorld({ seed = 1, players: playerConfigs, mapSize = 72 } =
       faction: cfg.faction,
       isAI: !!cfg.isAI,
       difficulty: cfg.difficulty || 'normal',
-      scrap: START.scrap,
+      scrap: cfg.start && cfg.start.scrap !== undefined ? cfg.start.scrap : START.scrap,
       scrapMined: 0,
       scrapSpent: 0,
       powerMade: 0,
@@ -85,12 +106,24 @@ export function createWorld({ seed = 1, players: playerConfigs, mapSize = 72 } =
       defeated: false,
       stats: { built: 0, lost: 0, killed: 0 },
       ai: null,
+
+      /**
+       * Campaign upgrades and pilot perks, resolved once into private stat
+       * tables. Everything downstream reads these rather than the shared
+       * content tables, so an upgraded Kestrel is just a Kestrel with
+       * different numbers and determinism is untouched.
+       */
+      upgrades: cfg.upgrades || [],
+      pilots: cfg.pilots || [],
+      defs: resolveDefs({ upgrades: cfg.upgrades, pilots: cfg.pilots }),
+      /** Definitions a mission has taken off the table entirely. */
+      locked: new Set((cfg.start && cfg.start.locked) || []),
     });
   });
 
   world.players.forEach((player, i) => {
     const start = map.starts[i % map.starts.length];
-    seedBase(world, player, start);
+    seedForces(world, player, start, playerConfigs[i].start);
   });
 
   world.players.forEach((p) => recomputePower(world, p));
@@ -98,27 +131,77 @@ export function createWorld({ seed = 1, players: playerConfigs, mapSize = 72 } =
   return world;
 }
 
-/** Command Rig, starting collectors, and the faction's opening escort. */
-function seedBase(world, player, start) {
-  const cx = start.x - 1;
-  const cy = start.y - 1;
-  spawnBuilding(world, 'command', player.id, cx, cy, { complete: true });
-
+/**
+ * Place a player's opening forces.
+ *
+ * Defaults to the standard skirmish opening — Command Rig, collectors, faction
+ * escort. A mission overrides any part of it: `base: false` for a mission that
+ * starts with no economy at all, an explicit `units` list, extra completed
+ * structures, named `heroes`.
+ */
+function seedForces(world, player, start, setup = {}) {
   const faction = FACTIONS[player.faction];
+  const wantsBase = setup.base !== false;
+
   let angle = 0;
   const ring = (radius) => {
     angle += 1.1;
     return { x: start.x + Math.cos(angle) * radius, y: start.y + Math.sin(angle) * radius };
   };
 
-  for (let i = 0; i < START.collectors; i++) {
+  if (wantsBase) {
+    spawnBuilding(world, 'command', player.id, start.x - 1, start.y - 1, { complete: true });
+  }
+
+  for (const defId of setup.buildings || []) {
+    const spot = freeBuildSpot(world, player, defId, start);
+    if (spot) spawnBuilding(world, defId, player.id, spot.x, spot.y, { complete: true });
+  }
+
+  // Structures placed complete have already granted their tech; anything a
+  // mission wants to hand over without a building goes here.
+  for (const id of setup.tech || []) player.tech.add(id);
+
+  const collectors = setup.collectors === undefined ? (wantsBase ? START.collectors : 0) : setup.collectors;
+  for (let i = 0; i < collectors; i++) {
     const p = ring(3.2);
     spawnUnit(world, 'collector', player.id, p.x, p.y);
   }
-  for (const defId of faction.startingUnits) {
+
+  const units = setup.units || faction.startingUnits;
+  for (const defId of units) {
     const p = ring(4.4);
     spawnUnit(world, defId, player.id, p.x, p.y);
   }
+
+  // Heroes last, so they sit on the outside of the formation where they are
+  // visible and the player can find them.
+  for (const pilotId of setup.heroes || []) {
+    const record = player.pilots.find((p) => p.id === pilotId);
+    if (!record) continue;
+    const p = ring(5.6);
+    const unit = spawnUnit(world, record.chassis, player.id, p.x, p.y);
+    unit.pilotId = pilotId;
+    unit.pilotName = record.name;
+    unit.pilotLevel = record.level || 1;
+  }
+}
+
+/** First legal footprint near a start position, spiralling out. */
+function freeBuildSpot(world, player, defId, start) {
+  const def = player.defs.buildings[defId];
+  if (!def) return null;
+  for (let r = 3; r <= 10; r++) {
+    for (let dy = -r; dy <= r; dy++) {
+      for (let dx = -r; dx <= r; dx++) {
+        if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue;
+        const x = start.x + dx;
+        const y = start.y + dy;
+        if (canPlace(world.map, def.size, x, y)) return { x, y };
+      }
+    }
+  }
+  return null;
 }
 
 /* -------------------------------------------------------------- commands -- */
@@ -251,8 +334,8 @@ export function applyCommand(world, cmd) {
  * here means a race or a hostile command stream.
  */
 export function placeStructure(world, playerId, defId, cx, cy) {
-  const def = BUILDINGS[defId];
   const player = world.players[playerId];
+  const def = player && player.defs ? player.defs.buildings[defId] : BUILDINGS[defId];
   if (!def || !player) return null;
   if (!techAllows(world, playerId, defId)) return null;
   if (!canAfford(player, def.cost)) return null;
@@ -367,6 +450,7 @@ export function tick(world, commands = []) {
     for (const player of world.players) updateVision(world, player);
   }
 
+  if (world.mission && world.tick % OBJECTIVE_INTERVAL === 0) checkObjectives(world);
   if (world.tick % 20 === 0) checkVictory(world);
 
   world.effects = world.effects.filter((fx) => fx.until > world.tick);
@@ -427,17 +511,25 @@ function updateOrder(world, e) {
 
       if (target) {
         pursue(world, e, target);
-      } else {
-        if (e.path.length === 0 && e.pathGoal) {
-          const d = Math.hypot(e.x - order.x, e.y - order.y);
-          if (d < 1.5) {
-            nextOrder(world, e);
-            break;
-          }
-          setPath(world, e, order.x, order.y);
-        }
-        if (stepMovement(world, e, world.index) || e.path.length === 0) nextOrder(world, e);
+        break;
       }
+
+      const remaining = Math.hypot(e.x - order.x, e.y - order.y);
+      if (remaining < 1.5) {
+        nextOrder(world, e);
+        break;
+      }
+
+      // Resume the march. This has to re-path unconditionally rather than only
+      // when a previous goal survives: pursuing a target clears the path *and*
+      // the goal, so a unit that killed something on the way would otherwise
+      // find itself with no path, no goal, and no reason to keep walking — and
+      // an army a-moved across the map would stop at the first scout it met.
+      if (e.path.length === 0 && !setPath(world, e, order.x, order.y)) {
+        nextOrder(world, e);
+        break;
+      }
+      if (stepMovement(world, e, world.index)) nextOrder(world, e);
       break;
     }
 
@@ -473,6 +565,33 @@ function reap(world) {
   }
 }
 
+/**
+ * Campaign scoring. Objectives outrank annihilation: a mission is won when its
+ * objectives say so, not when the map is clear, and it can be lost with an
+ * army still standing.
+ */
+function checkObjectives(world) {
+  const { changed, won, lost } = evaluateObjectives(world, world.objectives);
+
+  for (const o of changed) {
+    world.events.push({
+      type: o.failed ? 'objectiveFailed' : 'objectiveComplete',
+      key: o.key,
+      optional: o.optional,
+    });
+  }
+
+  if (lost && !world.over) endMission(world, 'lost');
+  else if (won && !world.over) endMission(world, 'won');
+}
+
+function endMission(world, result) {
+  world.over = true;
+  world.result = result;
+  world.winner = result === 'won' ? 0 : 1;
+  world.events.push({ type: 'missionEnd', result });
+}
+
 function checkVictory(world) {
   let alive = 0;
   let lastAlive = null;
@@ -487,6 +606,16 @@ function checkVictory(world) {
     }
     alive++;
     lastAlive = player;
+  }
+
+  if (world.over) return;
+
+  // In a mission, being wiped out is a loss even if an objective is still
+  // technically achievable, and surviving alone is not automatically a win —
+  // the objective list decides that.
+  if (world.mission) {
+    if (world.players[0].defeated) endMission(world, 'lost');
+    return;
   }
 
   if (alive <= 1) {

@@ -5,15 +5,17 @@ warhead/armour counters, fought with **War Robots**' piloted mechs — regenerat
 shields, named hardpoints, and one active ability per chassis that the player
 fires by hand.
 
-Open `web/rocketman.html` on any static server and play it. There is no build
-step, no bundler and no runtime dependency.
+Two modes: a **seven-mission story campaign** with named pilots who gain levels
+and permanent upgrades bought between missions, and a **skirmish** against the
+AI. Open `web/rocketman.html` on any static server and play it. There is no
+build step, no bundler and no runtime dependency.
 
 ```bash
 npm run serve                 # http://127.0.0.1:4321
 open http://127.0.0.1:4321/rocketman/web/rocketman.html
 
-npm run test:rocketman        # 199 simulation tests, ~30s
-npm run test:rocketman:e2e    # 11 browser tests, ~1m
+npm run test:rocketman        # 297 simulation tests
+npm run test:rocketman:e2e    # 19 browser tests
 ```
 
 ---
@@ -91,6 +93,75 @@ Rosters are exclusive; the Collector is the shared exception.
 
 ---
 
+## Story mode — *Just You and Your Rocket Crew*
+
+The drop was supposed to put four hundred machines on the ground. It put down
+eleven. What is left of the Ascendancy on this rock is you, a salvage rig, and
+the pilots who walked away from their landing sites.
+
+Seven missions, each introducing exactly one system and then making you use it
+under pressure:
+
+| # | Mission | Teaches |
+|---|---|---|
+| 1 | Hard Landing | Movement, attacking, jump jets — no economy at all |
+| 2 | Scrap Rights | Harvesting and the Refinery, under harassment |
+| 3 | Brownout | Power — kill their reactors and every turret goes quiet |
+| 4 | The Anvil Line | Defence: turrets, power discipline, holding ground |
+| 5 | Cold Open | The whole loop against a real base — tech, air, composition |
+| 6 | Longbow Country | Siege: range you cannot answer, a base you cannot abandon |
+| 7 | Just You and Your Rocket Crew | Everything, with the whole crew |
+
+### The crew
+
+Five named pilots join as the story introduces them. Each flies one chassis,
+gains XP from what they personally destroy, levels to 5, and unlocks a
+**signature perk at level 3** that applies only to the machine they are sitting
+in — Ash's jump jets recharge 35% faster; Sable's EMP holds two seconds longer.
+
+Pilots are the campaign's throughline. Losing one hurts in a way losing a
+numbered Kestrel never does, which is the entire reason they have names.
+
+### Salvage and the Hangar
+
+Missions pay salvage for completion, for kills, for beating par time, and for
+optional bonus objectives. Between missions it buys permanent upgrades across
+four branches — Command (army-wide), Ordnance (one per warhead), Logistics
+(the boring branch that wins campaigns), and Chassis (per-machine, and these
+change how a unit plays).
+
+Upgrades apply to replayed missions too, so an early mission can be revisited
+with a much stronger crew.
+
+### How progression stays deterministic
+
+This is the part that had to be got right. Upgrades are **not** live effects.
+A loadout is resolved **once, before the world exists**, into a private copy of
+the unit/building/weapon/ability tables for that player. From the simulation's
+point of view an upgraded Kestrel is simply a Kestrel with different numbers,
+and every guarantee below still holds.
+
+Two consequences are enforced by test:
+
+- Resolving a loadout never mutates the shared content tables — otherwise one
+  player's upgrades leak into the enemy's units and into every later match in
+  the same page load.
+- The result depends only on *which* upgrades are owned, never the order they
+  were bought in. Additions run before multiplications and each pass is sorted.
+
+### Missions are data
+
+An objective is a small tagged record — `destroyStructures`, `survive`,
+`accumulate`, `build`, `field`, `reach`, `protect`, `destroyCount` — evaluated
+against world state. A new mission is written in `engine/campaign.js` and
+nowhere else: no simulation changes, no per-mission scripting hooks, and every
+objective type is tested once instead of once per mission.
+
+Objectives outrank annihilation. A mission is won when its objectives say so,
+and can be lost with an army still standing.
+
+---
+
 ## Architecture
 
 ```
@@ -107,11 +178,18 @@ engine/            pure simulation — no DOM, no canvas, no timers, no I/O
   ai.js            the skirmish opponent
   sim.js           createWorld / tick / applyCommand — the whole public API
 
+  objectives.js    mission objective kinds and evaluation
+  campaign.js      the seven missions, as data
+  progression.js   upgrades, pilots, and the stat tables they resolve into
+  profile.js       what a save file is, and how it changes
+
 web/               presentation only; reads world state, writes commands
   rocketman.html   page shell and stylesheet
   render.js        canvas renderer, fog, minimap
   input.js         selection, orders, hotkeys, placement
-  main.js          fixed-timestep loop and HUD
+  campaign-ui.js   mission select, briefing, debrief, Hangar
+  storage.js       the only file that knows localStorage exists
+  main.js          screen flow, fixed-timestep loop, HUD
 ```
 
 ### The one rule everything else follows
@@ -183,6 +261,14 @@ no key matching `/scrap|income|vision|sight|reveal|cheat/`.
 - **Robustness** — malformed commands are ignored rather than fatal (a command
   stream arriving over a network is untrusted input); units never end up
   standing inside terrain across a 3000-tick match.
+- **The campaign is completable** — the slowest test in the suite plays all
+  seven missions end to end with the AI driving both sides and asserts each one
+  is won. An objective nobody can satisfy looks perfectly healthy in every unit
+  test and ends a player's campaign dead; this is the only thing that catches it.
+- **Save files are untrusted** — a corrupt, hand-edited or truncated profile
+  must yield a playable campaign, not a crashed page. Unknown upgrades, pilots
+  and missions are dropped rather than carried, so deleting content never
+  bricks a save.
 
 ---
 
@@ -194,7 +280,8 @@ determinism guarantee above, and expensive without it.
 
 1. **Replays.** Record `(seed, commands)` and play it back. Almost free now;
    it is the same data the sim already consumes.
-2. **Save/resume.** `world` plus `rng.state()` serialises to JSON as-is.
+2. **Mid-mission save/resume.** `world` plus `rng.state()` serialises to JSON
+   as-is. (Campaign *progress* already persists; a match in flight does not.)
 3. **Art.** Every chassis is currently drawn from its stats — a polygon whose
    silhouette comes from its role. That was a choice: the game had to be
    legible before it was pretty. Sprites drop into `render.js` alone.
@@ -217,4 +304,9 @@ determinism guarantee above, and expensive without it.
   see over that rock" has never lost anyone a game.
 - There is one map generator and one map size.
 - Balance has been tuned against the AI, not against a human. Expect the
-  numbers in `content.js` to move.
+  numbers in `content.js` and `progression.js` to move.
+- The campaign's difficulty curve is set by the AI profile per mission. It has
+  not been played by a human end to end, so missions 5-7 may be too easy or too
+  hard in ways only a real player will find.
+- A mission in progress cannot be saved — only campaign progress between
+  missions.

@@ -1,11 +1,17 @@
 /**
- * Boot, game loop and HUD.
+ * Boot, screen flow, game loop and HUD.
  *
  * The loop is a fixed-timestep accumulator: the simulation only ever advances
  * in whole 50ms ticks, and the renderer interpolates between them. Rendering
  * and simulation are deliberately decoupled — a dropped frame must never
  * change the outcome of a match, or none of the determinism guarantees in
  * engine/ mean anything once there is a real player attached.
+ *
+ * This file also owns the campaign's *state transitions* — which screen is up,
+ * when a profile is written to disk — while engine/profile.js owns what a
+ * profile is and web/campaign-ui.js owns how it looks. Keeping "when do we
+ * save" in exactly one place is what stops a debrief and a Hangar purchase
+ * racing each other to overwrite the save file.
  */
 
 import { createWorld, tick } from '../engine/sim.js';
@@ -16,10 +22,20 @@ import {
   BUILDINGS,
   BUILD_ORDER,
   TICKS_PER_SECOND,
-  ABILITIES,
 } from '../engine/content.js';
 import { techAllows, availableBuildings } from '../engine/economy.js';
 import { abilityReady } from '../engine/abilities.js';
+import { missionWorldConfig, missionOutcome, MISSIONS } from '../engine/campaign.js';
+import { describeObjective, objectiveProgressText } from '../engine/objectives.js';
+import { recruitFor, applyMissionResult, buyUpgrade, nextMission } from '../engine/profile.js';
+import { loadProfile, saveProfile, clearProfile, isEphemeral } from './storage.js';
+import {
+  renderCampaign,
+  renderBriefing,
+  renderDebrief,
+  renderHangar,
+  formatTime,
+} from './campaign-ui.js';
 import { createRenderer } from './render.js';
 import { createInput } from './input.js';
 
@@ -28,13 +44,113 @@ const VIEWER = 0;
 
 const $ = (id) => document.getElementById(id);
 
-/* ------------------------------------------------------------------ menu -- */
+const SCREENS = ['title', 'campaign', 'briefing', 'hangar', 'debrief', 'skirmish', 'game'];
+
+function showScreen(name) {
+  for (const id of SCREENS) {
+    const node = $(id);
+    if (node) node.hidden = id !== name;
+  }
+}
+
+/* ----------------------------------------------------------------- boot -- */
+
+let profile = loadProfile();
+/** Torn down between matches so a second match cannot inherit the first's loop. */
+let activeMatch = null;
+
+function persist() {
+  saveProfile(profile);
+}
 
 function boot() {
-  const menu = $('menu');
-  const factionList = $('factionList');
+  buildSkirmishMenu();
 
-  let chosenFaction = 'ascendancy';
+  $('playCampaign').addEventListener('click', openCampaign);
+  $('playSkirmish').addEventListener('click', () => showScreen('skirmish'));
+  $('skirmishBack').addEventListener('click', () => showScreen('title'));
+
+  if (isEphemeral()) {
+    $('storageWarning').hidden = false;
+  }
+
+  const pending = nextMission(profile);
+  $('campaignSub').textContent = pending
+    ? `Next: ${String(pending.index).padStart(2, '0')} · ${pending.name}`
+    : 'Campaign complete — replay for salvage';
+
+  showScreen('title');
+}
+
+/* ------------------------------------------------------ campaign screens -- */
+
+const campaignHandlers = {
+  onBrief: openBriefing,
+  onHangar: openHangar,
+  onSkirmish: () => showScreen('skirmish'),
+  onReset: () => {
+    profile = clearProfile();
+    openCampaign();
+  },
+};
+
+function openCampaign() {
+  endMatch();
+  renderCampaign(profile, campaignHandlers);
+  showScreen('campaign');
+}
+
+function openBriefing(mission) {
+  // Pilots join the roster the moment a briefing names them, so the crew list
+  // on the briefing screen is never a lie.
+  profile = recruitFor(profile, mission);
+  persist();
+
+  renderBriefing(mission, profile, {
+    onLaunch: launchMission,
+    onBack: openCampaign,
+  });
+  showScreen('briefing');
+}
+
+function openHangar() {
+  renderHangar(profile, {
+    onBuy: (id) => {
+      profile = buyUpgrade(profile, id);
+      persist();
+      openHangar();
+    },
+    onBack: openCampaign,
+  });
+  showScreen('hangar');
+}
+
+function launchMission(mission) {
+  const config = missionWorldConfig(mission, profile);
+  startMatch(config, { mission });
+}
+
+function finishMission(world, mission) {
+  const outcome = missionOutcome(world, mission);
+  const before = profile;
+  profile = applyMissionResult(profile, mission, outcome);
+  persist();
+
+  renderDebrief(mission, outcome, before, profile, {
+    onContinue: openCampaign,
+    onRetry: (m) => {
+      endMatch();
+      launchMission(m);
+    },
+  });
+  showScreen('debrief');
+}
+
+/* ------------------------------------------------------- skirmish setup -- */
+
+function buildSkirmishMenu() {
+  const factionList = $('factionList');
+  let chosen = 'ascendancy';
 
   for (const faction of Object.values(FACTIONS)) {
     const card = document.createElement('button');
@@ -49,7 +165,7 @@ function boot() {
         .map((u) => `<li><b>${UNITS[u].name}</b> — ${UNITS[u].hint}</li>`)
         .join('')}</ul>`;
     card.addEventListener('click', () => {
-      chosenFaction = faction.id;
+      chosen = faction.id;
       for (const el of factionList.children) el.classList.toggle('on', el === card);
     });
     factionList.appendChild(card);
@@ -57,10 +173,10 @@ function boot() {
   factionList.firstElementChild.classList.add('on');
 
   const difficulty = $('difficulty');
-  for (const [id, profile] of Object.entries(DIFFICULTIES)) {
+  for (const [id, prof] of Object.entries(DIFFICULTIES)) {
     const option = document.createElement('option');
     option.value = id;
-    option.textContent = profile.label;
+    option.textContent = prof.label;
     if (id === 'normal') option.selected = true;
     difficulty.appendChild(option);
   }
@@ -69,24 +185,33 @@ function boot() {
 
   $('start').addEventListener('click', () => {
     const seed = parseInt($('seed').value, 10) || 1;
-    const enemyFaction = chosenFaction === 'ascendancy' ? 'bulwark' : 'ascendancy';
-    menu.hidden = true;
-    $('game').hidden = false;
-    startMatch({ seed, faction: chosenFaction, enemyFaction, difficulty: difficulty.value });
+    const enemy = chosen === 'ascendancy' ? 'bulwark' : 'ascendancy';
+    startMatch(
+      {
+        seed,
+        players: [
+          { faction: chosen, name: 'You' },
+          { faction: enemy, isAI: true, difficulty: difficulty.value },
+        ],
+      },
+      { mission: null }
+    );
   });
 }
 
 /* ------------------------------------------------------------------ game -- */
 
-function startMatch({ seed, faction, enemyFaction, difficulty }) {
-  const world = createWorld({
-    seed,
-    players: [
-      { faction, name: 'You' },
-      { faction: enemyFaction, isAI: true, difficulty },
-    ],
-  });
+function endMatch() {
+  if (!activeMatch) return;
+  activeMatch.stopped = true;
+  activeMatch.teardown();
+  activeMatch = null;
+}
 
+function startMatch(config, { mission }) {
+  endMatch();
+
+  const world = createWorld(config);
   const canvas = $('view');
   const minimap = $('minimap');
   const renderer = createRenderer(canvas, world, VIEWER);
@@ -96,19 +221,23 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
   });
   input.attachMinimap(minimap);
 
+  const match = { stopped: false, teardown: () => {} };
+  activeMatch = match;
+
+  showScreen('game');
   renderer.resize();
-  window.addEventListener('resize', () => renderer.resize());
+
+  const onResize = () => renderer.resize();
+  window.addEventListener('resize', onResize);
 
   // Open looking at your own base, close enough to read individual chassis.
-  // Starting at 1:1 shows most of a 72-cell map at once, which is accurate and
-  // completely useless — the first thing a player needs to see is their base.
   const start = world.map.starts[VIEWER];
   renderer.camera.zoom = 1.6;
   renderer.centreOn(start.x, start.y);
 
   const clock = { accumulator: 0, last: performance.now(), paused: false, speed: 1 };
 
-  window.addEventListener('keydown', (ev) => {
+  const onKey = (ev) => {
     if (ev.target && ev.target.tagName === 'INPUT') return;
     if (ev.code === 'Space') {
       ev.preventDefault();
@@ -121,9 +250,23 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
       clock.speed = Math.max(0.5, clock.speed / 2);
       toast(`Speed ×${clock.speed}`);
     }
-  });
+  };
+  window.addEventListener('keydown', onKey);
+
+  match.teardown = () => {
+    window.removeEventListener('resize', onResize);
+    window.removeEventListener('keydown', onKey);
+    delete window.__rocketman;
+  };
+
+  $('missionName').textContent = mission ? mission.name : 'Skirmish';
+  $('objectives').hidden = !mission;
+  $('quitMatch').onclick = () => (mission ? openCampaign() : showScreen('title'));
+
+  let ended = false;
 
   function frame(now) {
+    if (match.stopped) return;
     const elapsed = Math.min(250, now - clock.last);
     clock.last = now;
 
@@ -158,10 +301,30 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
     renderer.consumeEvents(world.events);
     input.pruneSelection();
 
+    for (const ev of world.events) {
+      if (ev.type === 'objectiveComplete') {
+        toast(ev.optional ? 'Bonus objective complete' : 'Objective complete');
+      } else if (ev.type === 'objectiveFailed' && !ev.optional) {
+        toast('Objective failed');
+      }
+    }
+
     // The HUD only needs refreshing a few times a second; rebuilding DOM at
     // 20Hz is pure waste and makes buttons feel unclickable.
-    if (world.tick % 5 === 0) renderHud();
-    if (world.over) showResult();
+    if (world.tick % 5 === 0) {
+      renderHud();
+      if (mission) renderObjectives();
+    }
+
+    if (world.over && !ended) {
+      ended = true;
+      // Let the final explosion land before cutting to the debrief.
+      setTimeout(() => {
+        if (match.stopped) return;
+        if (mission) finishMission(world, mission);
+        else showResult();
+      }, 1400);
+    }
   }
 
   requestAnimationFrame(frame);
@@ -177,7 +340,18 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
     tick: world.tick,
     over: world.over,
     winner: world.winner,
+    result: world.result,
+    mission: mission ? mission.id : null,
     selection: [...input.selection],
+    objectives: world.objectives.map((o) => ({
+      key: o.key,
+      text: describeObjective(o),
+      optional: o.optional,
+      complete: o.complete,
+      failed: o.failed,
+      progress: o.progress,
+      total: o.total,
+    })),
     players: world.players.map((p) => ({
       faction: p.faction,
       scrap: Math.round(p.scrap),
@@ -185,6 +359,7 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
       powerMade: p.powerMade,
       powerUsed: p.powerUsed,
       tech: [...p.tech],
+      upgrades: p.upgrades,
       killed: p.stats.killed,
       lost: p.stats.lost,
     })),
@@ -206,10 +381,30 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
     power.textContent = `${player.powerMade} / ${player.powerUsed}`;
     power.classList.toggle('warn', headroom < 0);
 
+    // mm:ss, zero-padded so the readout does not jitter in width as it ticks.
+    // `formatTime` is the prose form ("1m 38s") used on the debrief; deriving
+    // this from it by string surgery was one rename away from breaking.
     const seconds = Math.floor(world.tick / TICKS_PER_SECOND);
     $('clock').textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(
       seconds % 60
     ).padStart(2, '0')}`;
+  }
+
+  function renderObjectives() {
+    const panel = $('objectives');
+    panel.innerHTML = '<h5>Objectives</h5>';
+    for (const o of world.objectives) {
+      const state = o.failed ? 'failed' : o.complete ? 'done' : 'open';
+      const progress = objectiveProgressText(o);
+      panel.appendChild(
+        Object.assign(document.createElement('div'), {
+          className: `obj ${state}${o.optional ? ' bonus' : ''}`,
+          innerHTML: `<i></i>${describeObjective(o)}${
+            progress ? `<span>${progress}</span>` : ''
+          }`,
+        })
+      );
+    }
   }
 
   function renderHud() {
@@ -239,7 +434,7 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
         ? `<div class="stat"><span>Cargo</span><b>${Math.round(e.cargo)} / ${e.def.capacity}</b></div>`
         : '';
       card.innerHTML = `
-        <h4>${e.def.name}</h4>
+        <h4>${e.def.name}${e.pilotName ? ` <small>${e.pilotName}</small>` : ''}</h4>
         <div class="stat"><span>Hull</span><b>${Math.round(e.hp)} / ${e.maxHp}</b></div>
         ${shield}${cargo}
         <p class="hint">${e.def.hint || ''}</p>`;
@@ -252,9 +447,9 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
     for (const e of selected.slice(0, 24)) {
       const chip = document.createElement('button');
       chip.type = 'button';
-      chip.className = 'chip';
-      chip.title = e.def.name;
-      chip.innerHTML = `<span>${e.def.name}</span>
+      chip.className = `chip${e.pilotId ? ' pilot' : ''}`;
+      chip.title = e.pilotName || e.def.name;
+      chip.innerHTML = `<span>${e.pilotName ? e.pilotName.split(' ')[0] : e.def.name}</span>
         <i style="width:${Math.round((e.hp / e.maxHp) * 100)}%"></i>`;
       chip.addEventListener('click', () => {
         input.selectSingle(e, false);
@@ -275,6 +470,7 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
     const panel = $('commands');
     panel.innerHTML = '';
     const player = world.players[VIEWER];
+    const defs = player.defs;
     const selected = input.selectedEntities();
 
     const hq = selected.find((e) => e.def.builds === 'buildings' && !e.constructing);
@@ -287,7 +483,7 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
       const unlocked = new Set(availableBuildings(world, VIEWER));
 
       BUILD_ORDER.forEach((id, i) => {
-        const def = BUILDINGS[id];
+        const def = defs.buildings[id];
         const locked = !unlocked.has(id);
         const poor = player.scrap < def.cost;
         row.appendChild(
@@ -312,7 +508,7 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
 
       const roster = ['collector', ...FACTIONS[player.faction].units];
       for (const id of roster) {
-        const def = UNITS[id];
+        const def = defs.units[id];
         if (def.builtAt !== factory.defId) continue;
         const allowed = techAllows(world, VIEWER, id);
         const poor = player.scrap < def.cost;
@@ -343,7 +539,7 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
           chip.type = 'button';
           chip.className = 'queued';
           const progress = index === 0 ? 1 - item.remaining / item.total : 0;
-          chip.innerHTML = `<span>${UNITS[item.defId].name}</span>
+          chip.innerHTML = `<span>${defs.units[item.defId].name}</span>
             <i style="width:${Math.round(progress * 100)}%"></i>`;
           chip.title = 'Click to cancel (full refund)';
           chip.addEventListener('click', () =>
@@ -386,6 +582,7 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
     }
   }
 
+  /** Skirmish end card. Missions get the campaign debrief instead. */
   function showResult() {
     const overlay = $('result');
     if (!overlay.hidden) return;
@@ -396,18 +593,23 @@ function startMatch({ seed, faction, enemyFaction, difficulty }) {
     overlay.innerHTML = `
       <div class="resultCard ${won ? 'won' : 'lost'}">
         <h2>${won ? 'Victory' : 'Defeat'}</h2>
-        <div class="stat"><span>Time</span><b>${Math.floor(world.tick / TICKS_PER_SECOND / 60)}m ${
-          Math.floor(world.tick / TICKS_PER_SECOND) % 60
-        }s</b></div>
-        <div class="stat"><span>Scrap mined</span><b>${Math.round(player.scrapMined).toLocaleString()}</b></div>
+        <div class="stat"><span>Time</span><b>${formatTime(world.tick)}</b></div>
+        <div class="stat"><span>Scrap mined</span><b>${Math.round(
+          player.scrapMined
+        ).toLocaleString()}</b></div>
         <div class="stat"><span>Kills</span><b>${player.stats.killed}</b></div>
         <div class="stat"><span>Losses</span><b>${player.stats.lost}</b></div>
-        <button type="button" id="again">Play again</button>
+        <button type="button" id="again">Back to menu</button>
       </div>`;
-    $('again').addEventListener('click', () => window.location.reload());
+    $('again').addEventListener('click', () => {
+      overlay.hidden = true;
+      endMatch();
+      showScreen('title');
+    });
   }
 
   renderHud();
+  if (mission) renderObjectives();
 }
 
 /* --------------------------------------------------------------- widgets -- */

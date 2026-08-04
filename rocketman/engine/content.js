@@ -572,10 +572,17 @@ export const BUILDINGS = {
     size: [3, 2],
     power: -12,
     sight: 5,
+    /**
+     * Collectors are built here. Without this the only Collectors in a match
+     * are the three you start with and one free per Refinery — a player who
+     * loses harvesters to a raid can never replace them, and the economy is
+     * quietly un-recoverable.
+     */
+    builds: 'units',
     /** Ships with a Collector, so the first one pays for itself faster. */
     freeUnit: 'collector',
     dropOff: true,
-    hint: 'Scrap drop-off point. Arrives with one Collector.',
+    hint: 'Builds Collectors and accepts scrap. Arrives with one Collector.',
   },
   foundry: {
     id: 'foundry',

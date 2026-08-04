@@ -9,7 +9,7 @@
  */
 
 import { BUILDINGS, UNITS, TICKS_PER_SECOND } from './content.js';
-import { spawnUnit, onBuildingComplete, exitPoint, playerEntities } from './entities.js';
+import { spawnUnit, onBuildingComplete, exitPoint, playerEntities, defsFor } from './entities.js';
 import { setPath } from './movement.js';
 import { inBounds } from './grid.js';
 
@@ -81,8 +81,13 @@ export function refund(player, cost) {
  */
 export function techAllows(world, playerId, defId) {
   const player = world.players[playerId];
-  const def = BUILDINGS[defId] || UNITS[defId];
+  const defs = defsFor(world, playerId);
+  const def = defs.buildings[defId] || defs.units[defId];
   if (!def) return false;
+
+  // A mission may forbid part of the tree outright — a tutorial that hands you
+  // three mechs should not also offer a Hangar.
+  if (player.locked && player.locked.has(defId)) return false;
 
   if (def.requires) {
     for (const req of def.requires) if (!player.tech.has(req)) return false;
@@ -91,7 +96,7 @@ export function techAllows(world, playerId, defId) {
   if (def.tier && def.tier > 1) {
     let unlocked = 1;
     for (const id of player.tech) {
-      const b = BUILDINGS[id];
+      const b = defs.buildings[id];
       if (b && b.unlocksTier) unlocked = Math.max(unlocked, b.unlocksTier);
     }
     if (def.tier > unlocked) return false;
@@ -108,7 +113,7 @@ export function techAllows(world, playerId, defId) {
 
 /** Everything this player could legally start building right now. */
 export function availableBuildings(world, playerId) {
-  return Object.keys(BUILDINGS).filter(
+  return Object.keys(defsFor(world, playerId).buildings).filter(
     (id) => id !== 'command' && techAllows(world, playerId, id)
   );
 }
@@ -143,7 +148,7 @@ export function updateConstruction(world, e) {
  * exactly the behaviour an RTS wants to encourage.
  */
 export function enqueueUnit(world, building, defId) {
-  const def = UNITS[defId];
+  const def = defsFor(world, building.player).units[defId];
   const player = world.players[building.player];
   if (!def || !building.def.builds || building.constructing) return false;
   if (def.builtAt !== building.defId) return false;
@@ -160,7 +165,7 @@ export function cancelQueued(world, building, index) {
   const item = building.queue[index];
   if (!item) return false;
   building.queue.splice(index, 1);
-  refund(world.players[building.player], UNITS[item.defId].cost);
+  refund(world.players[building.player], defsFor(world, building.player).units[item.defId].cost);
   return true;
 }
 

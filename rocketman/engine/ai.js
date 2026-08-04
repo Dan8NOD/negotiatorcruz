@@ -14,7 +14,7 @@
 
 import { BUILDINGS, UNITS, FACTIONS, TICKS_PER_SECOND } from './content.js';
 import { canPlace } from './grid.js';
-import { playerEntities } from './entities.js';
+import { playerEntities, defsFor } from './entities.js';
 import { techAllows } from './economy.js';
 import { suggestAbility, abilityReady } from './abilities.js';
 import { visibleEnemies } from './vision.js';
@@ -94,10 +94,31 @@ export function updateAI(world, player) {
 
   commands.push(...economyCommands(world, player, buildings, collectors));
   commands.push(...constructionCommands(world, player, buildings));
-  commands.push(...armyCommands(world, player, buildings, army));
+  commands.push(...armyCommands(world, player, buildings, army, economyReserve(world, player, buildings, collectors)));
   commands.push(...militaryCommands(world, player, army));
 
   return commands;
+}
+
+/**
+ * Scrap the army is not allowed to touch.
+ *
+ * Without this the AI can lose its economy permanently: a Vireo costs 300 and
+ * a Collector 450, so an AI hovering near zero can always afford another scout
+ * and can never afford the harvester that would pay for it. It ends up with a
+ * large army, an intact Refinery, and no income at all — which is exactly the
+ * mistake a new human player makes, and not one an opponent should model.
+ */
+function economyReserve(world, player, buildings, collectors) {
+  const profile = player.ai.profile;
+  const refineries = buildings.filter((b) => b.defId === 'refinery' && !b.constructing);
+  if (refineries.length === 0) return 0;
+
+  const queued = refineries.reduce((n, b) => n + b.queue.length, 0);
+  const target = Math.min(profile.maxCollectors, profile.collectorTarget * refineries.length);
+  if (collectors.length + queued >= target) return 0;
+
+  return defsFor(world, player.id).units.collector.cost;
 }
 
 /* -------------------------------------------------------------- economy -- */
@@ -111,7 +132,7 @@ function economyCommands(world, player, buildings, collectors) {
   const queued = refineries.reduce((n, b) => n + b.queue.length, 0);
   const target = Math.min(profile.maxCollectors, profile.collectorTarget * refineries.length);
 
-  if (collectors.length + queued < target && player.scrap > UNITS.collector.cost) {
+  if (collectors.length + queued < target && player.scrap > defsFor(world, player.id).units.collector.cost) {
     out.push({ type: 'train', player: player.id, buildingId: refineries[0].id, defId: 'collector' });
   }
 
@@ -140,8 +161,8 @@ function constructionCommands(world, player, buildings) {
   const want = nextStructure(world, player, buildings, owned, profile);
   if (!want) return out;
 
-  const def = BUILDINGS[want];
-  if (player.scrap < def.cost) return out;
+  const def = defsFor(world, player.id).buildings[want];
+  if (!def || player.scrap < def.cost) return out;
 
   const spot = findBuildSpot(world, player, def, buildings);
   if (!spot) return out;
@@ -243,11 +264,15 @@ function nearestUnworkedField(world, player, hq) {
  */
 const COMPOSITION = { scout: 0.15, assault: 0.45, siege: 0.15, support: 0.1, air: 0.15 };
 
-function armyCommands(world, player, buildings, army) {
+function armyCommands(world, player, buildings, army, reserve = 0) {
   const out = [];
   const producers = buildings.filter((b) => b.def.builds === 'units' && !b.constructing);
   if (producers.length === 0) return out;
 
+  const spendable = player.scrap - reserve;
+  if (spendable <= 0) return out;
+
+  const units = defsFor(world, player.id).units;
   const roster = FACTIONS[player.faction].units.filter((id) => techAllows(world, player.id, id));
   if (roster.length === 0) return out;
 
@@ -259,7 +284,7 @@ function armyCommands(world, player, buildings, army) {
     if (producer.queue.length >= 2) continue;
 
     const buildable = roster.filter(
-      (id) => UNITS[id].builtAt === producer.defId && player.scrap >= UNITS[id].cost
+      (id) => units[id].builtAt === producer.defId && spendable >= units[id].cost
     );
     if (buildable.length === 0) continue;
 
@@ -267,7 +292,7 @@ function armyCommands(world, player, buildings, army) {
     let pick = null;
     let worstDeficit = -Infinity;
     for (const id of buildable) {
-      const role = UNITS[id].role;
+      const role = units[id].role;
       const deficit = (COMPOSITION[role] || 0.1) - (counts[role] || 0) / total;
       if (deficit > worstDeficit) {
         worstDeficit = deficit;
@@ -289,9 +314,22 @@ function militaryCommands(world, player, army) {
 
   const armyValue = army.reduce((n, u) => n + u.def.cost, 0);
   const seen = visibleEnemies(world, player.id);
+  const buildings = playerEntities(world, player.id, 'building');
+
+  /**
+   * Can this army still grow? Waiting to reach a value threshold only makes
+   * sense if something is producing. With no factory and no income the
+   * threshold is never met and the army mills around at home forever — which
+   * is both a lost skirmish and an unwinnable campaign mission. If this is all
+   * we are ever going to have, attack with it.
+   */
+  const canReinforce = buildings.some(
+    (b) => (b.def.builds === 'units' || b.def.dropOff) && !b.constructing
+  );
+  const pushValue = canReinforce ? profile.pushValue : 1;
 
   // Defence overrides everything: something is in the base right now.
-  const hq = playerEntities(world, player.id, 'building').find((b) => b.defId === 'command');
+  const hq = buildings.find((b) => b.defId === 'command');
   if (hq) {
     const intruders = seen.filter((e) => Math.hypot(e.x - hq.x, e.y - hq.y) < 16);
     if (intruders.length > 0) {
@@ -314,7 +352,7 @@ function militaryCommands(world, player, army) {
   if (ai.phase === 'defending') ai.phase = 'massing';
 
   if (ai.phase === 'massing') {
-    if (armyValue >= profile.pushValue) {
+    if (armyValue >= pushValue) {
       const target = enemyBase(world, player) || pickScoutTarget(world, player);
       if (target) {
         ai.phase = 'attacking';
@@ -349,7 +387,7 @@ function militaryCommands(world, player, army) {
   if (ai.phase === 'attacking') {
     const survivors = army.filter((u) => ai.squad.has(u.id));
     // The push is spent — go home and rebuild rather than trickling in.
-    if (survivors.length === 0 || armyValue < profile.pushValue * profile.reinforceRatio * 0.5) {
+    if (survivors.length === 0 || armyValue < pushValue * profile.reinforceRatio * 0.5) {
       ai.phase = 'massing';
       ai.squad.clear();
       const staging = stagingPoint(world, player);
@@ -365,14 +403,16 @@ function militaryCommands(world, player, army) {
       return out;
     }
 
-    // Feed newly built units into the ongoing push.
-    const fresh = army.filter((u) => !ai.squad.has(u.id) && !u.order);
-    if (fresh.length && ai.attackTarget) {
-      for (const u of fresh) ai.squad.add(u.id);
+    // Feed newly built units into the push, and re-task anyone already in it
+    // who has run out of orders — a unit that finished its march and is now
+    // standing in an empty field is a unit not participating in the attack.
+    const idle = army.filter((u) => !u.order && !u.harvest);
+    if (idle.length && ai.attackTarget) {
+      for (const u of idle) ai.squad.add(u.id);
       out.push({
         type: 'attackMove',
         player: player.id,
-        ids: fresh.map((u) => u.id),
+        ids: idle.map((u) => u.id),
         x: ai.attackTarget.x,
         y: ai.attackTarget.y,
       });

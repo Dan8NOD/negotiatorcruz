@@ -8,6 +8,7 @@
 
 import { createWorld, tick } from '../engine/sim.js';
 import { updateAI } from '../engine/ai.js';
+import { vacate } from '../engine/grid.js';
 
 /** A two-player world with nothing running yet. */
 export function makeWorld(overrides = {}) {
@@ -23,6 +24,23 @@ export function makeBareWorld(overrides = {}) {
   const world = makeWorld(overrides);
   for (const [id, e] of world.entities) {
     if (e.kind === 'unit') world.entities.delete(id);
+  }
+  return world;
+}
+
+/**
+ * A genuinely empty world — no units *and* no structures.
+ *
+ * Objective tests need this: `makeBareWorld` leaves both Command Rigs
+ * standing, so "destroy every enemy structure" can never complete and
+ * "protect the base" can never fail, and the tests silently assert nothing.
+ * Footprints are released so later placements in the same test are legal.
+ */
+export function makeEmptyWorld(overrides = {}) {
+  const world = makeWorld(overrides);
+  for (const [id, e] of world.entities) {
+    if (e.kind === 'building') vacate(world.map, e.size, e.cx, e.cy);
+    world.entities.delete(id);
   }
   return world;
 }
