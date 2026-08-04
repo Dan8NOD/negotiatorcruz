@@ -64,6 +64,23 @@ export function clearPath(e) {
   e.vy = 0;
 }
 
+/**
+ * Take or release direct control.
+ *
+ * `dx`/`dy` are the eight-way intent from the keyboard, each in {-1, 0, 1}.
+ * Passing (0, 0) hands the machine back — it stops where it stands rather
+ * than resuming whatever it was doing, which is what a player who let go of
+ * the key expects.
+ *
+ * Deliberately integer: the command carries the raw intent and the engine
+ * normalises it, so the same keypress produces the same movement on every
+ * implementation and a replay cannot drift.
+ */
+export function setSteer(e, dx, dy) {
+  clearPath(e);
+  e.steer = dx === 0 && dy === 0 ? null : { dx, dy };
+}
+
 /** Effective speed in cells per tick, after buffs, deploy state and EMP. */
 export function currentSpeed(world, e) {
   if (e.disabledUntil > world.tick) return 0;
@@ -83,6 +100,7 @@ export function hasArrived(e) {
  */
 export function stepMovement(world, e, index) {
   if (e.leap) return stepLeap(world, e);
+  if (e.steer) return stepSteer(world, e, index);
   if (e.path.length === 0) return false;
 
   const speed = currentSpeed(world, e);
@@ -152,6 +170,45 @@ export function stepMovement(world, e, index) {
     e.stuckTicks = 0;
   }
 
+  return false;
+}
+
+/**
+ * Drive one unit under direct keyboard control.
+ *
+ * No pathfinding: the player is the pathfinder. Everything else stays the
+ * same as ordered movement — the same speed rules (so EMP still pins you and
+ * a deployed siege mech still cannot walk), the same neighbour separation, and
+ * the same terrain slide, so driving into a cliff grinds along it rather than
+ * sticking dead. Never reports arrival, because there is no destination.
+ */
+function stepSteer(world, e, index) {
+  e.vx = 0;
+  e.vy = 0;
+
+  const speed = currentSpeed(world, e);
+  if (speed <= 0) return false;
+
+  const mag = len(e.steer.dx, e.steer.dy);
+  if (mag === 0) return false;
+
+  const dx = e.steer.dx / mag;
+  const dy = e.steer.dy / mag;
+
+  const push = separation(world, e, index);
+  let mx = dx + push.x;
+  let my = dy + push.y;
+  const mlen = len(mx, my) || 1;
+  mx = (mx / mlen) * speed;
+  my = (my / mlen) * speed;
+
+  const before = { x: e.x, y: e.y };
+  moveWithSlide(world, e, mx, my);
+
+  // Face the way the player is driving, not the way the unit slid.
+  e.facing = facingTo(dx, dy);
+  e.vx = e.x - before.x;
+  e.vy = e.y - before.y;
   return false;
 }
 

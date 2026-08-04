@@ -1048,8 +1048,8 @@
         <h1 class="brand">ROCKET<span>MAN</span></h1>
         <p class="tagline">
           A real-time strategy game. Build a base and fight over power the way Red Alert
-          taught you; fight the battles with piloted mechs that carry regenerating shields
-          and an ability worth saving, the way War Robots did.
+          taught you &mdash; then drop into the cockpit and drive your own mech through the
+          fight, shields up and one ability worth saving, the way War Robots did.
         </p>
 
         <div class="modes">
@@ -1077,6 +1077,8 @@
         </p>
 
         <div class="keys">
+          <div><span>Drive your pilot</span><kbd>&larr;</kbd> <kbd>&uarr;</kbd> <kbd>&darr;</kbd> <kbd>&rarr;</kbd> <kbd>WASD</kbd></div>
+          <div><span>Direct control on / off</span><kbd>C</kbd></div>
           <div><span>Select / drag-select</span><kbd>Left mouse</kbd></div>
           <div><span>Move, attack, harvest</span><kbd>Right mouse</kbd></div>
           <div><span>Queue an order</span><kbd>Shift</kbd></div>
@@ -1088,6 +1090,7 @@
           <div><span>Cycle army</span><kbd>Tab</kbd></div>
           <div><span>Control groups</span><kbd>Ctrl</kbd> <kbd>0-9</kbd></div>
           <div><span>Build menu</span><kbd>1-8</kbd></div>
+          <div><span>Pan the camera</span><kbd>Arrows</kbd> <kbd>Screen edge</kbd></div>
           <div><span>Pause / speed</span><kbd>Space</kbd> <kbd>+</kbd> <kbd>-</kbd></div>
           <div><span>Mute sound</span><kbd>M</kbd></div>
         </div>
@@ -1133,7 +1136,10 @@
         <div class="readout"><span>Power</span><b id="power">0 / 0</b></div>
         <div class="readout"><span>Time</span><b id="clock">0:00</b></div>
         <div class="readout"><span>Mission</span><b id="missionName">Skirmish</b></div>
-        <div class="spacer">Space to pause &middot; +/- for speed</div>
+        <div class="readout" id="controlMode" hidden>
+          <span>Piloting</span><b id="controlName">&mdash;</b>
+        </div>
+        <div class="spacer">Space to pause &middot; +/- for speed &middot; C for direct control</div>
         <button type="button" id="quitMatch" class="ghost small">Abandon</button>
       </div>
 

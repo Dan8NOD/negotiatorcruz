@@ -14,8 +14,8 @@ build step, no bundler and no runtime dependency.
 npm run serve                 # http://127.0.0.1:4321
 open http://127.0.0.1:4321/rocketman/web/rocketman.html
 
-npm run test:rocketman        # 334 simulation tests
-npm run test:rocketman:e2e    # 23 browser tests
+npm run test:rocketman        # 356 simulation tests
+npm run test:rocketman:e2e    # 34 browser tests
 ```
 
 ---
@@ -267,6 +267,26 @@ no key matching `/scrap|income|vision|sight|reveal|cheat/`.
 
 ## Controls
 
+There are two of them, and the campaign starts in the first.
+
+**Direct control** — you are in the cockpit. A campaign mission drops you into
+your pilot's machine: the camera locks to them and the keyboard drives them.
+The mech still auto-fires at whatever wanders into range, so you steer and it
+shoots. *Just You and Your Rocket Crew* is a story about a person, and a person
+should be someone you drive rather than a token you click at.
+
+| | |
+|---|---|
+| Drive your pilot | Arrow keys or `WASD` (hold two for a diagonal) |
+| Direct control on / off | `C` |
+| Fire ability | `F` |
+
+Any right-click order takes the machine back off the sticks — clicking
+somewhere is an unambiguous statement that you have let go. Skirmish has no
+hero, so it starts under the ordinary scheme.
+
+**Command** — the classic RTS scheme, and what `C` returns you to.
+
 | | |
 |---|---|
 | Select / drag-select | Left mouse (double-click selects all of a type on screen) |
@@ -275,12 +295,14 @@ no key matching `/scrap|income|vision|sight|reveal|cheat/`.
 | Attack-move | `A` |
 | Stop / Hold position | `S` / `H` |
 | Fire ability | `F` |
+| Pan the camera | Arrow keys, screen edge, or the minimap |
 | Jump to idle Collector | `E` |
 | Jump to Command Rig | `B` |
 | Cycle army | `Tab` |
 | Control groups | `Ctrl`+`0`–`9` to set, `0`–`9` to recall |
 | Build menu (Command Rig selected) | `1`–`7`, Shift to keep placing |
 | Pause / speed | `Space` / `+` / `−` |
+| Mute sound | `M` |
 
 ---
 

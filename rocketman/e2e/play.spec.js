@@ -324,6 +324,11 @@ test('a mission can be won, and it pays out and unlocks the next one', async ({ 
   test.setTimeout(240000);
   const match = await startMission(page, 1);
 
+  // Campaign missions now start in the cockpit, where `a` steers the pilot
+  // west rather than issuing an attack-move. C hands control back to the RTS
+  // scheme this spec exercises.
+  await page.keyboard.press('c');
+
   await page.keyboard.press('+');
   await page.keyboard.press('+');
 

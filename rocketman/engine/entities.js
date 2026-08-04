@@ -89,6 +89,15 @@ export function spawnUnit(world, defId, playerId, x, y) {
     repathCooldown: 0,
     stuckTicks: 0,
 
+    /**
+     * Direct control vector, or null when the machine is under orders.
+     *
+     * Set by the `steer` command and honoured by movement.js instead of the
+     * path. It persists until changed, so holding a key costs one command,
+     * not one per tick — which is what keeps replays small.
+     */
+    steer: null,
+
     targetId: null,
     /** Set when the player explicitly ordered this attack, so the unit holds it. */
     targetForced: false,

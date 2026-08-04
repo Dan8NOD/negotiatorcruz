@@ -24,6 +24,25 @@ import { superweaponReady } from '../engine/economy.js';
 const PAN_SPEED = 26;
 const EDGE_MARGIN = 18;
 
+/**
+ * Keys that drive a machine while direct control is engaged, as eight-way
+ * intent. Arrows and WASD both work; holding two gives the diagonal.
+ *
+ * These overlap the RTS hotkeys on purpose — `a` is attack-move and `s` is
+ * stop when you are commanding, and steering when you are piloting. Only one
+ * of those meanings is live at a time, and the HUD says which.
+ */
+const STEER_KEYS = {
+  arrowup: [0, -1],
+  w: [0, -1],
+  arrowdown: [0, 1],
+  s: [0, 1],
+  arrowleft: [-1, 0],
+  a: [-1, 0],
+  arrowright: [1, 0],
+  d: [1, 0],
+};
+
 export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   const selection = new Set();
   const commands = [];
@@ -37,6 +56,14 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   let abilityArmed = false;
   /** The Lance whose strike is currently being aimed, if any. */
   let strikeEmitter = null;
+
+  /** Direct control: driving one machine from the keyboard. */
+  let driving = false;
+  let drivenId = null;
+  /** Last steer vector sent, so a held key costs one command and not twenty
+   *  a second — which is what keeps a recorded match small. */
+  let steerX = 0;
+  let steerY = 0;
 
   const emit = (cmd) => commands.push(cmd);
   const notify = (msg) => hooks.onMessage && hooks.onMessage(msg);
@@ -133,12 +160,16 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     cancelPlacement();
     cancelStrike();
     abilityArmed = false;
+    retargetDriving();
     if (hooks.onSelectionChange) hooks.onSelectionChange(selectedEntities());
   }
 
   /* --------------------------------------------------------- ordering -- */
 
   function issueOrder(wx, wy, queued) {
+    // Clicking somewhere is an unambiguous statement that you have let go of
+    // the sticks, so the mouse always wins.
+    setDriving(false);
     const units = selectedEntities().filter((e) => mine(e) && e.kind === 'unit');
     const buildings = selectedEntities().filter((e) => mine(e) && e.kind === 'building');
 
@@ -184,11 +215,127 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   }
 
   function issueAttackMove(wx, wy, queued) {
+    setDriving(false);
     const ids = selectedEntities()
       .filter((e) => mine(e) && e.kind === 'unit' && !e.harvest)
       .map((e) => e.id);
     if (ids.length === 0) return;
     emit({ type: 'attackMove', player: viewerId, ids, x: wx, y: wy, queue: queued });
+  }
+
+  /* --------------------------------------------------- direct control -- */
+
+  /**
+   * Which machine the keyboard should drive.
+   *
+   * A single selected unit is the obvious answer. Failing that, the hero —
+   * in the campaign the named pilot's mech *is* the player character, so
+   * pressing a direction with nothing selected should move them.
+   */
+  function pickDrivable() {
+    const selected = selectedEntities().filter((e) => mine(e) && e.kind === 'unit');
+    if (selected.length === 1) return selected[0];
+    for (const e of world.entities.values()) {
+      if (mine(e) && e.kind === 'unit' && e.pilotId && !e.dead) return e;
+    }
+    return selected[0] || null;
+  }
+
+  /** The machine currently being driven, or null. Releases a dead one. */
+  function drivenEntity() {
+    if (!driving) return null;
+    const e = world.entities.get(drivenId);
+    if (!e || e.dead) {
+      setDriving(false);
+      return null;
+    }
+    return e;
+  }
+
+  /** Tell a machine to stand still, if we ever told it to move. */
+  function releaseSteering() {
+    if (drivenId !== null && (steerX !== 0 || steerY !== 0)) {
+      emit({ type: 'steer', player: viewerId, ids: [drivenId], dx: 0, dy: 0 });
+    }
+    steerX = 0;
+    steerY = 0;
+  }
+
+  function setDriving(on) {
+    if (on === driving) return;
+
+    if (!on) {
+      releaseSteering();
+      drivenId = null;
+      driving = false;
+    } else {
+      const unit = pickDrivable();
+      if (!unit) {
+        notify('Select a machine to take direct control of it.');
+        return;
+      }
+      cancelPlacement();
+      cancelStrike();
+      abilityArmed = false;
+      drivenId = unit.id;
+      driving = true;
+      // Driving something you cannot see selected is disorienting, so the
+      // selection follows the cockpit.
+      selection.clear();
+      selection.add(unit.id);
+      if (hooks.onSelectionChange) hooks.onSelectionChange(selectedEntities());
+    }
+
+    if (hooks.onModeChange) hooks.onModeChange(driving ? drivenEntity() : null);
+    if (driving) updateSteering();
+  }
+
+  function toggleDriving() {
+    setDriving(!driving);
+  }
+
+  /**
+   * Follow a selection change while driving: pilot whatever was just picked,
+   * or hand back control if it was not a machine of ours.
+   */
+  function retargetDriving() {
+    if (!driving) return;
+    const unit = pickDrivable();
+    if (!unit) {
+      setDriving(false);
+      return;
+    }
+    if (unit.id === drivenId) return;
+    releaseSteering();
+    drivenId = unit.id;
+    if (hooks.onModeChange) hooks.onModeChange(unit);
+    updateSteering();
+  }
+
+  /**
+   * Turn held keys into a steer command, but only when the direction actually
+   * changed. The engine holds the vector until told otherwise.
+   */
+  function updateSteering() {
+    if (!driving) return;
+    const unit = drivenEntity();
+    if (!unit) return;
+
+    let dx = 0;
+    let dy = 0;
+    for (const key of Object.keys(STEER_KEYS)) {
+      if (!keys.has(key)) continue;
+      dx += STEER_KEYS[key][0];
+      dy += STEER_KEYS[key][1];
+    }
+    // Opposite keys cancel; two adjacent keys give a clean diagonal.
+    dx = Math.max(-1, Math.min(1, dx));
+    dy = Math.max(-1, Math.min(1, dy));
+
+    if (dx === steerX && dy === steerY) return;
+    steerX = dx;
+    steerY = dy;
+    emit({ type: 'steer', player: viewerId, ids: [unit.id], dx, dy });
   }
 
   /* -------------------------------------------------------- abilities -- */
@@ -439,6 +586,19 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
 
     if (ev.target && ev.target.tagName === 'INPUT') return;
 
+    // Direct control claims the movement keys while it is engaged, so `a`
+    // steers left instead of issuing an attack-move. Both meanings cannot be
+    // live at once; the HUD shows which mode you are in.
+    if (driving && STEER_KEYS[key]) {
+      ev.preventDefault();
+      updateSteering();
+      return;
+    }
+    if (key === 'c') {
+      toggleDriving();
+      return;
+    }
+
     // Control groups: Ctrl+digit assigns, digit recalls.
     if (/^[0-9]$/.test(key)) {
       if (ev.ctrlKey || ev.metaKey) {
@@ -463,6 +623,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
         cancelPlacement();
         cancelStrike();
         abilityArmed = false;
+        setDriving(false);
         break;
       case 'a': {
         const w = renderer.screenToWorld(pointer.x, pointer.y);
@@ -514,9 +675,15 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     const key = ev.key.toLowerCase();
     keys.delete(key === ' ' ? 'space' : key);
     if (!ev.shiftKey) keys.delete('shift');
+    if (driving && STEER_KEYS[key]) updateSteering();
   });
 
-  window.addEventListener('blur', () => keys.clear());
+  // Losing focus must stop the machine. Otherwise switching tabs mid-drive
+  // leaves a key logically held and your pilot walks into the enemy base.
+  window.addEventListener('blur', () => {
+    keys.clear();
+    updateSteering();
+  });
 
   function hasHQSelected() {
     return selectedEntities().some((e) => e.def.builds === 'buildings');
@@ -537,15 +704,20 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   /* ------------------------------------------------------ camera pan -- */
 
   function updateCamera(dt) {
+    // While driving, main.js locks the camera to the machine instead. Edge
+    // scrolling is still allowed below, so you can glance around mid-fight.
     const speed = (PAN_SPEED * dt) / renderer.camera.zoom;
     let dx = 0;
     let dy = 0;
 
-    if (keys.has('arrowleft') || keys.has('a')) dx -= 1;
-    if (keys.has('arrowright') || keys.has('d')) dx += 1;
-    if (keys.has('arrowup') || keys.has('w')) dy -= 1;
-    if (keys.has('arrowdown')) dy += 1;
-    // 's' is the stop hotkey, so it does not double as pan-down.
+    // Arrows only. WASD used to pan as well, which meant pressing `a` for
+    // attack-move *also* slid the camera left — two commands from one key.
+    if (!driving) {
+      if (keys.has('arrowleft')) dx -= 1;
+      if (keys.has('arrowright')) dx += 1;
+      if (keys.has('arrowup')) dy -= 1;
+      if (keys.has('arrowdown')) dy += 1;
+    }
 
     if (pointer.inside) {
       if (pointer.x < EDGE_MARGIN) dx -= 1;
@@ -603,6 +775,13 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     toggleRepair: (ids, on) => emit({ type: 'repair', player: viewerId, ids, on }),
     selectSingle,
     emit,
+    updateSteering,
+    drivenEntity,
+    setDriving,
+    toggleDriving,
+    get driving() {
+      return driving;
+    },
     get placementDefId() {
       return placementDefId;
     },

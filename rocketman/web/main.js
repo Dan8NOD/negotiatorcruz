@@ -302,6 +302,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   const input = createInput(canvas, world, VIEWER, renderer, {
     onMessage: toast,
     onSelectionChange: () => renderHud(),
+    onModeChange: (unit) => showControlMode(unit),
   });
   input.attachMinimap(minimap);
 
@@ -318,6 +319,19 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   const start = world.map.starts[VIEWER];
   renderer.camera.zoom = 1.6;
   renderer.centreOn(start.x, start.y);
+
+  // A campaign mission puts you in the cockpit: the map follows your pilot
+  // and the arrow keys drive them. It is *Just You and Your Rocket Crew* —
+  // the hero should be someone you steer, not a token you click at. C hands
+  // control back to the ordinary RTS controls at any point.
+  const hero = [...world.entities.values()].find(
+    (e) => e.player === VIEWER && e.kind === 'unit' && e.pilotId
+  );
+  if (mission && hero) {
+    input.selectSingle(hero, false);
+    input.setDriving(true);
+    renderer.centreOn(hero.x, hero.y);
+  }
 
   const clock = { accumulator: 0, last: performance.now(), paused: false, speed: 1 };
 
@@ -386,6 +400,21 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     }
 
     renderer.state.alpha = Math.min(1, clock.accumulator / MS_PER_TICK);
+
+    // Camera. Driving locks it to the machine; otherwise the player pans.
+    // Interpolated the same way the unit is drawn, or the view would judder
+    // at the 20Hz simulation rate while the machine itself looks smooth.
+    const driven = input.drivenEntity();
+    if (driven) {
+      renderer.centreOn(
+        driven.x - driven.vx * (1 - renderer.state.alpha),
+        driven.y - driven.vy * (1 - renderer.state.alpha)
+      );
+    }
+    // Edge scrolling and arrow-key panning. This call was missing entirely,
+    // so neither had ever worked.
+    input.updateCamera(Math.min(0.1, elapsed / 1000));
+
     renderer.stepSparks();
     renderer.draw(input.selection);
     renderer.drawMinimap(minimap);
@@ -477,6 +506,21 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     mission: mission ? mission.id : null,
     mode: watch ? 'replay' : resume ? 'resumed' : 'live',
     muted: sound.muted,
+    driving: input.driving,
+    driven: (() => {
+      const e = input.drivenEntity();
+      return e ? { id: e.id, defId: e.defId, x: e.x, y: e.y, pilot: e.pilotName || null } : null;
+    })(),
+    camera: { x: renderer.camera.x, y: renderer.camera.y, zoom: renderer.camera.zoom },
+    /** The player character, whether or not it is currently being driven. */
+    hero: (() => {
+      for (const e of world.entities.values()) {
+        if (e.player === VIEWER && e.kind === 'unit' && e.pilotId && !e.dead) {
+          return { id: e.id, x: e.x, y: e.y, pilot: e.pilotName || null };
+        }
+      }
+      return null;
+    })(),
     selection: [...input.selection],
     objectives: world.objectives.map((o) => ({
       key: o.key,
@@ -523,6 +567,16 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     $('clock').textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(
       seconds % 60
     ).padStart(2, '0')}`;
+  }
+
+  /** Which control scheme is live, and who is in the seat. */
+  function showControlMode(unit) {
+    const chip = $('controlMode');
+    if (!chip) return;
+    chip.hidden = !unit;
+    if (unit) {
+      $('controlName').textContent = unit.pilotName || unit.def.name;
+    }
   }
 
   function renderObjectives() {

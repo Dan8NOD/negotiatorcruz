@@ -33,7 +33,7 @@ import {
   applyDamage,
   updateSelfRepair,
 } from './entities.js';
-import { setPath, clearPath, stepMovement } from './movement.js';
+import { setPath, clearPath, stepMovement, setSteer } from './movement.js';
 import { updateWeapons, updateProjectiles, maxRange, acquireTarget } from './combat.js';
 import { updateAbilities, updateShield, activateAbility } from './abilities.js';
 import {
@@ -292,8 +292,36 @@ export function applyCommand(world, cmd) {
         e.order = null;
         e.targetId = null;
         e.targetForced = false;
+        e.steer = null;
         clearPath(e);
         if (e.harvest) e.harvest.state = 'idle';
+      }
+      break;
+    }
+
+    /**
+     * Direct control: drive a machine with the keyboard instead of ordering
+     * it somewhere.
+     *
+     * Taking the sticks cancels the order queue, because a player holding a
+     * direction and a unit still walking to a three-minute-old waypoint is
+     * the kind of fight nobody wins. Auto-acquisition is left alone, so a
+     * driven machine still shoots what wanders into range — which is the
+     * whole appeal of piloting one.
+     *
+     * The vector persists on the entity until another steer command changes
+     * it, so holding a key costs one command rather than twenty a second.
+     */
+    case 'steer': {
+      const dx = Math.sign(cmd.dx || 0);
+      const dy = Math.sign(cmd.dy || 0);
+      for (const e of owned(cmd.ids)) {
+        if (e.kind !== 'unit') continue;
+        e.orderQueue.length = 0;
+        e.order = null;
+        e.targetForced = false;
+        if (e.harvest) e.harvest.state = 'idle';
+        setSteer(e, dx, dy);
       }
       break;
     }
@@ -302,6 +330,7 @@ export function applyCommand(world, cmd) {
       for (const e of owned(cmd.ids)) {
         if (e.kind !== 'unit') continue;
         e.orderQueue.length = 0;
+        e.steer = null;
         clearPath(e);
         e.order = { type: 'hold' };
       }
@@ -491,6 +520,9 @@ function beginOrder(world, e, order) {
   e.order = order;
   e.targetId = null;
   e.targetForced = false;
+  // An order always takes the machine back off direct control: clicking
+  // somewhere is an unambiguous statement that you have let go of the sticks.
+  e.steer = null;
 
   switch (order.type) {
     case 'move':
@@ -588,7 +620,7 @@ function updateOrder(world, e) {
 
   const order = e.order;
 
-  if (e.harvest && (!order || order.type === 'harvest')) {
+  if (e.harvest && !e.steer && (!order || order.type === 'harvest')) {
     updateHarvester(world, e);
     stepMovement(world, e, world.index);
     return;

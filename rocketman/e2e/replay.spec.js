@@ -124,6 +124,11 @@ test('a finished mission can be watched back, and the replay pays out nothing', 
   // Win it the way the campaign speedrun spec does — Tab to find the crew,
   // box-select, attack-move at the enemy corner, repeat until the world says
   // it is over. See that spec for why the loop is shaped this way.
+  // Campaign missions now start in the cockpit, where `a` steers the pilot
+  // west rather than issuing an attack-move. C hands control back to the RTS
+  // scheme this spec exercises.
+  await page.keyboard.press('c');
+
   await page.keyboard.press('+');
   await page.keyboard.press('+');
   const deadline = Date.now() + 150000;
