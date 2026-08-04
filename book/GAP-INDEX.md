@@ -15,35 +15,41 @@ weight**, where weight is how much that chapter does before anyone pays:
 
 | Rank | Ch | Title | Gaps | Weight | Priority |
 |---|---|---|---|---|---|
-| 1 | 2 | The Four Stages | 1 | 5 | 5 |
-| 2 | 33 | The Manager's Scorecard | 1 | 5 | 5 |
-| 3 | 14 | The Discipline of Not Defending | 2 | 2 | 4 |
-| 4 | 31 | The 30-Day Rollout | 1 | 4 | 4 |
-| 5 | 1 | The Negotiation Is Already Running | 1 | 3 | 3 |
-| 6 | 4 | Diagnose Before You Ask | 1 | 2 | 2 |
-| 7 | 5 | The Emotion Vocabulary | 1 | 2 | 2 |
-| 8 | 6 | Labeling | 1 | 2 | 2 |
-| 9 | 7 | Mirroring | 1 | 2 | 2 |
-| 10 | 8 | Tactical Silence | 1 | 2 | 2 |
-| 11 | 9 | Reading the Decision Structure | 1 | 2 | 2 |
-| 12 | 10 | The Accusation Audit | 1 | 2 | 2 |
-| 13 | 11 | The Negative Label | 1 | 2 | 2 |
-| 14 | 12 | The Power of "No" | 1 | 2 | 2 |
-| 15 | 13 | Validation | 1 | 2 | 2 |
-| 16 | 15 | The Calibrated Question | 1 | 2 | 2 |
-| 17 | 16 | The Asking Label | 1 | 2 | 2 |
-| 18 | 17 | Paraphrase and Summary | 1 | 2 | 2 |
-| 19 | 18 | Trading: Never Give, Always Swap | 1 | 2 | 2 |
-| 20 | 19 | Anchoring | 1 | 2 | 2 |
-| 21 | 20 | Deadline Dynamics | 1 | 2 | 2 |
-| 22 | 21 | No-Oriented Questions | 1 | 2 | 2 |
-| 23 | 22 | The "That's Right" Summary | 1 | 2 | 2 |
-| 24 | 23 | The Fairness Standard | 1 | 2 | 2 |
-| 25 | 24 | Reframing | 1 | 2 | 2 |
-| 26 | 25 | One More Thing | 1 | 2 | 2 |
-| 27 | 3 | How to Use This Manual | 0 | 3 | 0 |
+| 1 | 29 | Negotiating Internally: Up, Down, and Sideways | 2 | 4 | 8 |
+| 2 | 2 | The Four Stages | 1 | 5 | 5 |
+| 3 | 30 | When the Protocol Fails | 1 | 5 | 5 |
+| 4 | 33 | The Manager's Scorecard | 1 | 5 | 5 |
+| 5 | 14 | The Discipline of Not Defending | 2 | 2 | 4 |
+| 6 | 26 | The Renewal and the Price Increase | 1 | 4 | 4 |
+| 7 | 27 | Procurement and the Committee You Can't See | 1 | 4 | 4 |
+| 8 | 28 | Claims, Disputes, and Escalation | 1 | 4 | 4 |
+| 9 | 31 | The 30-Day Rollout | 1 | 4 | 4 |
+| 10 | 32 | Coaching the Floor | 1 | 4 | 4 |
+| 11 | 1 | The Negotiation Is Already Running | 1 | 3 | 3 |
+| 12 | 4 | Diagnose Before You Ask | 1 | 2 | 2 |
+| 13 | 5 | The Emotion Vocabulary | 1 | 2 | 2 |
+| 14 | 6 | Labeling | 1 | 2 | 2 |
+| 15 | 7 | Mirroring | 1 | 2 | 2 |
+| 16 | 8 | Tactical Silence | 1 | 2 | 2 |
+| 17 | 9 | Reading the Decision Structure | 1 | 2 | 2 |
+| 18 | 10 | The Accusation Audit | 1 | 2 | 2 |
+| 19 | 11 | The Negative Label | 1 | 2 | 2 |
+| 20 | 12 | The Power of "No" | 1 | 2 | 2 |
+| 21 | 13 | Validation | 1 | 2 | 2 |
+| 22 | 15 | The Calibrated Question | 1 | 2 | 2 |
+| 23 | 16 | The Asking Label | 1 | 2 | 2 |
+| 24 | 17 | Paraphrase and Summary | 1 | 2 | 2 |
+| 25 | 18 | Trading: Never Give, Always Swap | 1 | 2 | 2 |
+| 26 | 19 | Anchoring | 1 | 2 | 2 |
+| 27 | 20 | Deadline Dynamics | 1 | 2 | 2 |
+| 28 | 21 | No-Oriented Questions | 1 | 2 | 2 |
+| 29 | 22 | The "That's Right" Summary | 1 | 2 | 2 |
+| 30 | 23 | The Fairness Standard | 1 | 2 | 2 |
+| 31 | 24 | Reframing | 1 | 2 | 2 |
+| 32 | 25 | One More Thing | 1 | 2 | 2 |
+| 33 | 3 | How to Use This Manual | 0 | 3 | 0 |
 
-**Total open gaps:** 27 across 27 drafted chapters.
+**Total open gaps:** 34 across 33 drafted chapters.
 
 Undrafted chapters are not listed — their gaps do not exist yet. Ch 26-30
 (Part V) will dominate this table once drafted, which is the argument for

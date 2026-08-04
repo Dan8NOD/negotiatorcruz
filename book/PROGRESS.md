@@ -58,14 +58,18 @@ script boxes should be reconciled against it in the consistency pass.
 | 23 | The Fairness Standard *(retitled)* | IV · Close | ✅ drafted |
 | 24 | Reframing | IV · Close | ✅ drafted |
 | 25 | One More Thing *(retitled)* | IV · Close | ✅ drafted |
-| 26 | The Renewal and the Price Increase | V · Applications | — |
-| 27 | Procurement and the Committee You Can't See | V · Applications | — |
-| 28 | Claims, Disputes, and Escalation | V · Applications | — |
-| 29 | Negotiating Internally — Up, Down, Sideways | V · Applications | — |
-| 30 | When the Protocol Fails | V · Applications | — |
+| 26 | The Renewal and the Price Increase | V · Applications | ✅ drafted |
+| 27 | Procurement and the Committee You Can't See | V · Applications | ✅ drafted |
+| 28 | Claims, Disputes, and Escalation | V · Applications | ✅ drafted |
+| 29 | Negotiating Internally — Up, Down, Sideways | V · Applications | ✅ drafted |
+| 30 | When the Protocol Fails | V · Applications | ✅ drafted |
 | 31 | The 30-Day Rollout | VI · Installation | ✅ drafted |
-| 32 | Coaching the Floor | VI · Installation | — |
+| 32 | Coaching the Floor | VI · Installation | ✅ drafted |
 | 33 | The Manager's Scorecard | VI · Installation | ✅ drafted |
+
+**ALL 33 CHAPTERS DRAFTED.** Remaining work is real case material (see
+`GAP-INTAKE.md`), the consistency pass on Ch 1–3 and Ch 6 script boxes, the
+`belief` family decision, and front/back matter.
 
 **Front/back matter:** not started. Write last — front matter is the Amazon
 "Look Inside" sample and the highest-traffic real estate in the business.
