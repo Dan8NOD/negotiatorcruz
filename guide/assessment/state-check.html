@@ -185,8 +185,8 @@ function finish(){
     body:JSON.stringify({name:f.name.value,email:f.email.value,
      message:'State Check result: '+s.name+' ('+score.T+'T/'+score.R+'R/'+score.N+'N). Wants the Six Before Yes summary.',
      context:'state-check'})});
-   n.textContent=r.ok?'Done — check your inbox.':'That didn’t go through — email negotiationsondemand@gmail.com and we’ll send it.';
-  }catch(_){n.textContent='That didn’t go through — email negotiationsondemand@gmail.com and we’ll send it.';}
+   n.textContent=r.ok?'Done — check your inbox.':'That didn’t go through — email negotiatorsondemand@gmail.com and we’ll send it.';
+  }catch(_){n.textContent='That didn’t go through — email negotiatorsondemand@gmail.com and we’ll send it.';}
  };
 }
 ask();
@@ -203,8 +203,13 @@ fields, matches api/lead.js contract).
   - Hosted on negotiatorsondemand.com: change the fetch URL to
     https://negotiatorcruz.com/api/lead AND add that origin to the function's
     CORS allowlist, or duplicate the function on the NOD deployment.
-The email fallback address is intentionally negotiationsondemand@gmail.com -
-confirmed correct, not a typo.
+The email fallback address is negotiatorsondemand@gmail.com — negotiat-OR-s,
+matching Calendly, TikTok, the sister domain, and the account this repo is
+administered from. An earlier note here claimed the negotiat-ION-s spelling was
+"confirmed correct, not a typo"; Dan confirmed on 2026-08-04 that he does not
+read that inbox. This is the fallback shown when the assessment fails to
+submit, so getting it wrong loses exactly the leads that already hit a problem.
+docs/agent-backlog/verify.sh fails the build if the wrong spelling returns.
 -->
 </body>
 </html>

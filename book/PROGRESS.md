@@ -141,12 +141,26 @@ likely to tempt a writer into filling a gap.
 
 ## Contact route — settled
 
-The `negotiationsondemand@gmail.com` address is **not a typo** and should not be
-corrected anywhere. Previously listed for removal in error; struck below.
+**Corrected 2026-08-04.** This section previously recorded that
+`negotiationsondemand@gmail.com` was "not a typo, confirmed by Dan." That was
+wrong, and it was actively dangerous — it instructed future passes to restore a
+dead address.
 
-Dan's preference is to route people to a **short domain** rather than an email
-address. `negotiatorsondemand.com` is long and hard to spell out loud, which is
-the actual problem being solved.
+Dan has now confirmed directly: **he receives mail only at
+`negotiatorsondemand@gmail.com`** (negotiat-*or*-sondemand). The
+`negotiat-ion-sondemand` spelling reaches an inbox he does not read. The
+evidence lines up: 201 mail threads at the correct address and none at the
+other, every other identifier on the property uses *negotiator-s*
+(Calendly, TikTok, the sister domain, the account this repo is administered
+from), and `docs/agent-backlog/verify.sh` has been failing the build on the
+wrong spelling all along.
+
+Use `negotiatorsondemand@gmail.com` everywhere. Nothing here is struck.
+
+Separately — and this part was always sound — Dan's preference is to route
+people to a **short domain** rather than an email address at all.
+`negotiatorsondemand.com` is long and hard to spell out loud, which is the
+actual problem worth solving.
 
 **Recommendation:** use `negotiatorcruz.com`. It is fourteen characters shorter
 than negotiatorsondemand.com, it is already the corporate brand this manual
@@ -174,6 +188,7 @@ the "Front/back matter, Ch 24" row in the NEEDS table above.
   Tactics" / "covert persuasion". Contradicts the Pledge (audit §2.5)
 - Consumer level tests (free coffee, free upgrade) — replace with corporate
   certification tests per Ch 2's Level table
-- ~~`negotiationsondemand@gmail.com` in the front matter~~ — **struck.** Not a
-  typo. Confirmed by Dan; leave every instance alone. See "Contact route" above
-  for the separate question of routing people to a short domain instead.
+- `negotiationsondemand@gmail.com` wherever it appears — **un-struck 2026-08-04.**
+  It *is* the wrong address; Dan reads only `negotiatorsondemand@gmail.com`. The
+  earlier "not a typo, confirmed by Dan" entry here was mistaken. Fixed in
+  `guide/assessment/state-check.html`; see "Contact route" above.
