@@ -1,0 +1,66 @@
+Chapter 20 - Deadline Dynamics
+
+Part 2 of 2 · The Practice
+
+Part III · STEER
+
+Part 1 of 2 covers the standard, when to reach for it, the words, and what good sounds like.
+
+The drill
+
+"Real or Atmosphere." Twenty minutes, run against live pipeline.
+Each rep lists every deadline currently in their pipeline - theirs and
+ the buyers'.
+Next to each, write the mechanism: the specific thing that happens on
+ the day after. Not a consequence in general - the event.
+Mark each REAL (mechanism identified), UNKNOWN (never asked), or
+ ATMOSPHERE (no mechanism exists).
+For every UNKNOWN, write the urgency-check question to be asked this week.
+Then reverse it: for each deal, write the buyer's genuine cost of doing
+ nothing - and mark whether you actually know it or are assuming it.
+
+The UNKNOWN column is the drill. Most reps are running two or three deals
+against deadlines nobody has ever tested, and they've been shaping their
+discounting around them.
+
+Scored on
+
+Metric: Deadlines tested. Target: Every counterpart deadline has a documented mechanism or is marked untested. Under 100% means the floor is conceding against fiction.
+
+Metric: Atmosphere rate. Target: Percentage of deadlines that dissolved under the urgency check. Track it - it's usually startling the first quarter.
+
+Metric: Concessions to a deadline. Target: Zero given to any untested deadline. Binary and expensive.
+
+Metric: Loss framed as a question. Target: Zero warnings, zero predictions. All loss aversion delivered as questions the counterpart answers.
+
+Metric: Cost of inaction documented. Target: In the buyer's own words, per deal. Binary.
+
+Failure mode
+
+Obeying the clock. The buyer names a date. The rep believes it, works
+backwards from it, and starts making concessions to hit it - a discount to
+close before quarter end, a scope change to fit the timeline, an expedited
+start nobody costed.
+
+Every one of those was paid to a deadline that was never tested. And the
+pattern compounds: a buyer who learns that a date extracts concessions will
+supply a date next time, because it worked.
+
+What it looks like on tape: the rep repeating the buyer's deadline back as
+a shared constraint - "okay, so we need to get this done by the 15th" - 
+without a single question about what the 15th is.
+
+The recovery: test it late. Better than never, and it costs less than the
+concession you're about to make.
+
+Quote. Before I go rearranging things around the 15th - what actually happens on the 16th? End quote.
+
+The second failure mode: using loss aversion as a threat. The rep, having
+learned that inaction has costs, starts announcing them. "You should know that
+prices go up in Q3." "I'd hate for you to be in the same position next
+year." Delivered as statements, these are pressure tactics, they are heard as
+pressure tactics, and they violate the standard in Chapter 3 - the tools are
+for clarity, not confusion. The family works because the other side does the
+arithmetic. Do it for them and you've converted a diagnostic into a threat, and
+bought yourself a counterpart who is now negotiating against you rather than
+with you.

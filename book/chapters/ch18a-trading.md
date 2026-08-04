@@ -1,0 +1,135 @@
+# Chapter 18 — Trading: Never Give, Always Swap
+
+### Part 1 of 2 · The Method
+
+**Part III · STEER**
+
+---
+
+## The Standard
+
+Nothing leaves your side of the table without something coming back.
+
+Not because generosity is weakness — because **an unreciprocated concession
+teaches the other side that pressure works.** You gave once under pressure;
+they now know the mechanism. Every subsequent ask is cheaper for them to make
+and more expensive for you to refuse, and by the fourth round you are
+negotiating against a version of yourself you created.
+
+The discipline is simple to state and hard to hold: every movement is a trade.
+"If I do X, you do Y." Not "I'll do X and hope you remember." The trade can be
+small, it can be non-cash, it can be almost symbolic — but it has to exist, and
+it has to be named out loud in the same breath as the concession.
+
+The second half of the chapter is the more profitable one: **most of what's
+tradeable in a commercial deal isn't money.** Reps who only know how to move
+price are negotiating with one instrument in a room full of them.
+
+---
+
+## When to reach for it
+
+Reach for it when:
+
+- **You're about to concede anything.** Always. This is not situational.
+- **Price is stuck and the deal isn't dead.** Stuck price means the trade is
+  somewhere else. Go find it.
+- **They ask for something small.** Small asks are where the habit is
+  established, in both directions. A free small concession is the cheapest
+  possible way to teach them that asking works.
+- **You want to know what they actually value.** *"What could I give you that
+  wouldn't cost you anything to accept?"* is a diagnostic as much as an offer.
+
+Do **not** reach for it when:
+
+- **The thing costs you genuinely nothing and buys real goodwill.** Rigid
+  reciprocity on trivia is its own kind of amateurism. Send the case study.
+  Make the introduction. Not everything is a chip.
+- **You're correcting your own error.** Fixing something you got wrong is not a
+  concession and demanding a trade for it is insulting.
+- **You haven't found their currency yet.** Trading before you know what they
+  value produces bad trades. Read first.
+
+---
+
+## The words
+
+```
+TRADING — the basic swap
+
+  "If I move on price, what moves on your side?"
+  "If we can't move the number, what else could move?"
+  "If not the price, what else is actually on the table?"
+  "There's flexibility somewhere in this — where is it on your side?"
+
+TRADING — signal without conceding
+
+  "There's something here I can flex on. It isn't the number."
+  "What would you trade timeline for?"
+  "Is there a non-cash way to make this work for both of us?"
+
+TRADING — find the asymmetry
+
+  "What could I give you that wouldn't cost you anything to accept?"
+  "What's cheap for you that would be valuable to me?"
+  "What's something you have that's easy to give but hard to get
+   elsewhere?"
+  "What do you have more of than you need, that I could use?"
+  "What's something small I could offer that would matter more
+   than it costs?"
+```
+
+**"There's something here I can flex on. It isn't the number."** is the most
+efficient sentence in the family. It does three things at once: it keeps them
+at the table, it takes price off the board without a refusal, and it invites
+them to start hunting for the flexible thing — which means they're now working
+on your behalf.
+
+The four **asymmetry** questions are the ones worth memorizing, because they
+point at the only place a negotiation genuinely creates value rather than
+splitting it. Every deal has items that are cheap on one side and expensive on
+the other: a reference call, a case study, a longer term, a faster signature,
+an introduction, a payment schedule, a pilot, a testimonial, flexibility on
+start date. Those trade at a profit to both sides, and none of them is money.
+
+A worked structure:
+
+| They want | Costs you | Ask for | Costs them |
+|---|---|---|---|
+| 10% off | Real margin | 24-month term instead of 12 | Nothing — they were staying anyway |
+| Faster start | Scheduling pain | Signature this week | Nothing — the decision is made |
+| Extra seats | Marginal | A reference call | Twenty minutes |
+| Payment terms | Cash flow | Case study rights | Their marketing team's afternoon |
+
+The right-hand column is the point. In every row you have been paid in
+something the other side barely feels, and the discipline of asking is the only
+reason it happened.
+
+---
+
+## What good sounds like
+
+**They name a trade you hadn't considered.** The best outcome. *"We could
+probably do a joint press release if that's worth something."* You didn't know
+that was available.
+
+**They pay in speed.** Extremely common and chronically undervalued. A buyer
+who can't move on price can very often move on *when*, and time is money in a
+form your finance team will recognize.
+
+**"What did you have in mind?"** They've accepted the frame. The negotiation
+is now about what trades, not about whether trading happens.
+
+**A refusal that reveals the constraint.** *"I can't do a longer term, our
+board caps us at twelve months."* Not a trade, but you've just learned
+something structural you'd never have asked directly.
+
+**What good does not sound like:** "sure, whatever, let's just get it done."
+Fast agreement to a trade usually means the thing you asked for was worthless
+to them and you've been paid in confetti. Ask for something else.
+
+---
+
+---
+
+*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*

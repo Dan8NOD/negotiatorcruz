@@ -1,0 +1,149 @@
+# Chapter 11 — The Negative Label
+
+### Part 1 of 2 · The Method
+
+**Part II · DISARM**
+
+> **Note on the title.** The locked chapter map called this slot "Naming Your
+> Own Weakness First." The shipped catalog has 25 lines in the `negatives`
+> family, and they are broader than that title — they name the bad thing in the
+> room whoever it belongs to. Retitled to match the material rather than
+> shrinking the material to match a title. Flagged for Dan's confirmation.
+
+---
+
+## The Standard
+
+A negative label names the unpleasant thing that is present in the room and has
+not been said.
+
+It is the accusation audit's sibling and the difference is timing and
+ownership. The audit is **pre-emptive** — you fire it before anything has
+happened, and it is always about you. A negative label is **responsive** —
+something has gone wrong, you can feel it, and you say what it is. It may be
+about you, about them, or about the situation.
+
+The instruction is the same one that governs the whole stage: **the bad thing
+loses most of its power the moment it is spoken by the person it disadvantages.**
+Unspoken, it sits under the conversation and steers it. Spoken, it becomes a
+topic — and topics can be worked on.
+
+This is the highest-count family in Disarm, twenty-five lines, and that is not
+an accident of authoring. Most of what goes wrong in a negotiation goes wrong
+silently.
+
+---
+
+## When to reach for it
+
+Reach for it when:
+
+- **The temperature changed and nobody acknowledged it.** Something landed
+  badly. You both noticed. Neither of you said so. That gap is the tool's
+  natural habitat.
+- **They've gone agreeable in a way that doesn't fit.** Sudden accommodation
+  after friction is usually withdrawal, not agreement.
+- **You are being stonewalled and you don't know why.** *"It feels like there's
+  an obstacle here"* costs nothing and frequently produces the obstacle.
+- **You suspect the objection on the table isn't the real one.** *"It sounds
+  like there's a version of this you're not saying out loud."*
+
+Do **not** reach for it when:
+
+- **You're annoyed.** A negative label delivered with heat is an accusation
+  with a softener on the front. They will hear the heat and not the softener.
+- **You've just used one.** Two negative labels in short succession reads as
+  prosecution. One, then silence, then wait.
+- **The negative is trivial.** Naming small irritations makes you look like
+  someone who tracks small irritations.
+
+---
+
+## The words
+
+Three groups, by what they point at.
+
+```
+NEGATIVES — pointed at you
+
+  "Sounds like you don't trust me."
+  "Sounds like I've offended you."
+  "It probably seems like we don't care about you."
+  "It probably seems like we're being selfish."
+  "Seems like you think I'm being unreasonable."
+  "Sounds like my business isn't worth it to you."
+  "Sounds like the value just isn't there for you."
+  "It seems like there's something else here that I'm not addressing."
+
+NEGATIVES — pointed at the room
+
+  "It feels like there's an obstacle here."
+  "It looks like there are some issues here."
+  "Seems like something's going on here."
+  "It seems like there's some hesitation."
+  "It seems like something is holding you back."
+  "It sounds like there's a version of this you're not saying out loud."
+  "Seems like there's a reason you keep hesitating on this
+   specific point."
+
+NEGATIVES — pointed at their position
+
+  "Seems like you've got something on your mind."
+  "It seems like there's something here that bothers you."
+  "Sounds like this bothers you."
+  "It sounds like you have a reason to say that."
+  "It seems like you have a reason for hesitating."
+  "Seems like you're under some pressure."
+  "It sounds like you're in a tough spot."
+  "Seems like you'd prefer not to make this deal."
+  "It looks like I don't have much of a say."
+  "It sounds like this is out of your hands."
+```
+
+Two of these do disproportionate work.
+
+**"It sounds like there's a version of this you're not saying out loud."** The
+most direct sentence in the family. It presumes concealment without accusing
+anyone of it, and it is almost always true — everyone is running an edited
+version. Say it and hold six seconds.
+
+**"It sounds like you have a reason to say that."** Deceptively mild and
+extremely useful after a flat refusal. It declines to argue with the refusal
+and asks about its origin instead. People defend refusals. Almost nobody
+defends the *reason* for one, because the reason is where they feel justified.
+
+Notice the last two lines in the third group — *"it looks like I don't have
+much of a say," "it sounds like this is out of your hands"* — those are
+negative labels doing Chapter 9's work. The families overlap on purpose. A
+negative label that surfaces the decision structure is doing two jobs.
+
+---
+
+## What good sounds like
+
+**A denial with detail attached.** *"It's not that I don't trust you — it's
+that our last three renewals all had a surprise in month four."* The denial is
+irrelevant. The detail is the whole point, and you got it by saying the
+uncomfortable thing.
+
+**"How did you know?"** Occasionally literal. Naming a concealed negative
+accurately is disarming in the plainest sense — they were managing something
+and now they don't have to.
+
+**They name a bigger one.** You aim at hesitation; they hand you the actual
+obstacle, which is usually larger and more specific than what you named.
+
+**A pause, then a change of register.** The most reliable physical tell that
+the label landed. The conversation you have after it is different from the one
+you were having before.
+
+**What good does not sound like:** a flat "no, everything's fine," delivered
+quickly. That's a label that missed, or landed too hard, or arrived from
+someone they don't yet trust with it. Don't press. Go back to Read and try
+again later from a warmer position.
+
+---
+
+---
+
+*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*

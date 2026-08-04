@@ -14,4 +14,3 @@ coverage/
 .env
 .env.local
 .vercel
-rocketman/dist/
