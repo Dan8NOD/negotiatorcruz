@@ -37,7 +37,15 @@ test/
 e2e/
   contact-form.spec.js    submit, failure paths, ?offer= prefill, honeypot
   navigation.spec.js      mobile nav a11y, headers, no-JS and reduced-motion
+practice-lab/test/
+  pricing.test.js         the SKU ladder, cohort arithmetic, live Stripe check
+  pricing-copies.test.js  the deployed copies of pricing.js have not drifted
+  cohort-invoicing.test.js  invoice lines always match the quote
 ```
+
+`npm test` globs both `test/` and `practice-lab/test/`. A test in
+`config.test.js` walks the repo and fails if any `*.test.js` file falls outside
+those globs, because that already happened once — see below.
 
 ## Why these things are tested
 
@@ -70,11 +78,12 @@ pinning it, so changing one is a deliberate act.
 
 - **The throttle counts before it validates.** Six malformed submissions in a
   minute lock a visitor out even though none reached the database.
-- **Crossing 500 tracked IPs clears the whole map**, including the history of
-  anyone currently being throttled. Fine for a best-effort guard on an
-  ephemeral serverless instance; a per-key eviction would be the fix if it ever
-  matters. As the source comment says, real spam pressure wants Vercel's WAF or
-  a Turnstile challenge instead.
+- **The throttle map evicts by recency at 2,000 entries.** An idle visitor's
+  history is dropped to bound memory; an active offender keeps their count.
+  This replaced a flat `HITS.clear()` that reset every counter at once, which
+  let a burst of unique IPs wipe the limit exactly when it mattered. It is
+  still a best-effort guard on an ephemeral instance — as the source comment
+  says, real spam pressure wants Vercel's WAF or a Turnstile challenge.
 - **Truncation runs before validation.** An email over 200 characters gets its
   `@` cut off and is reported as malformed rather than too long. Harmless at
   the current limit (RFC 5321 caps a path at 256) but worth knowing before
@@ -84,6 +93,26 @@ pinning it, so changing one is a deliberate act.
   before truncation. Nothing is broken and no test fails on it — the bounds in
   `seo.test.js` are set to catch a pasted paragraph, not to enforce SEO
   cosmetics. Worth a copy pass at some point.
+- **`practice-lab/test/` was never executed.** It was added with sixteen
+  assertions about live Stripe prices and the `npm test` glob only covered the
+  root `test/` directory, so all sixteen passed CI by never running. They pass
+  on their merits — that was luck, not verification. The glob now covers both
+  directories and `config.test.js` fails if any test file falls outside it.
+- **`pricing.js` exists twice on purpose.** The Deno edge function imports it
+  from disk, so a byte-identical copy sits next to `broker/index.ts`.
+  `pricing.test.js` skips that copy when scanning for pasted price literals, on
+  the grounds that it is the same file — `pricing-copies.test.js` is what makes
+  that true rather than assumed.
+
+## The live Stripe check
+
+`pricing.test.js` verifies the configured amounts against the Stripe API, but
+only when `STRIPE_SECRET_KEY` is set; otherwise it skips. It is currently
+skipping in CI. That test is the one guarding against a dashboard edit nobody
+committed — the exact failure the pricing module was written to prevent — so
+setting the secret in the repository's Actions secrets would be the single
+highest-value change to this suite. Until then, treat the pricing tests as
+checking that the code agrees with itself, not that it agrees with Stripe.
 
 ## Things deliberately not tested
 
