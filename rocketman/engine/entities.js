@@ -10,6 +10,8 @@
 import {
   ARMOR,
   BUILDINGS,
+  PROPS,
+  NEUTRAL_PLAYER,
   UNITS,
   WEAPONS,
   SHIELD,
@@ -230,6 +232,57 @@ export function makeHero(world, e, { id, name, level }, abilities) {
   return e;
 }
 
+/* ---------------------------------------------------------------- props -- */
+
+/**
+ * Spawn a piece of destructible scenery.
+ *
+ * A prop is a neutral entity rather than a separate layer, which buys the
+ * damage pipeline, the spatial index and splash for nothing. It claims grid
+ * cells the way a structure does, so A* routes around it — and `vacate` on
+ * death means blowing one up genuinely opens a path.
+ */
+export function spawnProp(world, defId, cx, cy) {
+  const def = PROPS[defId];
+  if (!def) throw new Error(`unknown prop: ${defId}`);
+
+  const e = {
+    id: world.nextId++,
+    kind: 'prop',
+    defId,
+    def,
+    player: NEUTRAL_PLAYER,
+    cx,
+    cy,
+    size: def.size,
+    x: cx + def.size[0] / 2,
+    y: cy + def.size[1] / 2,
+    facing: 0,
+    layer: 'ground',
+    radius: Math.max(def.size[0], def.size[1]) / 2,
+
+    hp: def.hp,
+    maxHp: def.hp,
+    shield: 0,
+    maxShield: 0,
+    shieldTimer: 0,
+    tempShield: 0,
+
+    /** Props never act: no weapons, no orders, no vision, no upkeep. */
+    weapons: [],
+    targetId: null,
+    disabledUntil: 0,
+    vet: 0,
+    vetValue: 0,
+    dead: false,
+  };
+
+  occupy(world.map, def.size, cx, cy, e.id);
+  displaceUnits(world, e);
+  world.entities.set(e.id, e);
+  return e;
+}
+
 /* ----------------------------------------------------------- veterancy -- */
 
 /**
@@ -397,7 +450,10 @@ export function killEntity(world, e, sourceId = 0) {
   const owner = world.players[e.player];
   if (owner) owner.stats.lost++;
   const killer = world.entities.get(sourceId);
-  if (killer && world.players[killer.player] && killer.player !== e.player) {
+  // Scenery is not a kill. Crediting it would hand out veterancy for shooting
+  // trees, and "flattened a housing estate" would read as a battlefield
+  // record on the debrief.
+  if (e.kind !== 'prop' && killer && world.players[killer.player] && killer.player !== e.player) {
     world.players[killer.player].stats.killed++;
     creditKill(world, killer, e);
 
@@ -413,10 +469,13 @@ export function killEntity(world, e, sourceId = 0) {
   // Losing a pilot is a mission fact the debrief has to be able to report.
   if (e.pilotId && world.pilotsLost) world.pilotsLost.add(e.pilotId);
 
-  if (e.kind === 'building') {
+  if (e.kind === 'building' || e.kind === 'prop') {
+    // Freeing the footprint is the mechanic, not the cleanup: a flattened
+    // tower block is a new route through the map.
     vacate(world.map, e.size, e.cx, e.cy);
 
-    // A dying reactor takes its neighbours with it. Base layout is a decision.
+    // A dying reactor takes its neighbours with it, and so does a fuel
+    // station — splash hits props too, so a forecourt goes up in a chain.
     const boom = e.def.deathExplosion;
     if (boom && !e.constructing) {
       for (const other of world.entities.values()) {
@@ -436,6 +495,10 @@ export function killEntity(world, e, sourceId = 0) {
     player: e.player,
     x: e.x,
     y: e.y,
+    // Presentation hints so the renderer can scale the collapse without
+    // reaching back into the definition tables for a now-dead entity.
+    height: e.def.height || 0,
+    volatile: !!e.def.volatile,
   });
 }
 
@@ -490,8 +553,21 @@ export function rangeTo(a, b) {
   return Math.max(0, distance(a, b) - (b.radius || 0));
 }
 
+/**
+ * Is this entity a participant in the war at all?
+ *
+ * Scenery is owned by nobody, which means a naive `a.player !== b.player`
+ * reads every tree on the map as an enemy. That is not hypothetical: it put
+ * "the enemy base is visible at match start" and an AI that never attacked
+ * into the suite the moment props landed. Every place that enumerates enemies
+ * goes through this.
+ */
+export function isCombatant(e) {
+  return e.kind !== 'prop';
+}
+
 export function isEnemy(world, a, b) {
-  return a.player !== b.player;
+  return isCombatant(b) && a.player !== b.player;
 }
 
 export function livingEntities(world) {

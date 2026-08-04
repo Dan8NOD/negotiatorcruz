@@ -33,6 +33,7 @@ import {
   applyDamage,
   updateSelfRepair,
   makeHero,
+  spawnProp,
 } from './entities.js';
 import { setPath, clearPath, stepMovement, setSteer } from './movement.js';
 import { updateWeapons, updateProjectiles, maxRange, acquireTarget } from './combat.js';
@@ -152,6 +153,11 @@ export function createWorld({ seed = 1, players: playerConfigs, mapSize = 72, mi
     const start = map.starts[i % map.starts.length];
     seedForces(world, player, start, playerConfigs[i].start);
   });
+
+  // Scenery, from the placement data the map generator produced. Spawned
+  // after the players so their opening forces win any contested cell — a
+  // Collector welded inside a tower block is a worse bug than a missing tree.
+  for (const p of map.props) spawnProp(world, p.defId, p.cx, p.cy);
 
   world.players.forEach((p) => recomputePower(world, p));
   world.players.forEach((p) => updateVision(world, p));

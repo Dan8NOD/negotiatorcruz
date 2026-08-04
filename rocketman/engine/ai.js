@@ -14,7 +14,7 @@
 
 import { BUILDINGS, UNITS, FACTIONS, TICKS_PER_SECOND } from './content.js';
 import { canPlace } from './grid.js';
-import { playerEntities, defsFor } from './entities.js';
+import { playerEntities, defsFor, isCombatant } from './entities.js';
 import { techAllows, superweaponReady } from './economy.js';
 import { suggestAbility, abilityReady } from './abilities.js';
 import { visibleEnemies } from './vision.js';
@@ -564,7 +564,7 @@ function enemyBase(world, player) {
 
 function enemyNear(world, player, point, radius) {
   for (const e of world.entities.values()) {
-    if (e.dead || e.player === player.id) continue;
+    if (e.dead || e.player === player.id || !isCombatant(e)) continue;
     if (len(e.x - point.x, e.y - point.y) <= radius) return true;
   }
   return false;

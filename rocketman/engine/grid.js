@@ -10,9 +10,9 @@
  * no amount of unit balance fixes that.
  */
 
-import { TERRAIN, TERRAIN_INFO } from './content.js';
+import { TERRAIN, TERRAIN_INFO, PROPS } from './content.js';
 import { createRng } from './rng.js';
-import { len } from './numeric.js';
+import { len, ringOffset } from './numeric.js';
 
 /* ------------------------------------------------------------------ map -- */
 
@@ -30,6 +30,15 @@ export function createMap(seed, { width = 72, height = 72 } = {}) {
     starts: [],
     /** Wreck fields, kept as metadata so collectors can find a whole patch. */
     fields: [],
+    /**
+     * Destructible scenery, as placement data. The map generator decides
+     * *where*; sim.js turns each one into an entity at world creation, because
+     * only the sim can mint ids. Keeping generation free of entity concerns is
+     * what lets the map be built and tested without a world.
+     */
+    props: [],
+    /** Cells already claimed by a prop, so placement never double-books. */
+    propCells: new Uint8Array(width * height),
   };
 
   carveTerrain(map, rng);
@@ -55,8 +64,157 @@ export function createMap(seed, { width = 72, height = 72 } = {}) {
   addFieldPair(map, Math.round(width * 0.33), Math.round(height * 0.62), 5, 1900, rng);
   addFieldPair(map, Math.round(width * 0.5), Math.round(height * 0.5), 6, 2600, rng);
 
+  // Scenery last: it reads the finished terrain and the wreck fields so it can
+  // refuse to stand on either.
+  addNeighbourhood(map, Math.round(width * 0.3), Math.round(height * 0.44), rng);
+  addNeighbourhood(map, Math.round(width * 0.62), Math.round(height * 0.24), rng);
+  addLandmarks(map, rng);
+
   return map;
 }
+/* ----------------------------------------------------------------- props -- */
+
+/**
+ * Place a prop and its exact 180° mirror.
+ *
+ * Same discipline as the wreck fields: rolled once, stamped twice. A map where
+ * one player has a fuel station on their approach and the other does not is
+ * unfair in a way nobody can articulate while they are losing to it.
+ *
+ * The mirrored anchor is not `(W-1-cx, H-1-cy)` — that mirrors the top-left
+ * corner and puts a 2x2 footprint one cell off. It is the mirror of the
+ * *bottom-right* corner, which is `(W-w-cx, H-h-cy)`.
+ */
+function addPropPair(map, defId, cx, cy) {
+  const def = PROPS[defId];
+  if (!def) return;
+  const [w, h] = def.size;
+  const twin = { x: map.width - w - cx, y: map.height - h - cy };
+  for (const at of [{ x: cx, y: cy }, twin]) {
+    if (!propFits(map, def, at.x, at.y)) continue;
+    // A prop on the mirror line can map onto itself; placing it twice would
+    // stack two entities on one footprint.
+    if (map.props.some((p) => p.cx === at.x && p.cy === at.y)) continue;
+    map.props.push({ defId, cx: at.x, cy: at.y });
+    for (let y = at.y; y < at.y + h; y++) {
+      for (let x = at.x; x < at.x + w; x++) map.propCells[y * map.width + x] = 1;
+    }
+  }
+}
+
+/** Buildable ground, inside the border, clear of starts, fields and other props. */
+function propFits(map, def, cx, cy) {
+  const [w, h] = def.size;
+  for (let y = cy; y < cy + h; y++) {
+    for (let x = cx; x < cx + w; x++) {
+      if (x < 2 || y < 2 || x >= map.width - 2 || y >= map.height - 2) return false;
+      const i = y * map.width + x;
+      if (map.terrain[i] !== TERRAIN.GROUND) return false;
+      if (map.resource[i] > 0) return false;
+      if (map.propCells[i]) return false;
+      // Keep the landing zones clear — opening a mission walled into your own
+      // base by a tower block is not a difficulty setting.
+      for (const s of map.starts) {
+        if (Math.abs(x - s.x) <= 7 && Math.abs(y - s.y) <= 7) return false;
+      }
+    }
+  }
+  return true;
+}
+
+/**
+ * A block of suburbia: a street with houses down both sides, trees between
+ * them, and a fuel station on the corner.
+ *
+ * Deliberately gridded rather than scattered. Scattered props read as scenery;
+ * a street reads as a *place*, and a place is something a player routes
+ * through, fights over and remembers. The fuel station on the corner is the
+ * hook — it turns "cut through the neighbourhood" into a decision.
+ */
+function addNeighbourhood(map, cx, cy, rng) {
+  const horizontal = rng.chance(0.5);
+  const length = 5 + rng.int(4);
+  const road = [];
+
+  for (let i = -length; i <= length; i++) {
+    const x = horizontal ? cx + i : cx;
+    const y = horizontal ? cy : cy + i;
+    road.push({ x, y });
+    // The street itself is kept clear so the block is walkable, not a wall.
+    if (inBounds(map, x, y) && map.terrain[y * map.width + x] === TERRAIN.ROUGH) {
+      paintMirrored(map, x, y, TERRAIN.GROUND);
+    }
+  }
+
+  // Houses face the street from both sides, with gaps for driveways.
+  for (const cell of road) {
+    for (const side of [-2, 2]) {
+      if (rng.chance(0.28)) continue;
+      const x = horizontal ? cell.x : cell.x + side;
+      const y = horizontal ? cell.y + side : cell.y;
+      addPropPair(map, rng.chance(0.18) ? 'tree' : 'house', x, y);
+    }
+  }
+
+  // Street trees in the verge.
+  for (const cell of road) {
+    if (!rng.chance(0.3)) continue;
+    const side = rng.chance(0.5) ? -1 : 1;
+    const x = horizontal ? cell.x : cell.x + side;
+    const y = horizontal ? cell.y + side : cell.y;
+    addPropPair(map, 'tree', x, y);
+  }
+
+  // The corner station.
+  const end = road[road.length - 1];
+  addPropPair(map, 'gasstation', horizontal ? end.x + 1 : end.x - 2, horizontal ? end.y + 2 : end.y + 1);
+}
+
+/**
+ * Everything that is not suburbia: a tower cluster downtown, industrial fuel
+ * tanks, a monument, and old growth scattered over the rough ground.
+ */
+function addLandmarks(map, rng) {
+  const { width, height } = map;
+
+  // Two tower blocks toward the middle — tall cover on the contested ground.
+  for (let i = 0; i < 3; i++) {
+    const x = Math.round(width * 0.36) + rng.int(6) - 3;
+    const y = Math.round(height * 0.3) + rng.int(8) - 4;
+    addPropPair(map, 'tower', x, y);
+  }
+
+  // A monument, because a map needs one thing you can navigate by. Spiralled
+  // out from the centre rather than dropped on a fixed cell: the middle of
+  // the map is usually a wreck field, and a landmark that only exists on some
+  // seeds is not a landmark.
+  const mx = Math.round(width * 0.5);
+  const my = Math.round(height * 0.5);
+  placed: for (let r = 4; r < 16; r++) {
+    for (let a = 0; a < 8; a++) {
+      const off = ringOffset(a + 1, r);
+      const x = Math.round(mx + off.x);
+      const y = Math.round(my + off.y);
+      if (!propFits(map, PROPS.statue, x, y)) continue;
+      addPropPair(map, 'statue', x, y);
+      break placed;
+    }
+  }
+
+  // A tank farm: several volatile props close enough to chain.
+  const fx = Math.round(width * 0.22);
+  const fy = Math.round(height * 0.68);
+  for (let i = 0; i < 4; i++) {
+    addPropPair(map, 'tank', fx + (i % 2) * 2, fy + Math.floor(i / 2) * 2);
+  }
+
+  // Old growth, thickest on rough ground where it reads as untended.
+  const trees = Math.round((width * height) / 260);
+  for (let i = 0; i < trees; i++) {
+    addPropPair(map, 'tree', rng.int(width), rng.int(height));
+  }
+}
+
 
 /**
  * Random-walk blobs of cliff and rough, mirrored as they are written so the

@@ -921,6 +921,99 @@ export const BUILDINGS = {
 };
 
 /** Faction rosters and presentation. */
+/**
+ * Terrain props — the world itself, and it can be knocked down.
+ *
+ * These are neutral entities (`player: -1`) rather than a separate layer, so
+ * they inherit the damage pipeline, the spatial index and splash for free.
+ * They also claim grid cells the way structures do, which means two things
+ * that are really one thing: A* routes around them, and *destroying one opens
+ * a path*. Blowing a hole through a housing block to shortcut a siege is the
+ * best thing in this file.
+ *
+ * `height` is presentation only — how far the roof is offset from the
+ * footprint to fake elevation — but it lives here rather than in the renderer
+ * because a two-storey house and a radio mast are a design decision, not a
+ * drawing one.
+ */
+export const PROPS = {
+  tower: {
+    id: 'tower',
+    name: 'Tower Block',
+    size: [2, 2],
+    hp: 1600,
+    armor: ARMOR.STRUCTURE,
+    height: 3.4,
+    storeys: 9,
+    hint: 'Nine storeys of pre-war housing. Falls hard.',
+  },
+  house: {
+    id: 'house',
+    name: 'House',
+    size: [1, 1],
+    hp: 420,
+    armor: ARMOR.STRUCTURE,
+    height: 0.9,
+    storeys: 2,
+    hint: 'Somebody lived here.',
+  },
+  gasstation: {
+    id: 'gasstation',
+    name: 'Fuel Station',
+    size: [2, 1],
+    hp: 220,
+    /**
+     * Structure rather than light: explosive multiplies against structure in
+     * full, and a fuel station that cannot set off the one next to it is not
+     * a fuel station. The trade is that small-arms fire barely scratches it —
+     * you pop these with rockets, which is the right answer anyway.
+     */
+    armor: ARMOR.STRUCTURE,
+    height: 0.8,
+    volatile: true,
+    /**
+     * The reason to care where you fight. Cheap hull, enormous blast — and
+     * because splash damages everything in radius including other props, a
+     * forecourt full of them goes up in a chain.
+     */
+    deathExplosion: { radius: 4.6, damage: 300, type: DAMAGE.EXPLOSIVE },
+    hint: 'Do not fight next to this. Do make the enemy fight next to it.',
+  },
+  tree: {
+    id: 'tree',
+    name: 'Ironwood',
+    size: [1, 1],
+    hp: 200,
+    armor: ARMOR.LIGHT,
+    height: 1.7,
+    canopy: true,
+    hint: 'Old growth. Blocks a mech, not a rocket.',
+  },
+  statue: {
+    id: 'statue',
+    name: 'Monument',
+    size: [1, 1],
+    hp: 2400,
+    armor: ARMOR.STRUCTURE,
+    height: 2.8,
+    hint: 'Whoever it was, both sides have stopped saluting it.',
+  },
+  tank: {
+    id: 'tank',
+    name: 'Fuel Tank',
+    size: [1, 1],
+    hp: 200,
+    armor: ARMOR.STRUCTURE,
+    height: 1.3,
+    volatile: true,
+    deathExplosion: { radius: 3.4, damage: 210, type: DAMAGE.EXPLOSIVE },
+    hint: 'Industrial storage. Still full.',
+  },
+};
+
+/** Props are neutral: owned by nobody, hostile to nobody, in everybody's way. */
+export const NEUTRAL_PLAYER = -1;
+
 export const FACTIONS = {
   ascendancy: {
     id: 'ascendancy',

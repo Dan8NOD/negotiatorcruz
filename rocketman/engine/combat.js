@@ -55,6 +55,11 @@ export function acquireTarget(world, e, index, radius) {
 
   for (const other of candidates) {
     if (!isHostileTo(world, e, other)) continue;
+    // Scenery is shootable but never *chosen*. Auto-acquisition that counts
+    // trees would have every unit in the game stop to demolish the landscape
+    // on its way to the fight. A player-ordered attack still works, because
+    // that path sets the target directly rather than going through here.
+    if (other.kind === 'prop') continue;
     if (!e.weapons.some((w) => weaponCanHit(w, other))) continue;
     // Under construction is still a valid target, but not a priority one.
     const dist = rangeTo(e, other);

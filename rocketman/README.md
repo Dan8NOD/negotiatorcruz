@@ -14,7 +14,7 @@ build step, no bundler and no runtime dependency.
 npm run serve                 # http://127.0.0.1:4321
 open http://127.0.0.1:4321/rocketman/web/rocketman.html
 
-npm run test:rocketman        # 380 simulation tests
+npm run test:rocketman        # 397 simulation tests
 npm run test:rocketman:e2e    # 38 browser tests
 ```
 
@@ -126,6 +126,27 @@ Three more pieces of the C&C economy:
   by walking is not one, and the telegraph is the counterplay. It needs power,
   so the counter is the same as everything else here: kill the reactors and the
   doomsday clock stops.
+
+### The map is destructible
+
+Terrain carries **scenery you can knock down**: tower blocks, suburban
+streets, ironwood, monuments, fuel stations and tank farms. They are neutral
+entities, so they inherit the damage pipeline and splash for nothing — and
+they claim grid cells the way structures do, which means the same fact twice:
+A* routes around them, and **destroying one opens a path**. Blowing a hole
+through a housing block to shortcut a siege is the best thing in the file.
+
+Fuel is the reason to care *where* you fight. A station has cheap hull and an
+enormous blast, and because splash damages props too, a forecourt goes up in a
+chain. Fuel takes explosive damage in full — light armour would multiply it by
+0.55, and a tank that cannot set off the tank beside it is not a tank farm.
+
+Scenery is emphatically **not** the enemy: it is never auto-targeted (or every
+machine in the game would stop to demolish the landscape on its way to a
+fight), never a visible contact, never worth veterancy or a kill, and never
+counted toward victory. All five of those are pinned by test, because
+introducing props broke three of them at once — `player !== player` reads a
+tree as hostile.
 
 ### Scrap regrows
 
