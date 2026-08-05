@@ -21,6 +21,7 @@ import {
   UNITS,
   BUILDINGS,
   BUILD_ORDER,
+  BUILD_HOTKEYS,
   TICKS_PER_SECOND,
 } from '../engine/content.js';
 import { techAllows, availableBuildings } from '../engine/economy.js';
@@ -910,7 +911,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       row.className = 'buttons';
       const unlocked = new Set(availableBuildings(world, VIEWER));
 
-      BUILD_ORDER.forEach((id, i) => {
+      BUILD_ORDER.forEach((id) => {
         const def = defs.buildings[id];
         const locked = !unlocked.has(id);
         const poor = player.scrap < def.cost;
@@ -919,7 +920,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
             label: def.name,
             sub: `${def.cost} · ${def.power >= 0 ? '+' : ''}${def.power}⚡`,
             hint: def.hint,
-            hotkey: String(i + 1),
+            hotkey: (BUILD_HOTKEYS[id] || '').toUpperCase(),
             disabled: locked || poor,
             reason: locked ? 'Needs more tech' : poor ? 'Not enough scrap' : '',
             onClick: () => input.beginPlacement(id),

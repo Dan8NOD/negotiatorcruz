@@ -145,7 +145,7 @@ test('a structure can be sited and built, and it charges scrap', async ({ page }
   await page.keyboard.press('b');
   const before = await match.state();
 
-  await page.keyboard.press('1'); // Reactor
+  await page.keyboard.press('r'); // Reactor
 
   // Try a few spots around the base rather than trusting one pixel. The
   // Command Rig sits under the camera centre and the starting wreck field is
@@ -446,7 +446,7 @@ test('a structure can be built and then sold back for scrap', async ({ page }) =
   const match = await startMatch(page);
 
   await page.keyboard.press('b');
-  await page.keyboard.press('1'); // Reactor
+  await page.keyboard.press('r'); // Reactor
 
   let placed = null;
   let spot = null;
@@ -506,7 +506,7 @@ test('an order hits the structure you selected, not an identical one you selecte
   for (let y = 200; y <= 560 && spots.length < 2; y += 90) {
     for (let x = 380; x <= 1000 && spots.length < 2; x += 90) {
       await page.keyboard.press('b');
-      await page.keyboard.press('1');
+      await page.keyboard.press('r');
       await page.mouse.move(x, y);
       await page.mouse.click(x, y);
       await page.waitForTimeout(260);
@@ -541,5 +541,94 @@ test('an order hits the structure you selected, not an identical one you selecte
   const left = after.structures.filter((s) => s.defId === 'reactor');
   expect(left.length).toBe(1);
   expect(left[0].id).not.toBe(targeted);
+  expect(match.errors).toEqual([]);
+});
+
+test('control groups: assign, recall, add to, and tap twice to go there', async ({ page }) => {
+  // The navigation every player of these games already has in their hands.
+  // On a map this size a group is not just a selection, it is a *place* — and
+  // the double-tap is how you get to it without hunting the minimap.
+  const match = await startMatch(page);
+
+  await page.mouse.move(300, 180);
+  await page.mouse.down();
+  await page.mouse.move(1100, 620, { steps: 8 });
+  await page.mouse.up();
+  await page.waitForTimeout(300);
+
+  const boxed = await match.state();
+  expect(boxed.selection.length).toBeGreaterThan(0);
+  const group = [...boxed.selection].sort((a, b) => a - b);
+
+  // Assign, then clear the selection by clicking empty ground.
+  await page.keyboard.down('Control');
+  await page.keyboard.press('1');
+  await page.keyboard.up('Control');
+  await page.mouse.click(60, 700);
+  await page.waitForTimeout(250);
+  expect((await match.state()).selection.length).toBe(0);
+
+  // Recall.
+  await page.keyboard.press('1');
+  await page.waitForTimeout(250);
+  const recalled = await match.state();
+  expect([...recalled.selection].sort((a, b) => a - b)).toEqual(group);
+
+  // Pan far away, then double-tap the digit to come back to the group.
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(1400);
+  await page.keyboard.up('ArrowRight');
+  await page.waitForTimeout(200);
+  const away = await match.state();
+
+  await page.keyboard.press('1');
+  await page.waitForTimeout(60);
+  await page.keyboard.press('1');
+  await page.waitForTimeout(300);
+  const back = await match.state();
+  expect(back.camera.x).toBeLessThan(away.camera.x - 1);
+
+  expect(match.errors).toEqual([]);
+});
+
+test('digits are control groups, never build hotkeys', async ({ page }) => {
+  // They used to be both: a digit built a structure until a group was
+  // assigned to it, and silently stopped afterwards. One key, two meanings,
+  // and which one you got depended on something you did ten minutes earlier.
+  const match = await startMatch(page);
+
+  await page.keyboard.press('b'); // select the Command Rig
+  await expect(page.locator('#selection')).toContainText('Command Rig');
+
+  const before = await match.state();
+  await page.keyboard.press('1');
+  await page.mouse.move(440, 250);
+  await page.mouse.click(440, 250);
+  await page.waitForTimeout(400);
+
+  const after = await match.state();
+  expect(after.counts['0:reactor']).toBeUndefined();
+  expect(after.players[0].scrap).toBe(before.players[0].scrap);
+
+  // The letter does build it. R for Reactor, the way these games spell it.
+  await page.keyboard.press('b');
+  await page.keyboard.press('r');
+  let placed = null;
+  for (const [x, y] of [
+    [440, 250],
+    [440, 480],
+    [900, 240],
+    [560, 200],
+  ]) {
+    await page.mouse.move(x, y);
+    await page.mouse.click(x, y);
+    await page.waitForTimeout(400);
+    placed = await match.state();
+    if (placed.counts['0:reactor']) break;
+    await page.keyboard.press('b');
+    await page.keyboard.press('r');
+  }
+  expect(placed.counts['0:reactor']).toBe(1);
+
   expect(match.errors).toEqual([]);
 });

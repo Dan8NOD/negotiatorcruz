@@ -12,7 +12,7 @@
  * audience most likely to enjoy this.
  */
 
-import { CELL, BUILDINGS, UNITS, BUILD_ORDER } from '../engine/content.js';
+import { CELL, BUILDINGS, UNITS, BUILD_ORDER, BUILD_HOTKEYS } from '../engine/content.js';
 import { canPlace } from '../engine/grid.js';
 import { withinBuildRadius } from '../engine/sim.js';
 import { isExplored } from '../engine/vision.js';
@@ -26,21 +26,35 @@ const EDGE_MARGIN = 18;
 
 /**
  * Keys that drive a machine while direct control is engaged, as eight-way
- * intent. Arrows and WASD both work; holding two gives the diagonal.
+ * intent. WASD only; holding two gives the diagonal.
  *
  * These overlap the RTS hotkeys on purpose — `a` is attack-move and `s` is
  * stop when you are commanding, and steering when you are piloting. Only one
  * of those meanings is live at a time, and the HUD says which.
  */
 const STEER_KEYS = {
-  arrowup: [0, -1],
   w: [0, -1],
-  arrowdown: [0, 1],
   s: [0, 1],
-  arrowleft: [-1, 0],
   a: [-1, 0],
-  arrowright: [1, 0],
   d: [1, 0],
+};
+
+/**
+ * Camera pan keys. Always the arrows, never anything else.
+ *
+ * They used to steer the machine while direct control was engaged and pan the
+ * camera the rest of the time, which meant the most-used key on the keyboard
+ * did two unrelated things depending on a mode you might not have noticed you
+ * were in. Every game this one is modelled on has exactly one answer to "what
+ * do the arrow keys do", and it is *move the view*.
+ *
+ * Driving keeps WASD, which is where a pilot's hand already is.
+ */
+const PAN_KEYS = {
+  arrowup: [0, -1],
+  arrowdown: [0, 1],
+  arrowleft: [-1, 0],
+  arrowright: [1, 0],
 };
 
 export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
@@ -50,6 +64,8 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   const keys = new Set();
 
   const drag = { active: false, x0: 0, y0: 0, x1: 0, y1: 0, moved: false };
+  /** Middle-button camera grab. */
+  const pan = { active: false, x: 0, y: 0 };
   const pointer = { x: 0, y: 0, inside: false };
   let placementDefId = null;
   /** True while the player is picking a target for a targeted ability. */
@@ -598,6 +614,16 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
       drag.moved = false;
       drag.x0 = drag.x1 = x;
       drag.y0 = drag.y1 = y;
+    } else if (ev.button === 1) {
+      // Middle-button grab: drag the world under the cursor. Edge scrolling
+      // gets you across the map and the minimap jumps you anywhere, but
+      // neither is any good for the small, precise "shift the view two
+      // buildings left" that happens constantly while placing structures.
+      ev.preventDefault();
+      pan.active = true;
+      pan.x = x;
+      pan.y = y;
+      cameraFreed = true;
     } else if (ev.button === 2) {
       if (placementDefId || abilityArmed || strikeEmitter) {
         cancelPlacement();
@@ -618,6 +644,17 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     renderer.state.hoverPixel.x = pointer.x;
     renderer.state.hoverPixel.y = pointer.y;
 
+    if (pan.active) {
+      // Drag the world, not the camera: the cell under the cursor stays under
+      // the cursor, which is the only grab that feels like grabbing.
+      const scale = renderer.scale();
+      renderer.camera.x -= (pointer.x - pan.x) / scale;
+      renderer.camera.y -= (pointer.y - pan.y) / scale;
+      pan.x = pointer.x;
+      pan.y = pointer.y;
+      renderer.clampCamera();
+    }
+
     if (drag.active) {
       drag.x1 = pointer.x;
       drag.y1 = pointer.y;
@@ -630,11 +667,17 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     if (placementDefId) updatePlacementPreview();
   });
 
+  canvas.addEventListener('auxclick', (ev) => {
+    if (ev.button === 1) ev.preventDefault();
+  });
+
   canvas.addEventListener('mouseleave', () => {
     pointer.inside = false;
+    pan.active = false;
   });
 
   window.addEventListener('mouseup', (ev) => {
+    if (ev.button === 1) pan.active = false;
     if (ev.button !== 0 || !drag.active) return;
     drag.active = false;
     renderer.state.selectionBox = null;
@@ -959,9 +1002,24 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   /* -------------------------------------------------- keyboard events -- */
 
   const HOTKEY_TO_BUILDING = {};
-  BUILD_ORDER.forEach((id, i) => {
-    HOTKEY_TO_BUILDING[String(i + 1)] = id;
-  });
+  for (const id of BUILD_ORDER) {
+    if (BUILD_HOTKEYS[id]) HOTKEY_TO_BUILDING[BUILD_HOTKEYS[id]] = id;
+  }
+
+  /**
+   * Last control group recalled, and when — for the double-tap.
+   *
+   * Tapping a group's digit twice snaps the camera to it, which is how every
+   * player of these games navigates: groups are not just a selection, they
+   * are *places*. On a map this size that is the difference between knowing
+   * where your army is and hunting for it on the minimap.
+   */
+  /** Which idle collector `e` landed on last, so a second press moves on. */
+  let lastIdleId = null;
+
+  let lastGroupKey = null;
+  let lastGroupAt = 0;
+  const GROUP_DOUBLE_TAP_MS = 400;
 
   window.addEventListener('keydown', (ev) => {
     const key = ev.key.toLowerCase();
@@ -970,9 +1028,10 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
 
     if (ev.target && ev.target.tagName === 'INPUT') return;
 
-    // Direct control claims the movement keys while it is engaged, so `a`
-    // steers left instead of issuing an attack-move. Both meanings cannot be
-    // live at once; the HUD shows which mode you are in.
+    // Direct control claims WASD while it is engaged, so `a` steers left
+    // instead of issuing an attack-move. Both meanings cannot be live at
+    // once; the HUD shows which mode you are in. The arrows are never in
+    // this fight -- they pan the camera in either mode.
     if (driving && STEER_KEYS[key]) {
       ev.preventDefault();
       updateSteering();
@@ -983,22 +1042,67 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
       return;
     }
 
-    // Control groups: Ctrl+digit assigns, digit recalls.
+    // Control groups, and nothing else. Ctrl assigns, Shift adds to the
+    // group, a bare digit recalls it, and a second tap goes there.
     if (/^[0-9]$/.test(key)) {
       if (ev.ctrlKey || ev.metaKey) {
         ev.preventDefault();
         groups.set(key, [...selection]);
         notify(`Group ${key} set (${selection.size}).`);
-      } else if (groups.has(key)) {
-        selection.clear();
-        for (const id of groups.get(key)) {
-          const e = world.entities.get(id);
-          if (e && !e.dead) selection.add(id);
-        }
-        announceSelection();
-      } else if (HOTKEY_TO_BUILDING[key] && hasHQSelected()) {
-        beginPlacement(HOTKEY_TO_BUILDING[key]);
+        return;
       }
+
+      if (ev.shiftKey) {
+        // Add the current selection to the group rather than replacing it —
+        // how you reinforce a standing army without re-boxing the whole thing.
+        const merged = new Set(groups.get(key) || []);
+        for (const id of selection) merged.add(id);
+        groups.set(key, [...merged]);
+        notify(`Group ${key} now ${merged.size}.`);
+        return;
+      }
+
+      if (!groups.has(key)) return;
+
+      const live = groups.get(key).filter((id) => {
+        const e = world.entities.get(id);
+        return e && !e.dead;
+      });
+      if (live.length === 0) {
+        notify(`Group ${key} is gone.`);
+        return;
+      }
+      // Prune casualties as we go, so a group does not slowly become a list
+      // of ghosts that quietly shrinks what a recall selects.
+      groups.set(key, live);
+
+      const now = performance.now();
+      const again = key === lastGroupKey && now - lastGroupAt < GROUP_DOUBLE_TAP_MS;
+      lastGroupKey = key;
+      lastGroupAt = now;
+
+      selection.clear();
+      for (const id of live) selection.add(id);
+      announceSelection();
+
+      if (again) {
+        let x = 0;
+        let y = 0;
+        for (const id of live) {
+          const e = world.entities.get(id);
+          x += e.x;
+          y += e.y;
+        }
+        cameraFreed = false;
+        renderer.centreOn(x / live.length, y / live.length);
+      }
+      return;
+    }
+
+    // Construction, on letters. Gated on having something that builds
+    // selected, so they are inert the rest of the time.
+    if (HOTKEY_TO_BUILDING[key] && hasHQSelected()) {
+      beginPlacement(HOTKEY_TO_BUILDING[key]);
       return;
     }
 
@@ -1027,17 +1131,33 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
         useAbility(HERO_SLOT);
         break;
       case 'e': {
-        // Jump to the next idle collector — the single most useful key in any
-        // RTS and the one most often missing.
-        const idle = [...world.entities.values()].find(
-          (e) => mine(e) && e.harvest && e.harvest.state === 'idle'
-        );
-        if (idle) {
-          selectSingle(idle, false);
-          renderer.centreOn(idle.x, idle.y);
-        } else {
+        // Cycle the idle collectors, not just jump to the first one.
+        //
+        // Pressing it twice used to land on the same machine, because "find
+        // the first idle" is stable — so with three sitting around you could
+        // only ever see one of them. Age of Empires walks the list, and that
+        // is the difference between a key that reports a problem and a key
+        // that lets you fix all of it.
+        const idle = [...world.entities.values()]
+          .filter((e) => mine(e) && e.harvest && e.harvest.state === 'idle')
+          .sort((a, b) => a.id - b.id);
+        if (idle.length === 0) {
           notify('No idle collectors.');
+          break;
         }
+        const at = idle.findIndex((e) => e.id === lastIdleId);
+        const next = idle[(at + 1) % idle.length];
+        lastIdleId = next.id;
+        focusOn(next);
+        if (idle.length > 1) notify(`${idle.length} collectors idle.`);
+        break;
+      }
+      case 'f2': {
+        // Select the whole army and frame it — the one key every player of
+        // these games reaches for when a fight starts somewhere else.
+        ev.preventDefault();
+        const n = selectAllUnits();
+        notify(n ? `${n} machine${n === 1 ? '' : 's'} selected` : 'Nothing to select');
         break;
       }
       case 'b': {
@@ -1097,14 +1217,22 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     let dx = 0;
     let dy = 0;
 
-    // Arrows only. WASD used to pan as well, which meant pressing `a` for
-    // attack-move *also* slid the camera left — two commands from one key.
-    if (!driving) {
-      if (keys.has('arrowleft')) dx -= 1;
-      if (keys.has('arrowright')) dx += 1;
-      if (keys.has('arrowup')) dy -= 1;
-      if (keys.has('arrowdown')) dy += 1;
+    // Arrows, whether or not you are driving. WASD is not a pan key: `a` is
+    // attack-move and `s` is stop, and one key must not mean two things.
+    for (const key of Object.keys(PAN_KEYS)) {
+      if (!keys.has(key)) continue;
+      dx += PAN_KEYS[key][0];
+      dy += PAN_KEYS[key][1];
     }
+    // Pressing an arrow is an unambiguous "look somewhere else", so it
+    // releases the camera from the machine it was following until you drive
+    // again.
+    //
+    // Edge scrolling deliberately does *not*: a pointer resting near a screen
+    // edge is not a decision, and treating it as one means an idle mouse can
+    // quietly unlock the camera mid-fight and leave the player wondering why
+    // their pilot walked off the screen.
+    if (dx || dy) cameraFreed = true;
 
     if (pointer.inside) {
       if (pointer.x < EDGE_MARGIN) dx -= 1;

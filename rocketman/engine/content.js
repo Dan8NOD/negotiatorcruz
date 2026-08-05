@@ -1194,6 +1194,34 @@ export const BUILD_ORDER = [
   'lance',
 ];
 
+/**
+ * Build hotkeys — letters, not digits.
+ *
+ * Digits used to build, which put them in a fight they could not win: every
+ * game these controls are modelled on binds 1–9 to *control groups*, so the
+ * digit that placed a Reactor on minute one silently stopped doing so the
+ * moment the player assigned a group to it. One key, two meanings, and which
+ * one you got depended on something you did ten minutes ago.
+ *
+ * Letters are what Age of Empires and StarCraft use for construction anyway,
+ * chosen the same way they choose them: the first letter of the name that is
+ * not already spoken for. R-eactor, refI-nery, fO-undry, T-ech Lab,
+ * ha-N-gar, t-U-rret, sensor M-ast, orbital L-ance.
+ *
+ * They only fire while something that can build is selected, so they cost
+ * nothing the rest of the time.
+ */
+export const BUILD_HOTKEYS = {
+  reactor: 'r',
+  refinery: 'i',
+  foundry: 'o',
+  techlab: 't',
+  hangar: 'n',
+  turret: 'u',
+  sensor: 'm',
+  lance: 'l',
+};
+
 /** Terrain classes. Index into these from the map's terrain array. */
 export const TERRAIN = {
   GROUND: 0,
