@@ -743,8 +743,23 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     $(id).replaceChildren(...scratch.childNodes);
   }
 
-  /** The ids a panel's handlers are bound to, in selection order. */
-  const boundIds = (entities) => entities.map((e) => e.id).join(',');
+  /**
+   * The ids a panel's handlers are bound to, in selection order.
+   *
+   * A `function` declaration rather than a `const` arrow, and deliberately so.
+   * `startMatch` puts a pilot in the cockpit partway down its own body, which
+   * selects them, which renders the HUD — so anything the HUD reaches for has
+   * to already exist at that point. A `const` declared further down the same
+   * function is still in its temporal dead zone, throws, and the match never
+   * finishes starting: no `window.__rocketman`, no game, every campaign test
+   * timing out at 240 seconds waiting for a boot that already failed.
+   *
+   * That has now happened twice in this file. A declaration hoists, so it
+   * cannot happen a third time whatever order the body ends up in.
+   */
+  function boundIds(entities) {
+    return entities.map((e) => e.id).join(',');
+  }
 
   /**
    * The bottom roster: named pilots first, then one chip per unit type.

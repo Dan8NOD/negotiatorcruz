@@ -9,7 +9,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-import { marchToVictory, expectMissionComplete } from './helpers.js';
+import { marchToVictory, expectMissionComplete, BOOT } from './helpers.js';
 
 const PAGE = '/rocketman/web/rocketman.html';
 
@@ -47,7 +47,7 @@ async function startMatch(page, { seed = '7', difficulty = 'normal' } = {}) {
   await page.selectOption('#difficulty', difficulty);
   await page.click('#start');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   return {
     errors,
@@ -63,7 +63,7 @@ async function startMission(page, index = 1) {
   await page.locator('.mission').nth(index - 1).click();
   await page.click('#deployMission');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   return { errors, state: () => page.evaluate(() => window.__rocketman()) };
 }
@@ -93,7 +93,7 @@ test('choosing a faction is reflected in the match that starts', async ({ page }
   await page.click('#playSkirmish');
   await page.locator('#factionList .faction', { hasText: 'Bulwark' }).click();
   await page.click('#start');
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   const state = await page.evaluate(() => window.__rocketman());
   expect(state.players[0].faction).toBe('bulwark');
@@ -381,7 +381,7 @@ test('a purchased upgrade reaches the units in the next mission', async ({ page 
   await page.click('#playCampaign');
   await page.locator('.mission').first().click();
   await page.click('#deployMission');
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   const state = await page.evaluate(() => window.__rocketman());
   expect(state.players[0].upgrades).toContain('field_plating');

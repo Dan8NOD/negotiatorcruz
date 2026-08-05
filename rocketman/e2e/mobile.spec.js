@@ -9,6 +9,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { BOOT } from './helpers.js';
 
 const PAGE = '/rocketman/web/rocketman.html';
 
@@ -41,7 +42,7 @@ async function startMission(page) {
   await page.tap('#playCampaign');
   await page.locator('.mission').first().tap();
   await page.tap('#deployMission');
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 }
 
 const state = (page) => page.evaluate(() => window.__rocketman());

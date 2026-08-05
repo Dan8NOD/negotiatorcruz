@@ -10,6 +10,22 @@ import { expect } from '@playwright/test';
 
 export const PAGE = '/rocketman/web/rocketman.html';
 
+/**
+ * How long a match may take to boot before the test gives up.
+ *
+ * Playwright's default here is the whole test timeout, which meant a game
+ * that failed to start cost four minutes to find out — and when a startup
+ * bug hits every campaign spec at once, that is 22 tests × 240s × a retry:
+ * the browser job took **1.4 hours** to report a fault that reproduces in
+ * under two seconds.
+ *
+ * A boot that has not happened in fifteen seconds has not happened. Failing
+ * fast is worth more than the tiny chance a loaded runner needs longer,
+ * because the thing being waited for is `window.__rocketman` existing at
+ * all — and when startup throws, no amount of waiting will conjure it.
+ */
+export const BOOT = { timeout: 15000 };
+
 /** World cell size in pixels, from engine/content.js. */
 const CELL = 24;
 

@@ -9,6 +9,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { BOOT } from './helpers.js';
 
 const PAGE = '/rocketman/web/rocketman.html';
 
@@ -34,7 +35,7 @@ async function startMission(page) {
   await page.locator('.mission').first().click();
   await page.click('#deployMission');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 }
 
 const state = (page) => page.evaluate(() => window.__rocketman());
@@ -180,7 +181,7 @@ test('a skirmish starts under ordinary RTS controls', async ({ page }) => {
   await page.click('#playSkirmish');
   await page.fill('#seed', '7');
   await page.click('#start');
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   // No hero in a skirmish, so nothing is auto-piloted.
   const s = await state(page);
