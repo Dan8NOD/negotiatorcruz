@@ -9,6 +9,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { BOOT } from './helpers.js';
 
 const PAGE = '/rocketman/web/rocketman.html';
 
@@ -41,7 +42,7 @@ async function startMission(page) {
   await page.tap('#playCampaign');
   await page.locator('.mission').first().tap();
   await page.tap('#deployMission');
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 }
 
 const state = (page) => page.evaluate(() => window.__rocketman());
@@ -192,6 +193,41 @@ test('a tap orders, where a drag did not', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('an order does not strand you outside the cockpit', async ({ page }) => {
+  // Found in review. The stick used to be hidden whenever you were not
+  // driving, and touching the stick is the *only* way into the cockpit on a
+  // phone — `C` does not exist there. So the first tap-to-move, long press or
+  // Attack button ended direct control for the rest of the mission, with no
+  // affordance left to get it back.
+  const errors = watchErrors(page);
+  await startMission(page);
+  expect((await state(page)).driving).toBe(true);
+
+  // Any order drops direct control, by design.
+  await page.touchscreen.tap(560, 210);
+  await page.waitForTimeout(300);
+  expect((await state(page)).driving).toBe(false);
+
+  // The stick must still be there — dimmed, but present and pressable.
+  const stick = page.locator('#stick');
+  await expect(stick).toBeVisible();
+  await expect(stick).toHaveClass(/idle/);
+
+  // And touching it puts you back in the seat.
+  const box = await stick.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 38, box.y + box.height / 2, { steps: 3 });
+  await page.waitForTimeout(900);
+  await page.mouse.up();
+
+  const after = await state(page);
+  expect(after.driving).toBe(true);
+  await expect(stick).not.toHaveClass(/idle/);
+
+  expect(errors).toEqual([]);
+});
+
 test('the roster bar is reachable and jumps the camera', async ({ page }) => {
   const errors = watchErrors(page);
   await startMission(page);
@@ -207,5 +243,41 @@ test('the roster bar is reachable and jumps the camera', async ({ page }) => {
   await page.waitForTimeout(250);
   expect((await state(page)).selection.length).toBeGreaterThan(0);
 
+  expect(errors).toEqual([]);
+});
+
+test('a doubled map still fits in a phone-sized canvas budget', async ({ page }) => {
+  // The reason the terrain bake is chunked at all.
+  //
+  // At 24 px a cell, baking a whole 144-cell map into one canvas is a
+  // 3456×3456 buffer — about 48 MB of pixels — and the decal layer was a
+  // second one. 96 MB of canvas is not something a mid-range Android hands
+  // out, and the failure mode is not a slow frame: it is the context being
+  // dropped or the tab being killed. Nothing in a rendered frame would show
+  // it, so the renderer accounts for its own pixels and this holds it to it.
+  const errors = watchErrors(page);
+  await startMission(page);
+  await page.waitForTimeout(1500);
+
+  const opening = await state(page);
+  expect(opening.map.width).toBeGreaterThanOrEqual(112);
+  expect(opening.buffers.megabytes).toBeLessThan(48);
+
+  // Pan around so chunks are baked, evicted and rebaked, then check the
+  // ceiling still holds — an LRU that never evicts passes the first
+  // assertion and fails this one.
+  for (const [fx, fy] of [
+    [700, 300],
+    [150, 120],
+    [700, 120],
+    [150, 300],
+  ]) {
+    await touchDrag(page, { x: 426, y: 200 }, { x: fx, y: fy });
+    await page.waitForTimeout(400);
+  }
+
+  const after = await state(page);
+  expect(after.buffers.megabytes).toBeLessThan(48);
+  expect(after.buffers.chunks).toBeLessThanOrEqual(36);
   expect(errors).toEqual([]);
 });

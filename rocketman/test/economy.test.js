@@ -19,7 +19,8 @@ import {
   resourceAt,
 } from '../engine/economy.js';
 import { placeStructure, withinBuildRadius, tick } from '../engine/sim.js';
-import { canPlace } from '../engine/grid.js';
+import { canPlace, createMap } from '../engine/grid.js';
+import { len } from '../engine/numeric.js';
 import { UNITS, BUILDINGS } from '../engine/content.js';
 
 /**
@@ -416,5 +417,42 @@ describe('harvesting', () => {
     // No crash, no spin: the point is simply that the sim survives it.
     run(world, 200);
     assert.ok(true);
+  });
+});
+
+describe('mining a map bigger than the old search radius', () => {
+  test('a collector still finds scrap once the field beside its base is gone', () => {
+    // `nearestResourceCell` used to stop looking after 30 cells. On the 72-cell
+    // maps this game shipped with, 30 cells was most of the world and every
+    // field was always in range — so nobody noticed it was a range at all.
+    //
+    // On a doubled map it is a fifth of the world, and the consequence is not
+    // a slower economy but a stopped one: mine out the home field and every
+    // collector returns null, goes idle, and asks again next tick with the
+    // same answer, forever. Measured on seed 1234, income froze at two minutes
+    // and the skirmish ran twenty-five more without either side able to break
+    // it.
+    const map = createMap(1234);
+    const home = map.starts[0];
+
+    // Drain everything the old radius could have seen.
+    let drained = 0;
+    for (let y = 0; y < map.height; y++) {
+      for (let x = 0; x < map.width; x++) {
+        if (len(x - home.x, y - home.y) > 30) continue;
+        const i = y * map.width + x;
+        if (map.resource[i] > 0) drained++;
+        map.resource[i] = 0;
+      }
+    }
+    assert.ok(drained > 0, 'the home field was already empty; this proves nothing');
+
+    const cell = nearestResourceCell(map, home.x, home.y);
+    assert.ok(cell, 'a collector at a mined-out base found no scrap anywhere on the map');
+    assert.ok(
+      len(cell.x - home.x, cell.y - home.y) > 30,
+      'the drain did not actually push the nearest scrap past the old radius'
+    );
+    assert.ok(resourceAt(map, cell.x, cell.y) > 0, 'pointed a collector at an empty cell');
   });
 });

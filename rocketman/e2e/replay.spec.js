@@ -10,6 +10,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { marchToVictory, expectMissionComplete, BOOT } from './helpers.js';
 
 const PAGE = '/rocketman/web/rocketman.html';
 
@@ -35,7 +36,7 @@ async function startSkirmish(page, seed = '7') {
   await page.fill('#seed', seed);
   await page.click('#start');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 }
 
 const state = (page) => page.evaluate(() => window.__rocketman());
@@ -75,7 +76,7 @@ test('a match autosaves, survives a reload, and resumes where it stood', async (
 
   await resume.click();
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   const after = await state(page);
   expect(after.mode).toBe('resumed');
@@ -103,7 +104,7 @@ test('quitting mid-match keeps the save; finishing the match spends it', async (
   // Resuming after quit works too — same button, same custody chain.
   await page.click('#resumeMatch');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
   expect((await state(page)).mode).toBe('resumed');
 
   expect(errors).toEqual([]);
@@ -119,39 +120,12 @@ test('a finished mission can be watched back, and the replay pays out nothing', 
   await page.locator('.mission').first().click();
   await page.click('#deployMission');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
-  // Win it the way the campaign speedrun spec does — Tab to find the crew,
-  // box-select, attack-move at the enemy corner, repeat until the world says
-  // it is over. See that spec for why the loop is shaped this way.
-  // Campaign missions now start in the cockpit, where `a` steers the pilot
-  // west rather than issuing an attack-move. C hands control back to the RTS
-  // scheme this spec exercises.
-  await page.keyboard.press('c');
-
-  await page.keyboard.press('+');
-  await page.keyboard.press('+');
-  const deadline = Date.now() + 150000;
-  while (Date.now() < deadline) {
-    // Re-acquire the crew wherever they are: Tab selects an army unit and
-    // centres the camera on it, so the box-select below always has them on
-    // screen. Then attack-move toward the enemy corner — attack-move engages
-    // whatever it meets, where a plain move walks politely past a listening
-    // post it was sent to within a leash-length of.
-    await page.keyboard.press('Tab');
-    await page.mouse.move(200, 150);
-    await page.mouse.down();
-    await page.mouse.move(1300, 640, { steps: 6 });
-    await page.mouse.up();
-    await page.mouse.move(1150, 620);
-    await page.keyboard.press('a');
-    await page.waitForTimeout(2500);
-
-    const state = await page.evaluate(() => (window.__rocketman ? window.__rocketman() : null));
-    if (!state || state.over) break;
-  }
-
-  await expect(page.locator('#debrief h2')).toContainText('Mission complete', { timeout: 20000 });
+  // Win it the way the campaign speedrun spec does — see e2e/helpers.js for
+  // why that loop is shaped the way it is.
+  const won = await marchToVictory(page);
+  await expectMissionComplete(page, won);
 
   // The profile's salvage after the payout, to prove the replay adds nothing.
   const salvageAfter = await page.evaluate(
@@ -160,7 +134,7 @@ test('a finished mission can be watched back, and the replay pays out nothing', 
 
   await page.click('#debriefWatch');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
   expect((await state(page)).mode).toBe('replay');
   await expect(page.locator('#missionName')).toContainText('Replay');
 

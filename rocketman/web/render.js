@@ -56,24 +56,121 @@ function valueNoise(x, y, freq) {
   return a + (b - a) * sx + (c - a) * sy + (a - b - c + d) * sx * sy;
 }
 
+/* --------------------------------------------------------- terrain LOD -- */
+
+/**
+ * Terrain is baked rather than redrawn per frame — repainting twenty thousand
+ * cells every frame is the easiest way to make a grid game stutter. But "bake
+ * the whole map into one canvas" stopped being affordable when the maps
+ * doubled: 144×144 cells at 24 px is a 3456×3456 buffer, about 48 MB of
+ * pixels, and the decal layer was a second one. A mid-range Android phone
+ * does not have 96 MB of canvas to spare, and this game is going on Play.
+ *
+ * So the bake has two levels:
+ *
+ *   - a **base** covering the whole map at `LOD_CELL` px per cell, always
+ *     resident, a few megabytes;
+ *   - **chunks** at full `CELL` detail, baked on demand for what is actually
+ *     on screen and kept in a small LRU.
+ *
+ * The base is always drawn first, so a chunk that has not been baked yet
+ * shows correct-looking ground rather than a hole — there is no pop-in, only
+ * a sharpening. And when the view is zoomed out far enough that detail chunks
+ * would exceed the budget, they are skipped entirely for that frame: at that
+ * distance per-cell speckle is under a pixel, so the base *is* the picture.
+ * That rule is what stops a wide view thrashing the cache instead of
+ * exceeding the memory it was meant to protect.
+ */
+const CHUNK = 16;
+
+/** Cell size of the always-resident whole-map bake. */
+const LOD_CELL = 8;
+
+/** Cell size of the persistent decal buffer. */
+const DECAL_CELL = 12;
+
+/**
+ * How many full-detail chunks may be resident at once. Each is
+ * CHUNK² × CELL² × 4 bytes ≈ 0.6 MB, so this is a ~21 MB ceiling.
+ */
+const CHUNK_BUDGET = 36;
+
+function createTerrainLayers(map) {
+  const base = document.createElement('canvas');
+  base.width = map.width * LOD_CELL;
+  base.height = map.height * LOD_CELL;
+  paintTerrainRegion(base.getContext('2d'), map, LOD_CELL, 0, 0, map.width, map.height);
+
+  /** Key `cy * cols + cx` → canvas. Insertion order is the LRU order. */
+  const chunks = new Map();
+  const cols = Math.ceil(map.width / CHUNK);
+  const rows = Math.ceil(map.height / CHUNK);
+
+  function chunkAt(cx, cy) {
+    const key = cy * cols + cx;
+    const found = chunks.get(key);
+    if (found) {
+      // Touch: delete and re-insert so this chunk moves to the young end.
+      chunks.delete(key);
+      chunks.set(key, found);
+      return found;
+    }
+
+    const x0 = cx * CHUNK;
+    const y0 = cy * CHUNK;
+    const x1 = Math.min(map.width, x0 + CHUNK);
+    const y1 = Math.min(map.height, y0 + CHUNK);
+    const canvas = document.createElement('canvas');
+    canvas.width = (x1 - x0) * CELL;
+    canvas.height = (y1 - y0) * CELL;
+    paintTerrainRegion(canvas.getContext('2d'), map, CELL, x0, y0, x1, y1);
+
+    chunks.set(key, canvas);
+    while (chunks.size > CHUNK_BUDGET) {
+      const oldest = chunks.keys().next().value;
+      const evicted = chunks.get(oldest);
+      chunks.delete(oldest);
+      // Zeroing the dimensions is what actually releases the backing store in
+      // Chrome and Safari; dropping the reference alone leaves it to the GC,
+      // which on a phone is exactly the wrong time to find out.
+      evicted.width = 0;
+      evicted.height = 0;
+    }
+    return canvas;
+  }
+
+  return {
+    base,
+    cols,
+    rows,
+    chunkAt,
+    /** Live chunk count. Exposed for the inspection hook and tests. */
+    residentChunks: () => chunks.size,
+  };
+}
+
 export function createRenderer(canvas, world, viewerId) {
   const ctx = canvas.getContext('2d', { alpha: false });
 
-  const camera = { x: 0, y: 0, zoom: 1, minZoom: 0.45, maxZoom: 2.4 };
+  // A floor of 0.45 was "most of a 72-cell map on screen". On a doubled map
+  // it is a quarter of one, which turns the zoom control into a slightly
+  // wider view rather than a way to see the battlefield. 0.3 puts a whole
+  // 144-cell map inside a desktop viewport, and the terrain LOD is built for
+  // exactly that case — at this distance the base bake *is* the picture.
+  const camera = { x: 0, y: 0, zoom: 1, minZoom: 0.3, maxZoom: 2.4 };
 
-  // Terrain never changes, so it is painted once into an offscreen buffer and
-  // blitted. Repainting 5000 cells every frame is the single easiest way to
-  // make a grid game stutter.
-  const terrainLayer = document.createElement('canvas');
-  terrainLayer.width = world.map.width * CELL;
-  terrainLayer.height = world.map.height * CELL;
-  paintTerrain(terrainLayer.getContext('2d'), world);
+  const terrain = createTerrainLayers(world.map);
 
   // Battle scars. Explosions and deaths stamp scorch marks and craters here,
   // so a fought-over ridge *stays* fought-over — the map remembers.
+  //
+  // Deliberately half resolution. Scorch is a soft radial gradient with no
+  // edge to lose, so nobody will ever see the difference — and at full
+  // resolution this one buffer is 48 MB on a doubled map, which is 48 MB a
+  // phone does not have.
   const decalLayer = document.createElement('canvas');
-  decalLayer.width = world.map.width * CELL;
-  decalLayer.height = world.map.height * CELL;
+  decalLayer.width = world.map.width * DECAL_CELL;
+  decalLayer.height = world.map.height * DECAL_CELL;
   const decalCtx = decalLayer.getContext('2d');
 
   // Fog is drawn at one pixel per cell and scaled up, which gives a soft edge
@@ -185,8 +282,8 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.translate(-camera.x * s + shakeX, -camera.y * s + shakeY);
     ctx.scale(camera.zoom, camera.zoom);
 
-    ctx.drawImage(terrainLayer, 0, 0);
-    ctx.drawImage(decalLayer, 0, 0);
+    drawTerrain();
+    ctx.drawImage(decalLayer, 0, 0, world.map.width * CELL, world.map.height * CELL);
 
     drawResources();
     drawProps();
@@ -212,6 +309,31 @@ export function createRenderer(canvas, world, viewerId) {
     drawFog();
     drawVignette(w, h);
     drawSelectionBox();
+  }
+
+  /**
+   * The base bake, then full-detail chunks over whatever is on screen.
+   *
+   * The budget check is the load-bearing part: when the view is wide enough
+   * to want more chunks than may be resident, drawing them would evict each
+   * other every frame and re-bake constantly. Falling back to the base costs
+   * detail nobody can resolve at that zoom and costs no memory at all.
+   */
+  function drawTerrain() {
+    ctx.drawImage(terrain.base, 0, 0, world.map.width * CELL, world.map.height * CELL);
+
+    const { x0, y0, x1, y1 } = visibleBounds();
+    const cx0 = Math.floor(x0 / CHUNK);
+    const cy0 = Math.floor(y0 / CHUNK);
+    const cx1 = Math.min(terrain.cols - 1, Math.floor((x1 - 1) / CHUNK));
+    const cy1 = Math.min(terrain.rows - 1, Math.floor((y1 - 1) / CHUNK));
+    if ((cx1 - cx0 + 1) * (cy1 - cy0 + 1) > CHUNK_BUDGET) return;
+
+    for (let cy = cy0; cy <= cy1; cy++) {
+      for (let cx = cx0; cx <= cx1; cx++) {
+        ctx.drawImage(terrain.chunkAt(cx, cy), cx * CHUNK * CELL, cy * CHUNK * CELL);
+      }
+    }
   }
 
   function visibleBounds() {
@@ -337,14 +459,41 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.ellipse(px + pw / 2 + 4, py + ph / 2 + 5, pw * 0.62, ph * 0.44, 0, 0, TAU);
     ctx.fill();
 
-    if (e.def.canopy) {
-      drawTree(e, px, py, pw, ph, dx, dy, hurt);
-    } else if (e.defId === 'statue') {
-      drawStatue(e, px, py, pw, ph, dx, dy, hurt);
-    } else if (e.def.volatile) {
-      drawVolatile(e, px, py, pw, ph, dx, dy, hurt);
-    } else {
-      drawBlock(e, px, py, pw, ph, dx, dy, hurt);
+    // Dispatch on shape rather than on id, so a new prop is a content-table
+    // entry and not a renderer change — the shapes are a small vocabulary
+    // that a dozen different props are assembled from.
+    const shape = e.def.shape || (e.def.canopy ? 'canopy' : e.def.volatile ? 'volatile' : 'block');
+    switch (shape) {
+      case 'canopy':
+        drawTree(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'watertower':
+        drawWaterTower(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'mast':
+        drawMast(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'billboard':
+        drawBillboard(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'silo':
+        drawSilo(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'depot':
+        drawDepot(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'vehicle':
+        drawVehicle(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'fountain':
+        drawFountain(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'volatile':
+        drawVolatile(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      default:
+        if (e.defId === 'statue') drawStatue(e, px, py, pw, ph, dx, dy, hurt);
+        else drawBlock(e, px, py, pw, ph, dx, dy, hurt);
     }
 
     // Damage: cracks and smoke once it is genuinely hurt.
@@ -483,6 +632,31 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.lineWidth = 1;
     ctx.strokeRect(rx + 0.5, ry + 0.5, pw - 1, ph - 1);
 
+    // A steeple, on the buildings that carry one. It leans with the parallax
+    // like everything else, which is what makes it read as the tallest thing
+    // on the street rather than as a triangle painted on a roof.
+    if (e.def.spire) {
+      const sx = rx + pw * 0.5;
+      const sy = ry + ph * 0.5;
+      const tipX = sx + dx * 0.8;
+      const tipY = sy + dy * 0.8 - ph * 0.35;
+      ctx.fillStyle = shade(tone.roof, -0.15);
+      ctx.beginPath();
+      ctx.moveTo(tipX, tipY);
+      ctx.lineTo(sx + pw * 0.16, sy + ph * 0.12);
+      ctx.lineTo(sx - pw * 0.16, sy + ph * 0.12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(210, 220, 232, 0.5)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(tipX, tipY);
+      ctx.lineTo(tipX, tipY - 4);
+      ctx.moveTo(tipX - 2, tipY - 2.5);
+      ctx.lineTo(tipX + 2, tipY - 2.5);
+      ctx.stroke();
+    }
+
     // Rooftop clutter on the big ones — it is what stops a tower reading as a
     // grey box from above.
     if (e.def.height > 2) {
@@ -505,9 +679,28 @@ export function createRenderer(canvas, world, viewerId) {
   function drawTree(e, px, py, pw, ph, dx, dy, hurt) {
     const bx = px + pw / 2;
     const by = py + ph / 2;
-    const sway = Math.sin(frameClock * 0.03 + e.id) * 1.4;
+    const sway = Math.sin(frameClock * 0.03 + e.id) * (e.def.low ? 0.5 : 1.4);
     const tx = bx + dx + sway;
     const ty = by + dy;
+    const green = hurt > 0.5 ? 1 : 0.45 + hurt;
+    const dark = `rgba(${Math.round(38 + (1 - green) * 60)}, ${Math.round(62 * green + 18)}, ${Math.round(34 * green + 14)}, 0.95)`;
+    const lit = `rgba(${Math.round(60 + (1 - green) * 60)}, ${Math.round(92 * green + 20)}, ${Math.round(52 * green + 16)}, 0.9)`;
+
+    // A hedgerow is a low mass with no trunk to speak of — drawn as a run of
+    // overlapping bunches along its footprint rather than as a small tree,
+    // because a small tree at this height just reads as a broken tree.
+    if (e.def.low) {
+      const bunches = Math.max(2, Math.round(pw / 9));
+      for (let i = 0; i < bunches; i++) {
+        const cx = px + ((i + 0.5) / bunches) * pw + dx * 0.4;
+        const cy = py + ph * 0.55 + dy * 0.4;
+        ctx.fillStyle = i % 2 ? dark : lit;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, pw / bunches * 0.7, ph * 0.42, 0, 0, TAU);
+        ctx.fill();
+      }
+      return;
+    }
 
     ctx.strokeStyle = '#241d16';
     ctx.lineWidth = 3.5;
@@ -516,21 +709,361 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.lineTo(tx, ty + 3);
     ctx.stroke();
 
+    // A conifer is a stack of narrowing tiers, not a ball of blobs. Two
+    // silhouettes is what turns a stand of trees into a wood.
+    if (e.def.conifer) {
+      const r = pw * 0.4;
+      for (let tier = 0; tier < 3; tier++) {
+        const t = tier / 3;
+        const ty2 = ty + r * 0.5 - tier * r * 0.42;
+        const width = r * (1 - t * 0.42);
+        ctx.fillStyle = tier === 2 ? lit : dark;
+        ctx.beginPath();
+        ctx.moveTo(tx, ty2 - r * 0.7);
+        ctx.lineTo(tx + width, ty2 + r * 0.25);
+        ctx.lineTo(tx - width, ty2 + r * 0.25);
+        ctx.closePath();
+        ctx.fill();
+      }
+      return;
+    }
+
     // Canopy as overlapping blobs, browning as it burns down.
-    const green = hurt > 0.5 ? 1 : 0.45 + hurt;
     const r = pw * 0.42;
     for (let i = 0; i < 4; i++) {
       const a = (i / 4) * TAU + e.id;
       const ox = Math.cos(a) * r * 0.34;
       const oy = Math.sin(a) * r * 0.28;
-      ctx.fillStyle = `rgba(${Math.round(38 + (1 - green) * 60)}, ${Math.round(62 * green + 18)}, ${Math.round(34 * green + 14)}, 0.95)`;
+      ctx.fillStyle = dark;
       ctx.beginPath();
       ctx.arc(tx + ox, ty + oy, r * 0.62, 0, TAU);
       ctx.fill();
     }
-    ctx.fillStyle = `rgba(${Math.round(60 + (1 - green) * 60)}, ${Math.round(92 * green + 20)}, ${Math.round(52 * green + 16)}, 0.9)`;
+    ctx.fillStyle = lit;
     ctx.beginPath();
     ctx.arc(tx - r * 0.2, ty - r * 0.22, r * 0.5, 0, TAU);
+    ctx.fill();
+  }
+
+  /* ---- the shapes the second wave of props is assembled from ---------- */
+
+  /** Four splayed legs and a tank on top. The classic small-town skyline. */
+  function drawWaterTower(e, px, py, pw, ph, dx, dy, hurt) {
+    const bx = px + pw / 2;
+    const by = py + ph / 2;
+    const tx = bx + dx;
+    const ty = by + dy;
+
+    ctx.strokeStyle = '#39434f';
+    ctx.lineWidth = 2.2;
+    for (const [ox, oy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+      ctx.beginPath();
+      ctx.moveTo(bx + ox * pw * 0.3, by + oy * ph * 0.3);
+      ctx.lineTo(tx + ox * pw * 0.12, ty + ph * 0.1);
+      ctx.stroke();
+    }
+    // Cross-bracing halfway up, which is what makes it read as a structure.
+    ctx.strokeStyle = 'rgba(90, 104, 120, 0.6)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(bx - pw * 0.3, by);
+    ctx.lineTo(tx + pw * 0.12, ty + ph * 0.1);
+    ctx.moveTo(bx + pw * 0.3, by);
+    ctx.lineTo(tx - pw * 0.12, ty + ph * 0.1);
+    ctx.stroke();
+
+    const r = pw * 0.34;
+    const body = ctx.createLinearGradient(tx - r, 0, tx + r, 0);
+    body.addColorStop(0, '#2f3a46');
+    body.addColorStop(0.42, '#4d5b6b');
+    body.addColorStop(1, '#28313b');
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.ellipse(tx, ty, r, r * 0.78, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.beginPath();
+    ctx.ellipse(tx, ty - r * 0.28, r * 0.82, r * 0.34, 0, 0, TAU);
+    ctx.fill();
+    // A conical cap, so the silhouette is not a floating disc.
+    ctx.fillStyle = '#3c4855';
+    ctx.beginPath();
+    ctx.moveTo(tx, ty - r * 1.05);
+    ctx.lineTo(tx + r * 0.5, ty - r * 0.4);
+    ctx.lineTo(tx - r * 0.5, ty - r * 0.4);
+    ctx.closePath();
+    ctx.fill();
+    if (hurt < 0.6) {
+      ctx.strokeStyle = 'rgba(20,26,34,0.7)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(tx - r * 0.5, ty - r * 0.2);
+      ctx.lineTo(tx + r * 0.2, ty + r * 0.5);
+      ctx.stroke();
+    }
+  }
+
+  /** A lattice mast: the tallest thing on the map, and nearly free to draw. */
+  function drawMast(e, px, py, pw, ph, dx, dy, hurt) {
+    const bx = px + pw / 2;
+    const by = py + ph / 2;
+    const tx = bx + dx;
+    const ty = by + dy;
+
+    // Guy wires first, so the lattice sits over them.
+    ctx.strokeStyle = 'rgba(120, 134, 150, 0.22)';
+    ctx.lineWidth = 1;
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(bx + side * pw * 0.55, by + ph * 0.3);
+      ctx.lineTo(tx + (tx - bx) * 0.1, ty + ph * 0.35);
+      ctx.stroke();
+    }
+
+    // Two legs converging, rungs between them.
+    const spread = pw * 0.26;
+    const topSpread = spread * 0.3;
+    ctx.strokeStyle = '#4a5665';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(bx - spread, by + 2);
+    ctx.lineTo(tx - topSpread, ty);
+    ctx.moveTo(bx + spread, by + 2);
+    ctx.lineTo(tx + topSpread, ty);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(96, 112, 130, 0.65)';
+    ctx.lineWidth = 1;
+    const rungs = 7;
+    for (let i = 1; i <= rungs; i++) {
+      const t = i / (rungs + 1);
+      const lx = bx - spread + (tx - topSpread - (bx - spread)) * t;
+      const rx = bx + spread + (tx + topSpread - (bx + spread)) * t;
+      const ry = by + 2 + (ty - by - 2) * t;
+      ctx.beginPath();
+      ctx.moveTo(lx, ry);
+      ctx.lineTo(rx, ry);
+      // Diagonal bracing on alternating bays.
+      if (i % 2 === 0) {
+        ctx.moveTo(lx, ry);
+        ctx.lineTo(rx, ry - (ty - by) / (rungs + 1));
+      }
+      ctx.stroke();
+    }
+
+    // The red light. Slow, out of phase per mast, and only while it lives.
+    if (hurt > 0.35 && ((frameClock + e.id * 7) >> 4) % 5 === 0) {
+      glow(() => {
+        ctx.fillStyle = 'rgba(255, 86, 78, 0.95)';
+        ctx.beginPath();
+        ctx.arc(tx, ty - 1, 2.4, 0, TAU);
+        ctx.fill();
+      });
+    }
+  }
+
+  /** A hoarding on two posts, lit from below. */
+  function drawBillboard(e, px, py, pw, ph, dx, dy, hurt) {
+    const rx = px + dx;
+    const ry = py + dy;
+
+    ctx.strokeStyle = '#333c47';
+    ctx.lineWidth = 2.4;
+    for (const fx of [px + pw * 0.24, px + pw * 0.76]) {
+      ctx.beginPath();
+      ctx.moveTo(fx, py + ph - 2);
+      ctx.lineTo(fx + dx, ry + ph * 0.7);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = '#4a4033';
+    ctx.fillRect(rx, ry, pw, ph * 0.72);
+    // A washed-out poster: two bands and a block of colour, no text — text at
+    // this size is noise, and the shape alone reads as advertising.
+    const tone = hash2(e.id, e.cx) > 0.5 ? 'rgba(196, 122, 74, ' : 'rgba(94, 136, 168, ';
+    ctx.fillStyle = tone + (hurt > 0.5 ? '0.55)' : '0.28)');
+    ctx.fillRect(rx + 2, ry + 2, pw - 4, ph * 0.34);
+    ctx.fillStyle = 'rgba(228, 224, 214, 0.16)';
+    ctx.fillRect(rx + 2, ry + ph * 0.42, pw * 0.55, ph * 0.16);
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(rx + 0.5, ry + 0.5, pw - 1, ph * 0.72);
+
+    if (hurt > 0.4) {
+      glow(() => {
+        ctx.fillStyle = 'rgba(255, 226, 170, 0.10)';
+        ctx.fillRect(rx, ry + ph * 0.72, pw, 3);
+      });
+    }
+  }
+
+  /** A grain silo: a tall cylinder with a domed cap and a hazard band. */
+  function drawSilo(e, px, py, pw, ph, dx, dy, hurt) {
+    const cx = px + pw / 2;
+    const cy = py + ph / 2;
+    const r = pw * 0.34;
+    const ty = cy + dy;
+
+    ctx.fillStyle = '#232c36';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 3, r, r * 0.4, 0, 0, TAU);
+    ctx.fill();
+
+    const body = ctx.createLinearGradient(cx - r, 0, cx + r, 0);
+    body.addColorStop(0, '#333c46');
+    body.addColorStop(0.38, '#5a6675');
+    body.addColorStop(1, '#2a323b');
+    ctx.fillStyle = body;
+    ctx.fillRect(cx - r, ty, r * 2, cy + 3 - ty);
+
+    // Corrugation, which is most of what says "silo" rather than "tank".
+    ctx.strokeStyle = 'rgba(0,0,0,0.16)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 6; i++) {
+      const yy = ty + ((cy + 3 - ty) * i) / 6;
+      ctx.beginPath();
+      ctx.moveTo(cx - r, yy);
+      ctx.lineTo(cx + r, yy);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = '#66727f';
+    ctx.beginPath();
+    ctx.ellipse(cx + dx * 0.35, ty, r, r * 0.42, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#4c5866';
+    ctx.beginPath();
+    ctx.moveTo(cx + dx * 0.35, ty - r * 0.72);
+    ctx.lineTo(cx + dx * 0.35 + r * 0.78, ty + r * 0.1);
+    ctx.lineTo(cx + dx * 0.35 - r * 0.78, ty + r * 0.1);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = hurt > 0.6 ? 'rgba(230, 178, 60, 0.55)' : 'rgba(230, 120, 50, 0.7)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - r, cy - 3);
+    ctx.lineTo(cx + r, cy - 3);
+    ctx.stroke();
+  }
+
+  /** A propane depot: a bank of cylinders behind a wire fence. */
+  function drawDepot(e, px, py, pw, ph, dx, dy, hurt) {
+    ctx.fillStyle = 'rgba(24, 30, 38, 0.85)';
+    ctx.fillRect(px + 1, py + 1, pw - 2, ph - 2);
+
+    // The cylinders, lying down in two rows.
+    const rows = 2;
+    const per = 3;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < per; c++) {
+        const bx = px + 4 + (c * (pw - 8)) / per;
+        const by = py + 5 + (r * (ph - 10)) / rows;
+        const w = (pw - 8) / per - 1.5;
+        const h = (ph - 10) / rows - 1.5;
+        const g = ctx.createLinearGradient(0, by, 0, by + h);
+        g.addColorStop(0, '#6a7280');
+        g.addColorStop(0.5, '#49525e');
+        g.addColorStop(1, '#2c333c');
+        ctx.fillStyle = g;
+        ctx.fillRect(bx, by + dy * 0.25, w, h);
+        ctx.fillStyle = 'rgba(228, 120, 48, 0.55)';
+        ctx.fillRect(bx, by + dy * 0.25 + h * 0.35, w, 1.6);
+      }
+    }
+
+    // Chain-link fence: verticals only, which at this scale reads as mesh.
+    ctx.strokeStyle = 'rgba(150, 164, 180, 0.22)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 6; i++) {
+      const fx = px + (i * pw) / 6;
+      ctx.beginPath();
+      ctx.moveTo(fx, py);
+      ctx.lineTo(fx + dx * 0.5, py + ph + dy * 0.5);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(180, 194, 210, 0.3)';
+    ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+
+    // The hazard placard, which is the whole warning.
+    const sx = px + pw * 0.5;
+    const sy = py + ph * 0.5;
+    ctx.fillStyle = hurt > 0.6 ? 'rgba(236, 176, 48, 0.9)' : 'rgba(236, 90, 48, 0.95)';
+    ctx.beginPath();
+    ctx.moveTo(sx, sy - 4);
+    ctx.lineTo(sx + 4, sy);
+    ctx.lineTo(sx, sy + 4);
+    ctx.lineTo(sx - 4, sy);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  /** A wrecked bus, dead across the carriageway. */
+  function drawVehicle(e, px, py, pw, ph, dx, dy, hurt) {
+    const body = ctx.createLinearGradient(0, py, 0, py + ph);
+    body.addColorStop(0, '#4a4a3e');
+    body.addColorStop(0.55, '#3a3a31');
+    body.addColorStop(1, '#23231d');
+    ctx.fillStyle = body;
+    ctx.fillRect(px + 1, py + ph * 0.16, pw - 2, ph * 0.68);
+
+    // Roof, offset by the parallax so it reads as having height at all.
+    ctx.fillStyle = '#565646';
+    ctx.fillRect(px + 2 + dx * 0.5, py + ph * 0.2 + dy * 0.5, pw - 4, ph * 0.5);
+
+    // Window strip down the side, blown out where it is badly hurt.
+    for (let i = 0; i < 4; i++) {
+      const wx = px + 3 + i * ((pw - 6) / 4);
+      const broken = hash2(e.id + i, e.cx) > (hurt > 0.6 ? 0.75 : 0.3);
+      ctx.fillStyle = broken ? 'rgba(8, 10, 14, 0.9)' : 'rgba(120, 150, 168, 0.35)';
+      ctx.fillRect(wx + dx * 0.5, py + ph * 0.26 + dy * 0.5, (pw - 6) / 4 - 2, ph * 0.22);
+    }
+
+    ctx.fillStyle = '#15161a';
+    for (const wx of [px + pw * 0.2, px + pw * 0.74]) {
+      ctx.beginPath();
+      ctx.ellipse(wx, py + ph * 0.84, pw * 0.09, ph * 0.13, 0, 0, TAU);
+      ctx.fill();
+    }
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(px + 1.5, py + ph * 0.16 + 0.5, pw - 3, ph * 0.68);
+  }
+
+  /** A dry fountain: a basin, a plinth, and no water in it. */
+  function drawFountain(e, px, py, pw, ph, dx, dy) {
+    const cx = px + pw / 2;
+    const cy = py + ph / 2;
+
+    ctx.fillStyle = '#39424e';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, pw * 0.46, ph * 0.38, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#242c36';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, pw * 0.38, ph * 0.3, 0, 0, TAU);
+    ctx.fill();
+    // Silt and leaves in the empty basin.
+    ctx.fillStyle = 'rgba(60, 70, 58, 0.5)';
+    ctx.beginPath();
+    ctx.ellipse(cx - pw * 0.05, cy + ph * 0.04, pw * 0.24, ph * 0.16, 0, 0, TAU);
+    ctx.fill();
+
+    const tx = cx + dx * 0.5;
+    const ty = cy + dy * 0.5;
+    ctx.strokeStyle = '#5b6674';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(tx, ty);
+    ctx.stroke();
+    ctx.fillStyle = '#6b7684';
+    ctx.beginPath();
+    ctx.ellipse(tx, ty, pw * 0.16, ph * 0.11, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.09)';
+    ctx.beginPath();
+    ctx.ellipse(tx - 1, ty - 1.5, pw * 0.1, ph * 0.06, 0, 0, TAU);
     ctx.fill();
   }
 
@@ -1814,11 +2347,16 @@ export function createRenderer(canvas, world, viewerId) {
     addShake(scale * 11 * Math.max(0, 1 - away));
   }
 
-  /** Stamp a scorch mark + crater into the persistent decal layer. */
+  /**
+   * Stamp a scorch mark + crater into the persistent decal layer.
+   *
+   * In decal-layer pixels, not world pixels — the layer is baked at
+   * DECAL_CELL and scaled up at draw time.
+   */
   function stampScorch(x, y, radius) {
-    const px = x * CELL;
-    const py = y * CELL;
-    const r = Math.max(6, radius * CELL * 0.7);
+    const px = x * DECAL_CELL;
+    const py = y * DECAL_CELL;
+    const r = Math.max(6 * (DECAL_CELL / CELL), radius * DECAL_CELL * 0.7);
     const g = decalCtx.createRadialGradient(px, py, 0, px, py, r);
     g.addColorStop(0, 'rgba(8, 8, 10, 0.75)');
     g.addColorStop(0.6, 'rgba(10, 10, 12, 0.4)');
@@ -1829,7 +2367,7 @@ export function createRenderer(canvas, world, viewerId) {
     decalCtx.fill();
     // Rim highlight on the crater's lit side.
     decalCtx.strokeStyle = 'rgba(180, 180, 170, 0.10)';
-    decalCtx.lineWidth = 1.5;
+    decalCtx.lineWidth = 1.5 * (DECAL_CELL / CELL);
     decalCtx.beginPath();
     decalCtx.arc(px, py, r * 0.45, Math.PI * 0.9, Math.PI * 1.7);
     decalCtx.stroke();
@@ -1911,34 +2449,62 @@ export function createRenderer(canvas, world, viewerId) {
     viewWidth,
     viewHeight,
     scale,
+
+    /**
+     * Offscreen pixel budget, in megabytes. There is no way to ask a browser
+     * how much canvas memory it has handed out, so the renderer accounts for
+     * its own — which is what lets a test assert the doubled map still fits
+     * in a phone's budget rather than finding out on a phone.
+     */
+    bufferMegabytes() {
+      const px =
+        terrain.base.width * terrain.base.height +
+        terrain.residentChunks() * (CHUNK * CELL) ** 2 +
+        decalLayer.width * decalLayer.height +
+        fogLayer.width * fogLayer.height;
+      return (px * 4) / (1024 * 1024);
+    },
+    residentChunks: () => terrain.residentChunks(),
   };
 }
 
 /* ------------------------------------------------------------- terrain -- */
 
 /**
- * One-time terrain bake, with actual ground in it.
+ * Terrain bake, with actual ground in it.
  *
  * Multi-octave value noise modulates every cell's tone so the map reads as
  * weathered terrain rather than a grid; rough ground gets rubble, cliffs get
  * faceted rock with a lit north edge, water gets depth banding. All of it is
- * hashed from coordinates — stable across frames, and baked exactly once.
+ * hashed from *map* coordinates — so the same cell paints identically whether
+ * it is being baked into the low-detail base or into a full-detail chunk, and
+ * the two levels line up instead of shimmering against each other.
+ *
+ * Paints cells `[cx0, cx1) × [cy0, cy1)` at `cell` px each, into a context
+ * whose origin is the top-left of that range. Neighbour lookups still read the
+ * whole map, so features that depend on what is next door — cliff edges,
+ * shorelines, contact shadows — come out identical at a chunk boundary.
  */
-function paintTerrain(ctx, world) {
-  const { map } = world;
+function paintTerrainRegion(ctx, map, cell, cx0, cy0, cx1, cy1) {
+  const originX = cx0 * cell;
+  const originY = cy0 * cell;
 
-  for (let y = 0; y < map.height; y++) {
-    for (let x = 0; x < map.width; x++) {
+  for (let y = cy0; y < cy1; y++) {
+    for (let x = cx0; x < cx1; x++) {
       const t = map.terrain[y * map.width + x];
-      const px = x * CELL;
-      const py = y * CELL;
+      const px = x * cell - originX;
+      const py = y * cell - originY;
 
       if (t === 3) {
-        paintWater(ctx, map, x, y, px, py);
+        paintWater(ctx, map, cell, x, y, px, py);
         continue;
       }
       if (t === 2) {
-        paintCliff(ctx, map, x, y, px, py);
+        paintCliff(ctx, map, cell, x, y, px, py);
+        continue;
+      }
+      if (t === 4) {
+        paintRoad(ctx, map, cell, x, y, px, py);
         continue;
       }
 
@@ -1952,7 +2518,12 @@ function paintTerrain(ctx, world) {
       const g = Math.round(base + 6 + n * 4);
       const b = Math.round(base + 13);
       ctx.fillStyle = `rgb(${r},${g},${b})`;
-      ctx.fillRect(px, py, CELL, CELL);
+      ctx.fillRect(px, py, cell, cell);
+
+      // Everything below is per-cell detail measured in pixels. It is scaled
+      // by `k` so the base bake reads as the same ground rather than as the
+      // same ground covered in boulders.
+      const k = cell / CELL;
 
       // Speckle: stones and surface litter, denser on rough ground.
       const specks = rough ? 5 : 2;
@@ -1963,70 +2534,81 @@ function paintTerrain(ctx, world) {
         ctx.fillStyle = bright
           ? `rgba(255,255,255,${rough ? 0.04 : 0.025})`
           : 'rgba(0,0,0,0.10)';
-        const sz = rough ? 2 + hash2(x + i, y) * 3 : 1.5;
-        ctx.fillRect(px + hx * (CELL - 3), py + hy * (CELL - 3), sz, sz);
+        const sz = (rough ? 2 + hash2(x + i, y) * 3 : 1.5) * k;
+        ctx.fillRect(px + hx * (cell - 3 * k), py + hy * (cell - 3 * k), sz, sz);
       }
 
       // Rough ground: broken hatch marks, the classic "slow going" texture.
       if (rough) {
         ctx.strokeStyle = 'rgba(0,0,0,0.13)';
-        ctx.lineWidth = 1;
+        ctx.lineWidth = k;
         const a = hash2(x, y) * TAU;
         ctx.beginPath();
-        ctx.moveTo(px + CELL / 2 - Math.cos(a) * 5, py + CELL / 2 - Math.sin(a) * 5);
-        ctx.lineTo(px + CELL / 2 + Math.cos(a) * 5, py + CELL / 2 + Math.sin(a) * 5);
+        ctx.moveTo(px + cell / 2 - Math.cos(a) * 5 * k, py + cell / 2 - Math.sin(a) * 5 * k);
+        ctx.lineTo(px + cell / 2 + Math.cos(a) * 5 * k, py + cell / 2 + Math.sin(a) * 5 * k);
         ctx.stroke();
       }
 
       // The faintest grid, kept because structure placement reads against it.
-      ctx.strokeStyle = 'rgba(255,255,255,0.016)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(px + 0.5, py + 0.5, CELL, CELL);
+      // Only at full detail: at base resolution a one-pixel line on an
+      // eight-pixel cell is a lattice, not a hint.
+      if (cell === CELL) {
+        ctx.strokeStyle = 'rgba(255,255,255,0.016)';
+        ctx.lineWidth = 1;
+        ctx.strokeRect(px + 0.5, py + 0.5, cell, cell);
+      }
     }
   }
 
   // Contact shadows: passable cells next to cliffs sit in their shade.
-  for (let y = 0; y < map.height; y++) {
-    for (let x = 0; x < map.width; x++) {
+  // A second pass over the same range, because a cell's shadow depends on a
+  // neighbour that may not have been painted yet in the first.
+  const k = cell / CELL;
+  const reach = 8 * k;
+  for (let y = cy0; y < cy1; y++) {
+    for (let x = cx0; x < cx1; x++) {
       const t = map.terrain[y * map.width + x];
       if (!TERRAIN_INFO[t].passable) continue;
+      const px = x * cell - originX;
+      const py = y * cell - originY;
       const cliffLeft = x > 0 && map.terrain[y * map.width + x - 1] === 2;
       const cliffUp = y > 0 && map.terrain[(y - 1) * map.width + x] === 2;
       if (cliffLeft) {
-        const g = ctx.createLinearGradient(x * CELL, 0, x * CELL + 8, 0);
+        const g = ctx.createLinearGradient(px, 0, px + reach, 0);
         g.addColorStop(0, 'rgba(0,0,0,0.28)');
         g.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = g;
-        ctx.fillRect(x * CELL, y * CELL, 8, CELL);
+        ctx.fillRect(px, py, reach, cell);
       }
       if (cliffUp) {
-        const g = ctx.createLinearGradient(0, y * CELL, 0, y * CELL + 8);
+        const g = ctx.createLinearGradient(0, py, 0, py + reach);
         g.addColorStop(0, 'rgba(0,0,0,0.28)');
         g.addColorStop(1, 'rgba(0,0,0,0)');
         ctx.fillStyle = g;
-        ctx.fillRect(x * CELL, y * CELL, CELL, 8);
+        ctx.fillRect(px, py, cell, reach);
       }
     }
   }
 }
 
-function paintCliff(ctx, map, x, y, px, py) {
+function paintCliff(ctx, map, cell, x, y, px, py) {
+  const k = cell / CELL;
   const n = valueNoise(x, y, 0.12);
   const base = 24 + n * 9;
   ctx.fillStyle = `rgb(${Math.round(base)},${Math.round(base + 4)},${Math.round(base + 9)})`;
-  ctx.fillRect(px, py, CELL, CELL);
+  ctx.fillRect(px, py, cell, cell);
 
   // Rock facets: angular shards, lit from the north-west.
   for (let i = 0; i < 3; i++) {
-    const hx = hash2(x * 71 + i, y * 37) * CELL;
-    const hy = hash2(x * 23, y * 83 + i) * CELL;
-    const sz = 4 + hash2(x + i, y * 3) * 8;
+    const hx = hash2(x * 71 + i, y * 37) * cell;
+    const hy = hash2(x * 23, y * 83 + i) * cell;
+    const sz = (4 + hash2(x + i, y * 3) * 8) * k;
     const lit = hash2(x * 3 + i, y * 5) > 0.55;
     ctx.fillStyle = lit ? 'rgba(130, 145, 160, 0.18)' : 'rgba(0, 0, 0, 0.28)';
     ctx.beginPath();
     ctx.moveTo(px + hx, py + hy);
-    ctx.lineTo(px + Math.min(CELL, hx + sz), py + hy + sz * 0.4);
-    ctx.lineTo(px + hx + sz * 0.3, py + Math.min(CELL, hy + sz));
+    ctx.lineTo(px + Math.min(cell, hx + sz), py + hy + sz * 0.4);
+    ctx.lineTo(px + hx + sz * 0.3, py + Math.min(cell, hy + sz));
     ctx.closePath();
     ctx.fill();
   }
@@ -2035,16 +2617,69 @@ function paintCliff(ctx, map, x, y, px, py) {
   const above = y > 0 ? map.terrain[(y - 1) * map.width + x] : 2;
   if (TERRAIN_INFO[above].passable) {
     ctx.fillStyle = 'rgba(160, 175, 190, 0.22)';
-    ctx.fillRect(px, py, CELL, 2.5);
+    ctx.fillRect(px, py, cell, 2.5 * k);
   }
   const below = y < map.height - 1 ? map.terrain[(y + 1) * map.width + x] : 2;
   if (TERRAIN_INFO[below].passable) {
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
-    ctx.fillRect(px, py + CELL - 2, CELL, 2);
+    ctx.fillRect(px, py + cell - 2 * k, cell, 2 * k);
   }
 }
 
-function paintWater(ctx, map, x, y, px, py) {
+/**
+ * Tarmac.
+ *
+ * Roads are the fastest ground in the game, so they have to *read* as the
+ * fastest ground from across the map — which means a colour and a direction,
+ * not just a different noise seed. The centre line is what supplies the
+ * direction: it runs along the road, so a junction is legible as a junction
+ * and a player can see where the network goes without following it.
+ *
+ * The kerb is drawn on edges that face away from other road cells, which is
+ * what stops a two-lane road looking like two one-lane roads.
+ */
+function paintRoad(ctx, map, cell, x, y, px, py) {
+  const k = cell / CELL;
+  const isRoad = (dx, dy) => {
+    const nx = x + dx;
+    const ny = y + dy;
+    if (nx < 0 || ny < 0 || nx >= map.width || ny >= map.height) return false;
+    return map.terrain[ny * map.width + nx] === 4;
+  };
+
+  const n = valueNoise(x, y, 0.09);
+  const base = 44 + n * 8;
+  ctx.fillStyle = `rgb(${Math.round(base)},${Math.round(base + 2)},${Math.round(base + 6)})`;
+  ctx.fillRect(px, py, cell, cell);
+
+  // Patches and repairs — a uniform slab reads as a placeholder.
+  for (let i = 0; i < 2; i++) {
+    if (hash2(x * 31 + i, y * 17) < 0.72) continue;
+    const hx = hash2(x * 13 + i, y * 7) * cell * 0.6;
+    const hy = hash2(x * 5, y * 23 + i) * cell * 0.6;
+    ctx.fillStyle = hash2(x + i, y) > 0.5 ? 'rgba(0,0,0,0.16)' : 'rgba(255,255,255,0.028)';
+    ctx.fillRect(px + hx, py + hy, cell * 0.34, cell * 0.3);
+  }
+
+  const horizontal = isRoad(-1, 0) || isRoad(1, 0);
+  const vertical = isRoad(0, -1) || isRoad(0, 1);
+
+  // Kerbs on the outward-facing edges only.
+  ctx.fillStyle = 'rgba(150, 160, 172, 0.13)';
+  if (!isRoad(0, -1)) ctx.fillRect(px, py, cell, 1.5 * k);
+  if (!isRoad(0, 1)) ctx.fillRect(px, py + cell - 1.5 * k, cell, 1.5 * k);
+  if (!isRoad(-1, 0)) ctx.fillRect(px, py, 1.5 * k, cell);
+  if (!isRoad(1, 0)) ctx.fillRect(px + cell - 1.5 * k, py, 1.5 * k, cell);
+
+  // Centre dashes, only on a straight run — a junction has no centre line.
+  if (horizontal !== vertical && hash2(x * 3, y * 3) > 0.32) {
+    ctx.fillStyle = 'rgba(214, 198, 120, 0.20)';
+    if (horizontal) ctx.fillRect(px + cell * 0.2, py + cell / 2 - k, cell * 0.6, 2 * k);
+    else ctx.fillRect(px + cell / 2 - k, py + cell * 0.2, 2 * k, cell * 0.6);
+  }
+}
+
+function paintWater(ctx, map, cell, x, y, px, py) {
   // Depth: darker away from shore, banded like a survey chart.
   let shore = 0;
   for (let dy = -1; dy <= 1; dy++) {
@@ -2060,15 +2695,16 @@ function paintWater(ctx, map, x, y, px, py) {
   const g = Math.round(40 + n * 5 + shore * 5);
   const b = Math.round(58 + n * 6 + shore * 6);
   ctx.fillStyle = `rgb(${r},${g},${b})`;
-  ctx.fillRect(px, py, CELL, CELL);
+  ctx.fillRect(px, py, cell, cell);
 
   // Sparse still-water highlights.
   if (hash2(x * 5, y * 9) > 0.86) {
+    const k = cell / CELL;
     ctx.strokeStyle = 'rgba(140, 190, 220, 0.07)';
-    ctx.lineWidth = 1;
+    ctx.lineWidth = k;
     ctx.beginPath();
-    ctx.moveTo(px + 3, py + CELL * hash2(x, y));
-    ctx.lineTo(px + CELL - 3, py + CELL * hash2(x, y));
+    ctx.moveTo(px + 3 * k, py + cell * hash2(x, y));
+    ctx.lineTo(px + cell - 3 * k, py + cell * hash2(x, y));
     ctx.stroke();
   }
 }

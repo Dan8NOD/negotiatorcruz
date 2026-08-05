@@ -10,6 +10,7 @@ import { createWorld, tick } from '../engine/sim.js';
 import { updateAI } from '../engine/ai.js';
 import { vacate } from '../engine/grid.js';
 import { spawnBuilding } from '../engine/entities.js';
+import { TERRAIN } from '../engine/content.js';
 
 /** A two-player world with nothing running yet. */
 export function makeWorld(overrides = {}) {
@@ -40,7 +41,12 @@ export function makeBareWorld(overrides = {}) {
 export function makeEmptyWorld(overrides = {}) {
   const world = makeWorld(overrides);
   for (const [id, e] of world.entities) {
-    if (e.kind === 'building') vacate(world.map, e.size, e.cx, e.cy);
+    // Props claim cells exactly as buildings do — the engine's own
+    // `killEntity` releases both — so deleting one without vacating leaves a
+    // cell nothing occupies and nothing can enter. That was invisible while
+    // maps carried a hundred props and the tests looked elsewhere; on a
+    // doubled map with four hundred it is a minefield of dead cells.
+    if (e.kind === 'building' || e.kind === 'prop') vacate(world.map, e.size, e.cx, e.cy);
     world.entities.delete(id);
   }
   return world;
@@ -61,6 +67,33 @@ export function makeArena(overrides = {}) {
   const [a, b] = world.map.starts;
   spawnBuilding(world, 'command', 0, a.x - 1, a.y - 1, { complete: true });
   spawnBuilding(world, 'command', 1, b.x - 1, b.y - 1, { complete: true });
+  return world;
+}
+
+/**
+ * Flatten a rectangle to bare, empty ground.
+ *
+ * A test that asserts something about walkability needs to *know* the cells
+ * it is using are walkable. Picking a cell in the middle of a generated map
+ * and hoping is how "a prop blocks its cell" came to depend on seed 1234
+ * happening to put open ground at (30, 30) — which stopped being true the
+ * moment the maps changed size, in a test that has nothing to do with either.
+ *
+ * Deliberately does not touch `occupied` outside the rectangle, so the
+ * Command Rigs in their corners keep the match running.
+ */
+export function clearGround(world, x0, y0, x1, y1) {
+  const { map } = world;
+  for (let y = y0; y <= y1; y++) {
+    for (let x = x0; x <= x1; x++) {
+      if (x < 1 || y < 1 || x >= map.width - 1 || y >= map.height - 1) continue;
+      const i = y * map.width + x;
+      map.terrain[i] = TERRAIN.GROUND;
+      map.resource[i] = 0;
+      map.resourceMax[i] = 0;
+      map.occupied[i] = 0;
+    }
+  }
   return world;
 }
 
