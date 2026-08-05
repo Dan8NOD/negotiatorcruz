@@ -623,8 +623,15 @@ function startMatch(config, { mission, resume = null, watch = null }) {
    * phone than on a desktop, because there is no tooltip to explain it.
    */
   function renderTouchControls() {
+    // The stick is shown whenever there is anything to drive, not only while
+    // driving. Hiding it the moment an order is issued strands a phone player
+    // outside the cockpit for the rest of the mission: touching the stick is
+    // the only way back in, and `C` does not exist on a phone. Dimmed when
+    // idle so it still reads as "not currently flying anything".
     const driven = input.drivenEntity();
-    stick.hidden = !driven;
+    const drivable = driven || input.drivableUnit();
+    stick.hidden = !drivable;
+    stick.classList.toggle('idle', !driven);
 
     const selected = input.selectedEntities();
     const chassis = selected.find((e) => e.ability);

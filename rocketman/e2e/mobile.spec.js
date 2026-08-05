@@ -192,6 +192,41 @@ test('a tap orders, where a drag did not', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
+test('an order does not strand you outside the cockpit', async ({ page }) => {
+  // Found in review. The stick used to be hidden whenever you were not
+  // driving, and touching the stick is the *only* way into the cockpit on a
+  // phone — `C` does not exist there. So the first tap-to-move, long press or
+  // Attack button ended direct control for the rest of the mission, with no
+  // affordance left to get it back.
+  const errors = watchErrors(page);
+  await startMission(page);
+  expect((await state(page)).driving).toBe(true);
+
+  // Any order drops direct control, by design.
+  await page.touchscreen.tap(560, 210);
+  await page.waitForTimeout(300);
+  expect((await state(page)).driving).toBe(false);
+
+  // The stick must still be there — dimmed, but present and pressable.
+  const stick = page.locator('#stick');
+  await expect(stick).toBeVisible();
+  await expect(stick).toHaveClass(/idle/);
+
+  // And touching it puts you back in the seat.
+  const box = await stick.boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2 + 38, box.y + box.height / 2, { steps: 3 });
+  await page.waitForTimeout(900);
+  await page.mouse.up();
+
+  const after = await state(page);
+  expect(after.driving).toBe(true);
+  await expect(stick).not.toHaveClass(/idle/);
+
+  expect(errors).toEqual([]);
+});
+
 test('the roster bar is reachable and jumps the camera', async ({ page }) => {
   const errors = watchErrors(page);
   await startMission(page);

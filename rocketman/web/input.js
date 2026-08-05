@@ -1168,6 +1168,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     updateSteering,
     drivenEntity,
     attachStick,
+    drivableUnit: pickDrivable,
     armAttackMove,
     isTouch,
     setDriving,

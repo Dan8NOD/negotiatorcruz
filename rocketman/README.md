@@ -15,7 +15,7 @@ npm run serve                 # http://127.0.0.1:4321
 open http://127.0.0.1:4321/rocketman/web/rocketman.html
 
 npm run test:rocketman        # 397 simulation tests
-npm run test:rocketman:e2e    # 44 browser tests, six of them on a phone viewport
+npm run test:rocketman:e2e    # 45 browser tests, seven of them on a phone viewport
 ```
 
 ---
@@ -358,7 +358,7 @@ translation:
 | Tap one of yours | Select it |
 | Tap the ground or an enemy | Move there, or attack it |
 | Long press | Attack-move — the deliberate version |
-| Thumbstick, bottom left | Drive your pilot |
+| Thumbstick, bottom left | Drive your pilot — dimmed when idle, touch it to take the cockpit |
 | Round buttons, right edge | Chassis ability, Skyfall, attack-move |
 
 Drag-versus-tap is decided by distance and time rather than by a mode: under
