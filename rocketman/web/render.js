@@ -31,6 +31,22 @@ import { isVisible, isExplored } from '../engine/vision.js';
 const NEUTRAL = '#8b98a6';
 const TAU = Math.PI * 2;
 
+/**
+ * Spark colour per warhead, so an impact says which warhead landed.
+ *
+ * The counter triangle is the game's central decision and it is otherwise
+ * invisible at the moment of contact — the damage number never appears, so
+ * without this the only way to know an energy weapon is chewing through your
+ * heavy plate is to watch the health bar and infer. Colour makes it readable
+ * in peripheral vision, which is where most of an RTS is played.
+ */
+const IMPACT_TINTS = {
+  kinetic: [255, 190, 110],
+  explosive: [255, 150, 70],
+  energy: [130, 240, 255],
+  emp: [190, 220, 255],
+};
+
 /** Deterministic 2D hash → [0,1). Terrain detail must not shimmer between
  *  frames, so anything baked derives from coordinates, never Math.random. */
 function hash2(x, y) {
@@ -1427,7 +1443,14 @@ export function createRenderer(canvas, world, viewerId) {
       }
 
       if (p.type === 'spark') {
-        ctx.fillStyle = `rgba(255, ${150 + Math.round(life * 80)}, 90, ${life})`;
+        if (p.tint) {
+          // Warhead-coloured. Hot in the middle of its life, fading to the
+          // warhead's own colour as it cools.
+          const [r, g, b] = p.tint;
+          ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${life})`;
+        } else {
+          ctx.fillStyle = `rgba(255, ${150 + Math.round(life * 80)}, 90, ${life})`;
+        }
         const s = p.size * (0.4 + life);
         ctx.fillRect(x - s / 2, y - s / 2, s, s);
       } else if (p.type === 'flame' || p.type === 'fire') {
@@ -1845,10 +1868,17 @@ export function createRenderer(canvas, world, viewerId) {
           addParticle('flash', ev.x + Math.cos(a) * 0.5, ev.y + Math.sin(a) * 0.5, { size: 5 });
           break;
         }
-        case 'impact':
+        case 'impact': {
+          // The warhead rides along on the event, so an arrival looks like
+          // what arrived: kinetic throws hot orange, energy throws cyan, EMP
+          // throws pale blue and throws more of it because it is the only
+          // warhead whose whole point is that you can see it did something.
+          const tint = IMPACT_TINTS[ev.damageType] || null;
           addParticle('flash', ev.x, ev.y, { size: 4 });
-          for (let i = 0; i < 4; i++) addParticle('spark', ev.x, ev.y);
+          const count = ev.damageType === 'emp' ? 7 : 4;
+          for (let i = 0; i < count; i++) addParticle('spark', ev.x, ev.y, { tint });
           break;
+        }
         case 'explosion': {
           const big = !!ev.big;
           fireball(ev.x, ev.y, big ? (ev.radius || 3) : 1.2, big ? 1 : 0.45);

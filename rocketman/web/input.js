@@ -77,7 +77,17 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   let steerX = 0;
   let steerY = 0;
 
-  const emit = (cmd) => commands.push(cmd);
+  /**
+   * Every command in this file goes through here, which is exactly why the
+   * acknowledgement hangs off it: one funnel, so no order can be added later
+   * that forgets to answer. `steer` is the exception the funnel has to know
+   * about — driving sends a command every time the stick changes, and a mech
+   * that says "moving out" thirty times a second is a malfunction.
+   */
+  const emit = (cmd) => {
+    commands.push(cmd);
+    if (hooks.onCommand && cmd.type !== 'steer') hooks.onCommand(cmd);
+  };
   const notify = (msg) => hooks.onMessage && hooks.onMessage(msg);
 
   /* -------------------------------------------------------- selection -- */

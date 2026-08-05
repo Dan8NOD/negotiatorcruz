@@ -14,8 +14,8 @@ build step, no bundler and no runtime dependency.
 npm run serve                 # http://127.0.0.1:4321
 open http://127.0.0.1:4321/rocketman/web/rocketman.html
 
-npm run test:rocketman        # 397 simulation tests
-npm run test:rocketman:e2e    # 44 browser tests, six of them on a phone viewport
+npm run test:rocketman        # 530 simulation tests
+npm run test:rocketman:e2e    # 49 browser tests, six of them on a phone viewport
 ```
 
 ---
@@ -391,13 +391,81 @@ not a wall.
 | Control groups | `Ctrl`+`0`–`9` to set, `0`–`9` to recall |
 | Build menu (Command Rig selected) | `1`–`7`, Shift to keep placing |
 | Pause / speed | `Space` / `+` / `−` |
-| Mute sound | `M` |
+| Mute sound | `M`, or the Sound button in the top bar |
+
+---
+
+## Sound
+
+Every noise in the game is synthesised from oscillators and filtered noise at
+the moment it is needed. There are no sample files, there is no audio
+directory, and there is not going to be one: the game is drawn from vectors and
+stats, and it sounds the way it looks.
+
+`web/sound.js` is a second listener on the `world.events` stream the renderer
+already consumes. It reads world state and never writes it, which puts it on
+the same side of the determinism wall as the sparks.
+
+### Every weapon has a voice
+
+Fourteen weapons, fourteen recipes, and a test that fails if two of them are
+the same sound — the same rule the damage table lives under, where a warhead
+that never beats another warhead is dead content. Rate of fire separates a
+storm repeater from a siege mortar for free, so the recipes work the other axis
+and separate them by *timbre*: a rail spike is a capacitor emptying, a
+scattergun is a door closing, an arc projector is a crackle across a gap.
+
+Loudness runs inverse to rate of fire. The storm repeater is the quietest thing
+in the game per shot because it fires twenty-three times in the window a mortar
+fires once, and a mix that treats those equally is a mix where the repeater is
+the only thing anyone can hear.
+
+### The warhead is audible, and visible, on arrival
+
+The counter triangle is the central decision in the game and it used to be
+invisible at the point of contact. The `impact` event now carries its warhead,
+so kinetic pings off plate and throws hot orange, energy sizzles and throws
+cyan, EMP crackles and throws pale blue — readable in peripheral vision, which
+is where most of an RTS is actually played.
+
+### Machines answer; the base clicks
+
+Command & Conquer answered every order with a voice line, and half of why those
+games feel responsive is that the acknowledgement arrives before the unit has
+moved a pixel. There are no voice samples here, so the acknowledgement is built
+the way a vocal tract builds one: a sawtooth at speech pitch through two
+resonant band-passes sitting where a human's first and second formants sit for
+that vowel, high-passed into a radio. It does not say a word and is not trying
+to.
+
+The split that matters is who is answering. An order given to a machine with a
+pilot in it gets a voice; an order given to the base gets a click. Selling a
+refinery is something you did with a mouse. Telling a Kestrel to walk into a
+fight is something somebody else has to carry out.
+
+Every command in `input.js` passes through one `emit` funnel, and the
+acknowledgement hangs off that funnel rather than off the call sites, so an
+order added later cannot forget to answer.
+
+### The mixer
+
+Two buses into a compressor. World sound is spatial and expendable — it pans,
+it fades with distance, and it is the first thing dropped when the voice
+ceiling is reached. Interface sound is centred and never dropped, because an
+acknowledgement that goes missing reads as an *order* that went missing and the
+player will click again.
+
+The ceiling is 28 concurrent voices. Without one, a fuel depot chain reaction
+schedules hundreds of oscillators in a frame and the tab stalls; past the
+ceiling new world sounds are dropped rather than queued, because a sound that
+arrives late is worse than one that never arrived — it desynchronises from the
+picture.
 
 ---
 
 ## Testing
 
-199 simulation tests and 11 browser tests. The ones worth knowing about:
+530 simulation tests and 49 browser tests. The ones worth knowing about:
 
 - **Determinism** — two runs of the same seed and commands stay identical for a
   whole match; the engine never calls `Math.random`.
@@ -425,6 +493,12 @@ not a wall.
   must yield a playable campaign, not a crashed page. Unknown upgrades, pilots
   and missions are dropped rather than carried, so deleting content never
   bricks a save.
+- **Sound is content too** — every weapon has a voice, no two weapons share
+  one, and the browser suite renders each of the fourteen through an
+  `OfflineAudioContext` and measures the waveform. A recipe can differ on paper
+  and still come out sounding like its neighbour; only a rendered buffer says
+  which. That test is what caught the turret gun being an autocannon with the
+  numbers nudged.
 
 ---
 
@@ -444,10 +518,9 @@ determinism guarantee above, and expensive without it.
    re-simulation *is* loading. There is no separate snapshot format to
    version or corrupt. (The `world`-plus-`rng.state()` snapshot this list
    used to propose would have been exactly that second format.)
-3. ~~**Sound.**~~ Done — `web/sound.js`, synthesised from WebAudio primitives
-   with zero asset files, spatialised left/right from the camera, fed by the
-   same `world.events` stream the renderer reads. `M` mutes; the choice
-   persists.
+3. ~~**Sound.**~~ Done — see below. `web/sound.js`, synthesised from WebAudio
+   primitives with zero asset files, fed by the same `world.events` stream the
+   renderer reads.
 4. **Art.** Every chassis is currently drawn from its stats — a polygon whose
    silhouette comes from its role. That was a choice: the game had to be
    legible before it was pretty. Sprites drop into `render.js` alone.

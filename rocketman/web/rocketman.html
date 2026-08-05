@@ -1511,6 +1511,11 @@
           <span>Piloting</span><b id="controlName">&mdash;</b>
         </div>
         <div class="spacer">Space to pause &middot; +/- for speed &middot; C for direct control</div>
+        <!-- M mutes, but a phone has no M. Without this button the touch
+             build has no way to turn the sound off at all. -->
+        <button type="button" id="muteToggle" class="ghost small" title="Mute (M)" aria-pressed="false">
+          Sound
+        </button>
         <button type="button" id="quitMatch" class="ghost small">Abandon</button>
       </div>
 
