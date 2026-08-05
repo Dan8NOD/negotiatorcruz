@@ -14,8 +14,8 @@ build step, no bundler and no runtime dependency.
 npm run serve                 # http://127.0.0.1:4321
 open http://127.0.0.1:4321/rocketman/web/rocketman.html
 
-npm run test:rocketman        # 414 simulation tests
-npm run test:rocketman:e2e    # 47 browser tests, eight of them on a phone viewport
+npm run test:rocketman        # the simulation suite — 400+ tests
+npm run test:rocketman:e2e    # the browser suite, eight of them on a phone viewport
 ```
 
 ---
@@ -429,7 +429,11 @@ not a wall.
 
 ## Testing
 
-414 simulation tests and 47 browser tests. The ones worth knowing about:
+Four hundred–odd simulation tests and around fifty browser tests. Exact counts
+deliberately not quoted — a number written in prose drifts from the code the
+moment either moves, which is the whole reason this file now carries a
+drift guard for the two numbers that actually matter. The tests worth knowing
+about:
 
 - **Determinism** — two runs of the same seed and commands stay identical for a
   whole match; the engine never calls `Math.random`.

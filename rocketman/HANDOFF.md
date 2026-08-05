@@ -64,8 +64,8 @@ rocketman/
     input.js     mouse, keyboard, driving, and the whole touch layer
     main.js      wiring, HUD, roster, camera
     rocketman.html   layout, CSS, safe-area handling
-  test/        414 node:test simulation tests
-  e2e/         47 Playwright browser tests (8 on a phone viewport)
+  test/        the simulation suite, 400+ node:test tests
+  e2e/         the browser suite, ~50 Playwright tests (8 on a phone viewport)
   swift/       SwiftPM conformance port — iOS only, see caveat below
   tools/       export-fixtures.mjs, build-single-file.mjs
   dist/        rocketman.html — the whole game as one ~350 KB file
@@ -77,8 +77,8 @@ rocketman/
 npm run serve                  # http://127.0.0.1:4321
 # then open /rocketman/web/rocketman.html
 
-npm run test:rocketman         # 414 simulation tests
-npm run test:rocketman:e2e     # 47 browser tests
+npm run test:rocketman         # the simulation suite
+npm run test:rocketman:e2e     # the browser suite
 npm run test:rocketman:swift   # 9 Swift conformance tests (needs a Swift toolchain)
 npm run rocketman:fixtures     # regenerate the Swift conformance fixtures
 npm run rocketman:build        # → rocketman/dist/rocketman.html, playable from file://
