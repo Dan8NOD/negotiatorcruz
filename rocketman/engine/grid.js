@@ -319,7 +319,7 @@ function addPark(map, cx, cy, rng) {
 /**
  * Tarmac between the districts.
  *
- * The road network is the reason the map has a shape. Road costs 0.62 against
+ * The road network is the reason the map has a shape. Road costs 0.72 against
  * open ground's 1.0, so the quick way across is *through* the built-up
  * ground, where the buildings block line of sight and the fuel stations are
  * one stray rocket from going up. Going round the outside is safe and slow.

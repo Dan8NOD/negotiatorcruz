@@ -9,6 +9,7 @@
 
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
 
 import {
   UNITS,
@@ -21,7 +22,10 @@ import {
   DAMAGE,
   ARMOR,
   damageMultiplier,
+  TERRAIN,
+  TERRAIN_INFO,
 } from '../engine/content.js';
+import { DEFAULT_MAP_SIZE } from '../engine/grid.js';
 
 describe('units', () => {
   for (const [id, def] of Object.entries(UNITS)) {
@@ -199,4 +203,31 @@ describe('abilities', () => {
       );
     });
   }
+});
+
+describe('the README does not drift from the tables', () => {
+  test('the road cost it quotes is the road cost the game uses', () => {
+    // Written after the prose and the content table disagreed: the README
+    // quoted 0.62, which was the value before the discount was benchmarked
+    // and raised to 0.72. A reader has no way to tell which number is real,
+    // and the one in the design document is the one they will believe.
+    //
+    // The same idea as this repository's Stripe price-drift guard: a number
+    // that lives in two places needs something that notices when they part.
+    const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
+    const quoted = readme.match(/([0-9.]+) against 1\.0/);
+    assert.ok(quoted, 'the README no longer states a road cost — update this test with it');
+    assert.equal(
+      Number(quoted[1]),
+      TERRAIN_INFO[TERRAIN.ROAD].cost,
+      'the README and TERRAIN_INFO disagree about how fast a road is'
+    );
+  });
+
+  test('the map size it quotes is the map size the game generates', () => {
+    const readme = readFileSync(new URL('../README.md', import.meta.url), 'utf8');
+    const quoted = readme.match(/\*\*(\d+)×\d+ cells\*\*/);
+    assert.ok(quoted, 'the README no longer states a map size — update this test with it');
+    assert.equal(Number(quoted[1]), DEFAULT_MAP_SIZE);
+  });
 });

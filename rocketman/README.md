@@ -138,7 +138,7 @@ on the corner reads as a *place*, and a place is something you route through,
 fight over and remember.
 
 Districts are joined by a **road network**, and road is the only terrain that
-costs less than open ground — 0.62 against 1.0. So the fast way across the map
+costs less than open ground — 0.72 against 1.0. So the fast way across the map
 runs through the built-up ground, where buildings block line of sight and the
 fuel is one stray rocket from going up, and the safe way round the outside is
 slow. A player who never notices the roads still has a working map; a player

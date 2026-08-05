@@ -881,7 +881,7 @@ export function createRenderer(canvas, world, viewerId) {
     // A washed-out poster: two bands and a block of colour, no text — text at
     // this size is noise, and the shape alone reads as advertising.
     const tone = hash2(e.id, e.cx) > 0.5 ? 'rgba(196, 122, 74, ' : 'rgba(94, 136, 168, ';
-    ctx.fillStyle = tone + (hurt > 0.5 ? '0.55)' : '0.28)') ;
+    ctx.fillStyle = tone + (hurt > 0.5 ? '0.55)' : '0.28)');
     ctx.fillRect(rx + 2, ry + 2, pw - 4, ph * 0.34);
     ctx.fillStyle = 'rgba(228, 224, 214, 0.16)';
     ctx.fillRect(rx + 2, ry + ph * 0.42, pw * 0.55, ph * 0.16);
@@ -1049,7 +1049,6 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.ellipse(cx - pw * 0.05, cy + ph * 0.04, pw * 0.24, ph * 0.16, 0, 0, TAU);
     ctx.fill();
 
-    ctx.fillStyle = '#4c576620';
     const tx = cx + dx * 0.5;
     const ty = cy + dy * 0.5;
     ctx.strokeStyle = '#5b6674';
