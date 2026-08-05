@@ -221,6 +221,29 @@ tablet because nothing can.
 
 [sba]: https://developer.amazon.com/apps-and-games/small-business-program
 
+### If this app ever sells anything
+
+It does not today, and that is why it is submittable as it stands: Rocketman on
+Fire is a standalone game with no account, no balance and no purchase.
+
+`mixmatch/` describes where this is going — a token arcade where a game round is
+priced as a coin, on rails that already run through **Stripe** ($15 top-up,
+$5/month). That model cannot cross onto a Fire tablet unchanged:
+
+- **Amazon requires its own In-App Purchasing API for digital goods.** Selling
+  tokens inside the Fire build through a Stripe Payment Link is not a supported
+  route, and the store takes its cut through IAP.
+- **Google Play Billing is not an alternative here.** It needs Google Mobile
+  Services, which Fire tablets do not have — so the Play port and the Fire port
+  will need two separate purchase paths regardless.
+- The dependency block would stop being empty, and the manifest would need
+  `INTERNET` — which costs this build the "no permissions at all" line that
+  currently answers the privacy questionnaire on its own.
+
+None of that is a reason to delay shipping the game. It is a reason to ship it
+**now, free and standalone**, and treat token integration as a second version
+with its own store review.
+
 ### Store assets
 
 ```bash

@@ -9,6 +9,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { marchToVictory, expectMissionComplete, BOOT } from './helpers.js';
 
 const PAGE = '/rocketman/web/rocketman.html';
 
@@ -46,7 +47,7 @@ async function startMatch(page, { seed = '7', difficulty = 'normal' } = {}) {
   await page.selectOption('#difficulty', difficulty);
   await page.click('#start');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   return {
     errors,
@@ -62,7 +63,7 @@ async function startMission(page, index = 1) {
   await page.locator('.mission').nth(index - 1).click();
   await page.click('#deployMission');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   return { errors, state: () => page.evaluate(() => window.__rocketman()) };
 }
@@ -92,7 +93,7 @@ test('choosing a faction is reflected in the match that starts', async ({ page }
   await page.click('#playSkirmish');
   await page.locator('#factionList .faction', { hasText: 'Bulwark' }).click();
   await page.click('#start');
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   const state = await page.evaluate(() => window.__rocketman());
   expect(state.players[0].faction).toBe('bulwark');
@@ -144,7 +145,7 @@ test('a structure can be sited and built, and it charges scrap', async ({ page }
   await page.keyboard.press('b');
   const before = await match.state();
 
-  await page.keyboard.press('1'); // Reactor
+  await page.keyboard.press('r'); // Reactor
 
   // Try a few spots around the base rather than trusting one pixel. The
   // Command Rig sits under the camera centre and the starting wreck field is
@@ -324,46 +325,11 @@ test('a mission can be won, and it pays out and unlocks the next one', async ({ 
   test.setTimeout(240000);
   const match = await startMission(page, 1);
 
-  // Campaign missions now start in the cockpit, where `a` steers the pilot
-  // west rather than issuing an attack-move. C hands control back to the RTS
-  // scheme this spec exercises.
-  await page.keyboard.press('c');
+  // The assertion is "this strategy wins" — not "this hardware is quick" or
+  // "this coin lands heads". See marchToVictory for what that costs.
+  const won = await marchToVictory(page);
 
-  await page.keyboard.press('+');
-  await page.keyboard.press('+');
-
-  // March the crew at the enemy corner until the world says it is over.
-  //
-  // Two hard-won properties. The loop is bounded by wall-clock rather than a
-  // round count, because at ×4 the simulation advances as fast as the machine
-  // renders — a fixed round count passes on a fast laptop and starves on a
-  // loaded CI runner. And every round re-selects from the unit the camera was
-  // just centred on, because the one-shot version of this spec secretly rode
-  // on its first order: whether the crew clipped the listening posts'
-  // engagement range on the way past was a coin flip decided by which tick
-  // the click landed on. The assertion is "this strategy wins", not "this
-  // hardware is quick" or "this coin lands heads".
-  const deadline = Date.now() + 150000;
-  while (Date.now() < deadline) {
-    // Re-acquire the crew wherever they are: Tab selects an army unit and
-    // centres the camera on it, so the box-select below always has them on
-    // screen. Then attack-move toward the enemy corner — attack-move engages
-    // whatever it meets, where a plain move walks politely past a listening
-    // post it was sent to within a leash-length of.
-    await page.keyboard.press('Tab');
-    await page.mouse.move(200, 150);
-    await page.mouse.down();
-    await page.mouse.move(1300, 640, { steps: 6 });
-    await page.mouse.up();
-    await page.mouse.move(1150, 620);
-    await page.keyboard.press('a');
-    await page.waitForTimeout(2500);
-
-    const state = await page.evaluate(() => (window.__rocketman ? window.__rocketman() : null));
-    if (!state || state.over) break;
-  }
-
-  await expect(page.locator('#debrief h2')).toContainText('Mission complete', { timeout: 15000 });
+  await expectMissionComplete(page, won);
   await expect(page.locator('#debrief')).toContainText('Mission reward');
   await expect(page.locator('.crewXp')).toContainText('XP');
 
@@ -415,7 +381,7 @@ test('a purchased upgrade reaches the units in the next mission', async ({ page 
   await page.click('#playCampaign');
   await page.locator('.mission').first().click();
   await page.click('#deployMission');
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   const state = await page.evaluate(() => window.__rocketman());
   expect(state.players[0].upgrades).toContain('field_plating');
@@ -480,7 +446,7 @@ test('a structure can be built and then sold back for scrap', async ({ page }) =
   const match = await startMatch(page);
 
   await page.keyboard.press('b');
-  await page.keyboard.press('1'); // Reactor
+  await page.keyboard.press('r'); // Reactor
 
   let placed = null;
   let spot = null;
@@ -519,5 +485,150 @@ test('a structure can be built and then sold back for scrap', async ({ page }) =
   const after = await match.state();
   expect(after.counts['0:reactor']).toBeUndefined();
   expect(after.players[0].scrap).toBeGreaterThan(before.players[0].scrap - 200);
+  expect(match.errors).toEqual([]);
+});
+
+test('an order hits the structure you selected, not an identical one you selected before', async ({
+  page,
+}) => {
+  test.setTimeout(120000);
+  const match = await startMatch(page);
+
+  // Two Reactors. Two, specifically, and undamaged: an identical pair is the
+  // case where the HUD's "skip the rebuild when nothing changed" optimisation
+  // gets it wrong, because nothing visible *has* changed. Same name, same
+  // refund, same hull — byte-identical markup — while the buttons on screen
+  // are still bound to the first one's id.
+  // Sweep a grid around the base rather than trusting hand-picked pixels: the
+  // build radius, the wreck field and the starting units all rule spots out,
+  // and a red "cannot build there" is a correct refusal rather than a bug.
+  const spots = [];
+  for (let y = 200; y <= 560 && spots.length < 2; y += 90) {
+    for (let x = 380; x <= 1000 && spots.length < 2; x += 90) {
+      await page.keyboard.press('b');
+      await page.keyboard.press('r');
+      await page.mouse.move(x, y);
+      await page.mouse.click(x, y);
+      await page.waitForTimeout(260);
+      const s = await match.state();
+      if ((s.counts['0:reactor'] || 0) === spots.length + 1) spots.push([x, y]);
+    }
+  }
+  expect(spots.length).toBe(2);
+
+  // Let both finish, so they are identical rather than one being a site.
+  await page.waitForTimeout(16000);
+
+  const before = await match.state();
+  const reactors = before.structures.filter((s) => s.defId === 'reactor');
+  expect(reactors.length).toBe(2);
+
+  // Select the first, then the second. The second is the one being sold.
+  await page.mouse.click(spots[0][0], spots[0][1]);
+  await page.waitForTimeout(400);
+  await expect(page.locator('#selection')).toContainText('Reactor');
+
+  await page.mouse.click(spots[1][0], spots[1][1]);
+  await page.waitForTimeout(400);
+  const selected = (await match.state()).selection;
+  expect(selected.length).toBe(1);
+  const targeted = selected[0];
+
+  await page.locator('#commands .cmd', { hasText: 'Sell' }).click();
+  await page.waitForTimeout(800);
+
+  const after = await match.state();
+  const left = after.structures.filter((s) => s.defId === 'reactor');
+  expect(left.length).toBe(1);
+  expect(left[0].id).not.toBe(targeted);
+  expect(match.errors).toEqual([]);
+});
+
+test('control groups: assign, recall, add to, and tap twice to go there', async ({ page }) => {
+  // The navigation every player of these games already has in their hands.
+  // On a map this size a group is not just a selection, it is a *place* — and
+  // the double-tap is how you get to it without hunting the minimap.
+  const match = await startMatch(page);
+
+  await page.mouse.move(300, 180);
+  await page.mouse.down();
+  await page.mouse.move(1100, 620, { steps: 8 });
+  await page.mouse.up();
+  await page.waitForTimeout(300);
+
+  const boxed = await match.state();
+  expect(boxed.selection.length).toBeGreaterThan(0);
+  const group = [...boxed.selection].sort((a, b) => a - b);
+
+  // Assign, then clear the selection by clicking empty ground.
+  await page.keyboard.down('Control');
+  await page.keyboard.press('1');
+  await page.keyboard.up('Control');
+  await page.mouse.click(60, 700);
+  await page.waitForTimeout(250);
+  expect((await match.state()).selection.length).toBe(0);
+
+  // Recall.
+  await page.keyboard.press('1');
+  await page.waitForTimeout(250);
+  const recalled = await match.state();
+  expect([...recalled.selection].sort((a, b) => a - b)).toEqual(group);
+
+  // Pan far away, then double-tap the digit to come back to the group.
+  await page.keyboard.down('ArrowRight');
+  await page.waitForTimeout(1400);
+  await page.keyboard.up('ArrowRight');
+  await page.waitForTimeout(200);
+  const away = await match.state();
+
+  await page.keyboard.press('1');
+  await page.waitForTimeout(60);
+  await page.keyboard.press('1');
+  await page.waitForTimeout(300);
+  const back = await match.state();
+  expect(back.camera.x).toBeLessThan(away.camera.x - 1);
+
+  expect(match.errors).toEqual([]);
+});
+
+test('digits are control groups, never build hotkeys', async ({ page }) => {
+  // They used to be both: a digit built a structure until a group was
+  // assigned to it, and silently stopped afterwards. One key, two meanings,
+  // and which one you got depended on something you did ten minutes earlier.
+  const match = await startMatch(page);
+
+  await page.keyboard.press('b'); // select the Command Rig
+  await expect(page.locator('#selection')).toContainText('Command Rig');
+
+  const before = await match.state();
+  await page.keyboard.press('1');
+  await page.mouse.move(440, 250);
+  await page.mouse.click(440, 250);
+  await page.waitForTimeout(400);
+
+  const after = await match.state();
+  expect(after.counts['0:reactor']).toBeUndefined();
+  expect(after.players[0].scrap).toBe(before.players[0].scrap);
+
+  // The letter does build it. R for Reactor, the way these games spell it.
+  await page.keyboard.press('b');
+  await page.keyboard.press('r');
+  let placed = null;
+  for (const [x, y] of [
+    [440, 250],
+    [440, 480],
+    [900, 240],
+    [560, 200],
+  ]) {
+    await page.mouse.move(x, y);
+    await page.mouse.click(x, y);
+    await page.waitForTimeout(400);
+    placed = await match.state();
+    if (placed.counts['0:reactor']) break;
+    await page.keyboard.press('b');
+    await page.keyboard.press('r');
+  }
+  expect(placed.counts['0:reactor']).toBe(1);
+
   expect(match.errors).toEqual([]);
 });

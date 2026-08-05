@@ -14,8 +14,8 @@ build step, no bundler and no runtime dependency.
 npm run serve                 # http://127.0.0.1:4321
 open http://127.0.0.1:4321/rocketman/web/rocketman.html
 
-npm run test:rocketman        # 397 simulation tests
-npm run test:rocketman:e2e    # 44 browser tests, six of them on a phone viewport
+npm run test:rocketman        # the simulation suite — 400+ tests
+npm run test:rocketman:e2e    # the browser suite, eight of them on a phone viewport
 ```
 
 ---
@@ -127,10 +127,34 @@ Three more pieces of the C&C economy:
   so the counter is the same as everything else here: kill the reactors and the
   doomsday clock stops.
 
+### The map is a place
+
+Maps are **144×144 cells** (campaign missions run 112–144), which is roughly
+four times the ground the game shipped with. The extra room is not empty: it
+is filled with **districts** — suburb, downtown, industrial estate, park —
+each rolled once and mirrored, with the count scaled to the map's area. A
+scattering of props reads as scenery; a street of houses with a fuel station
+on the corner reads as a *place*, and a place is something you route through,
+fight over and remember.
+
+Districts are joined by a **road network**, and road is the only terrain that
+costs less than open ground — 0.72 against 1.0. So the fast way across the map
+runs through the built-up ground, where buildings block line of sight and the
+fuel is one stray rocket from going up, and the safe way round the outside is
+slow. A player who never notices the roads still has a working map; a player
+who does has a decision. Roads pave straight through cliff, which is also what
+guarantees the districts are reachable at all.
+
+Terrain itself is **ridgelines with passes cut through them** rather than only
+random blobs. A solid ridge partitions a map; a ridge with three gaps in it is
+a map where holding a gap is worth something.
+
 ### The map is destructible
 
-Terrain carries **scenery you can knock down**: tower blocks, suburban
-streets, ironwood, monuments, fuel stations and tank farms. They are neutral
+Terrain carries **scenery you can knock down**: tower blocks, apartment
+blocks, suburban streets, chapels, warehouses, water towers, relay masts,
+billboards, ironwood and blackpine, hedgerows, monuments, fountains, wrecked
+buses, grain silos, fuel stations, tank farms and a propane depot. They are neutral
 entities, so they inherit the damage pipeline and splash for nothing — and
 they claim grid cells the way structures do, which means the same fact twice:
 A* routes around them, and **destroying one opens a path**. Blowing a hole
@@ -140,6 +164,14 @@ Fuel is the reason to care *where* you fight. A station has cheap hull and an
 enormous blast, and because splash damages props too, a forecourt goes up in a
 chain. Fuel takes explosive damage in full — light armour would multiply it by
 0.55, and a tank that cannot set off the tank beside it is not a tank farm.
+
+The industrial estate is built out of exactly that: fuel tanks, grain silos
+and a propane depot placed close enough to chain, which makes the estate a
+weapon rather than an obstacle. It is the reason to push an enemy into one,
+and the reason not to garrison it yourself. The three hazards are deliberately
+different — the depot is the biggest blast on the map, a silo is a wider,
+softer one (grain dust, which is what really happens), and a bus is barely
+worth noticing until it is under a mech.
 
 Scenery is emphatically **not** the enemy: it is never auto-targeted (or every
 machine in the game would stop to demolish the landscape on its way to a
@@ -358,7 +390,7 @@ rather than a translation:
 | Tap one of yours | Select it |
 | Tap the ground or an enemy | Move there, or attack it |
 | Long press | Attack-move — the deliberate version |
-| Thumbstick, bottom left | Drive your pilot |
+| Thumbstick, bottom left | Drive your pilot — dimmed when idle, touch it to take the cockpit |
 | Round buttons, right edge | Chassis ability, Skyfall, attack-move |
 
 Drag-versus-tap is decided by distance and time rather than by a mode: under
@@ -397,7 +429,11 @@ not a wall.
 
 ## Testing
 
-199 simulation tests and 11 browser tests. The ones worth knowing about:
+Four hundred–odd simulation tests and around fifty browser tests. Exact counts
+deliberately not quoted — a number written in prose drifts from the code the
+moment either moves, which is the whole reason this file now carries a
+drift guard for the two numbers that actually matter. The tests worth knowing
+about:
 
 - **Determinism** — two runs of the same seed and commands stay identical for a
   whole match; the engine never calls `Math.random`.
@@ -478,7 +514,9 @@ determinism guarantee above, and expensive without it.
   mechs and will show its seams at a hundred; flow fields are the fix.
 - Vision is circular rather than line-of-sight traced. Cheap, and "my mech can
   see over that rock" has never lost anyone a game.
-- There is one map generator and one map size.
+- There is one map generator. Size is a parameter (`createMap` takes one, and
+  the campaign varies it from 112 to 144), but every map is the same *kind* of
+  map: two mirrored corners, a road network, four kinds of district.
 - Balance has been tuned against the AI, not against a human. Expect the
   numbers in `content.js` and `progression.js` to move.
 - The campaign's difficulty curve is set by the AI profile per mission. It has

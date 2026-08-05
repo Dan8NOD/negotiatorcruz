@@ -219,7 +219,26 @@ function drainResource(map, cx, cy, amount) {
 }
 
 /** Nearest cell with scrap left, searched outward from a point. */
-export function nearestResourceCell(map, x, y, maxRadius = 30) {
+/**
+ * The nearest cell with scrap still in it.
+ *
+ * `maxRadius` defaults to the whole map, and that default is the point. It
+ * used to be a flat 30 cells, which on a 72-cell map was most of the world —
+ * every field was always in range, so nobody noticed it was a *range* at all.
+ * On a doubled map it is a fifth of the world, and the moment a collector
+ * mines out the field beside its base it can see nothing, returns null, goes
+ * idle, and asks again next tick with the same answer. Forever.
+ *
+ * That is not a slow economy, it is a stopped one: nine collectors and two
+ * refineries producing zero income for the rest of the match, which is how a
+ * skirmish on a big map ends in a twenty-five-minute stalemate neither side
+ * can break.
+ *
+ * A long walk to a far field is a bad trip. It is still infinitely better
+ * than the alternative, and it is the signal a player needs that it is time
+ * to put a Refinery out there.
+ */
+export function nearestResourceCell(map, x, y, maxRadius = map.width + map.height) {
   const ox = Math.floor(x);
   const oy = Math.floor(y);
   let best = null;

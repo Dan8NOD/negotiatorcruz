@@ -21,8 +21,7 @@
  */
 
 import { test, expect } from '@playwright/test';
-
-const PAGE = '/rocketman/web/rocketman.html';
+import { PAGE, BOOT } from './helpers.js';
 
 /*
  * Fire HD 10 (2021 and later): 1920x1200 physical at a devicePixelRatio of 1.5,
@@ -109,7 +108,7 @@ test.describe('Fire OS shell contract', () => {
     await page.tap('#playCampaign');
     await page.locator('.mission').first().tap();
     await page.tap('#deployMission');
-    await page.waitForFunction(() => typeof window.__rocketman === 'function');
+    await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
     await expect(page.locator('#game')).toBeVisible();
 
     // Consumed, so the shell does not close the app mid-mission — and it lands
@@ -127,7 +126,7 @@ test.describe('Fire OS shell contract', () => {
     await page.tap('#playCampaign');
     await page.locator('.mission').first().tap();
     await page.tap('#deployMission');
-    await page.waitForFunction(() => typeof window.__rocketman === 'function');
+    await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
     // A campaign mission starts in the cockpit, so the stick is live. On a
     // 1280px-wide landscape screen a width-based check would have decided this
@@ -143,7 +142,7 @@ test.describe('Fire OS shell contract', () => {
 
     await page.tap('#playSkirmish');
     await page.tap('#start');
-    await page.waitForFunction(() => typeof window.__rocketman === 'function');
+    await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
     // Nothing selected yet, so the selection panel is showing its opening
     // instruction — the first sentence a new player reads. On a Fire tablet
@@ -186,7 +185,7 @@ test.describe('Fire OS shell contract', () => {
     await page.tap('#playCampaign');
     await page.locator('.mission').first().tap();
     await page.tap('#deployMission');
-    await page.waitForFunction(() => typeof window.__rocketman === 'function');
+    await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
     // The shell runs edge to edge with the system bars hidden. A page that
     // overflows would put a scrollbar over the battlefield and eat pan

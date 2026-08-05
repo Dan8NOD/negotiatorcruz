@@ -20,7 +20,7 @@ import { spawnUnit, spawnProp, applyDamage, killEntity } from '../engine/entitie
 import { createMap, isWalkable, findPath } from '../engine/grid.js';
 import { PROPS, NEUTRAL_PLAYER, DAMAGE } from '../engine/content.js';
 import { visibleEnemies } from '../engine/vision.js';
-import { makeArena, run, findEntity, hashWorld } from './helpers.js';
+import { makeArena, clearGround, run, findEntity, hashWorld } from './helpers.js';
 import { advanceTick, createRecorder, record, rebuildWorld } from '../engine/replay.js';
 
 const propsOf = (world) => [...world.entities.values()].filter((e) => e.kind === 'prop' && !e.dead);
@@ -145,7 +145,7 @@ describe('scenery is not the enemy', () => {
 describe('knocking it down', () => {
   test('a prop blocks the grid, and destroying it opens the path', () => {
     // The mechanic, not the cleanup: a flattened tower block is a new route.
-    const w = makeArena();
+    const w = clearGround(makeArena(), 24, 24, 40, 40);
     const cx = 30;
     const cy = 30;
     const tower = spawnProp(w, 'tower', cx, cy);
@@ -156,7 +156,7 @@ describe('knocking it down', () => {
   });
 
   test('A* routes around one and straight through the gap it leaves', () => {
-    const w = makeArena();
+    const w = clearGround(makeArena(), 22, 20, 42, 40);
     // A wall of houses with one door, then close the door.
     const wallX = 30;
     const props = [];
