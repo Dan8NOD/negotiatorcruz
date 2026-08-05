@@ -62,6 +62,16 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   /** Direct control: driving one machine from the keyboard. */
   let driving = false;
   let drivenId = null;
+  /**
+   * Set when the player drags the map while driving.
+   *
+   * The camera normally locks to the machine being driven, which is right
+   * until you are on a phone: there is no C key to escape with, so a locked
+   * camera means that once you take the cockpit you can never look anywhere
+   * else for the rest of the mission. A drag suspends the lock; touching the
+   * stick again — or picking anyone off the roster — restores it.
+   */
+  let cameraFreed = false;
   /** Last steer vector sent, so a held key costs one command and not twenty
    *  a second — which is what keeps a recorded match small. */
   let steerX = 0;
@@ -216,7 +226,17 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     emit({ type: 'move', player: viewerId, ids, x: wx, y: wy, queue: queued });
   }
 
+  /** Next tap on the field is an attack-move, for the touch action button. */
+  let attackMoveArmed = false;
+  function armAttackMove() {
+    attackMoveArmed = true;
+    cancelPlacement();
+    cancelStrike();
+    abilityArmed = false;
+  }
+
   function issueAttackMove(wx, wy, queued) {
+    attackMoveArmed = false;
     setDriving(false);
     const ids = selectedEntities()
       .filter((e) => mine(e) && e.kind === 'unit' && !e.harvest)
@@ -237,6 +257,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
   /** Centre the camera on something, and take the sticks if we are driving. */
   function focusOn(e) {
     if (!e || e.dead) return;
+    cameraFreed = false;
     selectSingle(e, false);
     renderer.centreOn(e.x, e.y);
   }
@@ -324,6 +345,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
       releaseSteering();
       drivenId = null;
       driving = false;
+      cameraFreed = false;
     } else {
       const unit = pickDrivable();
       if (!unit) {
@@ -389,6 +411,7 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     dy = Math.max(-1, Math.min(1, dy));
 
     if (dx === steerX && dy === steerY) return;
+    if (dx !== 0 || dy !== 0) cameraFreed = false;
     steerX = dx;
     steerY = dy;
     emit({ type: 'steer', player: viewerId, ids: [unit.id], dx, dy });
@@ -638,6 +661,301 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     { passive: false }
   );
 
+
+  /* ------------------------------------------------------------ touch -- */
+
+  /**
+   * Touch control.
+   *
+   * An RTS built for drag-select and right-click has *no* working input on a
+   * phone, so this is a second scheme rather than a translation of the first.
+   * The grammar it settles on is the one every touch strategy game has
+   * converged on, because it is the only one that leaves the map draggable:
+   *
+   *   drag           pan the camera — always, on any part of the field
+   *   two fingers    pinch to zoom
+   *   tap a machine  select it
+   *   tap the ground move there (or attack what you tapped)
+   *   long press     attack-move, the deliberate version of the above
+   *
+   * The distinction that makes it work is drag-versus-tap, decided by
+   * distance and time rather than by mode: below TAP_SLOP pixels and
+   * TAP_MS milliseconds it was a tap, otherwise the camera moved and nothing
+   * is ordered. Without that, every attempt to look around issues a move
+   * order to wherever your thumb lifted.
+   */
+  const TAP_SLOP = 12;
+  const TAP_MS = 320;
+  const LONG_PRESS_MS = 420;
+
+  const touch = {
+    /** Live pointers, by pointerId. */
+    points: new Map(),
+    startX: 0,
+    startY: 0,
+    startAt: 0,
+    moved: false,
+    /** Camera position when the drag began, so panning is absolute. */
+    camX: 0,
+    camY: 0,
+    pinchDist: 0,
+    pinchZoom: 1,
+    longPress: null,
+    /** True once a gesture has been claimed by pan/pinch and cannot be a tap. */
+    consumed: false,
+  };
+
+  /** Is this a touch device? Decides whether the on-screen controls exist. */
+  const isTouch =
+    typeof window !== 'undefined' &&
+    (('ontouchstart' in window) || (navigator.maxTouchPoints || 0) > 0);
+
+  function localPoint(ev) {
+    const rect = canvas.getBoundingClientRect();
+    return { x: ev.clientX - rect.left, y: ev.clientY - rect.top };
+  }
+
+  function cancelLongPress() {
+    if (touch.longPress) {
+      clearTimeout(touch.longPress);
+      touch.longPress = null;
+    }
+  }
+
+  canvas.addEventListener(
+    'pointerdown',
+    (ev) => {
+      if (ev.pointerType === 'mouse') return; // the mouse path already works
+      canvas.setPointerCapture(ev.pointerId);
+      const p = localPoint(ev);
+      touch.points.set(ev.pointerId, p);
+
+      if (touch.points.size === 1) {
+        touch.startX = p.x;
+        touch.startY = p.y;
+        touch.startAt = performance.now();
+        touch.moved = false;
+        touch.consumed = false;
+        touch.camX = renderer.camera.x;
+        touch.camY = renderer.camera.y;
+        renderer.state.hoverPixel.x = p.x;
+        renderer.state.hoverPixel.y = p.y;
+
+        // Long press is the deliberate order: attack-move, which is what a
+        // player actually wants when sending an army somewhere contested.
+        cancelLongPress();
+        touch.longPress = setTimeout(() => {
+          if (touch.moved || touch.points.size !== 1) return;
+          touch.consumed = true;
+          const w = renderer.screenToWorld(p.x, p.y);
+          issueAttackMove(w.x, w.y, false);
+          notify('Attack-move ordered.');
+        }, LONG_PRESS_MS);
+      } else if (touch.points.size === 2) {
+        // A second finger turns the gesture into a pinch, and cancels
+        // whatever the first was about to do.
+        cancelLongPress();
+        touch.consumed = true;
+        const [a, b] = [...touch.points.values()];
+        touch.pinchDist = Math.max(1, Math.hypot(a.x - b.x, a.y - b.y));
+        touch.pinchZoom = renderer.camera.zoom;
+      }
+    },
+    { passive: false }
+  );
+
+  canvas.addEventListener(
+    'pointermove',
+    (ev) => {
+      if (ev.pointerType === 'mouse') return;
+      if (!touch.points.has(ev.pointerId)) return;
+      const p = localPoint(ev);
+      touch.points.set(ev.pointerId, p);
+      renderer.state.hoverPixel.x = p.x;
+      renderer.state.hoverPixel.y = p.y;
+
+      if (touch.points.size >= 2) {
+        const [a, b] = [...touch.points.values()];
+        const dist = Math.max(1, Math.hypot(a.x - b.x, a.y - b.y));
+        const midX = (a.x + b.x) / 2;
+        const midY = (a.y + b.y) / 2;
+        // Zoom about the midpoint, so the map grows out from between the
+        // fingers rather than from the middle of the screen.
+        const before = renderer.screenToWorld(midX, midY);
+        renderer.camera.zoom = Math.max(
+          renderer.camera.minZoom,
+          Math.min(renderer.camera.maxZoom, touch.pinchZoom * (dist / touch.pinchDist))
+        );
+        const after = renderer.screenToWorld(midX, midY);
+        renderer.camera.x += before.x - after.x;
+        renderer.camera.y += before.y - after.y;
+        renderer.clampCamera();
+        return;
+      }
+
+      const dx = p.x - touch.startX;
+      const dy = p.y - touch.startY;
+      if (!touch.moved && Math.hypot(dx, dy) > TAP_SLOP) {
+        touch.moved = true;
+        cancelLongPress();
+      }
+      if (!touch.moved) return;
+
+      if (placementDefId) {
+        // Siting a structure: the finger is the cursor, not the camera.
+        updatePlacementPreview();
+        return;
+      }
+
+      // Looking around releases the camera from the cockpit until the player
+      // drives again.
+      cameraFreed = true;
+
+      // Drag the world under the finger. Absolute from the gesture's start,
+      // so a slow drag does not accumulate rounding drift.
+      const s = renderer.scale();
+      renderer.camera.x = touch.camX - dx / s;
+      renderer.camera.y = touch.camY - dy / s;
+      renderer.clampCamera();
+    },
+    { passive: false }
+  );
+
+  function endTouch(ev) {
+    if (ev.pointerType === 'mouse') return;
+    const p = touch.points.get(ev.pointerId);
+    touch.points.delete(ev.pointerId);
+    cancelLongPress();
+    if (!p) return;
+
+    const wasTap =
+      !touch.moved &&
+      !touch.consumed &&
+      touch.points.size === 0 &&
+      performance.now() - touch.startAt < TAP_MS;
+    if (!wasTap) return;
+
+    const w = renderer.screenToWorld(p.x, p.y);
+
+    // Aiming modes consume the tap outright.
+    if (strikeEmitter) {
+      fireStrike(w.x, w.y);
+      return;
+    }
+    if (abilityArmed) {
+      triggerAbility(w.x, w.y);
+      return;
+    }
+    if (placementDefId) {
+      confirmPlacement();
+      return;
+    }
+    if (attackMoveArmed) {
+      issueAttackMove(w.x, w.y, false);
+      return;
+    }
+
+    // A tap on one of ours selects it; a tap on anything else is an order for
+    // whatever is already selected. That ordering matters: it means tapping
+    // your own machine never accidentally walks your army into it.
+    const hit = entityAt(w.x, w.y);
+    if (hit && mine(hit) && hit.kind !== 'prop') {
+      selectSingle(hit, false);
+      return;
+    }
+    if (selection.size > 0) {
+      issueOrder(w.x, w.y, false);
+      return;
+    }
+    selectSingle(hit && renderer.seenBy(hit) ? hit : null, false);
+  }
+
+  canvas.addEventListener('pointerup', endTouch);
+  canvas.addEventListener('pointercancel', (ev) => {
+    touch.points.delete(ev.pointerId);
+    cancelLongPress();
+  });
+
+  /* --------------------------------------------------------- thumbstick -- */
+
+  /**
+   * Analogue stick for direct control.
+   *
+   * Emits the same eight-way `steer` command the arrow keys do rather than a
+   * continuous vector: the engine takes integer intent so that a replay
+   * recorded on a phone and one recorded on a laptop are the same file, and
+   * so a thumb resting a few degrees off-axis does not produce a different
+   * simulation than a keyboard would.
+   */
+  function attachStick(stickEl, nubEl) {
+    if (!stickEl) return;
+    let active = null;
+    const radius = 42;
+
+    const setNub = (dx, dy) => {
+      nubEl.style.transform = `translate(${dx}px, ${dy}px)`;
+    };
+
+    const update = (ev) => {
+      const rect = stickEl.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      let dx = ev.clientX - cx;
+      let dy = ev.clientY - cy;
+      const mag = Math.hypot(dx, dy);
+      if (mag > radius) {
+        dx = (dx / mag) * radius;
+        dy = (dy / mag) * radius;
+      }
+      setNub(dx, dy);
+
+      // Dead zone, then quantise to the eight directions the keyboard has.
+      if (mag < 12) {
+        steerTo(0, 0);
+        return;
+      }
+      const ax = Math.abs(dx);
+      const ay = Math.abs(dy);
+      const sx = ax > mag * 0.38 ? Math.sign(dx) : 0;
+      const sy = ay > mag * 0.38 ? Math.sign(dy) : 0;
+      steerTo(sx, sy);
+    };
+
+    stickEl.addEventListener('pointerdown', (ev) => {
+      ev.preventDefault();
+      active = ev.pointerId;
+      stickEl.setPointerCapture(ev.pointerId);
+      if (!driving) setDriving(true);
+      update(ev);
+    });
+    stickEl.addEventListener('pointermove', (ev) => {
+      if (active !== ev.pointerId) return;
+      ev.preventDefault();
+      update(ev);
+    });
+    const release = (ev) => {
+      if (active !== ev.pointerId) return;
+      active = null;
+      setNub(0, 0);
+      steerTo(0, 0);
+    };
+    stickEl.addEventListener('pointerup', release);
+    stickEl.addEventListener('pointercancel', release);
+  }
+
+  /** Send a steer vector, but only when it actually changed. */
+  function steerTo(dx, dy) {
+    if (!driving) return;
+    const unit = drivenEntity();
+    if (!unit) return;
+    // Driving again re-acquires the camera.
+    if (dx !== 0 || dy !== 0) cameraFreed = false;
+    if (dx === steerX && dy === steerY) return;
+    steerX = dx;
+    steerY = dy;
+    emit({ type: 'steer', player: viewerId, ids: [unit.id], dx, dy });
+  }
+
   /* -------------------------------------------------- keyboard events -- */
 
   const HOTKEY_TO_BUILDING = {};
@@ -849,10 +1167,17 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     emit,
     updateSteering,
     drivenEntity,
+    attachStick,
+    armAttackMove,
+    isTouch,
     setDriving,
     toggleDriving,
     get driving() {
       return driving;
+    },
+    /** Should the camera stay locked to the driven machine this frame? */
+    get cameraFollows() {
+      return driving && !cameraFreed;
     },
     get placementDefId() {
       return placementDefId;

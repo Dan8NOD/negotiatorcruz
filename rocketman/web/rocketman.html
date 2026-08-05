@@ -4,6 +4,15 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <meta name="robots" content="noindex, nofollow" />
+    <!-- Added for the iOS build: run without Safari chrome when saved to the
+         home screen, keep the status bar dark over the battlefield, and stop
+         the OS turning stray numbers in the HUD into phone links. -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Rocketman" />
+    <meta name="format-detection" content="telephone=no" />
+    <meta name="theme-color" content="#080b10" />
     <title>Rocketman — real-time strategy</title>
     <link
       rel="icon"
@@ -837,45 +846,77 @@
 
       /* ----------------------------------------------------------- game -- */
 
+      /* ------------------------------------------------------- the match -- */
+
+      /*
+       * The battlefield is the interface.
+       *
+       * The match screen used to be a three-row grid — bar, field, HUD — which
+       * on a phone in landscape left the game about half the screen. Everything
+       * except the canvas now *floats over* it, so the field is edge to edge
+       * and the UI is a set of translucent panels you can see the ground
+       * through. On a 390pt phone that is the difference between a strategy
+       * game and a letterbox.
+       *
+       * `--safe-*` carry the notch and home-indicator insets. iOS reports them
+       * only when the viewport is `viewport-fit=cover`, which the meta tag
+       * sets; every floating panel is positioned off these rather than off the
+       * raw viewport edge, so nothing lands under the camera housing.
+       */
       #game {
         position: fixed;
         inset: 0;
-        display: grid;
-        grid-template-rows: 40px 1fr auto;
+        display: block;
         padding: 0;
         background: var(--bg);
         overflow: hidden;
+        --safe-t: env(safe-area-inset-top, 0px);
+        --safe-b: env(safe-area-inset-bottom, 0px);
+        --safe-l: env(safe-area-inset-left, 0px);
+        --safe-r: env(safe-area-inset-right, 0px);
       }
 
       #field {
-        position: relative;
-        min-height: 0;
-      }
-
-      #objectives {
         position: absolute;
-        top: 12px;
-        right: 12px;
-        width: 244px;
-        background: rgba(10, 16, 23, 0.9);
-        border: 1px solid var(--line);
-        border-radius: 9px;
-        padding: 10px 13px;
-        pointer-events: none;
+        inset: 0;
       }
 
-      #objectives .obj {
-        font-size: 12.5px;
-        padding: 3px 0;
+      #view {
+        width: 100%;
+        height: 100%;
+        display: block;
+        cursor: crosshair;
+        /* Every gesture belongs to the game: no scroll chaining, no
+           double-tap zoom, no long-press callout, no text selection. */
+        touch-action: none;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-touch-callout: none;
+      }
+
+      /* Floating panels share one look so the field reads through them. */
+      #topbar,
+      #hud,
+      #roster,
+      #objectives,
+      #minimapWrap {
+        position: absolute;
+        background: rgba(9, 14, 20, 0.82);
+        -webkit-backdrop-filter: blur(9px);
+        backdrop-filter: blur(9px);
+        border: 1px solid rgba(80, 104, 130, 0.28);
+        border-radius: 12px;
+        z-index: 2;
       }
 
       #topbar {
+        top: calc(var(--safe-t) + 8px);
+        left: calc(var(--safe-l) + 8px);
+        right: calc(var(--safe-r) + 8px);
         display: flex;
         align-items: center;
-        gap: 22px;
-        padding: 0 16px;
-        background: var(--panel);
-        border-bottom: 1px solid var(--line);
+        gap: 18px;
+        padding: 7px 13px;
         font-variant-numeric: tabular-nums;
       }
 
@@ -911,30 +952,266 @@
         font-size: 12px;
       }
 
-      #view {
-        width: 100%;
-        height: 100%;
-        display: block;
-        cursor: crosshair;
-        touch-action: none;
+      #objectives {
+        top: calc(var(--safe-t) + 58px);
+        right: calc(var(--safe-r) + 8px);
+        width: min(244px, 42vw);
+        padding: 9px 12px;
+        pointer-events: none;
       }
 
-      #hud {
-        display: grid;
-        grid-template-columns: auto minmax(200px, 300px) 1fr;
-        gap: 12px;
-        padding: 10px 12px;
-        background: var(--panel);
-        border-top: 1px solid var(--line);
-        max-height: 34vh;
+      #objectives .obj {
+        font-size: 12.5px;
+        padding: 3px 0;
+      }
+
+      #minimapWrap {
+        left: calc(var(--safe-l) + 8px);
+        bottom: calc(var(--safe-b) + 8px);
+        padding: 6px;
+        line-height: 0;
       }
 
       #minimap {
-        width: 184px;
-        height: 184px;
+        width: 148px;
+        height: 148px;
+        border-radius: 7px;
+        display: block;
+      }
+
+      #roster {
+        left: calc(var(--safe-l) + 8px);
+        right: calc(var(--safe-r) + 8px);
+        bottom: calc(var(--safe-b) + 8px);
+        display: flex;
+        gap: 8px;
+        padding: 6px 8px;
+        /* Clears the minimap, which floats in the same corner. */
+        margin-left: 168px;
+        min-height: 0;
+      }
+
+      /*
+       * The command panel floats over the field, so it must not *take* the
+       * field with it. The panel itself is transparent to the pointer and only
+       * its actual controls capture, which means the ground underneath stays
+       * tappable and the panel behaves like a window rather than a wall.
+       * Docking it instead would cost the fullscreen battlefield; blocking
+       * clicks would cost a chunk of the map. This costs neither.
+       */
+      #hud {
+        right: calc(var(--safe-r) + 8px);
+        bottom: calc(var(--safe-b) + 74px);
+        width: min(430px, 62vw);
+        display: grid;
+        gap: 8px;
+        padding: 9px 11px;
+        max-height: 42vh;
+        overflow-y: auto;
+        pointer-events: none;
+      }
+
+      #hud button,
+      #hud .queued,
+      #hud .chip {
+        pointer-events: auto;
+      }
+
+      /* ---------------------------------------------------------- touch -- */
+
+      /*
+       * Thumbstick for direct control.
+       *
+       * A named pilot is driven, not ordered, and there is no arrow key on a
+       * phone. Shown only on touch devices and only while the cockpit is
+       * occupied; `main.js` owns that. Bottom-left because that is where a
+       * thumb already is when the device is held in landscape.
+       */
+      #stick {
+        position: absolute;
+        left: calc(var(--safe-l) + 24px);
+        bottom: calc(var(--safe-b) + 172px);
+        width: 118px;
+        height: 118px;
+        border-radius: 50%;
+        background: rgba(9, 14, 20, 0.5);
+        border: 1px solid rgba(120, 160, 200, 0.3);
+        touch-action: none;
+        z-index: 3;
+      }
+
+      #stickNub {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 48px;
+        height: 48px;
+        margin: -24px 0 0 -24px;
+        border-radius: 50%;
+        background: rgba(79, 179, 255, 0.5);
+        border: 1px solid rgba(160, 210, 255, 0.7);
+        pointer-events: none;
+      }
+
+      /* Big, thumb-sized action buttons beside the stick. */
+      #touchActions {
+        position: absolute;
+        right: calc(var(--safe-r) + 20px);
+        bottom: calc(var(--safe-b) + 176px);
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        z-index: 3;
+      }
+
+      .touchBtn {
+        width: 66px;
+        height: 66px;
+        border-radius: 50%;
+        background: rgba(9, 14, 20, 0.72);
+        border: 1px solid rgba(120, 160, 200, 0.34);
+        color: var(--text);
+        font-size: 11px;
+        font-weight: 650;
+        line-height: 1.15;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 4px;
+        -webkit-user-select: none;
+        user-select: none;
+      }
+
+      .touchBtn.ready {
+        border-color: var(--accent);
+        color: var(--accent);
+      }
+
+      .touchBtn.off {
+        opacity: 0.4;
+      }
+
+      .touchBtn em {
+        font-style: normal;
+        font-size: 9px;
+        color: var(--muted);
+      }
+
+      /* -------------------------------------------------------- phone -- */
+
+      /*
+       * Under ~820px the panels stop being windows and start being the
+       * screen, so they shrink hard: a smaller minimap, a shorter roster, a
+       * command panel that only appears when something is selected.
+       */
+      @media (max-width: 820px), (max-height: 480px) {
+        #topbar {
+          gap: 11px;
+          padding: 5px 10px;
+        }
+
+        #topbar .readout span {
+          display: none;
+        }
+
+        #topbar .readout b {
+          font-size: 14px;
+        }
+
+        #topbar .spacer {
+          display: none;
+        }
+
+        /* Landscape phone is ~390pt tall. Every panel is sized so the three
+           along the bottom — minimap, roster, actions — plus the command
+           panel above them still leave the middle of the screen as map. */
+        #minimap {
+          width: 84px;
+          height: 84px;
+        }
+
+        #roster {
+          margin-left: 100px;
+          margin-right: 190px;
+          padding: 3px 5px;
+        }
+
+        .rosterAll,
+        .rosterChip {
+          min-width: 62px;
+          padding: 4px 7px;
+        }
+
+        .rosterChip.pilot {
+          min-width: 74px;
+        }
+
+        #hud {
+          /* Clears the action column on the right rather than sitting under
+             it — a Skyfall button behind a stat panel is a button nobody can
+             press. */
+          right: calc(var(--safe-r) + 78px);
+          width: min(290px, 46vw);
+          bottom: calc(var(--safe-b) + 58px);
+          max-height: 34vh;
+          font-size: 11.5px;
+          padding: 7px 9px;
+        }
+
+        #hud .detail h4 {
+          font-size: 13px;
+        }
+
+        #hud .hint {
+          display: none;
+        }
+
+        #hud h5 {
+          margin: 1px 0 4px;
+        }
+
+        #objectives {
+          top: calc(var(--safe-t) + 48px);
+          font-size: 11px;
+          padding: 7px 10px;
+        }
+
+        #stick {
+          bottom: calc(var(--safe-b) + 104px);
+          left: calc(var(--safe-l) + 14px);
+          width: 96px;
+          height: 96px;
+        }
+
+        #stickNub {
+          width: 40px;
+          height: 40px;
+          margin: -20px 0 0 -20px;
+        }
+
+        #touchActions {
+          right: calc(var(--safe-r) + 10px);
+          bottom: calc(var(--safe-b) + 58px);
+          gap: 7px;
+        }
+
+        .touchBtn {
+          width: 56px;
+          height: 56px;
+          font-size: 10px;
+        }
+
+        .touchBtn em {
+          font-size: 8.5px;
+        }
+      }
+
+      /* Cosmetics only — the size lives with the floating-panel layout
+         above, which is what makes it shrink on a phone. */
+      #minimap {
         background: #050709;
         border: 1px solid var(--line);
-        border-radius: 8px;
         cursor: pointer;
         image-rendering: pixelated;
       }
@@ -1130,17 +1407,7 @@
         font-weight: 700;
       }
 
-      @media (max-width: 720px) {
-        #hud {
-          grid-template-columns: 1fr;
-          max-height: 44vh;
-        }
 
-        #minimap {
-          width: 130px;
-          height: 130px;
-        }
-      }
     </style>
   </head>
   <body>
@@ -1249,7 +1516,16 @@
 
       <div id="field">
         <canvas id="view"></canvas>
-        <aside id="objectives" hidden></aside>
+      </div>
+      <aside id="objectives" hidden></aside>
+
+      <!-- Touch controls. Hidden until main.js sees a touch device: on a
+           desktop they would be dead weight over the battlefield. -->
+      <div id="stick" hidden><div id="stickNub"></div></div>
+      <div id="touchActions" hidden>
+        <button type="button" id="btnAbility" class="touchBtn"><b>Jets</b><em>ability</em></button>
+        <button type="button" id="btnSkyfall" class="touchBtn"><b>Skyfall</b><em>crew</em></button>
+        <button type="button" id="btnAttack" class="touchBtn"><b>Attack</b><em>tap a spot</em></button>
       </div>
 
       <!-- Roster bar: every machine you own, one click from being selected
@@ -1261,8 +1537,11 @@
         <div id="rosterList"></div>
       </div>
 
-      <div id="hud">
+      <div id="minimapWrap">
         <canvas id="minimap" width="184" height="184"></canvas>
+      </div>
+
+      <div id="hud">
         <div id="selection"></div>
         <div id="commands"></div>
       </div>
