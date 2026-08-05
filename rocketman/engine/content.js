@@ -1009,6 +1009,149 @@ export const PROPS = {
     deathExplosion: { radius: 3.4, damage: 210, type: DAMAGE.EXPLOSIVE },
     hint: 'Industrial storage. Still full.',
   },
+
+  /* ---- the second wave: enough variety that a district reads as a place -- */
+
+  apartment: {
+    id: 'apartment',
+    name: 'Apartment Block',
+    size: [2, 3],
+    hp: 1100,
+    armor: ARMOR.STRUCTURE,
+    height: 2.4,
+    storeys: 6,
+    hint: 'Six floors of balconies. Good cover until it is not.',
+  },
+  warehouse: {
+    id: 'warehouse',
+    name: 'Warehouse',
+    size: [3, 2],
+    hp: 900,
+    armor: ARMOR.STRUCTURE,
+    height: 1.1,
+    storeys: 1,
+    /** A long blank shed. Wide enough to break a firing line in half. */
+    hint: 'Whatever was stored here left in a hurry.',
+  },
+  chapel: {
+    id: 'chapel',
+    name: 'Chapel',
+    size: [2, 2],
+    hp: 780,
+    armor: ARMOR.STRUCTURE,
+    height: 1.6,
+    storeys: 2,
+    spire: true,
+    hint: 'The steeple is the tallest thing for three blocks. Snipers know.',
+  },
+  watertower: {
+    id: 'watertower',
+    name: 'Water Tower',
+    size: [2, 2],
+    hp: 520,
+    armor: ARMOR.STRUCTURE,
+    height: 3.1,
+    shape: 'watertower',
+    hint: 'Legs, a tank, and a very long way to fall.',
+  },
+  mast: {
+    id: 'mast',
+    name: 'Relay Mast',
+    size: [1, 1],
+    hp: 300,
+    /**
+     * Light rather than structure: it is a lattice, and lattices come down to
+     * autocannon fire in a way concrete does not.
+     */
+    armor: ARMOR.LIGHT,
+    height: 4.2,
+    shape: 'mast',
+    hint: 'Still transmitting. Nobody is listening.',
+  },
+  billboard: {
+    id: 'billboard',
+    name: 'Billboard',
+    size: [2, 1],
+    hp: 180,
+    armor: ARMOR.LIGHT,
+    height: 1.9,
+    shape: 'billboard',
+    hint: 'Advertising something that no longer exists.',
+  },
+  silo: {
+    id: 'silo',
+    name: 'Grain Silo',
+    size: [2, 2],
+    hp: 340,
+    armor: ARMOR.STRUCTURE,
+    height: 2.6,
+    shape: 'silo',
+    volatile: true,
+    /**
+     * Grain dust, not fuel — a wider, softer blast than a tank. Real ones do
+     * exactly this, and it gives the farm district a hazard of its own
+     * rather than importing the fuel station's.
+     */
+    deathExplosion: { radius: 5.2, damage: 180, type: DAMAGE.EXPLOSIVE },
+    hint: 'Full of dust. Dust burns faster than fuel.',
+  },
+  depot: {
+    id: 'depot',
+    name: 'Propane Depot',
+    size: [2, 2],
+    hp: 420,
+    armor: ARMOR.STRUCTURE,
+    height: 1.2,
+    shape: 'depot',
+    volatile: true,
+    /** The biggest hazard on the map, and the one worth manoeuvring around. */
+    deathExplosion: { radius: 6.4, damage: 420, type: DAMAGE.EXPLOSIVE },
+    hint: 'Bank of cylinders behind a wire fence. Do not.',
+  },
+  bus: {
+    id: 'bus',
+    name: 'Wrecked Bus',
+    size: [2, 1],
+    hp: 240,
+    armor: ARMOR.MEDIUM,
+    height: 0.7,
+    shape: 'vehicle',
+    volatile: true,
+    deathExplosion: { radius: 2.4, damage: 120, type: DAMAGE.EXPLOSIVE },
+    hint: 'Abandoned across two lanes. Still has a tank in it.',
+  },
+  fountain: {
+    id: 'fountain',
+    name: 'Fountain',
+    size: [2, 2],
+    hp: 640,
+    armor: ARMOR.STRUCTURE,
+    height: 0.6,
+    shape: 'fountain',
+    hint: 'Dry since the evacuation.',
+  },
+  pine: {
+    id: 'pine',
+    name: 'Blackpine',
+    size: [1, 1],
+    hp: 170,
+    armor: ARMOR.LIGHT,
+    height: 2.3,
+    canopy: true,
+    conifer: true,
+    hint: 'Taller than the ironwoods, and thinner.',
+  },
+  hedge: {
+    id: 'hedge',
+    name: 'Hedgerow',
+    size: [2, 1],
+    hp: 120,
+    armor: ARMOR.LIGHT,
+    height: 0.6,
+    canopy: true,
+    low: true,
+    hint: 'Waist-high. Blocks a walker, hides nothing from the air.',
+  },
 };
 
 /** Props are neutral: owned by nobody, hostile to nobody, in everybody's way. */
@@ -1057,15 +1200,45 @@ export const TERRAIN = {
   ROUGH: 1,
   CLIFF: 2,
   WATER: 3,
+  /**
+   * Tarmac. Appended rather than inserted: the renderer and the Swift port
+   * both read these as raw indices, and renumbering GROUND out from under
+   * them would be a silent, map-wide corruption.
+   */
+  ROAD: 4,
 };
 
-/** Movement cost per terrain, and whether ground units may enter at all. */
+/**
+ * Movement cost per terrain, and whether ground units may enter at all.
+ *
+ * Road is the only cost below 1, and it is what makes the road network a
+ * decision rather than decoration: the fast route across a doubled map runs
+ * through the built-up ground where the buildings — and the fuel stations —
+ * are. Taking the long way round open country is *safe*, and slow. That
+ * trade is the whole reason the districts are connected at all.
+ */
 export const TERRAIN_INFO = [
   { id: 'ground', passable: true, cost: 1.0, color: '#2b3440' },
   { id: 'rough', passable: true, cost: 1.7, color: '#39424e' },
   { id: 'cliff', passable: false, cost: Infinity, color: '#161b22' },
   { id: 'water', passable: false, cost: Infinity, color: '#16303f' },
+  { id: 'road', passable: true, cost: 0.72, color: '#31353c' },
 ];
+
+/**
+ * The cheapest step any ground unit can take.
+ *
+ * A* needs a heuristic that never *over*-estimates the remaining cost, or it
+ * stops returning shortest paths. Octile distance assumes one unit of cost
+ * per step, which was true while the cheapest terrain cost exactly 1 — roads
+ * made it false, and an inadmissible heuristic would have quietly routed
+ * units around the road network they were built to use. Scaling the estimate
+ * by this restores the guarantee.
+ */
+export const MIN_TERRAIN_COST = TERRAIN_INFO.reduce(
+  (min, t) => (t.passable && t.cost < min ? t.cost : min),
+  Infinity
+);
 
 /** Starting economy, shared by both factions. */
 export const START = {

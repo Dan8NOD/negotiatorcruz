@@ -23,6 +23,7 @@
 
 import { TICKS_PER_SECOND, secs } from './content.js';
 import { missionRewards, PILOTS } from './progression.js';
+import { DEFAULT_MAP_SIZE } from './grid.js';
 
 /** Ticks, from minutes — mission timers read better written this way. */
 const mins = (m) => Math.round(m * 60 * TICKS_PER_SECOND);
@@ -53,7 +54,7 @@ export const MISSIONS = [
     name: 'Hard Landing',
     subtitle: 'Sector 9 — the Coldwater flats',
     seed: 10412,
-    mapSize: 56,
+    mapSize: 112,
     reward: 400,
     parTime: mins(4),
     teaches: 'Move, attack, and use jump jets.',
@@ -128,7 +129,7 @@ We have an economy again. Barely.
     name: 'Scrap Rights',
     subtitle: 'The Coldwater wrecks',
     seed: 20887,
-    mapSize: 64,
+    mapSize: 128,
     reward: 500,
     parTime: mins(7),
     teaches: 'Harvesting, the Refinery, and defending an economy.',
@@ -180,7 +181,7 @@ yet. We do now.
     name: 'Brownout',
     subtitle: 'Bulwark forward station Kesh',
     seed: 31174,
-    mapSize: 64,
+    mapSize: 128,
     reward: 650,
     parTime: mins(8),
     teaches: 'Power. What a brownout does to the other side.',
@@ -247,7 +248,7 @@ canopy open for about an hour.
     name: 'The Anvil Line',
     subtitle: 'Coldwater, the long night',
     seed: 44021,
-    mapSize: 64,
+    mapSize: 128,
     reward: 800,
     parTime: null,
     teaches: 'Defence. Turrets, power discipline, and holding ground.',
@@ -301,7 +302,7 @@ She was right about that too.
     name: 'Cold Open',
     subtitle: 'Bulwark manufactory, grid 4',
     seed: 52630,
-    mapSize: 72,
+    mapSize: 144,
     reward: 1000,
     parTime: mins(12),
     teaches: 'The whole loop: tech, air, and army composition.',
@@ -380,7 +381,7 @@ Wren landed with two-thirds of a wing and asked when we were going again.
     name: 'Longbow Country',
     subtitle: 'The shelf above Coldwater',
     seed: 61905,
-    mapSize: 72,
+    mapSize: 144,
     reward: 1200,
     parTime: mins(10),
     teaches: 'Siege. Range you cannot answer, and a base you cannot abandon.',
@@ -435,7 +436,7 @@ The rig is intact. That was the whole job.
     name: 'Just You and Your Rocket Crew',
     subtitle: 'Bulwark central command',
     seed: 70777,
-    mapSize: 72,
+    mapSize: 144,
     reward: 2000,
     parTime: mins(15),
     teaches: null,
@@ -527,7 +528,7 @@ export function missionWorldConfig(mission, profile = { upgrades: [], pilots: {}
 
   return {
     seed: mission.seed,
-    mapSize: mission.mapSize || 72,
+    mapSize: mission.mapSize || DEFAULT_MAP_SIZE,
     mission,
     players: [
       {

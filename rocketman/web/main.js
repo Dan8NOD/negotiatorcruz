@@ -549,6 +549,9 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       return e ? { id: e.id, defId: e.defId, x: e.x, y: e.y, pilot: e.pilotName || null } : null;
     })(),
     camera: { x: renderer.camera.x, y: renderer.camera.y, zoom: renderer.camera.zoom },
+    map: { width: world.map.width, height: world.map.height },
+    /** Offscreen canvas cost, so a test can hold the phone budget to account. */
+    buffers: { megabytes: renderer.bufferMegabytes(), chunks: renderer.residentChunks() },
     /** The player character, whether or not it is currently being driven. */
     /** Prop census, so a test can find the neighbourhood without a screenshot. */
     props: (() => {

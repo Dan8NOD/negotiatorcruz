@@ -23,7 +23,7 @@ import {
   REGROWTH,
 } from './content.js';
 import { createRng } from './rng.js';
-import { createMap, canPlace, nearestWalkable } from './grid.js';
+import { createMap, canPlace, nearestWalkable, DEFAULT_MAP_SIZE } from './grid.js';
 import {
   spawnUnit,
   spawnBuilding,
@@ -82,7 +82,7 @@ export { TICKS_PER_SECOND };
  * @param {Array<object>} options.players
  * @param {object} [options.mission] Objectives and mission metadata.
  */
-export function createWorld({ seed = 1, players: playerConfigs, mapSize = 72, mission = null } = {}) {
+export function createWorld({ seed = 1, players: playerConfigs, mapSize = DEFAULT_MAP_SIZE, mission = null } = {}) {
   const map = createMap(seed, { width: mapSize, height: mapSize });
 
   const world = {
