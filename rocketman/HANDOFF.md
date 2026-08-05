@@ -53,7 +53,7 @@ rocketman/
     numeric.js   the numeric contract (read this before any distance maths)
     sim.js       the tick loop and the command table
     content.js   every unit, weapon, ability, prop — the balance surface
-    grid.js      map generation, terrain, props, neighbourhoods
+    grid.js      map generation, terrain, roads, districts, props
     movement.js  pathing + `steer` (direct keyboard/stick control)
     abilities.js chassis abilities and the hero `skyfall` leap
     replay.js    replays and mid-match saves (same mechanism)
@@ -64,8 +64,8 @@ rocketman/
     input.js     mouse, keyboard, driving, and the whole touch layer
     main.js      wiring, HUD, roster, camera
     rocketman.html   layout, CSS, safe-area handling
-  test/        397 node:test simulation tests
-  e2e/         45 Playwright browser tests (7 on a phone viewport)
+  test/        414 node:test simulation tests
+  e2e/         47 Playwright browser tests (8 on a phone viewport)
   swift/       SwiftPM conformance port — iOS only, see caveat below
   tools/       export-fixtures.mjs, build-single-file.mjs
   dist/        rocketman.html — the whole game as one ~350 KB file
@@ -77,8 +77,8 @@ rocketman/
 npm run serve                  # http://127.0.0.1:4321
 # then open /rocketman/web/rocketman.html
 
-npm run test:rocketman         # 397 simulation tests
-npm run test:rocketman:e2e     # 45 browser tests
+npm run test:rocketman         # 414 simulation tests
+npm run test:rocketman:e2e     # 47 browser tests
 npm run test:rocketman:swift   # 9 Swift conformance tests (needs a Swift toolchain)
 npm run rocketman:fixtures     # regenerate the Swift conformance fixtures
 npm run rocketman:build        # → rocketman/dist/rocketman.html, playable from file://
@@ -126,6 +126,23 @@ site's.
    them — that's intentional, it forces the port to be a decision rather than
    silence.
 
+8. **No constant may quietly encode the map's size.** This is the lesson of
+   doubling it, and it cost four separate bugs: A*'s node ceiling (9000, "most
+   of a 72-cell map"), the collector's scrap search radius (30 cells, ditto),
+   the renderer's whole-map canvas bake, and a browser test that aimed at a
+   fixed screen pixel. Every one of them was correct at 72 and silently wrong
+   at 144, and *none* of them threw — they degraded into a unit that would not
+   cross the map, an economy that stopped dead, 96 MB of canvas, and a test
+   that walked to the edge and inched along it. If a number is a distance, a
+   count of cells, or a fraction of the map, derive it from `map.width` /
+   `map.height`.
+
+9. **A failure whose only symptom is that the game keeps running needs its own
+   test.** The mining stall broke nothing: no exception, no slow frame, no
+   failing assertion — the skirmish simply never ended. `terrain.test.js` plays
+   two AI matches to a conclusion for exactly this reason, and it is the most
+   expensive test in the suite on purpose.
+
 ## Conventions
 
 - Branch: `claude/rocketman-rts-game-6dq0gj`. Never push elsewhere without asking.
@@ -158,8 +175,15 @@ mobile-first fullscreen layout with safe-area insets.
 
 ## Known rough edges — good starting points
 
-- **Missions 4 and 6** were balanced before destructible cover existed. No human
-  has played them since. Likely too easy or too swingy.
+- **Missions 4 and 6** were balanced before destructible cover existed, and
+  now before doubled maps too. No human has played them since. Par times were
+  scaled by hand against how much of a mission is spent crossing ground rather
+  than building — a judgement call, not a measurement.
+- **The AI does not expand.** It mines the field beside its base and then walks
+  its collectors to the next nearest one, however far that is, rather than
+  putting a Refinery out there. That is survivable now that the search is no
+  longer capped, but on a big map it is leaving most of the economy on the
+  table, and it is the single clearest thing to build next.
 - **Touch controls have a pattern of bugs**: twice now a control scheme assumed a
   keyboard escape hatch that a phone doesn't have (camera lock released only by
   `C`; the stick hidden when not driving). When adding any touch control, ask:
