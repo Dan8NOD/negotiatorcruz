@@ -112,17 +112,22 @@ export function createMap(seed, { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP
 /**
  * Guarantee the two starts can reach each other on foot.
  *
- * Ridgelines are long walls, and a long wall on a random seed will eventually
+ * Ridgelines are long walls, and a long wall on an unlucky seed could
  * partition the map — at which point neither side can reach the other, no
  * objective can be completed, and the match is unwinnable. A generator that
- * produces an unplayable map on some seeds is a generator that will produce
- * one for a player rather than for a test.
+ * does that on *some* seeds will do it to a player rather than to a test.
  *
- * So: flood fill, and if the far start is not in the reachable set, cut a
- * corridor. Deliberately cut as *ground* rather than road — a road is
- * unbuildable, and this repair runs right through the middle of both bases.
+ * In practice it does not happen: the gaps cut into every ridge, plus a road
+ * network that paves straight through cliff, leave all six hundred seeds
+ * swept connected without this. So this is a backstop, and it is tested as
+ * one — against a map deliberately walled in half, not against a seed. It
+ * stays because the cost is one flood fill at generation time and the failure
+ * it prevents is an unwinnable match.
+ *
+ * The repair cuts *ground* rather than road: a road is unbuildable, and this
+ * runs right through the middle of both bases.
  */
-function ensureConnected(map) {
+export function ensureConnected(map) {
   const [a, b] = map.starts;
   if (!a || !b) return;
   if (reachable(map, a, b)) return;
@@ -922,6 +927,18 @@ function heuristic(ax, ay, bx, by) {
 }
 
 /**
+ * Nodes expanded by the last search.
+ *
+ * Diagnostic only — nothing in the simulation reads it, and it is written
+ * where it cannot influence a decision. It exists because the difference
+ * between a good search and a catastrophic one is invisible in the result:
+ * both return a usable path, and only the work differs. Something has to be
+ * able to see that work or it cannot be defended against regression.
+ */
+let lastExpanded = 0;
+export const pathStats = () => ({ expanded: lastExpanded });
+
+/**
  * A* over the cell grid.
  *
  * `goalRadius` lets a caller path *toward* something it cannot stand on — a
@@ -983,6 +1000,7 @@ export function findPath(map, sx, sy, gx, gy, { goalRadius = 0, maxNodes = 0 } =
   let expanded = 0;
   let best = -1;
   let bestH = Infinity;
+  lastExpanded = 0;
 
   while (open.size > 0) {
     const current = open.pop();
@@ -998,7 +1016,10 @@ export function findPath(map, sx, sy, gx, gy, { goalRadius = 0, maxNodes = 0 } =
       best = current;
     }
 
-    if (reached(cx, cy)) return reconstruct(cameFrom, current, w);
+    if (reached(cx, cy)) {
+      lastExpanded = expanded;
+      return reconstruct(cameFrom, current, w);
+    }
     if (++expanded > maxNodes) break;
 
     for (let dy = -1; dy <= 1; dy++) {
@@ -1035,6 +1056,7 @@ export function findPath(map, sx, sy, gx, gy, { goalRadius = 0, maxNodes = 0 } =
 
   // Unreachable goal: walk as close as the search got rather than refusing the
   // order outright. Players read a refused move order as the game ignoring them.
+  lastExpanded = expanded;
   if (best >= 0 && best !== startIdx) return reconstruct(cameFrom, best, w);
   return null;
 }

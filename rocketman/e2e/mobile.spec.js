@@ -244,3 +244,39 @@ test('the roster bar is reachable and jumps the camera', async ({ page }) => {
 
   expect(errors).toEqual([]);
 });
+
+test('a doubled map still fits in a phone-sized canvas budget', async ({ page }) => {
+  // The reason the terrain bake is chunked at all.
+  //
+  // At 24 px a cell, baking a whole 144-cell map into one canvas is a
+  // 3456×3456 buffer — about 48 MB of pixels — and the decal layer was a
+  // second one. 96 MB of canvas is not something a mid-range Android hands
+  // out, and the failure mode is not a slow frame: it is the context being
+  // dropped or the tab being killed. Nothing in a rendered frame would show
+  // it, so the renderer accounts for its own pixels and this holds it to it.
+  const errors = watchErrors(page);
+  await startMission(page);
+  await page.waitForTimeout(1500);
+
+  const opening = await state(page);
+  expect(opening.map.width).toBeGreaterThanOrEqual(112);
+  expect(opening.buffers.megabytes).toBeLessThan(48);
+
+  // Pan around so chunks are baked, evicted and rebaked, then check the
+  // ceiling still holds — an LRU that never evicts passes the first
+  // assertion and fails this one.
+  for (const [fx, fy] of [
+    [700, 300],
+    [150, 120],
+    [700, 120],
+    [150, 300],
+  ]) {
+    await touchDrag(page, { x: 426, y: 200 }, { x: fx, y: fy });
+    await page.waitForTimeout(400);
+  }
+
+  const after = await state(page);
+  expect(after.buffers.megabytes).toBeLessThan(48);
+  expect(after.buffers.chunks).toBeLessThanOrEqual(36);
+  expect(errors).toEqual([]);
+});

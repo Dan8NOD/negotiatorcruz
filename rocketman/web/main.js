@@ -306,6 +306,16 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   });
   input.attachMinimap(minimap);
 
+  /**
+   * Last committed markup per HUD panel — see `commitPanel`.
+   *
+   * Declared up here rather than beside its function because a mission puts a
+   * pilot in the cockpit during this very function, which selects them, which
+   * renders the HUD. A `const` further down is still in its temporal dead
+   * zone at that point, and the whole match fails to start.
+   */
+  const panelCache = new Map();
+
   const match = { stopped: false, teardown: () => {} };
   activeMatch = match;
 
@@ -691,6 +701,31 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   }
 
   /**
+   * Replace a panel's contents only when they actually changed.
+   *
+   * The HUD is rebuilt four times a second. For most of a match nothing in it
+   * has changed — same selection, same buttons, same costs — and tearing the
+   * DOM down anyway means the button under the player's cursor is destroyed
+   * and recreated every 250ms. A click that lands in the wrong quarter-second
+   * hits a node that is on its way out, and the order is simply lost. It is
+   * the same defect whether the clicker is a person or a test.
+   *
+   * Comparing the built markup rather than a hand-written signature is what
+   * makes this safe: a signature has to be kept in step with the renderer by
+   * hand, and the first time it is not, the panel silently stops updating.
+   * The markup cannot drift from itself.
+   *
+   * Moving nodes between parents preserves their listeners, so the buttons
+   * that survive a swap keep working.
+   */
+  function commitPanel(id, scratch) {
+    const html = scratch.innerHTML;
+    if (panelCache.get(id) === html) return;
+    panelCache.set(id, html);
+    $(id).replaceChildren(...scratch.childNodes);
+  }
+
+  /**
    * The bottom roster: named pilots first, then one chip per unit type.
    *
    * This is the map's navigation, not decoration. An RTS on a 72-cell map
@@ -765,12 +800,12 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   }
 
   function renderSelection() {
-    const panel = $('selection');
+    const panel = document.createElement('div');
     const selected = input.selectedEntities();
-    panel.innerHTML = '';
 
     if (selected.length === 0) {
       panel.innerHTML = '<p class="hint">Left-drag to select. Right-click to order.</p>';
+      commitPanel('selection', panel);
       return;
     }
 
@@ -795,6 +830,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
         ${shield}${cargo}${rank}
         <p class="hint">${e.def.hint || ''}</p>`;
       panel.appendChild(card);
+      commitPanel('selection', panel);
       return;
     }
 
@@ -820,11 +856,11 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       more.textContent = `+${selected.length - 24} more`;
       panel.appendChild(more);
     }
+    commitPanel('selection', panel);
   }
 
   function renderCommands() {
-    const panel = $('commands');
-    panel.innerHTML = '';
+    const panel = document.createElement('div');
     const player = world.players[VIEWER];
     const defs = player.defs;
     const selected = input.selectedEntities();
@@ -1031,6 +1067,8 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       panel.innerHTML =
         '<p class="hint">Select the Command Rig to build, or a Foundry to make mechs.</p>';
     }
+
+    commitPanel('commands', panel);
   }
 
   /** Skirmish end card — also the end card for any watched replay. */

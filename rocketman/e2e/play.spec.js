@@ -9,6 +9,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { marchToVictory, expectMissionComplete } from './helpers.js';
 
 const PAGE = '/rocketman/web/rocketman.html';
 
@@ -324,46 +325,11 @@ test('a mission can be won, and it pays out and unlocks the next one', async ({ 
   test.setTimeout(240000);
   const match = await startMission(page, 1);
 
-  // Campaign missions now start in the cockpit, where `a` steers the pilot
-  // west rather than issuing an attack-move. C hands control back to the RTS
-  // scheme this spec exercises.
-  await page.keyboard.press('c');
+  // The assertion is "this strategy wins" — not "this hardware is quick" or
+  // "this coin lands heads". See marchToVictory for what that costs.
+  const won = await marchToVictory(page);
 
-  await page.keyboard.press('+');
-  await page.keyboard.press('+');
-
-  // March the crew at the enemy corner until the world says it is over.
-  //
-  // Two hard-won properties. The loop is bounded by wall-clock rather than a
-  // round count, because at ×4 the simulation advances as fast as the machine
-  // renders — a fixed round count passes on a fast laptop and starves on a
-  // loaded CI runner. And every round re-selects from the unit the camera was
-  // just centred on, because the one-shot version of this spec secretly rode
-  // on its first order: whether the crew clipped the listening posts'
-  // engagement range on the way past was a coin flip decided by which tick
-  // the click landed on. The assertion is "this strategy wins", not "this
-  // hardware is quick" or "this coin lands heads".
-  const deadline = Date.now() + 150000;
-  while (Date.now() < deadline) {
-    // Re-acquire the crew wherever they are: Tab selects an army unit and
-    // centres the camera on it, so the box-select below always has them on
-    // screen. Then attack-move toward the enemy corner — attack-move engages
-    // whatever it meets, where a plain move walks politely past a listening
-    // post it was sent to within a leash-length of.
-    await page.keyboard.press('Tab');
-    await page.mouse.move(200, 150);
-    await page.mouse.down();
-    await page.mouse.move(1300, 640, { steps: 6 });
-    await page.mouse.up();
-    await page.mouse.move(1150, 620);
-    await page.keyboard.press('a');
-    await page.waitForTimeout(2500);
-
-    const state = await page.evaluate(() => (window.__rocketman ? window.__rocketman() : null));
-    if (!state || state.over) break;
-  }
-
-  await expect(page.locator('#debrief h2')).toContainText('Mission complete', { timeout: 15000 });
+  await expectMissionComplete(page, won);
   await expect(page.locator('#debrief')).toContainText('Mission reward');
   await expect(page.locator('.crewXp')).toContainText('XP');
 

@@ -152,7 +152,12 @@ function createTerrainLayers(map) {
 export function createRenderer(canvas, world, viewerId) {
   const ctx = canvas.getContext('2d', { alpha: false });
 
-  const camera = { x: 0, y: 0, zoom: 1, minZoom: 0.45, maxZoom: 2.4 };
+  // A floor of 0.45 was "most of a 72-cell map on screen". On a doubled map
+  // it is a quarter of one, which turns the zoom control into a slightly
+  // wider view rather than a way to see the battlefield. 0.3 puts a whole
+  // 144-cell map inside a desktop viewport, and the terrain LOD is built for
+  // exactly that case — at this distance the base bake *is* the picture.
+  const camera = { x: 0, y: 0, zoom: 1, minZoom: 0.3, maxZoom: 2.4 };
 
   const terrain = createTerrainLayers(world.map);
 
@@ -454,14 +459,41 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.ellipse(px + pw / 2 + 4, py + ph / 2 + 5, pw * 0.62, ph * 0.44, 0, 0, TAU);
     ctx.fill();
 
-    if (e.def.canopy) {
-      drawTree(e, px, py, pw, ph, dx, dy, hurt);
-    } else if (e.defId === 'statue') {
-      drawStatue(e, px, py, pw, ph, dx, dy, hurt);
-    } else if (e.def.volatile) {
-      drawVolatile(e, px, py, pw, ph, dx, dy, hurt);
-    } else {
-      drawBlock(e, px, py, pw, ph, dx, dy, hurt);
+    // Dispatch on shape rather than on id, so a new prop is a content-table
+    // entry and not a renderer change — the shapes are a small vocabulary
+    // that a dozen different props are assembled from.
+    const shape = e.def.shape || (e.def.canopy ? 'canopy' : e.def.volatile ? 'volatile' : 'block');
+    switch (shape) {
+      case 'canopy':
+        drawTree(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'watertower':
+        drawWaterTower(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'mast':
+        drawMast(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'billboard':
+        drawBillboard(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'silo':
+        drawSilo(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'depot':
+        drawDepot(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'vehicle':
+        drawVehicle(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'fountain':
+        drawFountain(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'volatile':
+        drawVolatile(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      default:
+        if (e.defId === 'statue') drawStatue(e, px, py, pw, ph, dx, dy, hurt);
+        else drawBlock(e, px, py, pw, ph, dx, dy, hurt);
     }
 
     // Damage: cracks and smoke once it is genuinely hurt.
@@ -600,6 +632,31 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.lineWidth = 1;
     ctx.strokeRect(rx + 0.5, ry + 0.5, pw - 1, ph - 1);
 
+    // A steeple, on the buildings that carry one. It leans with the parallax
+    // like everything else, which is what makes it read as the tallest thing
+    // on the street rather than as a triangle painted on a roof.
+    if (e.def.spire) {
+      const sx = rx + pw * 0.5;
+      const sy = ry + ph * 0.5;
+      const tipX = sx + dx * 0.8;
+      const tipY = sy + dy * 0.8 - ph * 0.35;
+      ctx.fillStyle = shade(tone.roof, -0.15);
+      ctx.beginPath();
+      ctx.moveTo(tipX, tipY);
+      ctx.lineTo(sx + pw * 0.16, sy + ph * 0.12);
+      ctx.lineTo(sx - pw * 0.16, sy + ph * 0.12);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = 'rgba(210, 220, 232, 0.5)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(tipX, tipY);
+      ctx.lineTo(tipX, tipY - 4);
+      ctx.moveTo(tipX - 2, tipY - 2.5);
+      ctx.lineTo(tipX + 2, tipY - 2.5);
+      ctx.stroke();
+    }
+
     // Rooftop clutter on the big ones — it is what stops a tower reading as a
     // grey box from above.
     if (e.def.height > 2) {
@@ -622,9 +679,28 @@ export function createRenderer(canvas, world, viewerId) {
   function drawTree(e, px, py, pw, ph, dx, dy, hurt) {
     const bx = px + pw / 2;
     const by = py + ph / 2;
-    const sway = Math.sin(frameClock * 0.03 + e.id) * 1.4;
+    const sway = Math.sin(frameClock * 0.03 + e.id) * (e.def.low ? 0.5 : 1.4);
     const tx = bx + dx + sway;
     const ty = by + dy;
+    const green = hurt > 0.5 ? 1 : 0.45 + hurt;
+    const dark = `rgba(${Math.round(38 + (1 - green) * 60)}, ${Math.round(62 * green + 18)}, ${Math.round(34 * green + 14)}, 0.95)`;
+    const lit = `rgba(${Math.round(60 + (1 - green) * 60)}, ${Math.round(92 * green + 20)}, ${Math.round(52 * green + 16)}, 0.9)`;
+
+    // A hedgerow is a low mass with no trunk to speak of — drawn as a run of
+    // overlapping bunches along its footprint rather than as a small tree,
+    // because a small tree at this height just reads as a broken tree.
+    if (e.def.low) {
+      const bunches = Math.max(2, Math.round(pw / 9));
+      for (let i = 0; i < bunches; i++) {
+        const cx = px + ((i + 0.5) / bunches) * pw + dx * 0.4;
+        const cy = py + ph * 0.55 + dy * 0.4;
+        ctx.fillStyle = i % 2 ? dark : lit;
+        ctx.beginPath();
+        ctx.ellipse(cx, cy, pw / bunches * 0.7, ph * 0.42, 0, 0, TAU);
+        ctx.fill();
+      }
+      return;
+    }
 
     ctx.strokeStyle = '#241d16';
     ctx.lineWidth = 3.5;
@@ -633,21 +709,362 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.lineTo(tx, ty + 3);
     ctx.stroke();
 
+    // A conifer is a stack of narrowing tiers, not a ball of blobs. Two
+    // silhouettes is what turns a stand of trees into a wood.
+    if (e.def.conifer) {
+      const r = pw * 0.4;
+      for (let tier = 0; tier < 3; tier++) {
+        const t = tier / 3;
+        const ty2 = ty + r * 0.5 - tier * r * 0.42;
+        const width = r * (1 - t * 0.42);
+        ctx.fillStyle = tier === 2 ? lit : dark;
+        ctx.beginPath();
+        ctx.moveTo(tx, ty2 - r * 0.7);
+        ctx.lineTo(tx + width, ty2 + r * 0.25);
+        ctx.lineTo(tx - width, ty2 + r * 0.25);
+        ctx.closePath();
+        ctx.fill();
+      }
+      return;
+    }
+
     // Canopy as overlapping blobs, browning as it burns down.
-    const green = hurt > 0.5 ? 1 : 0.45 + hurt;
     const r = pw * 0.42;
     for (let i = 0; i < 4; i++) {
       const a = (i / 4) * TAU + e.id;
       const ox = Math.cos(a) * r * 0.34;
       const oy = Math.sin(a) * r * 0.28;
-      ctx.fillStyle = `rgba(${Math.round(38 + (1 - green) * 60)}, ${Math.round(62 * green + 18)}, ${Math.round(34 * green + 14)}, 0.95)`;
+      ctx.fillStyle = dark;
       ctx.beginPath();
       ctx.arc(tx + ox, ty + oy, r * 0.62, 0, TAU);
       ctx.fill();
     }
-    ctx.fillStyle = `rgba(${Math.round(60 + (1 - green) * 60)}, ${Math.round(92 * green + 20)}, ${Math.round(52 * green + 16)}, 0.9)`;
+    ctx.fillStyle = lit;
     ctx.beginPath();
     ctx.arc(tx - r * 0.2, ty - r * 0.22, r * 0.5, 0, TAU);
+    ctx.fill();
+  }
+
+  /* ---- the shapes the second wave of props is assembled from ---------- */
+
+  /** Four splayed legs and a tank on top. The classic small-town skyline. */
+  function drawWaterTower(e, px, py, pw, ph, dx, dy, hurt) {
+    const bx = px + pw / 2;
+    const by = py + ph / 2;
+    const tx = bx + dx;
+    const ty = by + dy;
+
+    ctx.strokeStyle = '#39434f';
+    ctx.lineWidth = 2.2;
+    for (const [ox, oy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]]) {
+      ctx.beginPath();
+      ctx.moveTo(bx + ox * pw * 0.3, by + oy * ph * 0.3);
+      ctx.lineTo(tx + ox * pw * 0.12, ty + ph * 0.1);
+      ctx.stroke();
+    }
+    // Cross-bracing halfway up, which is what makes it read as a structure.
+    ctx.strokeStyle = 'rgba(90, 104, 120, 0.6)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(bx - pw * 0.3, by);
+    ctx.lineTo(tx + pw * 0.12, ty + ph * 0.1);
+    ctx.moveTo(bx + pw * 0.3, by);
+    ctx.lineTo(tx - pw * 0.12, ty + ph * 0.1);
+    ctx.stroke();
+
+    const r = pw * 0.34;
+    const body = ctx.createLinearGradient(tx - r, 0, tx + r, 0);
+    body.addColorStop(0, '#2f3a46');
+    body.addColorStop(0.42, '#4d5b6b');
+    body.addColorStop(1, '#28313b');
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.ellipse(tx, ty, r, r * 0.78, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.beginPath();
+    ctx.ellipse(tx, ty - r * 0.28, r * 0.82, r * 0.34, 0, 0, TAU);
+    ctx.fill();
+    // A conical cap, so the silhouette is not a floating disc.
+    ctx.fillStyle = '#3c4855';
+    ctx.beginPath();
+    ctx.moveTo(tx, ty - r * 1.05);
+    ctx.lineTo(tx + r * 0.5, ty - r * 0.4);
+    ctx.lineTo(tx - r * 0.5, ty - r * 0.4);
+    ctx.closePath();
+    ctx.fill();
+    if (hurt < 0.6) {
+      ctx.strokeStyle = 'rgba(20,26,34,0.7)';
+      ctx.lineWidth = 1.4;
+      ctx.beginPath();
+      ctx.moveTo(tx - r * 0.5, ty - r * 0.2);
+      ctx.lineTo(tx + r * 0.2, ty + r * 0.5);
+      ctx.stroke();
+    }
+  }
+
+  /** A lattice mast: the tallest thing on the map, and nearly free to draw. */
+  function drawMast(e, px, py, pw, ph, dx, dy, hurt) {
+    const bx = px + pw / 2;
+    const by = py + ph / 2;
+    const tx = bx + dx;
+    const ty = by + dy;
+
+    // Guy wires first, so the lattice sits over them.
+    ctx.strokeStyle = 'rgba(120, 134, 150, 0.22)';
+    ctx.lineWidth = 1;
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(bx + side * pw * 0.55, by + ph * 0.3);
+      ctx.lineTo(tx + (tx - bx) * 0.1, ty + ph * 0.35);
+      ctx.stroke();
+    }
+
+    // Two legs converging, rungs between them.
+    const spread = pw * 0.26;
+    const topSpread = spread * 0.3;
+    ctx.strokeStyle = '#4a5665';
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.moveTo(bx - spread, by + 2);
+    ctx.lineTo(tx - topSpread, ty);
+    ctx.moveTo(bx + spread, by + 2);
+    ctx.lineTo(tx + topSpread, ty);
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(96, 112, 130, 0.65)';
+    ctx.lineWidth = 1;
+    const rungs = 7;
+    for (let i = 1; i <= rungs; i++) {
+      const t = i / (rungs + 1);
+      const lx = bx - spread + (tx - topSpread - (bx - spread)) * t;
+      const rx = bx + spread + (tx + topSpread - (bx + spread)) * t;
+      const ry = by + 2 + (ty - by - 2) * t;
+      ctx.beginPath();
+      ctx.moveTo(lx, ry);
+      ctx.lineTo(rx, ry);
+      // Diagonal bracing on alternating bays.
+      if (i % 2 === 0) {
+        ctx.moveTo(lx, ry);
+        ctx.lineTo(rx, ry - (ty - by) / (rungs + 1));
+      }
+      ctx.stroke();
+    }
+
+    // The red light. Slow, out of phase per mast, and only while it lives.
+    if (hurt > 0.35 && ((frameClock + e.id * 7) >> 4) % 5 === 0) {
+      glow(() => {
+        ctx.fillStyle = 'rgba(255, 86, 78, 0.95)';
+        ctx.beginPath();
+        ctx.arc(tx, ty - 1, 2.4, 0, TAU);
+        ctx.fill();
+      });
+    }
+  }
+
+  /** A hoarding on two posts, lit from below. */
+  function drawBillboard(e, px, py, pw, ph, dx, dy, hurt) {
+    const rx = px + dx;
+    const ry = py + dy;
+
+    ctx.strokeStyle = '#333c47';
+    ctx.lineWidth = 2.4;
+    for (const fx of [px + pw * 0.24, px + pw * 0.76]) {
+      ctx.beginPath();
+      ctx.moveTo(fx, py + ph - 2);
+      ctx.lineTo(fx + dx, ry + ph * 0.7);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = '#4a4033';
+    ctx.fillRect(rx, ry, pw, ph * 0.72);
+    // A washed-out poster: two bands and a block of colour, no text — text at
+    // this size is noise, and the shape alone reads as advertising.
+    const tone = hash2(e.id, e.cx) > 0.5 ? 'rgba(196, 122, 74, ' : 'rgba(94, 136, 168, ';
+    ctx.fillStyle = tone + (hurt > 0.5 ? '0.55)' : '0.28)') ;
+    ctx.fillRect(rx + 2, ry + 2, pw - 4, ph * 0.34);
+    ctx.fillStyle = 'rgba(228, 224, 214, 0.16)';
+    ctx.fillRect(rx + 2, ry + ph * 0.42, pw * 0.55, ph * 0.16);
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(rx + 0.5, ry + 0.5, pw - 1, ph * 0.72);
+
+    if (hurt > 0.4) {
+      glow(() => {
+        ctx.fillStyle = 'rgba(255, 226, 170, 0.10)';
+        ctx.fillRect(rx, ry + ph * 0.72, pw, 3);
+      });
+    }
+  }
+
+  /** A grain silo: a tall cylinder with a domed cap and a hazard band. */
+  function drawSilo(e, px, py, pw, ph, dx, dy, hurt) {
+    const cx = px + pw / 2;
+    const cy = py + ph / 2;
+    const r = pw * 0.34;
+    const ty = cy + dy;
+
+    ctx.fillStyle = '#232c36';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy + 3, r, r * 0.4, 0, 0, TAU);
+    ctx.fill();
+
+    const body = ctx.createLinearGradient(cx - r, 0, cx + r, 0);
+    body.addColorStop(0, '#333c46');
+    body.addColorStop(0.38, '#5a6675');
+    body.addColorStop(1, '#2a323b');
+    ctx.fillStyle = body;
+    ctx.fillRect(cx - r, ty, r * 2, cy + 3 - ty);
+
+    // Corrugation, which is most of what says "silo" rather than "tank".
+    ctx.strokeStyle = 'rgba(0,0,0,0.16)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 6; i++) {
+      const yy = ty + ((cy + 3 - ty) * i) / 6;
+      ctx.beginPath();
+      ctx.moveTo(cx - r, yy);
+      ctx.lineTo(cx + r, yy);
+      ctx.stroke();
+    }
+
+    ctx.fillStyle = '#66727f';
+    ctx.beginPath();
+    ctx.ellipse(cx + dx * 0.35, ty, r, r * 0.42, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#4c5866';
+    ctx.beginPath();
+    ctx.moveTo(cx + dx * 0.35, ty - r * 0.72);
+    ctx.lineTo(cx + dx * 0.35 + r * 0.78, ty + r * 0.1);
+    ctx.lineTo(cx + dx * 0.35 - r * 0.78, ty + r * 0.1);
+    ctx.closePath();
+    ctx.fill();
+
+    ctx.strokeStyle = hurt > 0.6 ? 'rgba(230, 178, 60, 0.55)' : 'rgba(230, 120, 50, 0.7)';
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.moveTo(cx - r, cy - 3);
+    ctx.lineTo(cx + r, cy - 3);
+    ctx.stroke();
+  }
+
+  /** A propane depot: a bank of cylinders behind a wire fence. */
+  function drawDepot(e, px, py, pw, ph, dx, dy, hurt) {
+    ctx.fillStyle = 'rgba(24, 30, 38, 0.85)';
+    ctx.fillRect(px + 1, py + 1, pw - 2, ph - 2);
+
+    // The cylinders, lying down in two rows.
+    const rows = 2;
+    const per = 3;
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < per; c++) {
+        const bx = px + 4 + (c * (pw - 8)) / per;
+        const by = py + 5 + (r * (ph - 10)) / rows;
+        const w = (pw - 8) / per - 1.5;
+        const h = (ph - 10) / rows - 1.5;
+        const g = ctx.createLinearGradient(0, by, 0, by + h);
+        g.addColorStop(0, '#6a7280');
+        g.addColorStop(0.5, '#49525e');
+        g.addColorStop(1, '#2c333c');
+        ctx.fillStyle = g;
+        ctx.fillRect(bx, by + dy * 0.25, w, h);
+        ctx.fillStyle = 'rgba(228, 120, 48, 0.55)';
+        ctx.fillRect(bx, by + dy * 0.25 + h * 0.35, w, 1.6);
+      }
+    }
+
+    // Chain-link fence: verticals only, which at this scale reads as mesh.
+    ctx.strokeStyle = 'rgba(150, 164, 180, 0.22)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= 6; i++) {
+      const fx = px + (i * pw) / 6;
+      ctx.beginPath();
+      ctx.moveTo(fx, py);
+      ctx.lineTo(fx + dx * 0.5, py + ph + dy * 0.5);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(180, 194, 210, 0.3)';
+    ctx.strokeRect(px + 0.5, py + 0.5, pw - 1, ph - 1);
+
+    // The hazard placard, which is the whole warning.
+    const sx = px + pw * 0.5;
+    const sy = py + ph * 0.5;
+    ctx.fillStyle = hurt > 0.6 ? 'rgba(236, 176, 48, 0.9)' : 'rgba(236, 90, 48, 0.95)';
+    ctx.beginPath();
+    ctx.moveTo(sx, sy - 4);
+    ctx.lineTo(sx + 4, sy);
+    ctx.lineTo(sx, sy + 4);
+    ctx.lineTo(sx - 4, sy);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  /** A wrecked bus, dead across the carriageway. */
+  function drawVehicle(e, px, py, pw, ph, dx, dy, hurt) {
+    const body = ctx.createLinearGradient(0, py, 0, py + ph);
+    body.addColorStop(0, '#4a4a3e');
+    body.addColorStop(0.55, '#3a3a31');
+    body.addColorStop(1, '#23231d');
+    ctx.fillStyle = body;
+    ctx.fillRect(px + 1, py + ph * 0.16, pw - 2, ph * 0.68);
+
+    // Roof, offset by the parallax so it reads as having height at all.
+    ctx.fillStyle = '#565646';
+    ctx.fillRect(px + 2 + dx * 0.5, py + ph * 0.2 + dy * 0.5, pw - 4, ph * 0.5);
+
+    // Window strip down the side, blown out where it is badly hurt.
+    for (let i = 0; i < 4; i++) {
+      const wx = px + 3 + i * ((pw - 6) / 4);
+      const broken = hash2(e.id + i, e.cx) > (hurt > 0.6 ? 0.75 : 0.3);
+      ctx.fillStyle = broken ? 'rgba(8, 10, 14, 0.9)' : 'rgba(120, 150, 168, 0.35)';
+      ctx.fillRect(wx + dx * 0.5, py + ph * 0.26 + dy * 0.5, (pw - 6) / 4 - 2, ph * 0.22);
+    }
+
+    ctx.fillStyle = '#15161a';
+    for (const wx of [px + pw * 0.2, px + pw * 0.74]) {
+      ctx.beginPath();
+      ctx.ellipse(wx, py + ph * 0.84, pw * 0.09, ph * 0.13, 0, 0, TAU);
+      ctx.fill();
+    }
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(px + 1.5, py + ph * 0.16 + 0.5, pw - 3, ph * 0.68);
+  }
+
+  /** A dry fountain: a basin, a plinth, and no water in it. */
+  function drawFountain(e, px, py, pw, ph, dx, dy) {
+    const cx = px + pw / 2;
+    const cy = py + ph / 2;
+
+    ctx.fillStyle = '#39424e';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, pw * 0.46, ph * 0.38, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = '#242c36';
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, pw * 0.38, ph * 0.3, 0, 0, TAU);
+    ctx.fill();
+    // Silt and leaves in the empty basin.
+    ctx.fillStyle = 'rgba(60, 70, 58, 0.5)';
+    ctx.beginPath();
+    ctx.ellipse(cx - pw * 0.05, cy + ph * 0.04, pw * 0.24, ph * 0.16, 0, 0, TAU);
+    ctx.fill();
+
+    ctx.fillStyle = '#4c576620';
+    const tx = cx + dx * 0.5;
+    const ty = cy + dy * 0.5;
+    ctx.strokeStyle = '#5b6674';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(cx, cy);
+    ctx.lineTo(tx, ty);
+    ctx.stroke();
+    ctx.fillStyle = '#6b7684';
+    ctx.beginPath();
+    ctx.ellipse(tx, ty, pw * 0.16, ph * 0.11, 0, 0, TAU);
+    ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.09)';
+    ctx.beginPath();
+    ctx.ellipse(tx - 1, ty - 1.5, pw * 0.1, ph * 0.06, 0, 0, TAU);
     ctx.fill();
   }
 
@@ -2087,6 +2504,10 @@ function paintTerrainRegion(ctx, map, cell, cx0, cy0, cx1, cy1) {
         paintCliff(ctx, map, cell, x, y, px, py);
         continue;
       }
+      if (t === 4) {
+        paintRoad(ctx, map, cell, x, y, px, py);
+        continue;
+      }
 
       // Ground and rough share a dirt palette; noise does the blending.
       // The large octave dominates: broad weathered patches, not per-cell
@@ -2203,6 +2624,59 @@ function paintCliff(ctx, map, cell, x, y, px, py) {
   if (TERRAIN_INFO[below].passable) {
     ctx.fillStyle = 'rgba(0,0,0,0.3)';
     ctx.fillRect(px, py + cell - 2 * k, cell, 2 * k);
+  }
+}
+
+/**
+ * Tarmac.
+ *
+ * Roads are the fastest ground in the game, so they have to *read* as the
+ * fastest ground from across the map — which means a colour and a direction,
+ * not just a different noise seed. The centre line is what supplies the
+ * direction: it runs along the road, so a junction is legible as a junction
+ * and a player can see where the network goes without following it.
+ *
+ * The kerb is drawn on edges that face away from other road cells, which is
+ * what stops a two-lane road looking like two one-lane roads.
+ */
+function paintRoad(ctx, map, cell, x, y, px, py) {
+  const k = cell / CELL;
+  const isRoad = (dx, dy) => {
+    const nx = x + dx;
+    const ny = y + dy;
+    if (nx < 0 || ny < 0 || nx >= map.width || ny >= map.height) return false;
+    return map.terrain[ny * map.width + nx] === 4;
+  };
+
+  const n = valueNoise(x, y, 0.09);
+  const base = 44 + n * 8;
+  ctx.fillStyle = `rgb(${Math.round(base)},${Math.round(base + 2)},${Math.round(base + 6)})`;
+  ctx.fillRect(px, py, cell, cell);
+
+  // Patches and repairs — a uniform slab reads as a placeholder.
+  for (let i = 0; i < 2; i++) {
+    if (hash2(x * 31 + i, y * 17) < 0.72) continue;
+    const hx = hash2(x * 13 + i, y * 7) * cell * 0.6;
+    const hy = hash2(x * 5, y * 23 + i) * cell * 0.6;
+    ctx.fillStyle = hash2(x + i, y) > 0.5 ? 'rgba(0,0,0,0.16)' : 'rgba(255,255,255,0.028)';
+    ctx.fillRect(px + hx, py + hy, cell * 0.34, cell * 0.3);
+  }
+
+  const horizontal = isRoad(-1, 0) || isRoad(1, 0);
+  const vertical = isRoad(0, -1) || isRoad(0, 1);
+
+  // Kerbs on the outward-facing edges only.
+  ctx.fillStyle = 'rgba(150, 160, 172, 0.13)';
+  if (!isRoad(0, -1)) ctx.fillRect(px, py, cell, 1.5 * k);
+  if (!isRoad(0, 1)) ctx.fillRect(px, py + cell - 1.5 * k, cell, 1.5 * k);
+  if (!isRoad(-1, 0)) ctx.fillRect(px, py, 1.5 * k, cell);
+  if (!isRoad(1, 0)) ctx.fillRect(px + cell - 1.5 * k, py, 1.5 * k, cell);
+
+  // Centre dashes, only on a straight run — a junction has no centre line.
+  if (horizontal !== vertical && hash2(x * 3, y * 3) > 0.32) {
+    ctx.fillStyle = 'rgba(214, 198, 120, 0.20)';
+    if (horizontal) ctx.fillRect(px + cell * 0.2, py + cell / 2 - k, cell * 0.6, 2 * k);
+    else ctx.fillRect(px + cell / 2 - k, py + cell * 0.2, 2 * k, cell * 0.6);
   }
 }
 

@@ -56,7 +56,7 @@ export const MISSIONS = [
     seed: 10412,
     mapSize: 112,
     reward: 400,
-    parTime: mins(4),
+    parTime: mins(7),
     teaches: 'Move, attack, and use jump jets.',
     briefing: `
 Ash came down eleven kilometres off-mark with two escorts and no transponder.
@@ -131,7 +131,7 @@ We have an economy again. Barely.
     seed: 20887,
     mapSize: 128,
     reward: 500,
-    parTime: mins(7),
+    parTime: mins(9),
     teaches: 'Harvesting, the Refinery, and defending an economy.',
     briefing: `
 The flats are one enormous debris field — eight years of Bulwark write-offs,
@@ -183,7 +183,7 @@ yet. We do now.
     seed: 31174,
     mapSize: 128,
     reward: 650,
-    parTime: mins(8),
+    parTime: mins(11),
     teaches: 'Power. What a brownout does to the other side.',
     briefing: `
 Station Kesh is a wall of turrets. Attacking it head-on is how you lose a crew.
@@ -304,7 +304,7 @@ She was right about that too.
     seed: 52630,
     mapSize: 144,
     reward: 1000,
-    parTime: mins(12),
+    parTime: mins(16),
     teaches: 'The whole loop: tech, air, and army composition.',
     briefing: `
 No tricks this time. They have a working base and so do you.
@@ -383,7 +383,7 @@ Wren landed with two-thirds of a wing and asked when we were going again.
     seed: 61905,
     mapSize: 144,
     reward: 1200,
-    parTime: mins(10),
+    parTime: mins(14),
     teaches: 'Siege. Range you cannot answer, and a base you cannot abandon.',
     briefing: `
 They have moved Longbows onto the shelf. Deployed, those things outrange every
@@ -438,7 +438,7 @@ The rig is intact. That was the whole job.
     seed: 70777,
     mapSize: 144,
     reward: 2000,
-    parTime: mins(15),
+    parTime: mins(20),
     teaches: null,
     briefing: `
 Eleven machines came down. Five pilots walked away. Everything since then has
