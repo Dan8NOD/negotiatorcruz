@@ -347,9 +347,9 @@ Any right-click order takes the machine back off the sticks — clicking
 somewhere is an unambiguous statement that you have let go. Skirmish has no
 hero, so it starts under the ordinary scheme.
 
-**Touch** — the third scheme, and the one the iOS build runs on. None of the
-original input exists on a phone, so this is a separate grammar rather than a
-translation:
+**Touch** — the third scheme, and the one the Fire OS and iOS builds run on.
+None of the original input exists on a tablet, so this is a separate grammar
+rather than a translation:
 
 | | |
 |---|---|
@@ -454,7 +454,15 @@ determinism guarantee above, and expensive without it.
 5. **More maps.** `createMap` takes a seed and a size; multi-start and
    four-player symmetry are the natural next step.
 6. **Lockstep multiplayer.** The command queue is the network protocol.
-7. **The Apple port.** Underway — `rocketman/swift/` holds RocketmanKit, the
+7. ~~**The Fire OS port.**~~ Done — `rocketman/android/`. A Kindle Fire HD runs
+   Chromium, so the game ships as itself: one Activity, one WebView, and the
+   same `engine/` and `web/` copied into the APK at build time. No fork and no
+   second copy of the rules. The work was the four things a browser tab was
+   doing for free — giving the assets a real origin so localStorage and ES
+   modules work at all, clearing the system bars, keeping Android's own
+   gestures off the battlefield, and giving the hardware Back button a meaning.
+   188 KB, no permissions, offline. See `rocketman/android/README.md`.
+8. **The Apple port.** Underway — `rocketman/swift/` holds RocketmanKit, the
    engine ported to Swift with a bit-for-bit conformance harness against
    fixtures exported from this engine (see `rocketman/swift/README.md`).
    Numeric groundwork is done: the simulation computes distance only through

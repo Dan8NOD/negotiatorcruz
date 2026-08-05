@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <!--
+    There is no <uses-permission> block, and that is the interesting part.
+
+    Rocketman makes no network requests at all: the stylesheet is inline, the
+    favicon is a data URI, the sound is synthesised from WebAudio primitives
+    rather than loaded, and every module is served out of the APK's own assets.
+    So the app does not request INTERNET, which means the Appstore privacy
+    questionnaire is answered by the manifest instead of by a promise, and a
+    parent handing a Fire tablet to a child can verify the claim from the
+    app's own permission list.
+  -->
+
+  <!-- Fire tablets are all touch devices; declaring it keeps the listing off
+       anything that is not. -->
+  <uses-feature android:name="android.hardware.touchscreen" android:required="true" />
+
+  <!-- Neither is used, and an undeclared-but-implied feature is a classic way
+       to get filtered off devices you meant to support. -->
+  <uses-feature android:name="android.hardware.camera" android:required="false" />
+  <uses-feature android:name="android.hardware.location" android:required="false" />
+  <uses-feature android:name="android.hardware.telephony" android:required="false" />
+
+  <supports-screens
+      android:smallScreens="false"
+      android:normalScreens="true"
+      android:largeScreens="true"
+      android:xlargeScreens="true"
+      android:anyDensity="true" />
+
+  <application
+      android:label="@string/app_name"
+      android:icon="@mipmap/ic_launcher"
+      android:roundIcon="@mipmap/ic_launcher_round"
+      android:theme="@style/Theme.Rocketman"
+      android:hardwareAccelerated="true"
+      android:appCategory="game"
+      android:isGame="true"
+      android:supportsRtl="false"
+      android:largeHeap="true"
+      android:installLocation="auto"
+      android:allowBackup="false"
+      android:fullBackupContent="false">
+
+    <activity
+        android:name=".MainActivity"
+        android:exported="true"
+        android:launchMode="singleTask"
+        android:screenOrientation="sensorLandscape"
+        android:resizeableActivity="true"
+        android:maxAspectRatio="2.4"
+        android:theme="@style/Theme.Rocketman"
+        android:hardwareAccelerated="true"
+        android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize|keyboard|keyboardHidden|navigation|uiMode|density|fontScale|locale|layoutDirection">
+
+      <!--
+        configChanges is doing real work above. Without it, flipping a Fire HD
+        end-over-end destroys and recreates the Activity, which reloads the
+        WebView and drops the match. The game autosaves every five seconds, so
+        it would survive — but it would survive as a "resume?" prompt in the
+        middle of a fight, which is not surviving.
+      -->
+
+      <intent-filter>
+        <action android:name="android.intent.action.MAIN" />
+        <category android:name="android.intent.category.LAUNCHER" />
+      </intent-filter>
+    </activity>
+  </application>
+</manifest>

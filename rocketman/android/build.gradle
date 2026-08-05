@@ -1,0 +1,5 @@
+// Root build file. The Android Gradle Plugin version is pinned rather than
+// floated: a game that ships to a store should build the same way in a year.
+plugins {
+  id 'com.android.application' version '8.7.3' apply false
+}

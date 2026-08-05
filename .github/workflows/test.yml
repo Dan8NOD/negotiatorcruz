@@ -112,6 +112,46 @@ jobs:
       - name: Browser tests
         run: npm run test:rocketman:e2e
 
+  # The Fire OS build (rocketman/android). Worth a job of its own because its
+  # failure mode is silent: the shell compiles whether or not the game was
+  # copied into it, so a broken asset sync ships an APK that installs, launches,
+  # and shows a black screen. The APK is unzipped below rather than trusted.
+  rocketman-android:
+    name: Rocketman (Fire OS)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Build the Fire tablet APK
+        run: ./gradlew assembleDebug --no-daemon
+        working-directory: rocketman/android
+
+      # The whole game, or the build is a lie.
+      - name: The APK actually contains the game
+        run: |
+          APK=rocketman/android/app/build/outputs/apk/debug/app-debug.apk
+          unzip -l "$APK" | grep -q 'assets/game/web/rocketman.html' \
+            || { echo "::error::The page is missing from the APK."; exit 1; }
+          engine=$(unzip -l "$APK" | grep -c 'assets/game/engine/.*\.js')
+          on_disk=$(find rocketman/engine -name '*.js' | wc -l)
+          [ "$engine" -eq "$on_disk" ] \
+            || { echo "::error::APK has $engine engine modules, repository has $on_disk."; exit 1; }
+          echo "Packaged $engine engine modules and the page."
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: rocketman-fire-apk
+          path: rocketman/android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 7
+
   # The Swift port of the engine (rocketman/swift). Runs in the official Swift
   # container so it needs no Mac: RocketmanKit is deliberately free of UIKit and
   # SpriteKit, which is what lets the conformance suite run on every push rather

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- The game's own background and accent custom properties, repeated here
+       because the launch window is drawn by the system before a single line of
+       the game's CSS is read. Any other value and the app flashes a different
+       colour on every cold start. -->
+  <color name="rocketman_bg">#FF080B10</color>
+  <color name="rocketman_panel">#FF101720</color>
+  <color name="rocketman_accent">#FF4FB3FF</color>
+  <color name="rocketman_flame">#FFFF8A4C</color>
+</resources>

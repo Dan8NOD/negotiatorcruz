@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The rocket mark from the game's favicon, redrawn as a vector.
+
+  Adaptive icons are authored on a 108x108 canvas of which only the middle 72
+  is guaranteed visible — Fire OS and every Android launcher mask the rest to
+  whatever shape they prefer. The geometry below is the favicon's path scaled
+  2.8x about the centre, which lands the mark inside that safe zone with room
+  for the parallax the launcher applies on top.
+
+  Vector rather than a set of PNGs because minSdk is 28: every device that can
+  install this app can render an adaptive icon, so the raster ladder would be
+  five files of dead weight.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+  <!-- Hull. -->
+  <path
+      android:pathData="M54,23.2 L70.8,56.8 L54,68 L37.2,56.8 Z"
+      android:fillColor="#4FB3FF" />
+
+  <!-- Exhaust. -->
+  <path
+      android:pathData="M45.6,70.8 L62.4,70.8 L54,84.8 Z"
+      android:fillColor="#FF8A4C" />
+</vector>
