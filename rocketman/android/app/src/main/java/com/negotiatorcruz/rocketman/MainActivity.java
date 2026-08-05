@@ -327,7 +327,10 @@ public final class MainActivity extends Activity {
       // Detach before destroy, or the WebView outlives the Activity holding a
       // reference to it and leaks the whole view tree.
       web.setWebChromeClient(null);
-      ((android.view.ViewGroup) web.getParent()).removeView(web);
+      android.view.ViewParent parent = web.getParent();
+      if (parent instanceof android.view.ViewGroup) {
+        ((android.view.ViewGroup) parent).removeView(web);
+      }
       web.destroy();
       web = null;
     }
