@@ -359,6 +359,24 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     delete window.__rocketman;
   };
 
+  // Touch controls exist only where there is a touch to give them. On a
+  // desktop they would be three dead buttons and a stick sitting over the
+  // battlefield.
+  const stick = $('stick');
+  const actions = $('touchActions');
+  if (input.isTouch) {
+    input.attachStick(stick, $('stickNub'));
+    actions.hidden = false;
+    $('btnAbility').onclick = () => input.useAbility(CHASSIS_SLOT);
+    $('btnSkyfall').onclick = () => input.useAbility(HERO_SLOT);
+    $('btnAttack').onclick = () => {
+      // Arms the same attack-move a long press gives, for players who would
+      // rather press a button than hold the screen.
+      toast('Tap a spot to attack-move there.');
+      input.armAttackMove();
+    };
+  }
+
   $('selectAll').onclick = () => {
     const n = input.selectAllUnits();
     toast(n ? `${n} machine${n === 1 ? '' : 's'} selected` : 'Nothing to select');
@@ -409,7 +427,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     // Camera. Driving locks it to the machine; otherwise the player pans.
     // Interpolated the same way the unit is drawn, or the view would judder
     // at the 20Hz simulation rate while the machine itself looks smooth.
-    const driven = input.drivenEntity();
+    const driven = input.cameraFollows ? input.drivenEntity() : null;
     if (driven) {
       renderer.centreOn(
         driven.x - driven.vx * (1 - renderer.state.alpha),
@@ -484,6 +502,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     if (world.tick % 5 === 0) {
       renderHud();
       renderRoster();
+      if (input.isTouch) renderTouchControls();
       if (mission) renderObjectives();
     }
 
@@ -595,6 +614,38 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     $('clock').textContent = `${String(Math.floor(seconds / 60)).padStart(2, '0')}:${String(
       seconds % 60
     ).padStart(2, '0')}`;
+  }
+
+  /**
+   * Keep the on-screen controls honest: the stick only when someone is in the
+   * cockpit, and the ability buttons labelled with what they actually fire
+   * and whether it is ready. A dead button that looks alive is worse on a
+   * phone than on a desktop, because there is no tooltip to explain it.
+   */
+  function renderTouchControls() {
+    const driven = input.drivenEntity();
+    stick.hidden = !driven;
+
+    const selected = input.selectedEntities();
+    const chassis = selected.find((e) => e.ability);
+    const crew = selected.find((e) => e.heroAbility);
+
+    const paint = (id, slot, holder) => {
+      const btn = $(id);
+      if (!holder) {
+        btn.classList.add('off');
+        btn.classList.remove('ready');
+        return;
+      }
+      const ready = abilityReady(world, holder, slot);
+      btn.querySelector('b').textContent = holder[slot].def.name;
+      const left = Math.ceil(holder[slot].cooldown / TICKS_PER_SECOND);
+      btn.querySelector('em').textContent = ready ? 'ready' : `${left}s`;
+      btn.classList.toggle('ready', ready);
+      btn.classList.toggle('off', !ready);
+    };
+    paint('btnAbility', CHASSIS_SLOT, chassis);
+    paint('btnSkyfall', HERO_SLOT, crew);
   }
 
   /** Which control scheme is live, and who is in the seat. */
@@ -958,7 +1009,10 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       );
     }
 
-    if (abilityRow.children.length > 0) {
+    // On touch the two big round buttons already are the abilities, with the
+    // same cooldowns on them. Repeating them in the panel spends a third of a
+    // phone screen saying something the player can already see and press.
+    if (abilityRow.children.length > 0 && !input.isTouch) {
       panel.appendChild(sectionTitle(withCrew.length ? 'Abilities · Crew' : 'Ability'));
       panel.appendChild(abilityRow);
     }

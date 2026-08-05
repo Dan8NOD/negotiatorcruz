@@ -15,7 +15,7 @@ npm run serve                 # http://127.0.0.1:4321
 open http://127.0.0.1:4321/rocketman/web/rocketman.html
 
 npm run test:rocketman        # 397 simulation tests
-npm run test:rocketman:e2e    # 38 browser tests
+npm run test:rocketman:e2e    # 44 browser tests, six of them on a phone viewport
 ```
 
 ---
@@ -346,6 +346,31 @@ should be someone you drive rather than a token you click at.
 Any right-click order takes the machine back off the sticks — clicking
 somewhere is an unambiguous statement that you have let go. Skirmish has no
 hero, so it starts under the ordinary scheme.
+
+**Touch** — the third scheme, and the one the iOS build runs on. None of the
+original input exists on a phone, so this is a separate grammar rather than a
+translation:
+
+| | |
+|---|---|
+| Drag anywhere on the field | Pan the camera |
+| Two fingers | Pinch to zoom |
+| Tap one of yours | Select it |
+| Tap the ground or an enemy | Move there, or attack it |
+| Long press | Attack-move — the deliberate version |
+| Thumbstick, bottom left | Drive your pilot |
+| Round buttons, right edge | Chassis ability, Skyfall, attack-move |
+
+Drag-versus-tap is decided by distance and time rather than by a mode: under
+12px and 320ms it was a tap, otherwise the camera moved and nothing is
+ordered. Without that, every attempt to look around issues a move order to
+wherever your thumb lifted.
+
+The match screen is one fullscreen canvas with every panel floating over it,
+positioned off `env(safe-area-inset-*)` so nothing lands under a notch. The
+command panel is transparent to the pointer and only its controls capture, so
+the ground underneath stays tappable — a floating panel should be a window,
+not a wall.
 
 **Command** — the classic RTS scheme, and what `C` returns you to.
 
