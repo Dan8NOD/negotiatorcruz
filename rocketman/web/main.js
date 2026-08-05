@@ -560,6 +560,16 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     })(),
     camera: { x: renderer.camera.x, y: renderer.camera.y, zoom: renderer.camera.zoom },
     map: { width: world.map.width, height: world.map.height },
+    /**
+     * Your standing structures, by id.
+     *
+     * Counts alone cannot answer "did that order hit the building I had
+     * selected?" — and when two of them are identical, that is exactly the
+     * question worth asking.
+     */
+    structures: [...world.entities.values()]
+      .filter((e) => e.kind === 'building' && e.player === VIEWER && !e.dead)
+      .map((e) => ({ id: e.id, defId: e.defId, cx: e.cx, cy: e.cy })),
     /** Offscreen canvas cost, so a test can hold the phone budget to account. */
     buffers: { megabytes: renderer.bufferMegabytes(), chunks: renderer.residentChunks() },
     /** The player character, whether or not it is currently being driven. */
@@ -717,13 +727,24 @@ function startMatch(config, { mission, resume = null, watch = null }) {
    *
    * Moving nodes between parents preserves their listeners, so the buttons
    * that survive a swap keep working.
+   *
+   * `bound` is what the buttons' click handlers *close over* — the entity ids
+   * an order will be sent to. It has to be part of the comparison, because
+   * markup is not: select one Refinery and then an identical undamaged one
+   * beside it and every pixel matches, so the swap is skipped and the Sell
+   * button that stays on screen is still holding the first Refinery's id.
+   * The player sells a building they are not looking at. Identical-looking is
+   * not the same as interchangeable, and the ids are the difference.
    */
-  function commitPanel(id, scratch) {
-    const html = scratch.innerHTML;
+  function commitPanel(id, scratch, bound = '') {
+    const html = `${bound}\n${scratch.innerHTML}`;
     if (panelCache.get(id) === html) return;
     panelCache.set(id, html);
     $(id).replaceChildren(...scratch.childNodes);
   }
+
+  /** The ids a panel's handlers are bound to, in selection order. */
+  const boundIds = (entities) => entities.map((e) => e.id).join(',');
 
   /**
    * The bottom roster: named pilots first, then one chip per unit type.
@@ -805,7 +826,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
 
     if (selected.length === 0) {
       panel.innerHTML = '<p class="hint">Left-drag to select. Right-click to order.</p>';
-      commitPanel('selection', panel);
+      commitPanel('selection', panel, boundIds(selected));
       return;
     }
 
@@ -830,7 +851,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
         ${shield}${cargo}${rank}
         <p class="hint">${e.def.hint || ''}</p>`;
       panel.appendChild(card);
-      commitPanel('selection', panel);
+      commitPanel('selection', panel, boundIds(selected));
       return;
     }
 
@@ -856,7 +877,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       more.textContent = `+${selected.length - 24} more`;
       panel.appendChild(more);
     }
-    commitPanel('selection', panel);
+    commitPanel('selection', panel, boundIds(selected));
   }
 
   function renderCommands() {
@@ -1068,7 +1089,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
         '<p class="hint">Select the Command Rig to build, or a Foundry to make mechs.</p>';
     }
 
-    commitPanel('commands', panel);
+    commitPanel('commands', panel, boundIds(selected));
   }
 
   /** Skirmish end card — also the end card for any watched replay. */

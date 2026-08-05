@@ -20,9 +20,10 @@ import {
   ensureConnected,
   pathStats,
 } from '../engine/grid.js';
-import { TERRAIN, TERRAIN_INFO, MIN_TERRAIN_COST, PROPS } from '../engine/content.js';
+import { TERRAIN, TERRAIN_INFO, MIN_TERRAIN_COST, PROPS, TICKS_PER_SECOND } from '../engine/content.js';
 import { MISSIONS } from '../engine/campaign.js';
-import { createWorld } from '../engine/sim.js';
+import { createWorld, tick } from '../engine/sim.js';
+import { updateAI } from '../engine/ai.js';
 
 const SEEDS = [1, 7, 42, 1234, 90210];
 
@@ -307,5 +308,53 @@ describe('a generated map is always playable', () => {
       expanded < cells * 0.2,
       `expanded ${expanded} of ${cells} cells for an order ${nearestD} cells away`
     );
+  });
+});
+
+describe('a bigger map still produces a finished match', () => {
+  test('AI skirmishes resolve rather than grinding to a halt', () => {
+    // The property doubling the map nearly cost. It is not enough that the
+    // generator produce a fair, connected, well-furnished map: two AIs have to
+    // be able to *finish* on it.
+    //
+    // They could not. `nearestResourceCell` stopped looking after 30 cells,
+    // which on a 72-cell map was most of the world; on a 144-cell one it meant
+    // that the moment a side mined out the field beside its base, every
+    // collector went idle and stayed idle. Income froze at two minutes and the
+    // match ran for twenty-five more with neither side able to break the other
+    // — and nothing in the simulation was throwing, failing or even slow.
+    const LIMIT = TICKS_PER_SECOND * 60 * 20;
+    // Two seeds, not a sweep: 1234 is the one that actually stalled, 7 is a
+    // control. Each match is a real minute of simulated fighting, so the
+    // coverage has to be worth the wall clock.
+    for (const seed of [7, 1234]) {
+      const world = createWorld({
+        seed,
+        players: [
+          { faction: 'ascendancy', isAI: true, difficulty: 'normal' },
+          { faction: 'bulwark', isAI: true, difficulty: 'normal' },
+        ],
+      });
+
+      for (let i = 0; i < LIMIT && !world.over; i++) {
+        const commands = [];
+        for (const p of world.players) {
+          if (p.isAI && !p.defeated) commands.push(...updateAI(world, p));
+        }
+        tick(world, commands);
+      }
+
+      const minutes = (world.tick / TICKS_PER_SECOND / 60).toFixed(1);
+      assert.ok(world.over, `seed ${seed} was still going after ${minutes} minutes`);
+      // Both sides mining all the way through is what "resolved" has to mean —
+      // a match that ends because one side starved is the same bug wearing a
+      // different result.
+      for (const p of world.players) {
+        assert.ok(
+          p.scrapMined > 20000,
+          `seed ${seed}: player ${p.id} only ever mined ${Math.round(p.scrapMined)}`
+        );
+      }
+    }
   });
 });

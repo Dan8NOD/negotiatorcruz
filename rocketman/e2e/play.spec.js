@@ -487,3 +487,59 @@ test('a structure can be built and then sold back for scrap', async ({ page }) =
   expect(after.players[0].scrap).toBeGreaterThan(before.players[0].scrap - 200);
   expect(match.errors).toEqual([]);
 });
+
+test('an order hits the structure you selected, not an identical one you selected before', async ({
+  page,
+}) => {
+  test.setTimeout(120000);
+  const match = await startMatch(page);
+
+  // Two Reactors. Two, specifically, and undamaged: an identical pair is the
+  // case where the HUD's "skip the rebuild when nothing changed" optimisation
+  // gets it wrong, because nothing visible *has* changed. Same name, same
+  // refund, same hull — byte-identical markup — while the buttons on screen
+  // are still bound to the first one's id.
+  // Sweep a grid around the base rather than trusting hand-picked pixels: the
+  // build radius, the wreck field and the starting units all rule spots out,
+  // and a red "cannot build there" is a correct refusal rather than a bug.
+  const spots = [];
+  for (let y = 200; y <= 560 && spots.length < 2; y += 90) {
+    for (let x = 380; x <= 1000 && spots.length < 2; x += 90) {
+      await page.keyboard.press('b');
+      await page.keyboard.press('1');
+      await page.mouse.move(x, y);
+      await page.mouse.click(x, y);
+      await page.waitForTimeout(260);
+      const s = await match.state();
+      if ((s.counts['0:reactor'] || 0) === spots.length + 1) spots.push([x, y]);
+    }
+  }
+  expect(spots.length).toBe(2);
+
+  // Let both finish, so they are identical rather than one being a site.
+  await page.waitForTimeout(16000);
+
+  const before = await match.state();
+  const reactors = before.structures.filter((s) => s.defId === 'reactor');
+  expect(reactors.length).toBe(2);
+
+  // Select the first, then the second. The second is the one being sold.
+  await page.mouse.click(spots[0][0], spots[0][1]);
+  await page.waitForTimeout(400);
+  await expect(page.locator('#selection')).toContainText('Reactor');
+
+  await page.mouse.click(spots[1][0], spots[1][1]);
+  await page.waitForTimeout(400);
+  const selected = (await match.state()).selection;
+  expect(selected.length).toBe(1);
+  const targeted = selected[0];
+
+  await page.locator('#commands .cmd', { hasText: 'Sell' }).click();
+  await page.waitForTimeout(800);
+
+  const after = await match.state();
+  const left = after.structures.filter((s) => s.defId === 'reactor');
+  expect(left.length).toBe(1);
+  expect(left[0].id).not.toBe(targeted);
+  expect(match.errors).toEqual([]);
+});
