@@ -363,10 +363,24 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   const canvas = $('view');
   const minimap = $('minimap');
   const renderer = createRenderer(canvas, world, VIEWER);
+  // Selection is answered on the way *up* only. Picking a squad should say
+  // something; dropping one should not, or every click on empty ground
+  // becomes a radio call.
+  let lastSelectionSize = 0;
+
   const input = createInput(canvas, world, VIEWER, renderer, {
     onMessage: toast,
-    onSelectionChange: () => renderHud(),
+    onSelectionChange: () => {
+      renderHud();
+      const size = input.selection.size;
+      if (size > lastSelectionSize) sound.ack('select', [...input.selection][0] || 0);
+      lastSelectionSize = size;
+    },
     onModeChange: (unit) => showControlMode(unit),
+    // A spectator's orders are dropped on the floor — the log is the only
+    // author the simulation listens to — so they must not be answered. A
+    // "moving out" for an order nobody carried out is a lie.
+    onCommand: (cmd) => !watch && sound.order(cmd),
   });
   input.attachMinimap(minimap);
 
@@ -422,10 +436,25 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       clock.speed = Math.max(0.5, clock.speed / 2);
       toast(`Speed ×${clock.speed}`);
     } else if (ev.key === 'm' || ev.key === 'M') {
-      toast(sound.toggleMute() ? 'Sound off' : 'Sound on');
+      setMuted(sound.toggleMute());
     }
   };
   window.addEventListener('keydown', onKey);
+
+  /** One place decides what the mute button says, whoever flipped it. */
+  const muteButton = $('muteToggle');
+  function setMuted(isMuted) {
+    if (muteButton) {
+      muteButton.textContent = isMuted ? 'Muted' : 'Sound';
+      muteButton.setAttribute('aria-pressed', isMuted ? 'true' : 'false');
+    }
+    toast(isMuted ? 'Sound off' : 'Sound on');
+  }
+  if (muteButton) {
+    muteButton.textContent = sound.muted ? 'Muted' : 'Sound';
+    muteButton.setAttribute('aria-pressed', sound.muted ? 'true' : 'false');
+    muteButton.onclick = () => setMuted(sound.toggleMute());
+  }
 
   match.teardown = () => {
     window.removeEventListener('resize', onResize);
@@ -617,6 +646,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     mission: mission ? mission.id : null,
     mode: watch ? 'replay' : resume ? 'resumed' : 'live',
     muted: sound.muted,
+    audio: sound.stats(),
     driving: input.driving,
     driven: (() => {
       const e = input.drivenEntity();
