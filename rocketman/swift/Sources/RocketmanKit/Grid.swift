@@ -29,6 +29,11 @@ public enum Terrain: UInt8 {
     case rough = 1
     case cliff = 2
     case water = 3
+    /// Tarmac. Appended rather than inserted, for the same reason the JS
+    /// engine appended it: both sides read these as raw indices, and
+    /// renumbering `ground` out from under a stored map would be a silent,
+    /// map-wide corruption.
+    case road = 4
 }
 
 /// Movement cost per terrain, and whether ground units may enter at all.
@@ -43,18 +48,41 @@ public let terrainInfo: [TerrainInfo] = [
     TerrainInfo(passable: true, cost: 1.7),  // rough
     TerrainInfo(passable: false, cost: .infinity),  // cliff
     TerrainInfo(passable: false, cost: .infinity),  // water
+    TerrainInfo(passable: true, cost: 0.72),  // road
 ]
+
+/// The cheapest step any ground unit can take, mirroring `MIN_TERRAIN_COST`.
+///
+/// Octile distance assumes one unit of cost per step, which was true while the
+/// cheapest terrain cost exactly 1. Roads made it false, and a heuristic that
+/// over-estimates stops A* returning shortest paths — it would route units
+/// around the very network they were built to use.
+public let minTerrainCost: Double = terrainInfo.reduce(Double.infinity) {
+    $1.passable && $1.cost < $0 ? $1.cost : $0
+}
 
 /// Footprint sizes for the destructible scenery placed by `createMap`. Only
 /// `size` from engine/content.js PROPS — the rest (hp, armor, death
 /// explosions) belongs to entities/combat and has no reader here.
 public let propSizes: [String: (width: Int, height: Int)] = [
-    "tower": (2, 2),
-    "house": (1, 1),
+    "apartment": (2, 3),
+    "billboard": (2, 1),
+    "bus": (2, 1),
+    "chapel": (2, 2),
+    "depot": (2, 2),
+    "fountain": (2, 2),
     "gasstation": (2, 1),
-    "tree": (1, 1),
+    "hedge": (2, 1),
+    "house": (1, 1),
+    "mast": (1, 1),
+    "pine": (1, 1),
+    "silo": (2, 2),
     "statue": (1, 1),
     "tank": (1, 1),
+    "tower": (2, 2),
+    "tree": (1, 1),
+    "warehouse": (3, 2),
+    "watertower": (2, 2),
 ]
 
 // MARK: - Map
@@ -112,7 +140,14 @@ public struct GameMap {
 /// which is what `RNG(signedSeed:)` exists to consume directly.
 private let seedMix = Int32(bitPattern: 0x9e3779b9)
 
-public func createMap(seed: Int, width: Int = 72, height: Int = 72) -> GameMap {
+/// Default map edge, doubled from the 72 the game shipped with. At 144 there
+/// is room for a route to be a *choice* rather than a walk down the only
+/// corridor, which is the whole point of having terrain at all.
+public let defaultMapSize = 144
+
+public func createMap(seed: Int, width: Int = defaultMapSize, height: Int = defaultMapSize)
+    -> GameMap
+{
     var rng = RNG(signedSeed: Int32(truncatingIfNeeded: seed) ^ seedMix)
     var map = GameMap(width: width, height: height)
 
@@ -137,13 +172,280 @@ public func createMap(seed: Int, width: Int = 72, height: Int = 72) -> GameMap {
     addFieldPair(&map, jsRoundInt(Double(width) * 0.33), jsRoundInt(Double(height) * 0.62), 5, 1900, &rng)
     addFieldPair(&map, jsRoundInt(Double(width) * 0.5), jsRoundInt(Double(height) * 0.5), 6, 2600, &rng)
 
+    // Expansion fields, so a doubled map has something worth crossing it for.
+    // Scaled by area: on the old 72×72 this adds none and the map is exactly
+    // the three-field economy it always was.
+    let extraFields = max(0, jsRoundInt(Double(width * height) / 4200) - 1)
+    for _ in 0..<extraFields {
+        let fx = 6 + rng.int(width - 12)
+        let fy = 6 + rng.int(height - 12)
+        if nearAny(map.starts.map { (x: $0.x, y: $0.y) }, fx, fy, 14) { continue }
+        addFieldPair(&map, fx, fy, 4 + rng.int(2), 1400 + rng.int(700), &rng)
+    }
+
+    // The opening Command Rig is 3×3 anchored one cell up and left of the
+    // start, and `canPlace` refuses any footprint with scrap under it. Clearing
+    // the footprint after every field is stamped makes "your base fits where
+    // the game put you" structural instead of lucky.
+    for s in map.starts { clearResource(&map, s.x, s.y, 2) }
+
     // Scenery last: it reads the finished terrain and the wreck fields so it
     // can refuse to stand on either.
-    addNeighbourhood(&map, jsRoundInt(Double(width) * 0.3), jsRoundInt(Double(height) * 0.44), &rng)
-    addNeighbourhood(&map, jsRoundInt(Double(width) * 0.62), jsRoundInt(Double(height) * 0.24), &rng)
+    let districts = planDistricts(map, &rng)
+    for d in districts { buildDistrict(&map, d, &rng) }
+    connectDistricts(&map, districts)
     addLandmarks(&map, &rng)
+    ensureConnected(&map)
 
     return map
+}
+
+// MARK: - Districts
+
+/// The kinds of place a map can contain. Order is load-bearing: the JS engine
+/// indexes this list with a single `rng.int`, so reordering it would generate
+/// a different city from the same seed.
+private let districtKinds = ["suburb", "downtown", "industrial", "park"]
+
+private struct District {
+    let x: Int
+    let y: Int
+    let kind: String
+}
+
+/// Choose district anchors: how many, where, and of what kind.
+///
+/// A bounded number of attempts, not a loop until success: on a small or
+/// cliff-heavy map there may be nowhere left, and spinning forever waiting for
+/// a seed to cooperate is not a generation strategy.
+private func planDistricts(_ map: GameMap, _ rng: inout RNG) -> [District] {
+    let width = map.width
+    let height = map.height
+    let wanted = max(2, jsRoundInt(Double(width * height) / 1500))
+    var chosen: [District] = []
+
+    var attempt = 0
+    while attempt < wanted * 12 && chosen.count < wanted {
+        attempt += 1
+        let x = 8 + rng.int(max(1, width - 16))
+        let y = 8 + rng.int(max(1, height - 16))
+        if nearAny(map.starts.map { (x: $0.x, y: $0.y) }, x, y, 16) { continue }
+        if nearAny(chosen.map { (x: $0.x, y: $0.y) }, x, y, 15) { continue }
+        chosen.append(District(x: x, y: y, kind: districtKinds[rng.int(districtKinds.count)]))
+    }
+    return chosen
+}
+
+private func nearAny(_ points: [(x: Int, y: Int)], _ x: Int, _ y: Int, _ distance: Int) -> Bool {
+    points.contains { abs($0.x - x) < distance && abs($0.y - y) < distance }
+}
+
+private func buildDistrict(_ map: inout GameMap, _ district: District, _ rng: inout RNG) {
+    switch district.kind {
+    case "downtown": addDowntown(&map, district.x, district.y, &rng)
+    case "industrial": addIndustrial(&map, district.x, district.y, &rng)
+    case "park": addPark(&map, district.x, district.y, &rng)
+    default: addNeighbourhood(&map, district.x, district.y, &rng)
+    }
+}
+
+/// Tower blocks on a street grid, with the mast and the billboards that make a
+/// skyline legible from across the map. A grid casts long straight firing
+/// lanes, which is a different kind of fight from the suburbs.
+private func addDowntown(_ map: inout GameMap, _ cx: Int, _ cy: Int, _ rng: inout RNG) {
+    let blocks = 2 + rng.int(2)
+    for by in 0..<blocks {
+        for bx in 0..<blocks {
+            let x = cx + bx * 6
+            let y = cy + by * 6
+            if rng.chance(0.22) { continue }
+            addPropPair(&map, rng.chance(0.45) ? "tower" : "apartment", x, y)
+            if rng.chance(0.4) { addPropPair(&map, "billboard", x + 3, y + 1) }
+        }
+    }
+    // Streets through the grid, so downtown is walkable rather than a wall.
+    for i in 0...blocks {
+        paveLine(&map, cx - 2, cy + i * 6 - 2, cx + blocks * 6, cy + i * 6 - 2, 2)
+        paveLine(&map, cx + i * 6 - 2, cy - 2, cx + i * 6 - 2, cy + blocks * 6, 2)
+    }
+    addPropPair(&map, "mast", cx + blocks * 3, cy - 3)
+    if rng.chance(0.6) { addPropPair(&map, "bus", cx - 1, cy + rng.int(blocks * 6)) }
+}
+
+/// The dangerous one: fuel, grain dust and propane inside one blast radius of
+/// each other, which makes the estate a weapon rather than an obstacle.
+private func addIndustrial(_ map: inout GameMap, _ cx: Int, _ cy: Int, _ rng: inout RNG) {
+    addPropPair(&map, "warehouse", cx, cy)
+    if rng.chance(0.7) { addPropPair(&map, "warehouse", cx + 4, cy + 3) }
+    addPropPair(&map, "silo", cx - 3, cy + 1)
+    if rng.chance(0.55) { addPropPair(&map, "silo", cx - 3, cy + 4) }
+
+    // The tank farm, tight enough that one rocket takes the row.
+    for i in 0..<4 {
+        addPropPair(&map, "tank", cx + 1 + (i % 2) * 2, cy + 4 + (i / 2) * 2)
+    }
+    addPropPair(&map, "depot", cx + 4, cy - 2)
+    addPropPair(&map, "watertower", cx - 3, cy - 3)
+    if rng.chance(0.5) { addPropPair(&map, "mast", cx + 7, cy + 1) }
+    paveLine(&map, cx - 5, cy + 8, cx + 8, cy + 8, 2)
+}
+
+/// Green space: old growth, hedges, and something to stand around.
+private func addPark(_ map: inout GameMap, _ cx: Int, _ cy: Int, _ rng: inout RNG) {
+    addPropPair(&map, "fountain", cx, cy)
+    let trees = 6 + rng.int(7)
+    for i in 0..<trees {
+        let off = ringOffset(i + 1, radius: Double(3 + rng.int(5)))
+        addPropPair(
+            &map,
+            rng.chance(0.45) ? "pine" : "tree",
+            cx + jsRoundInt(off.x),
+            cy + jsRoundInt(off.y))
+    }
+    for _ in 0..<3 {
+        if !rng.chance(0.6) { continue }
+        addPropPair(&map, "hedge", cx - 4 + rng.int(9), cy - 4 + rng.int(9))
+    }
+    if rng.chance(0.4) { addPropPair(&map, "statue", cx + 3, cy - 3) }
+}
+
+/// Tarmac between the districts — the reason the map has a shape.
+///
+/// Each district is joined to its nearest neighbour rather than to all of
+/// them: a complete graph paves half the map and stops meaning anything.
+private func connectDistricts(_ map: inout GameMap, _ districts: [District]) {
+    for i in 0..<districts.count {
+        var best = -1
+        var bestD = Double.infinity
+        for j in 0..<districts.count {
+            if i == j { continue }
+            let d = len(
+                Double(districts[i].x - districts[j].x), Double(districts[i].y - districts[j].y))
+            if d < bestD {
+                bestD = d
+                best = j
+            }
+        }
+        if best < 0 { continue }
+        let a = districts[i]
+        let b = districts[best]
+        // Dog-leg rather than diagonal: roads meet at junctions, and a diagonal
+        // road across a square grid is a staircase that reads as a bug.
+        paveLine(&map, a.x, a.y, b.x, a.y, 2)
+        paveLine(&map, b.x, a.y, b.x, b.y, 2)
+    }
+}
+
+/// Lay tarmac along a straight run, `lanes` cells wide, mirrored as it goes.
+///
+/// Paves over cliff as well as ground, so a road is also a mountain pass.
+/// Water is the exception — the surface stops at the bank and picks up on the
+/// far side, which reads as a ford. Never paves near a start: roads are
+/// unbuildable, and a dual carriageway through your only flat ground is not a
+/// difficulty setting.
+private func paveLine(
+    _ map: inout GameMap, _ x0: Int, _ y0: Int, _ x1: Int, _ y1: Int, _ lanes: Int = 2
+) {
+    let steps = max(abs(x1 - x0), abs(y1 - y0))
+    if steps == 0 { return }
+    let stepX = Double(x1 - x0) / Double(steps)
+    let stepY = Double(y1 - y0) / Double(steps)
+    // Lanes are laid perpendicular to travel, so a vertical road widens
+    // sideways and a horizontal one widens up and down.
+    let acrossX = abs(stepX) > abs(stepY) ? 0 : 1
+    let acrossY = acrossX == 1 ? 0 : 1
+
+    let starts = map.starts.map { (x: $0.x, y: $0.y) }
+    for s in 0...steps {
+        let bx = jsRoundInt(Double(x0) + stepX * Double(s))
+        let by = jsRoundInt(Double(y0) + stepY * Double(s))
+        for lane in 0..<lanes {
+            let x = bx + acrossX * lane
+            let y = by + acrossY * lane
+            if !inBounds(map, x, y) { continue }
+            // Leave the sealed border alone.
+            if x < 1 || y < 1 || x >= map.width - 1 || y >= map.height - 1 { continue }
+            let i = y * map.width + x
+            if map.terrain[i] == Terrain.water.rawValue { continue }
+            if map.resource[i] > 0 { continue }
+            if map.propCells[i] != 0 { continue }
+            if nearAny(starts, x, y, 9) { continue }
+            paintMirrored(&map, x, y, .road)
+        }
+    }
+}
+
+// MARK: - Connectivity
+
+/// Guarantee the two starts can reach each other on foot.
+///
+/// A long ridge on an unlucky seed could partition the map, at which point no
+/// objective can be completed and the match is unwinnable. In practice the
+/// passes cut into every ridge plus the road network leave every swept seed
+/// connected without this, so it is a backstop — one flood fill against a
+/// failure that would otherwise reach a player rather than a test.
+public func ensureConnected(_ map: inout GameMap) {
+    guard map.starts.count >= 2 else { return }
+    let a = map.starts[0]
+    let b = map.starts[1]
+    if reachable(map, (x: a.x, y: a.y), (x: b.x, y: b.y)) { return }
+
+    // Cuts ground rather than road: a road is unbuildable, and this runs
+    // straight through the middle of both bases.
+    cutCorridor(&map, a.x, a.y, b.x, a.y)
+    cutCorridor(&map, b.x, a.y, b.x, b.y)
+}
+
+/// Breadth-first flood over passable cells. Terrain only — buildings move.
+private func reachable(_ map: GameMap, _ from: (x: Int, y: Int), _ to: (x: Int, y: Int)) -> Bool {
+    var seen = [UInt8](repeating: 0, count: map.width * map.height)
+    var queue = [from.y * map.width + from.x]
+    seen[queue[0]] = 1
+    let goal = to.y * map.width + to.x
+
+    var head = 0
+    while head < queue.count {
+        let at = queue[head]
+        head += 1
+        if at == goal { return true }
+        let x = at % map.width
+        let y = at / map.width
+        for dy in -1...1 {
+            for dx in -1...1 {
+                if dx == 0 && dy == 0 { continue }
+                let nx = x + dx
+                let ny = y + dy
+                if !inBounds(map, nx, ny) { continue }
+                let ni = ny * map.width + nx
+                if seen[ni] != 0 { continue }
+                if !terrainInfo[Int(map.terrain[ni])].passable { continue }
+                seen[ni] = 1
+                queue.append(ni)
+            }
+        }
+    }
+    return false
+}
+
+/// Flatten a two-cell-wide run to walkable ground, mirrored.
+private func cutCorridor(_ map: inout GameMap, _ x0: Int, _ y0: Int, _ x1: Int, _ y1: Int) {
+    let steps = max(abs(x1 - x0), abs(y1 - y0))
+    if steps == 0 { return }
+    let stepX = Double(x1 - x0) / Double(steps)
+    let stepY = Double(y1 - y0) / Double(steps)
+    let acrossX = abs(stepX) > abs(stepY) ? 0 : 1
+    let acrossY = acrossX == 1 ? 0 : 1
+
+    for s in 0...steps {
+        for lane in 0..<2 {
+            let x = jsRoundInt(Double(x0) + stepX * Double(s)) + acrossX * lane
+            let y = jsRoundInt(Double(y0) + stepY * Double(s)) + acrossY * lane
+            if !inBounds(map, x, y) { continue }
+            if x < 1 || y < 1 || x >= map.width - 1 || y >= map.height - 1 { continue }
+            if terrainInfo[Int(map.terrain[y * map.width + x])].passable { continue }
+            paintMirrored(&map, x, y, .ground)
+        }
+    }
 }
 
 // MARK: - Props
@@ -207,14 +509,14 @@ private func addNeighbourhood(_ map: inout GameMap, _ cx: Int, _ cy: Int, _ rng:
     var road: [(x: Int, y: Int)] = []
 
     for i in -length...length {
-        let x = horizontal ? cx + i : cx
-        let y = horizontal ? cy : cy + i
-        road.append((x: x, y: y))
-        // The street itself is kept clear so the block is walkable, not a wall.
-        if inBounds(map, x, y) && map.terrain[y * map.width + x] == Terrain.rough.rawValue {
-            paintMirrored(&map, x, y, .ground)
-        }
+        road.append((x: horizontal ? cx + i : cx, y: horizontal ? cy : cy + i))
     }
+
+    // The street is tarmac, not just cleared ground: a suburb you can drive
+    // through fast is a suburb worth driving through.
+    let first = road[0]
+    let last = road[road.count - 1]
+    paveLine(&map, first.x, first.y, last.x, last.y, 1)
 
     // Houses face the street from both sides, with gaps for driveways.
     for cell in road {
@@ -222,41 +524,42 @@ private func addNeighbourhood(_ map: inout GameMap, _ cx: Int, _ cy: Int, _ rng:
             if rng.chance(0.28) { continue }
             let x = horizontal ? cell.x : cell.x + side
             let y = horizontal ? cell.y + side : cell.y
-            addPropPair(&map, rng.chance(0.18) ? "tree" : "house", x, y)
+            let roll = rng.next()
+            let defId = roll < 0.14 ? "tree" : roll < 0.24 ? "chapel" : "house"
+            addPropPair(&map, defId, x, y)
         }
     }
 
-    // Street trees in the verge.
+    // Street trees and hedges in the verge.
     for cell in road {
-        if !rng.chance(0.3) { continue }
+        if !rng.chance(0.34) { continue }
         let side = rng.chance(0.5) ? -1 : 1
         let x = horizontal ? cell.x : cell.x + side
         let y = horizontal ? cell.y + side : cell.y
-        addPropPair(&map, "tree", x, y)
+        addPropPair(&map, rng.chance(0.3) ? "hedge" : "tree", x, y)
+    }
+
+    // A bus abandoned across the road, because an empty street is a corridor
+    // and a blocked one is a decision.
+    if rng.chance(0.45) {
+        let at = road[rng.int(road.count)]
+        addPropPair(&map, "bus", at.x + 1, at.y + 1)
     }
 
     // The corner station.
-    let end = road[road.count - 1]
     addPropPair(
         &map, "gasstation",
-        horizontal ? end.x + 1 : end.x - 2,
-        horizontal ? end.y + 2 : end.y + 1)
+        horizontal ? last.x + 1 : last.x - 2,
+        horizontal ? last.y + 2 : last.y + 1)
 }
 
 /**
- * Everything that is not suburbia: a tower cluster downtown, industrial fuel
- * tanks, a monument, and old growth scattered over the rough ground.
+ * Everything that belongs to no district: the monument at the centre, the
+ * relay masts on the high ground, and the old growth in between.
  */
 private func addLandmarks(_ map: inout GameMap, _ rng: inout RNG) {
     let width = map.width
     let height = map.height
-
-    // Two tower blocks toward the middle — tall cover on the contested ground.
-    for _ in 0..<3 {
-        let x = jsRoundInt(Double(width) * 0.36) + rng.int(6) - 3
-        let y = jsRoundInt(Double(height) * 0.3) + rng.int(8) - 4
-        addPropPair(&map, "tower", x, y)
-    }
 
     // A monument, spiralled out from the centre rather than dropped on a
     // fixed cell: the middle of the map is usually a wreck field, and a
@@ -275,17 +578,26 @@ private func addLandmarks(_ map: inout GameMap, _ rng: inout RNG) {
         }
     }
 
-    // A tank farm: several volatile props close enough to chain.
-    let fx = jsRoundInt(Double(width) * 0.22)
-    let fy = jsRoundInt(Double(height) * 0.68)
-    for i in 0..<4 {
-        addPropPair(&map, "tank", fx + (i % 2) * 2, fy + (i / 2) * 2)
+    // Relay masts, scattered wide. They are the tallest thing on the map and
+    // cost almost nothing to draw, so they are what gives a big map a horizon.
+    let masts = max(1, jsRoundInt(Double(width * height) / 5200))
+    for _ in 0..<masts {
+        addPropPair(&map, "mast", 4 + rng.int(width - 8), 4 + rng.int(height - 8))
     }
 
-    // Old growth, thickest on rough ground where it reads as untended.
-    let trees = jsRoundInt(Double(width * height) / 260)
+    // Old growth, thickest on rough ground where it reads as untended. Two
+    // species mixed, because a forest of one tree is a texture and a forest of
+    // two is a wood.
+    let trees = jsRoundInt(Double(width * height) / 210)
     for _ in 0..<trees {
-        addPropPair(&map, "tree", rng.int(width), rng.int(height))
+        addPropPair(&map, rng.chance(0.35) ? "pine" : "tree", rng.int(width), rng.int(height))
+    }
+
+    // Hedgerows out in the open country, marking field boundaries nobody has
+    // farmed in years.
+    let hedges = jsRoundInt(Double(width * height) / 1300)
+    for _ in 0..<hedges {
+        addPropPair(&map, "hedge", rng.int(width), rng.int(height))
     }
 }
 
@@ -299,6 +611,14 @@ private func carveTerrain(_ map: inout GameMap, _ rng: inout RNG) {
     let width = map.width
     let height = map.height
     let blobs = jsRoundInt(Double(width * height) / 220)
+
+    // Ridgelines first, so the blobs weather them rather than the other way
+    // round. A map made only of random blobs has texture but no *shape* — no
+    // line you can hold, no flank that means anything.
+    let ridges = max(1, jsRoundInt(Double(width * height) / 3400))
+    for _ in 0..<ridges {
+        carveRidge(&map, &rng)
+    }
 
     for _ in 0..<blobs {
         let kind: Terrain = rng.chance(0.55) ? .cliff : .rough
@@ -341,12 +661,82 @@ private func carveTerrain(_ map: inout GameMap, _ rng: inout RNG) {
     }
 }
 
+/**
+ * A long wall of cliff with passes cut through it.
+ *
+ * Walks a mostly-straight line with a wandering thickness, and punches a gap
+ * every so often. The gaps are the point: a solid ridge partitions the map,
+ * and a ridge with three passes in it is a map where holding a pass is worth
+ * something. Written mirrored, so the pass on your side is the pass on theirs.
+ */
+private func carveRidge(_ map: inout GameMap, _ rng: inout RNG) {
+    let width = map.width
+    let height = map.height
+    let horizontal = rng.chance(0.5)
+    let span = horizontal ? width : height
+    let length = jsRoundInt(Double(span) * (0.45 + rng.next() * 0.35))
+
+    // Start off-centre and run across; a ridge through the exact middle would
+    // mirror onto itself and read as a wall rather than as terrain.
+    var drift = horizontal ? 6 + rng.int(height - 12) : 6 + rng.int(width - 12)
+    let from = rng.int(max(1, span - length))
+
+    var sinceGap = 0
+    for s in 0..<max(0, length) {
+        sinceGap += 1
+        // A pass every eight to eighteen cells, four cells wide.
+        if sinceGap > 8 + rng.int(10) {
+            sinceGap = -4
+            continue
+        }
+        if sinceGap < 0 { continue }
+
+        let thickness = 1 + rng.int(3)
+        for t in 0..<thickness {
+            let x = horizontal ? from + s : drift + t
+            let y = horizontal ? drift + t : from + s
+            paintMirrored(&map, x, y, .cliff)
+        }
+        // Rough ground at the foot of the ridge — scree, and a movement
+        // penalty that makes going round it feel like going round something.
+        let footX = horizontal ? from + s : drift - 1
+        let footY = horizontal ? drift - 1 : from + s
+        if rng.chance(0.5) { paintMirroredIf(&map, footX, footY, .rough, .ground) }
+
+        if rng.chance(0.34) { drift += rng.int(3) - 1 }
+        if drift < 3 { drift = 3 }
+        if drift > (horizontal ? height : width) - 5 { drift = (horizontal ? height : width) - 5 }
+    }
+}
+
+/// Paint only where the current terrain is `only` — used to skirt, not carve.
+private func paintMirroredIf(
+    _ map: inout GameMap, _ x: Int, _ y: Int, _ kind: Terrain, _ only: Terrain
+) {
+    if !inBounds(map, x, y) { return }
+    if map.terrain[y * map.width + x] != only.rawValue { return }
+    paintMirrored(&map, x, y, kind)
+}
+
 private func paintMirrored(_ map: inout GameMap, _ x: Int, _ y: Int, _ kind: Terrain) {
     let width = map.width
     let height = map.height
     if x < 0 || y < 0 || x >= width || y >= height { return }
     map.terrain[y * width + x] = kind.rawValue
     map.terrain[(height - 1 - y) * width + (width - 1 - x)] = kind.rawValue
+}
+
+/// Strip scrap from a radius. Symmetric by construction, because it is applied
+/// to every start and the starts are each other's mirror.
+private func clearResource(_ map: inout GameMap, _ cx: Int, _ cy: Int, _ r: Int) {
+    for y in (cy - r)...(cy + r) {
+        for x in (cx - r)...(cx + r) {
+            if !inBounds(map, x, y) { continue }
+            let i = y * map.width + x
+            map.resource[i] = 0
+            map.resourceMax[i] = 0
+        }
+    }
 }
 
 /// Flatten a radius to buildable ground — used around start positions.
@@ -548,10 +938,12 @@ private struct MinHeap {
 private let sqrt2 = 2.0.squareRoot()
 
 /// Octile distance — the admissible heuristic for 8-way movement.
+/// Octile distance, scaled to the cheapest terrain — the admissible heuristic
+/// for 8-way movement over a grid where a step can cost less than one.
 private func heuristic(_ ax: Double, _ ay: Double, _ bx: Double, _ by: Double) -> Double {
     let dx = abs(ax - bx)
     let dy = abs(ay - by)
-    return dx + dy + (sqrt2 - 2) * min(dx, dy)
+    return (dx + dy + (sqrt2 - 2) * min(dx, dy)) * minTerrainCost
 }
 
 /**
@@ -566,9 +958,34 @@ private func heuristic(_ ax: Double, _ ay: Double, _ bx: Double, _ by: Double) -
  */
 public func findPath(
     _ map: GameMap, _ sx: Int, _ sy: Int, _ gx: Int, _ gy: Int,
-    goalRadius: Int = 0, maxNodes: Int = 9000
+    goalRadius: Int = 0, maxNodes: Int = 0
 ) -> [(x: Int, y: Int)]? {
+    // The node ceiling has to scale with the map or it stops being a runaway
+    // guard and becomes a range limit: 9000 was most of a 72×72 map and is
+    // under half of a 144×144 one, so a corner-to-corner order across a big map
+    // would bail out early and walk as close as it got — which looks exactly
+    // like a unit refusing to cross the map.
+    let maxNodes = maxNodes > 0 ? maxNodes : max(9000, jsRoundInt(Double(map.width * map.height) * 1.5))
     if !inBounds(map, sx, sy) || !inBounds(map, gx, gy) { return nil }
+
+    // A goal nobody can stand on is the expensive case, not the rare one: with
+    // scenery on the map most stray clicks land on a tree, a wall or a wreck,
+    // and A* can only discover "unreachable" by exhausting the search — a
+    // whole-map expansion for a ten-cell order. Snapping to the nearest cell
+    // that can be stood on turns that back into an ordinary short search.
+    //
+    // Only when the caller has not asked for a radius. `goalRadius` already
+    // means "get near this", and moving the centre out from under it would
+    // quietly change what near means.
+    var gx = gx
+    var gy = gy
+    if goalRadius <= 0 && !isWalkable(map, gx, gy) {
+        if let spot = nearestWalkable(map, gx, gy, maxRadius: 6) {
+            gx = spot.x
+            gy = spot.y
+        }
+    }
+
     if sx == gx && sy == gy { return [] }
 
     let w = map.width

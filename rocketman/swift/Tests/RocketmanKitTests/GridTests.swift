@@ -84,16 +84,43 @@ final class GridTests: XCTestCase {
     /// A field's cell list is not itself in the JS fixture, but every cell
     /// in it has to actually carry the resource the field claims to have
     /// stamped, or a collector routed there would find nothing.
+    ///
+    /// The start footprint is the one exemption, and it is deliberate: the home
+    /// field is centred five cells from the start with a radius of four, so its
+    /// ragged edge can reach the Command Rig. `createMap` strips scrap from a
+    /// radius of two around every start *after* the fields are stamped, so the
+    /// rig always fits. Those cells stay in the field's list — the field is
+    /// still one patch — and they are the cells this exempts.
     func testFieldCellsCarryTheStampedResource() {
         for expected in Self.fixture.maps {
             let map = createMap(seed: expected.seed, width: expected.width, height: expected.height)
             for field in map.fields {
                 for cell in field.cells {
+                    if map.starts.contains(where: {
+                        abs(cell.x - $0.x) <= 2 && abs(cell.y - $0.y) <= 2
+                    }) { continue }
                     let i = cell.y * map.width + cell.x
                     XCTAssertGreaterThan(
                         map.resource[i], 0,
                         "seed \(expected.seed): field cell (\(cell.x),\(cell.y)) carries no resource")
                 }
+            }
+        }
+    }
+
+    /// The other half of that exemption, and the reason it exists: whatever the
+    /// seed, the 3×3 Command Rig anchored one cell up and left of the start has
+    /// somewhere to stand. `canPlace` refuses any footprint with scrap under it,
+    /// so before the clear this was down to luck — it had simply never landed
+    /// badly on a seed anyone had run. Mirrors `the opening Command Rig always
+    /// fits where the game puts you` in the JS suite.
+    func testTheOpeningCommandRigAlwaysFits() {
+        for seed in [1, 7, 1234, 90210, 3, 88, 404, 2024, 65535] {
+            let map = createMap(seed: seed, width: 72, height: 72)
+            for s in map.starts {
+                XCTAssertTrue(
+                    canPlace(map, (width: 3, height: 3), s.x - 1, s.y - 1),
+                    "seed \(seed): the Command Rig does not fit at \(s.x),\(s.y)")
             }
         }
     }
