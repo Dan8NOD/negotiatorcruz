@@ -12,10 +12,13 @@ swift test --package-path rocketman/swift    # or: npm run test:rocketman:swift
 |---|---|---|---|
 | Portable arithmetic | `engine/numeric.js` | `Numeric.swift` | 4,000 lengths, 524 roundings, 312 ring offsets |
 | Seeded PRNG | `engine/rng.js` | `RNG.swift` | 14,000 draws across 7 seeds, bit-for-bit |
-| Terrain and pathfinding | `engine/grid.js` | — | fixture exported, awaiting the port |
+| Terrain, map generation, A* | `engine/grid.js` | `Grid.swift` | 4 fully generated 72×72 maps, bit/cell-for-cell (terrain, resource, props, fields) |
 | Content, entities, combat, economy, AI, campaign | 11 files | — | — |
 
-Nine conformance tests, all green on Linux.
+Seventeen tests, all green on Linux. Map generation is checked bit/cell-exact
+against the JS oracle; A* has no JS-captured fixture yet, so its coverage is
+property tests instead — no path through a sealed room, `goalRadius` accepting
+a near miss, straight-line string-pulling.
 
 ## Why the JavaScript is the oracle
 
@@ -68,9 +71,10 @@ fingerprint, so they cannot desync a match. They live below a marked line in
 
 ## What's next
 
-1. **`Grid.swift`** — terrain, map generation, A*. The heaviest consumer of the
-   RNG, so a matching generated map proves every draw happened in the same
-   order. Fixture is already exported.
+1. ~~**`Grid.swift`** — terrain, map generation, A*.~~ Done: four fixture
+   seeds generate cell-identical maps (terrain, resource, fields, props). A*
+   itself still has no JS fixture — `hasLineOfWalk` and `smoothPath` ported
+   too, covered by property tests rather than conformance.
 2. **Content and entities**, then combat, economy, abilities, AI, campaign.
 3. **World fingerprint conformance** — the real prize. Run both engines for
    2,400 ticks on the same seed and command stream and compare entity by
