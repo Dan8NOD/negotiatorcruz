@@ -10,6 +10,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { BOOT } from './helpers.js';
 
 const PAGE = '/rocketman/web/rocketman.html';
 
@@ -35,7 +36,7 @@ async function startMission(page, index = 1) {
   await page.locator('.mission').nth(index - 1).click();
   await page.click('#deployMission');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 }
 
 const state = (page) => page.evaluate(() => window.__rocketman());
@@ -128,7 +129,7 @@ test('an unannounced pilot arrives mid-mission and joins the roster', async ({ p
   await expect(page.locator('.briefCrew')).toBeVisible();
   await expect(page.locator('.briefCrew')).not.toContainText('Halcyon');
   await page.click('#deployMission');
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   const heroesAtStart = await page.locator('.rosterChip.pilot').count();
 

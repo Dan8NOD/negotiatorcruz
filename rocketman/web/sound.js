@@ -397,6 +397,74 @@ export const ORDER_ACKS = {
   steer: null,
 };
 
+/**
+ * Events that carry a map position but must be heard wherever the camera is.
+ *
+ * The distance cull is right for a rifle and wrong for a notification. A
+ * reinforcement drop lands at the mission start point and a Lance fires from
+ * the enemy base — both are *usually* far off screen, so culling them by
+ * distance silences the cue in exactly the case the player relies on it. These
+ * keep their pan as a hint of direction when they happen to be close, and are
+ * never dropped for being far.
+ *
+ * `deposit` is deliberately absent. It is the only repeating one of these —
+ * economy texture rather than a one-shot notification — and a collector
+ * chiming at full volume from a base the player has scouted away from is
+ * noise, not information.
+ */
+export const UNMISSABLE_EVENTS = new Set([
+  'reinforcement',
+  'superweaponFired',
+  'superweaponReady',
+  'objectiveComplete',
+  'objectiveFailed',
+  'missionEnd',
+  'gameOver',
+  'built',
+  'produced',
+  'sold',
+  'placed',
+  'promoted',
+  'repairStalled',
+]);
+
+/** Beyond this many pixels outside the viewport, a world sound is not heard. */
+export const EARSHOT = 900;
+
+/**
+ * Where on the stereo field and how loud, given where the camera is — or
+ * `null` for a world sound that happened out of earshot.
+ *
+ * Off-screen events fade with distance rather than cutting off at the viewport
+ * edge: hearing a fight start just off-screen is real information, and losing
+ * it made scouting feel deaf.
+ *
+ * Pure, and takes the renderer as an argument, so the suite can hand it a fake
+ * camera and check the decision without an AudioContext — which is the only
+ * reason the cull is testable at all.
+ *
+ * @param {{type: string, x?: number, y?: number}} ev
+ * @param {{worldToScreen: Function, viewWidth: Function, viewHeight: Function}} renderer
+ * @returns {{pan: number, vol: number}|null}
+ */
+export function place(ev, renderer) {
+  if (ev.x === undefined) return { pan: 0, vol: 1 };
+  const s = renderer.worldToScreen(ev.x, ev.y);
+  const w = renderer.viewWidth();
+  const h = renderer.viewHeight();
+  const pan = Math.max(-1, Math.min(1, (s.x / w) * 2 - 1)) * 0.7;
+  const dx = s.x < 0 ? -s.x : s.x > w ? s.x - w : 0;
+  const dy = s.y < 0 ? -s.y : s.y > h ? s.y - h : 0;
+  const off = Math.sqrt(dx * dx + dy * dy);
+  if (off <= 0) return { pan, vol: 1 };
+  if (off > EARSHOT) {
+    // Out of earshot. A world sound is gone; a notification comes back
+    // centred at full volume rather than not at all.
+    return UNMISSABLE_EVENTS.has(ev.type) ? { pan: 0, vol: 1 } : null;
+  }
+  return { pan, vol: 1 - off / EARSHOT };
+}
+
 /* =================================================================== synth */
 
 /**
@@ -743,26 +811,6 @@ export function createSound() {
 
   /* ----------------------------------------------------------- mapping -- */
 
-  /**
-   * Where on the stereo field and how loud, given where the camera is.
-   * Off-screen events fade with distance and vanish beyond earshot rather than
-   * cutting off at the viewport edge — hearing a fight start just off-screen
-   * is real information, and losing it made scouting feel deaf.
-   */
-  function locate(renderer, x, y) {
-    if (x === undefined) return { pan: 0, vol: 1 };
-    const s = renderer.worldToScreen(x, y);
-    const w = renderer.viewWidth();
-    const h = renderer.viewHeight();
-    const pan = Math.max(-1, Math.min(1, (s.x / w) * 2 - 1)) * 0.7;
-    const dx = s.x < 0 ? -s.x : s.x > w ? s.x - w : 0;
-    const dy = s.y < 0 ? -s.y : s.y > h ? s.y - h : 0;
-    const off = Math.sqrt(dx * dx + dy * dy);
-    if (off <= 0) return { pan, vol: 1 };
-    if (off > 900) return null;
-    return { pan, vol: 1 - off / 900 };
-  }
-
   function allow(type, now) {
     const limit = limits[type];
     if (!limit) return true;
@@ -792,7 +840,7 @@ export function createSound() {
     let ended = false;
 
     for (const ev of events) {
-      const at = locate(renderer, ev.x, ev.y);
+      const at = place(ev, renderer);
       if (!at) continue;
       const { pan, vol } = at;
 

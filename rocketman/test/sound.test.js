@@ -18,8 +18,14 @@
 
 import { test, describe } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync, readdirSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 
-import { WEAPONS, ABILITIES, DAMAGE } from '../engine/content.js';
+import { WEAPONS, ABILITIES, DAMAGE, TICKS_PER_SECOND } from '../engine/content.js';
+import { createWorld, tick } from '../engine/sim.js';
+import { MISSIONS, missionWorldConfig } from '../engine/campaign.js';
+import { createProfile, recruitFor } from '../engine/profile.js';
 import {
   WEAPON_VOICES,
   PROJECTILE_VOICES,
@@ -27,6 +33,9 @@ import {
   ABILITY_VOICES,
   ACK_VOICES,
   ORDER_ACKS,
+  UNMISSABLE_EVENTS,
+  EARSHOT,
+  place,
 } from '../web/sound.js';
 
 /**
@@ -184,6 +193,24 @@ describe('acknowledgements', () => {
     }
   });
 
+  test('every order the input layer emits has an entry in the table', () => {
+    // The funnel in `input.js` guarantees the acknowledgement *hook fires* for
+    // every command. It cannot guarantee the table knows the type — and
+    // `order()` returns silently on a type it does not recognise, so a new
+    // order added upstream goes unanswered without anything failing. This is
+    // the half of that promise the funnel cannot keep on its own.
+    const here = dirname(fileURLToPath(import.meta.url));
+    const src = readFileSync(join(here, '..', 'web', 'input.js'), 'utf8');
+
+    const emitted = new Set();
+    for (const m of src.matchAll(/type:\s*'([A-Za-z]+)'/g)) emitted.add(m[1]);
+
+    assert.ok(emitted.size > 5, 'found suspiciously few commands — has the emit shape changed?');
+    for (const type of emitted) {
+      assert.ok(type in ORDER_ACKS, `${type} is ordered but has no acknowledgement, not even silence`);
+    }
+  });
+
   test('the orders a pilot carries out are answered by a voice', () => {
     // The split that makes the interface legible: machines answer, the base
     // clicks. If one of these ever becomes a click, orders stop feeling like
@@ -191,6 +218,119 @@ describe('acknowledgements', () => {
     for (const type of ['move', 'attack', 'attackMove', 'harvest', 'stop', 'ability']) {
       const kind = ORDER_ACKS[type];
       assert.ok(kind && kind !== 'click', `${type} should be answered by a pilot, not a click`);
+    }
+  });
+});
+
+/* ------------------------------------------------- the distance cull -- */
+
+/**
+ * The mixer drops world sound that happens far outside the viewport, which is
+ * right for a rifle and catastrophic for a notification.
+ *
+ * A reinforcement lands at the mission start point and a Lance fires from the
+ * enemy base. Both carry map coordinates, and both are *usually* nowhere near
+ * the camera — so a cull that runs before the event's class is known silences
+ * the fanfare in precisely the case the player is relying on hearing it. That
+ * is not a hypothetical: it is the bug these tests were written for.
+ */
+describe('sounds that must survive the distance cull', () => {
+  test('a reinforcement arrives with coordinates, and so must be unmissable', () => {
+    // Mission 1 drops Halcyon on the ridge at forty seconds. Run past that and
+    // catch the real event rather than asserting against a hand-written one.
+    const mission = MISSIONS[0];
+    const world = createWorld(missionWorldConfig(mission, recruitFor(createProfile(), mission)));
+
+    let arrival = null;
+    for (let i = 0; i < TICKS_PER_SECOND * 60 && !arrival; i++) {
+      tick(world, []);
+      arrival = world.events.find((e) => e.type === 'reinforcement') || null;
+    }
+
+    assert.ok(arrival, 'mission 1 never delivered its reinforcement');
+    assert.equal(typeof arrival.x, 'number', 'a reinforcement with no position cannot be culled');
+    assert.equal(typeof arrival.y, 'number');
+    assert.ok(
+      UNMISSABLE_EVENTS.has('reinforcement'),
+      'the reinforcement fanfare carries a position, so distance can silence it'
+    );
+  });
+
+  test('every unmissable event is one the engine actually emits', () => {
+    // A typo here is silent: the entry matches nothing, the cull keeps culling,
+    // and the sound stays missing. Cheaper to catch by reading the engine.
+    const here = dirname(fileURLToPath(import.meta.url));
+    const engineDir = join(here, '..', 'engine');
+    const emitted = new Set();
+    for (const file of readdirSync(engineDir).filter((f) => f.endsWith('.js'))) {
+      const src = readFileSync(join(engineDir, file), 'utf8');
+      for (const m of src.matchAll(/type:\s*'([A-Za-z]+)'/g)) emitted.add(m[1]);
+      // `o.failed ? 'objectiveFailed' : 'objectiveComplete'` and friends.
+      for (const m of src.matchAll(/\?\s*'([A-Za-z]+)'\s*:\s*'([A-Za-z]+)'/g)) {
+        emitted.add(m[1]);
+        emitted.add(m[2]);
+      }
+    }
+
+    for (const type of UNMISSABLE_EVENTS) {
+      assert.ok(emitted.has(type), `${type} is listed as unmissable but nothing emits it`);
+    }
+  });
+
+  /**
+   * A camera looking at a 1000x800 viewport with the world origin at its
+   * top-left, so a world coordinate is a screen coordinate and the distances
+   * below are readable as pixels.
+   */
+  const camera = {
+    worldToScreen: (x, y) => ({ x, y }),
+    viewWidth: () => 1000,
+    viewHeight: () => 800,
+  };
+
+  test('a world sound out of earshot is dropped', () => {
+    const near = place({ type: 'fire', x: 500, y: 400 }, camera);
+    assert.ok(near && near.vol === 1, 'a shot on screen should be at full volume');
+
+    const edge = place({ type: 'fire', x: 1000 + EARSHOT / 2, y: 400 }, camera);
+    assert.ok(edge && edge.vol > 0 && edge.vol < 1, 'a shot just off screen should fade, not vanish');
+
+    const far = place({ type: 'fire', x: 1000 + EARSHOT + 1, y: 400 }, camera);
+    assert.equal(far, null, 'a shot beyond earshot should be dropped');
+  });
+
+  test('a notification out of earshot is heard anyway', () => {
+    // The regression. Both of these land far outside any plausible viewport —
+    // a reinforcement at the mission start point, a Lance firing from the
+    // enemy base — and both used to be culled before their type was consulted.
+    for (const type of ['reinforcement', 'superweaponFired']) {
+      const at = place({ type, x: 40000, y: 40000 }, camera);
+      assert.ok(at, `${type} was silenced by distance`);
+      assert.equal(at.vol, 1, `${type} should arrive at full volume`);
+      assert.equal(at.pan, 0, `${type} should be centred once it is off the map`);
+    }
+  });
+
+  test('a notification on screen still pans where it happened', () => {
+    // The exemption is about never being *dropped*, not about giving up the
+    // stereo hint when the thing is visible.
+    const left = place({ type: 'built', x: 0, y: 400 }, camera);
+    const right = place({ type: 'built', x: 1000, y: 400 }, camera);
+    assert.ok(left.pan < 0 && right.pan > 0, 'a visible notification should still be placed');
+  });
+
+  test('an event with no position is centred rather than culled', () => {
+    const at = place({ type: 'missionEnd' }, camera);
+    assert.deepEqual(at, { pan: 0, vol: 1 });
+  });
+
+  test('repeating economy texture stays spatial', () => {
+    // The line that keeps the exemption honest. `deposit` fires every few
+    // seconds for every collector; exempting it from the cull would put the
+    // player's whole economy at full volume over whatever they are watching.
+    assert.ok(!UNMISSABLE_EVENTS.has('deposit'), 'deposit is texture, not a notification');
+    for (const type of ['fire', 'impact', 'explosion', 'death', 'shieldBreak', 'leapEnd']) {
+      assert.ok(!UNMISSABLE_EVENTS.has(type), `${type} is world sound and must fade with distance`);
     }
   });
 });

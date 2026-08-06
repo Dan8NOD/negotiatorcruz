@@ -21,6 +21,7 @@ import {
   UNITS,
   BUILDINGS,
   BUILD_ORDER,
+  BUILD_HOTKEYS,
   TICKS_PER_SECOND,
 } from '../engine/content.js';
 import { techAllows, availableBuildings } from '../engine/economy.js';
@@ -320,6 +321,16 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   });
   input.attachMinimap(minimap);
 
+  /**
+   * Last committed markup per HUD panel — see `commitPanel`.
+   *
+   * Declared up here rather than beside its function because a mission puts a
+   * pilot in the cockpit during this very function, which selects them, which
+   * renders the HUD. A `const` further down is still in its temporal dead
+   * zone at that point, and the whole match fails to start.
+   */
+  const panelCache = new Map();
+
   const match = { stopped: false, teardown: () => {} };
   activeMatch = match;
 
@@ -579,6 +590,19 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       return e ? { id: e.id, defId: e.defId, x: e.x, y: e.y, pilot: e.pilotName || null } : null;
     })(),
     camera: { x: renderer.camera.x, y: renderer.camera.y, zoom: renderer.camera.zoom },
+    map: { width: world.map.width, height: world.map.height },
+    /**
+     * Your standing structures, by id.
+     *
+     * Counts alone cannot answer "did that order hit the building I had
+     * selected?" — and when two of them are identical, that is exactly the
+     * question worth asking.
+     */
+    structures: [...world.entities.values()]
+      .filter((e) => e.kind === 'building' && e.player === VIEWER && !e.dead)
+      .map((e) => ({ id: e.id, defId: e.defId, cx: e.cx, cy: e.cy })),
+    /** Offscreen canvas cost, so a test can hold the phone budget to account. */
+    buffers: { megabytes: renderer.bufferMegabytes(), chunks: renderer.residentChunks() },
     /** The player character, whether or not it is currently being driven. */
     /** Prop census, so a test can find the neighbourhood without a screenshot. */
     props: (() => {
@@ -653,8 +677,15 @@ function startMatch(config, { mission, resume = null, watch = null }) {
    * phone than on a desktop, because there is no tooltip to explain it.
    */
   function renderTouchControls() {
+    // The stick is shown whenever there is anything to drive, not only while
+    // driving. Hiding it the moment an order is issued strands a phone player
+    // outside the cockpit for the rest of the mission: touching the stick is
+    // the only way back in, and `C` does not exist on a phone. Dimmed when
+    // idle so it still reads as "not currently flying anything".
     const driven = input.drivenEntity();
-    stick.hidden = !driven;
+    const drivable = driven || input.drivableUnit();
+    stick.hidden = !drivable;
+    stick.classList.toggle('idle', !driven);
 
     const selected = input.selectedEntities();
     const chassis = selected.find((e) => e.ability);
@@ -708,6 +739,57 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   function renderHud() {
     renderSelection();
     renderCommands();
+  }
+
+  /**
+   * Replace a panel's contents only when they actually changed.
+   *
+   * The HUD is rebuilt four times a second. For most of a match nothing in it
+   * has changed — same selection, same buttons, same costs — and tearing the
+   * DOM down anyway means the button under the player's cursor is destroyed
+   * and recreated every 250ms. A click that lands in the wrong quarter-second
+   * hits a node that is on its way out, and the order is simply lost. It is
+   * the same defect whether the clicker is a person or a test.
+   *
+   * Comparing the built markup rather than a hand-written signature is what
+   * makes this safe: a signature has to be kept in step with the renderer by
+   * hand, and the first time it is not, the panel silently stops updating.
+   * The markup cannot drift from itself.
+   *
+   * Moving nodes between parents preserves their listeners, so the buttons
+   * that survive a swap keep working.
+   *
+   * `bound` is what the buttons' click handlers *close over* — the entity ids
+   * an order will be sent to. It has to be part of the comparison, because
+   * markup is not: select one Refinery and then an identical undamaged one
+   * beside it and every pixel matches, so the swap is skipped and the Sell
+   * button that stays on screen is still holding the first Refinery's id.
+   * The player sells a building they are not looking at. Identical-looking is
+   * not the same as interchangeable, and the ids are the difference.
+   */
+  function commitPanel(id, scratch, bound = '') {
+    const html = `${bound}\n${scratch.innerHTML}`;
+    if (panelCache.get(id) === html) return;
+    panelCache.set(id, html);
+    $(id).replaceChildren(...scratch.childNodes);
+  }
+
+  /**
+   * The ids a panel's handlers are bound to, in selection order.
+   *
+   * A `function` declaration rather than a `const` arrow, and deliberately so.
+   * `startMatch` puts a pilot in the cockpit partway down its own body, which
+   * selects them, which renders the HUD — so anything the HUD reaches for has
+   * to already exist at that point. A `const` declared further down the same
+   * function is still in its temporal dead zone, throws, and the match never
+   * finishes starting: no `window.__rocketman`, no game, every campaign test
+   * timing out at 240 seconds waiting for a boot that already failed.
+   *
+   * That has now happened twice in this file. A declaration hoists, so it
+   * cannot happen a third time whatever order the body ends up in.
+   */
+  function boundIds(entities) {
+    return entities.map((e) => e.id).join(',');
   }
 
   /**
@@ -785,12 +867,12 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   }
 
   function renderSelection() {
-    const panel = $('selection');
+    const panel = document.createElement('div');
     const selected = input.selectedEntities();
-    panel.innerHTML = '';
 
     if (selected.length === 0) {
       panel.innerHTML = '<p class="hint">Left-drag to select. Right-click to order.</p>';
+      commitPanel('selection', panel, boundIds(selected));
       return;
     }
 
@@ -815,6 +897,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
         ${shield}${cargo}${rank}
         <p class="hint">${e.def.hint || ''}</p>`;
       panel.appendChild(card);
+      commitPanel('selection', panel, boundIds(selected));
       return;
     }
 
@@ -840,11 +923,11 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       more.textContent = `+${selected.length - 24} more`;
       panel.appendChild(more);
     }
+    commitPanel('selection', panel, boundIds(selected));
   }
 
   function renderCommands() {
-    const panel = $('commands');
-    panel.innerHTML = '';
+    const panel = document.createElement('div');
     const player = world.players[VIEWER];
     const defs = player.defs;
     const selected = input.selectedEntities();
@@ -858,7 +941,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       row.className = 'buttons';
       const unlocked = new Set(availableBuildings(world, VIEWER));
 
-      BUILD_ORDER.forEach((id, i) => {
+      BUILD_ORDER.forEach((id) => {
         const def = defs.buildings[id];
         const locked = !unlocked.has(id);
         const poor = player.scrap < def.cost;
@@ -867,7 +950,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
             label: def.name,
             sub: `${def.cost} · ${def.power >= 0 ? '+' : ''}${def.power}⚡`,
             hint: def.hint,
-            hotkey: String(i + 1),
+            hotkey: (BUILD_HOTKEYS[id] || '').toUpperCase(),
             disabled: locked || poor,
             reason: locked ? 'Needs more tech' : poor ? 'Not enough scrap' : '',
             onClick: () => input.beginPlacement(id),
@@ -1051,6 +1134,8 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       panel.innerHTML =
         '<p class="hint">Select the Command Rig to build, or a Foundry to make mechs.</p>';
     }
+
+    commitPanel('commands', panel, boundIds(selected));
   }
 
   /** Skirmish end card — also the end card for any watched replay. */

@@ -15,7 +15,7 @@
 
 import { test, expect } from '@playwright/test';
 
-const PAGE = '/rocketman/web/rocketman.html';
+import { PAGE, BOOT } from './helpers.js';
 
 async function startSkirmish(page) {
   const errors = [];
@@ -31,7 +31,7 @@ async function startSkirmish(page) {
   await page.fill('#seed', '7');
   await page.click('#start');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   return { errors, state: () => page.evaluate(() => window.__rocketman()) };
 }
@@ -109,7 +109,7 @@ test('mute silences the mixer and survives a reload', async ({ page }) => {
   await page.reload();
   await page.click('#playSkirmish');
   await page.click('#start');
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
   expect((await state()).muted).toBe(true);
   await expect(page.locator('#muteToggle')).toHaveText(/Muted/);
   expect(errors).toEqual([]);

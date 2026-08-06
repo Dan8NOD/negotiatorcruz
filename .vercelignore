@@ -26,6 +26,11 @@ TESTING.md
 # See practice-lab/README.md before moving it.
 practice-lab/
 
+# mixmatch/ is the token-meter foundation for Mix & Match, which is a product of
+# negotiatorsondemand.com. Staged here for the same reason practice-lab/ is; see
+# mixmatch/README.md before moving it.
+mixmatch/
+
 # rocketman/ is a side project — a real-time strategy game — that has nothing
 # to do with a negotiation consultancy. Excluding it keeps it off
 # negotiatorcruz.com entirely. It is self-contained and moves to its own repo

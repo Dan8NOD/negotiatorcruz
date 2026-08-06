@@ -9,6 +9,7 @@
  */
 
 import { test, expect } from '@playwright/test';
+import { BOOT } from './helpers.js';
 
 const PAGE = '/rocketman/web/rocketman.html';
 
@@ -34,7 +35,7 @@ async function startMission(page) {
   await page.locator('.mission').first().click();
   await page.click('#deployMission');
   await expect(page.locator('#game')).toBeVisible();
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 }
 
 const state = (page) => page.evaluate(() => window.__rocketman());
@@ -76,35 +77,50 @@ test('a campaign mission starts in the cockpit', async ({ page }) => {
   expect(errors).toEqual([]);
 });
 
-test('arrow keys drive the pilot and the camera follows', async ({ page }) => {
+test('arrow keys pan the camera, in the cockpit or out of it', async ({ page }) => {
+  // The arrows used to steer the machine while driving and pan the camera
+  // otherwise, so the most-used key on the keyboard did two unrelated things
+  // depending on a mode you might not have noticed you were in. Every game
+  // this one borrows from has one answer to "what do the arrows do", and it
+  // is move the view. This asserts the arrows never move the pilot, which is
+  // the half that used to be false.
   const errors = await freshPage(page);
   await startMission(page);
 
+  expect((await state(page)).driving).toBe(true);
   const before = await view(page);
-  await drive(page, 'ArrowDown');
+
+  await page.keyboard.down('ArrowDown');
+  await page.waitForTimeout(700);
+  await page.keyboard.up('ArrowDown');
+  await page.waitForTimeout(150);
   const after = await view(page);
 
-  expect(after.hero.y).toBeGreaterThan(before.hero.y + 0.5);
-  // The map moved with the character — the whole point.
   expect(after.camera.y).toBeGreaterThan(before.camera.y + 0.5);
-
-  // And it stops when the key is released, rather than coasting on.
-  const stopped = await view(page);
-  await page.waitForTimeout(600);
-  const later = await view(page);
-  expect(Math.abs(later.hero.y - stopped.hero.y)).toBeLessThan(0.05);
+  expect(Math.abs(after.hero.y - before.hero.y)).toBeLessThan(0.05);
 
   expect(errors).toEqual([]);
 });
 
-test('WASD drives too, and opposite keys cancel', async ({ page }) => {
+test('WASD drives the pilot, and opposite keys cancel', async ({ page }) => {
   const errors = await freshPage(page);
   await startMission(page);
 
   const before = await view(page);
-  await drive(page, 'd');
+  // Held long enough to leave the corner. A mission starts the pilot near the
+  // map edge, where the camera is pinned by its own clamp and cannot follow
+  // anyone — so a short hop moves the machine and not the view, and asserting
+  // on the view too early tests the clamp rather than the follow.
+  await drive(page, 'd', 2600);
   const after = await view(page);
   expect(after.hero.x).toBeGreaterThan(before.hero.x + 0.5);
+  // The map moves with the character — the whole point of the cockpit.
+  expect(after.camera.x).toBeGreaterThan(before.camera.x + 0.5);
+
+  // And it stops when the key is released, rather than coasting on.
+  await page.waitForTimeout(600);
+  const later = await view(page);
+  expect(Math.abs(later.hero.x - after.hero.x)).toBeLessThan(0.05);
 
   // Holding both directions at once must not drift either way. Measured
   // while both are already down — the gap between the two keydowns is a
@@ -180,7 +196,7 @@ test('a skirmish starts under ordinary RTS controls', async ({ page }) => {
   await page.click('#playSkirmish');
   await page.fill('#seed', '7');
   await page.click('#start');
-  await page.waitForFunction(() => typeof window.__rocketman === 'function');
+  await page.waitForFunction(() => typeof window.__rocketman === 'function', null, BOOT);
 
   // No hero in a skirmish, so nothing is auto-piloted.
   const s = await state(page);
