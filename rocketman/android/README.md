@@ -310,6 +310,38 @@ tablet's Amazon WebView is a different Chromium build on much slower silicon.
 
 ---
 
+## What this gives the Google Play port
+
+`HANDOFF.md` frames Play as a choice between a **TWA**, which needs an HTTPS
+origin the project does not have, and **Capacitor**, which avoids hosting by
+bundling the assets. It also lists Android Back as *"no equivalent handling in
+the code today"*.
+
+This directory is the third route, and it closes most of that list:
+
+| HANDOFF item | State |
+|---|---|
+| *"The first blocker is hosting"* | **Gone.** `GameAssetServer` gives the assets a real origin from inside the APK. No deployment, no `.well-known/assetlinks.json`, no Capacitor. |
+| *"back must do something sensible… no equivalent handling today"* | **Done.** `handleBack()` in `main.js`, called by the shell. |
+| Immersive mode / navigation bar | **Done.** `MainActivity.goImmersive()`, both API paths. |
+| Package id, version code/name scheme | **Done.** |
+| A signed **AAB**, not an APK | **Already builds.** `./gradlew bundleRelease` — the `bundle` block is configured, and a debug AAB has been verified to carry the whole game. |
+| Service worker for offline play | **Not needed on this route.** That requirement is TWA-only; the assets are in the package. |
+| `manifest.webmanifest` | **Not needed on this route**, same reason. |
+
+What is genuinely Play-specific and still outstanding: Play App Signing and its
+upload key, Play's rolling target-API minimum (check it at submission — it moves,
+and Amazon's does not), the Data Safety form, and the IARC rating questionnaire.
+
+The one thing worth deciding deliberately is the **`applicationId`**. This uses
+`com.negotiatorcruz.rocketman`; the handoff floats `com.dan8nod.rocketman`. Both
+stores key an app to that string forever, so pick once and use the same one on
+both — or accept two identities for the same game.
+
+So a Play submission from here is a different store listing and a different
+signing key, not a different port. That is worth knowing before anyone spends a
+week on Capacitor.
+
 ## Where this sits
 
 `rocketman/swift/` is the Apple port: the engine rewritten in Swift with a
