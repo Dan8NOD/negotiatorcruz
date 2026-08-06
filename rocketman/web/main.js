@@ -74,6 +74,64 @@ function showScreen(name) {
   }
 }
 
+function currentScreen() {
+  return SCREENS.find((id) => {
+    const node = $(id);
+    return node && !node.hidden;
+  });
+}
+
+/* ------------------------------------------------------- hardware back -- */
+
+/**
+ * What the Fire tablet's Back button means, screen by screen.
+ *
+ * Android delivers Back to the app shell rather than to the page, so the shell
+ * has to ask the page a single question — *did you consume it?* — and close the
+ * app when the answer is no. That contract is the whole reason this returns a
+ * boolean.
+ *
+ * Every branch below routes to navigation that already existed for a mouse:
+ * this is a table of the back buttons on screen, not a second way to move
+ * around. The title screen deliberately answers `false`, because it is the top
+ * of the stack and an app that traps Back there is an app a tablet user cannot
+ * leave.
+ *
+ * Lives in main.js because main.js owns screen flow, and nothing here is
+ * Android-specific except who calls it — a browser tab never does.
+ */
+function handleBack() {
+  const screen = currentScreen();
+
+  if (screen === 'game') {
+    // A decided match shows its result card over the battlefield. Back should
+    // clear that first: the match underneath is already over, and "Abandon"
+    // would be a strange thing to do to a mission you just won.
+    const result = $('result');
+    const button = result && !result.hidden ? $('again') : $('quitMatch');
+    if (!button) return false;
+    // Abandon already does the right thing with the autosave — writing the
+    // recording when the match is live, clearing it when it is not — so Back
+    // inherits that rather than reimplementing it.
+    button.click();
+    return true;
+  }
+
+  switch (screen) {
+    case 'briefing':
+    case 'hangar':
+    case 'debrief':
+      openCampaign();
+      return true;
+    case 'campaign':
+    case 'skirmish':
+      showScreen('title');
+      return true;
+    default:
+      return false;
+  }
+}
+
 /* ----------------------------------------------------------------- boot -- */
 
 let profile = loadProfile();
@@ -107,6 +165,11 @@ function boot() {
 
   refreshResumeButton();
   showScreen('title');
+
+  // The Fire OS shell's one hook into the page. A global rather than an export
+  // because the caller is Java, reaching in through evaluateJavascript; in a
+  // browser nothing ever reads it.
+  window.rocketmanBack = handleBack;
 }
 
 /* -------------------------------------------------------- resume & replay -- */
@@ -841,7 +904,13 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     const selected = input.selectedEntities();
 
     if (selected.length === 0) {
-      panel.innerHTML = '<p class="hint">Left-drag to select. Right-click to order.</p>';
+      // The empty-selection hint is the first thing a new player reads, so it
+      // has to describe the controls they actually have. A Fire tablet has
+      // neither a left-drag nor a right-click, and telling someone to use a
+      // mouse they are not holding is worse than saying nothing.
+      panel.innerHTML = input.isTouch
+        ? '<p class="hint">Tap one of yours to select. Tap the ground to move, an enemy to attack.</p>'
+        : '<p class="hint">Left-drag to select. Right-click to order.</p>';
       commitPanel('selection', panel, boundIds(selected));
       return;
     }
@@ -1183,4 +1252,4 @@ function toast(message) {
 
 boot();
 
-export { boot, startMatch };
+export { boot, startMatch, handleBack };

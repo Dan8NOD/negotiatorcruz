@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!--
+    A fullscreen, dark, chrome-free theme.
+
+    windowBackground is the game's background colour rather than the platform
+    default, because that colour is what the user looks at during the cold-start
+    gap before the WebView paints its first frame. Left at the default it is a
+    white flash on a dark game — the single cheapest thing to get wrong.
+  -->
+  <style name="Theme.Rocketman" parent="@android:style/Theme.Material.NoActionBar.Fullscreen">
+    <item name="android:windowBackground">@color/rocketman_bg</item>
+    <item name="android:colorBackground">@color/rocketman_bg</item>
+    <item name="android:statusBarColor">@android:color/transparent</item>
+    <item name="android:navigationBarColor">@android:color/transparent</item>
+    <item name="android:windowLightStatusBar">false</item>
+    <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    <item name="android:windowTranslucentStatus">false</item>
+    <item name="android:windowTranslucentNavigation">false</item>
+    <!-- No activity transition on launch: the game is the first frame. -->
+    <item name="android:windowAnimationStyle">@null</item>
+  </style>
+</resources>

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <!-- Launcher label. Kept short: Fire OS truncates hard under the icon. -->
+  <string name="app_name">Rocketman</string>
+  <string name="exit_confirm">Press back again to quit</string>
+</resources>
