@@ -1,0 +1,23 @@
+# Machine-specific SDK path.
+local.properties
+
+# Release signing. A store upload key in a repository is a compromised key —
+# see android/README.md for where these actually belong.
+keystore.properties
+*.jks
+*.keystore
+
+# Build output.
+.gradle/
+build/
+app/build/
+*.apk
+*.aab
+*.ap_
+
+# Android Studio.
+.idea/
+*.iml
+captures/
+.externalNativeBuild/
+.cxx/

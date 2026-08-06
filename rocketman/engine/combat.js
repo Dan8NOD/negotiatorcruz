@@ -176,6 +176,16 @@ function fireOnce(world, owner, weapon, target) {
       until: world.tick + 3,
       damageType: def.type,
     });
+    // A beam connects instantly, so nothing later in the frame will announce
+    // that it landed. Say so here, or energy and EMP weapons are the only
+    // things in the game that hit in silence.
+    world.events.push({
+      type: 'impact',
+      x: target.x,
+      y: target.y,
+      damageType: def.type,
+      weapon: def.id,
+    });
     return;
   }
 
@@ -188,6 +198,9 @@ function fireOnce(world, owner, weapon, target) {
   world.projectiles.push({
     id: world.nextId++,
     kind: def.projectile,
+    /** Carried purely so the impact event can name what landed. Presentation
+     *  reads it; nothing in the simulation branches on it. */
+    weapon: def.id,
     x: owner.x,
     y: owner.y,
     tx: target.x + jitterX,
@@ -263,7 +276,14 @@ function impact(world, p) {
       applyDamage(world, e, p.damage * scale, p.damageType, p.owner);
       if (p.disableTicks) disable(world, e, p.disableTicks);
     }
-    world.events.push({ type: 'explosion', x: p.x, y: p.y, radius });
+    world.events.push({
+      type: 'explosion',
+      x: p.x,
+      y: p.y,
+      radius,
+      damageType: p.damageType,
+      weapon: p.weapon,
+    });
     return;
   }
 
@@ -272,5 +292,8 @@ function impact(world, p) {
     applyDamage(world, target, p.damage, p.damageType, p.owner);
     if (p.disableTicks) disable(world, target, p.disableTicks);
   }
-  world.events.push({ type: 'impact', x: p.x, y: p.y });
+  // The warhead travels with the event. A ricochet, a sizzle and an arc are
+  // three different sounds and three different colours of spark, and without
+  // this the presentation layer cannot tell them apart at the point of impact.
+  world.events.push({ type: 'impact', x: p.x, y: p.y, damageType: p.damageType, weapon: p.weapon });
 }

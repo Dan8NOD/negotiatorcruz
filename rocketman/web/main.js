@@ -21,6 +21,7 @@ import {
   UNITS,
   BUILDINGS,
   BUILD_ORDER,
+  BUILD_HOTKEYS,
   TICKS_PER_SECOND,
 } from '../engine/content.js';
 import { techAllows, availableBuildings } from '../engine/economy.js';
@@ -73,6 +74,64 @@ function showScreen(name) {
   }
 }
 
+function currentScreen() {
+  return SCREENS.find((id) => {
+    const node = $(id);
+    return node && !node.hidden;
+  });
+}
+
+/* ------------------------------------------------------- hardware back -- */
+
+/**
+ * What the Fire tablet's Back button means, screen by screen.
+ *
+ * Android delivers Back to the app shell rather than to the page, so the shell
+ * has to ask the page a single question — *did you consume it?* — and close the
+ * app when the answer is no. That contract is the whole reason this returns a
+ * boolean.
+ *
+ * Every branch below routes to navigation that already existed for a mouse:
+ * this is a table of the back buttons on screen, not a second way to move
+ * around. The title screen deliberately answers `false`, because it is the top
+ * of the stack and an app that traps Back there is an app a tablet user cannot
+ * leave.
+ *
+ * Lives in main.js because main.js owns screen flow, and nothing here is
+ * Android-specific except who calls it — a browser tab never does.
+ */
+function handleBack() {
+  const screen = currentScreen();
+
+  if (screen === 'game') {
+    // A decided match shows its result card over the battlefield. Back should
+    // clear that first: the match underneath is already over, and "Abandon"
+    // would be a strange thing to do to a mission you just won.
+    const result = $('result');
+    const button = result && !result.hidden ? $('again') : $('quitMatch');
+    if (!button) return false;
+    // Abandon already does the right thing with the autosave — writing the
+    // recording when the match is live, clearing it when it is not — so Back
+    // inherits that rather than reimplementing it.
+    button.click();
+    return true;
+  }
+
+  switch (screen) {
+    case 'briefing':
+    case 'hangar':
+    case 'debrief':
+      openCampaign();
+      return true;
+    case 'campaign':
+    case 'skirmish':
+      showScreen('title');
+      return true;
+    default:
+      return false;
+  }
+}
+
 /* ----------------------------------------------------------------- boot -- */
 
 let profile = loadProfile();
@@ -106,6 +165,11 @@ function boot() {
 
   refreshResumeButton();
   showScreen('title');
+
+  // The Fire OS shell's one hook into the page. A global rather than an export
+  // because the caller is Java, reaching in through evaluateJavascript; in a
+  // browser nothing ever reads it.
+  window.rocketmanBack = handleBack;
 }
 
 /* -------------------------------------------------------- resume & replay -- */
@@ -299,12 +363,36 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   const canvas = $('view');
   const minimap = $('minimap');
   const renderer = createRenderer(canvas, world, VIEWER);
+  // Selection is answered on the way *up* only. Picking a squad should say
+  // something; dropping one should not, or every click on empty ground
+  // becomes a radio call.
+  let lastSelectionSize = 0;
+
   const input = createInput(canvas, world, VIEWER, renderer, {
     onMessage: toast,
-    onSelectionChange: () => renderHud(),
+    onSelectionChange: () => {
+      renderHud();
+      const size = input.selection.size;
+      if (size > lastSelectionSize) sound.ack('select', [...input.selection][0] || 0);
+      lastSelectionSize = size;
+    },
     onModeChange: (unit) => showControlMode(unit),
+    // A spectator's orders are dropped on the floor — the log is the only
+    // author the simulation listens to — so they must not be answered. A
+    // "moving out" for an order nobody carried out is a lie.
+    onCommand: (cmd) => !watch && sound.order(cmd),
   });
   input.attachMinimap(minimap);
+
+  /**
+   * Last committed markup per HUD panel — see `commitPanel`.
+   *
+   * Declared up here rather than beside its function because a mission puts a
+   * pilot in the cockpit during this very function, which selects them, which
+   * renders the HUD. A `const` further down is still in its temporal dead
+   * zone at that point, and the whole match fails to start.
+   */
+  const panelCache = new Map();
 
   const match = { stopped: false, teardown: () => {} };
   activeMatch = match;
@@ -348,10 +436,25 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       clock.speed = Math.max(0.5, clock.speed / 2);
       toast(`Speed ×${clock.speed}`);
     } else if (ev.key === 'm' || ev.key === 'M') {
-      toast(sound.toggleMute() ? 'Sound off' : 'Sound on');
+      setMuted(sound.toggleMute());
     }
   };
   window.addEventListener('keydown', onKey);
+
+  /** One place decides what the mute button says, whoever flipped it. */
+  const muteButton = $('muteToggle');
+  function setMuted(isMuted) {
+    if (muteButton) {
+      muteButton.textContent = isMuted ? 'Muted' : 'Sound';
+      muteButton.setAttribute('aria-pressed', isMuted ? 'true' : 'false');
+    }
+    toast(isMuted ? 'Sound off' : 'Sound on');
+  }
+  if (muteButton) {
+    muteButton.textContent = sound.muted ? 'Muted' : 'Sound';
+    muteButton.setAttribute('aria-pressed', sound.muted ? 'true' : 'false');
+    muteButton.onclick = () => setMuted(sound.toggleMute());
+  }
 
   match.teardown = () => {
     window.removeEventListener('resize', onResize);
@@ -543,12 +646,26 @@ function startMatch(config, { mission, resume = null, watch = null }) {
     mission: mission ? mission.id : null,
     mode: watch ? 'replay' : resume ? 'resumed' : 'live',
     muted: sound.muted,
+    audio: sound.stats(),
     driving: input.driving,
     driven: (() => {
       const e = input.drivenEntity();
       return e ? { id: e.id, defId: e.defId, x: e.x, y: e.y, pilot: e.pilotName || null } : null;
     })(),
     camera: { x: renderer.camera.x, y: renderer.camera.y, zoom: renderer.camera.zoom },
+    map: { width: world.map.width, height: world.map.height },
+    /**
+     * Your standing structures, by id.
+     *
+     * Counts alone cannot answer "did that order hit the building I had
+     * selected?" — and when two of them are identical, that is exactly the
+     * question worth asking.
+     */
+    structures: [...world.entities.values()]
+      .filter((e) => e.kind === 'building' && e.player === VIEWER && !e.dead)
+      .map((e) => ({ id: e.id, defId: e.defId, cx: e.cx, cy: e.cy })),
+    /** Offscreen canvas cost, so a test can hold the phone budget to account. */
+    buffers: { megabytes: renderer.bufferMegabytes(), chunks: renderer.residentChunks() },
     /** The player character, whether or not it is currently being driven. */
     /** Prop census, so a test can find the neighbourhood without a screenshot. */
     props: (() => {
@@ -623,8 +740,15 @@ function startMatch(config, { mission, resume = null, watch = null }) {
    * phone than on a desktop, because there is no tooltip to explain it.
    */
   function renderTouchControls() {
+    // The stick is shown whenever there is anything to drive, not only while
+    // driving. Hiding it the moment an order is issued strands a phone player
+    // outside the cockpit for the rest of the mission: touching the stick is
+    // the only way back in, and `C` does not exist on a phone. Dimmed when
+    // idle so it still reads as "not currently flying anything".
     const driven = input.drivenEntity();
-    stick.hidden = !driven;
+    const drivable = driven || input.drivableUnit();
+    stick.hidden = !drivable;
+    stick.classList.toggle('idle', !driven);
 
     const selected = input.selectedEntities();
     const chassis = selected.find((e) => e.ability);
@@ -678,6 +802,57 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   function renderHud() {
     renderSelection();
     renderCommands();
+  }
+
+  /**
+   * Replace a panel's contents only when they actually changed.
+   *
+   * The HUD is rebuilt four times a second. For most of a match nothing in it
+   * has changed — same selection, same buttons, same costs — and tearing the
+   * DOM down anyway means the button under the player's cursor is destroyed
+   * and recreated every 250ms. A click that lands in the wrong quarter-second
+   * hits a node that is on its way out, and the order is simply lost. It is
+   * the same defect whether the clicker is a person or a test.
+   *
+   * Comparing the built markup rather than a hand-written signature is what
+   * makes this safe: a signature has to be kept in step with the renderer by
+   * hand, and the first time it is not, the panel silently stops updating.
+   * The markup cannot drift from itself.
+   *
+   * Moving nodes between parents preserves their listeners, so the buttons
+   * that survive a swap keep working.
+   *
+   * `bound` is what the buttons' click handlers *close over* — the entity ids
+   * an order will be sent to. It has to be part of the comparison, because
+   * markup is not: select one Refinery and then an identical undamaged one
+   * beside it and every pixel matches, so the swap is skipped and the Sell
+   * button that stays on screen is still holding the first Refinery's id.
+   * The player sells a building they are not looking at. Identical-looking is
+   * not the same as interchangeable, and the ids are the difference.
+   */
+  function commitPanel(id, scratch, bound = '') {
+    const html = `${bound}\n${scratch.innerHTML}`;
+    if (panelCache.get(id) === html) return;
+    panelCache.set(id, html);
+    $(id).replaceChildren(...scratch.childNodes);
+  }
+
+  /**
+   * The ids a panel's handlers are bound to, in selection order.
+   *
+   * A `function` declaration rather than a `const` arrow, and deliberately so.
+   * `startMatch` puts a pilot in the cockpit partway down its own body, which
+   * selects them, which renders the HUD — so anything the HUD reaches for has
+   * to already exist at that point. A `const` declared further down the same
+   * function is still in its temporal dead zone, throws, and the match never
+   * finishes starting: no `window.__rocketman`, no game, every campaign test
+   * timing out at 240 seconds waiting for a boot that already failed.
+   *
+   * That has now happened twice in this file. A declaration hoists, so it
+   * cannot happen a third time whatever order the body ends up in.
+   */
+  function boundIds(entities) {
+    return entities.map((e) => e.id).join(',');
   }
 
   /**
@@ -755,12 +930,18 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   }
 
   function renderSelection() {
-    const panel = $('selection');
+    const panel = document.createElement('div');
     const selected = input.selectedEntities();
-    panel.innerHTML = '';
 
     if (selected.length === 0) {
-      panel.innerHTML = '<p class="hint">Left-drag to select. Right-click to order.</p>';
+      // The empty-selection hint is the first thing a new player reads, so it
+      // has to describe the controls they actually have. A Fire tablet has
+      // neither a left-drag nor a right-click, and telling someone to use a
+      // mouse they are not holding is worse than saying nothing.
+      panel.innerHTML = input.isTouch
+        ? '<p class="hint">Tap one of yours to select. Tap the ground to move, an enemy to attack.</p>'
+        : '<p class="hint">Left-drag to select. Right-click to order.</p>';
+      commitPanel('selection', panel, boundIds(selected));
       return;
     }
 
@@ -785,6 +966,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
         ${shield}${cargo}${rank}
         <p class="hint">${e.def.hint || ''}</p>`;
       panel.appendChild(card);
+      commitPanel('selection', panel, boundIds(selected));
       return;
     }
 
@@ -810,11 +992,11 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       more.textContent = `+${selected.length - 24} more`;
       panel.appendChild(more);
     }
+    commitPanel('selection', panel, boundIds(selected));
   }
 
   function renderCommands() {
-    const panel = $('commands');
-    panel.innerHTML = '';
+    const panel = document.createElement('div');
     const player = world.players[VIEWER];
     const defs = player.defs;
     const selected = input.selectedEntities();
@@ -828,7 +1010,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       row.className = 'buttons';
       const unlocked = new Set(availableBuildings(world, VIEWER));
 
-      BUILD_ORDER.forEach((id, i) => {
+      BUILD_ORDER.forEach((id) => {
         const def = defs.buildings[id];
         const locked = !unlocked.has(id);
         const poor = player.scrap < def.cost;
@@ -837,7 +1019,7 @@ function startMatch(config, { mission, resume = null, watch = null }) {
             label: def.name,
             sub: `${def.cost} · ${def.power >= 0 ? '+' : ''}${def.power}⚡`,
             hint: def.hint,
-            hotkey: String(i + 1),
+            hotkey: (BUILD_HOTKEYS[id] || '').toUpperCase(),
             disabled: locked || poor,
             reason: locked ? 'Needs more tech' : poor ? 'Not enough scrap' : '',
             onClick: () => input.beginPlacement(id),
@@ -1021,6 +1203,8 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       panel.innerHTML =
         '<p class="hint">Select the Command Rig to build, or a Foundry to make mechs.</p>';
     }
+
+    commitPanel('commands', panel, boundIds(selected));
   }
 
   /** Skirmish end card — also the end card for any watched replay. */
@@ -1098,4 +1282,4 @@ function toast(message) {
 
 boot();
 
-export { boot, startMatch };
+export { boot, startMatch, handleBack };

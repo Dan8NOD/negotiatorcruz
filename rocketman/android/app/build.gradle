@@ -1,0 +1,196 @@
+import javax.inject.Inject
+
+plugins {
+  id 'com.android.application'
+}
+
+/*
+ * Release signing is read from keystore.properties, which is gitignored — a
+ * store upload key must never be in a repository. Its absence is not an error:
+ * `assembleDebug` still works, so a fresh clone can build and sideload
+ * something playable without holding any secret at all.
+ */
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('keystore.properties')
+def hasKeystore = keystorePropertiesFile.exists()
+if (hasKeystore) {
+  keystorePropertiesFile.withInputStream { keystoreProperties.load(it) }
+}
+
+/**
+ * Copies the game into the APK's assets.
+ *
+ * The game is deliberately not vendored into this directory: `web/` and
+ * `engine/` upstairs stay the single source of truth, so a fix made while
+ * playing in a desktop browser is in the next APK without anyone remembering to
+ * mirror it. Copying rather than symlinking because the Android asset packager
+ * does not follow links.
+ *
+ * A typed task with declared inputs and outputs rather than a bare `Copy`,
+ * because the output feeds *several* consumers — asset merging, but also lint,
+ * which analyses the packaged assets. Declaring the contract lets Gradle wire
+ * every one of them itself; hand-wiring the ones you can think of is how you
+ * end up with a build that works until the day lint runs first.
+ */
+abstract class SyncGameAssets extends DefaultTask {
+
+  @InputDirectory
+  @PathSensitive(PathSensitivity.RELATIVE)
+  abstract DirectoryProperty getEngineDir()
+
+  @InputDirectory
+  @PathSensitive(PathSensitivity.RELATIVE)
+  abstract DirectoryProperty getWebDir()
+
+  @OutputDirectory
+  abstract DirectoryProperty getOutputDir()
+
+  @Inject
+  abstract FileSystemOperations getFileOps()
+
+  @TaskAction
+  void sync() {
+    def engine = engineDir.get().asFile
+    def web = webDir.get().asFile
+
+    // sync, not copy: a file deleted upstairs must disappear from the APK too.
+    // A stale asset tree is worse than a slow build, because it ships a version
+    // of the game nobody can reproduce from source.
+    fileOps.sync { spec ->
+      spec.into(outputDir)
+      spec.from(engine) { s ->
+        s.into('game/engine')
+        s.include('**/*.js')
+      }
+      spec.from(web) { s ->
+        s.into('game/web')
+        s.include('**/*.js')
+        s.include('**/*.html')
+      }
+    }
+  }
+}
+
+def syncGameAssets = tasks.register('syncGameAssets', SyncGameAssets) {
+  description = 'Copies the Rocketman engine and web front end into the APK assets.'
+  engineDir.set(rootProject.file('../engine'))
+  webDir.set(rootProject.file('../web'))
+}
+
+android {
+  namespace 'com.negotiatorcruz.rocketman'
+  compileSdk 34
+
+  defaultConfig {
+    applicationId 'com.negotiatorcruz.rocketman'
+
+    /*
+     * minSdk 28 is Android 9 / Fire OS 7 — the Fire HD 8 (2018 and later), the
+     * Fire HD 10 (2019 and later) and the Fire Max 11. It is set here rather
+     * than lower because the game ships as ES modules, which need a Chromium
+     * 61-or-newer WebView; the Fire OS 5 tablets below this line cannot be
+     * relied on for that. See android/README.md before lowering it.
+     */
+    minSdk 28
+    targetSdk 34
+
+    versionCode 1
+    versionName '0.1.0'
+
+    // No instrumentation tests: everything worth asserting about this app is
+    // asserted upstairs, against the engine and the page, without a device.
+    // e2e/firetablet.spec.js covers the shell's contract with the game.
+  }
+
+  /*
+   * Declared before buildTypes, not after: the Groovy DSL evaluates these
+   * blocks in source order, so a release buildType referencing
+   * signingConfigs.release below a block that has not run yet fails the build
+   * with an "unknown property" that reads like a typo.
+   */
+  if (hasKeystore) {
+    signingConfigs {
+      release {
+        storeFile rootProject.file(keystoreProperties['storeFile'])
+        storePassword keystoreProperties['storePassword']
+        keyAlias keystoreProperties['keyAlias']
+        keyPassword keystoreProperties['keyPassword']
+
+        /*
+         * Amazon rejects a Fire OS 8 app signed with v1 (JAR signing) alone, so
+         * v2 is the one that has to be true — stated here rather than left to a
+         * toolchain default, because the failure mode is a rejected submission
+         * days after upload rather than a broken build.
+         *
+         * v1 is requested too, and the build will still leave it off: AGP drops
+         * JAR signing when minSdk is 24 or higher, since nothing that new ever
+         * reads it. `apksigner verify` therefore reports v2 true, v1 false, and
+         * that is the correct and accepted shape for this app.
+         */
+        enableV1Signing true
+        enableV2Signing true
+      }
+    }
+  }
+
+  buildTypes {
+    debug {
+      applicationIdSuffix '.debug'
+      versionNameSuffix '-debug'
+      // Sideloading a debug build onto a Fire tablet is the whole test loop,
+      // so keep it byte-identical to release apart from signing.
+      minifyEnabled false
+    }
+
+    release {
+      /*
+       * There is no Java worth shrinking here — one Activity — and R8 cannot
+       * see inside the WebView, so shrinking buys nothing and risks stripping
+       * something the asset server reflects on. Off, deliberately.
+       */
+      minifyEnabled false
+      shrinkResources false
+      proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+
+      if (hasKeystore) {
+        signingConfig signingConfigs.release
+      }
+    }
+  }
+
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+
+  // The Appstore takes an APK, not an app bundle, and this one has no native
+  // code — so a single universal artifact is the correct and only output.
+  bundle {
+    language { enableSplit = false }
+    density { enableSplit = false }
+    abi { enableSplit = false }
+  }
+
+  lint {
+    abortOnError true
+    warningsAsErrors false
+  }
+}
+
+/*
+ * Registering the copy as a *generated* asset directory is what makes the
+ * dependency automatic: every task that reads assets — merge, package, lint —
+ * learns it must run after this one, without any of them being named here.
+ */
+androidComponents {
+  onVariants(selector().all()) { variant ->
+    variant.sources.assets.addGeneratedSourceDirectory(syncGameAssets) { it.outputDir }
+  }
+}
+
+dependencies {
+  // Nothing. The game is HTML and JavaScript, the shell is one Activity, and
+  // the asset server is forty lines of java.io — matching the no-dependency
+  // rule the rest of Rocketman is built under. An empty dependency block is
+  // also the shortest possible answer to an Appstore privacy questionnaire.
+}

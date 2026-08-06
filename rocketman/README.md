@@ -14,8 +14,8 @@ build step, no bundler and no runtime dependency.
 npm run serve                 # http://127.0.0.1:4321
 open http://127.0.0.1:4321/rocketman/web/rocketman.html
 
-npm run test:rocketman        # 397 simulation tests
-npm run test:rocketman:e2e    # 44 browser tests, six of them on a phone viewport
+npm run test:rocketman        # the simulation suite — 400+ tests
+npm run test:rocketman:e2e    # the browser suite, eight of them on a phone viewport
 ```
 
 ---
@@ -127,10 +127,34 @@ Three more pieces of the C&C economy:
   so the counter is the same as everything else here: kill the reactors and the
   doomsday clock stops.
 
+### The map is a place
+
+Maps are **144×144 cells** (campaign missions run 112–144), which is roughly
+four times the ground the game shipped with. The extra room is not empty: it
+is filled with **districts** — suburb, downtown, industrial estate, park —
+each rolled once and mirrored, with the count scaled to the map's area. A
+scattering of props reads as scenery; a street of houses with a fuel station
+on the corner reads as a *place*, and a place is something you route through,
+fight over and remember.
+
+Districts are joined by a **road network**, and road is the only terrain that
+costs less than open ground — 0.72 against 1.0. So the fast way across the map
+runs through the built-up ground, where buildings block line of sight and the
+fuel is one stray rocket from going up, and the safe way round the outside is
+slow. A player who never notices the roads still has a working map; a player
+who does has a decision. Roads pave straight through cliff, which is also what
+guarantees the districts are reachable at all.
+
+Terrain itself is **ridgelines with passes cut through them** rather than only
+random blobs. A solid ridge partitions a map; a ridge with three gaps in it is
+a map where holding a gap is worth something.
+
 ### The map is destructible
 
-Terrain carries **scenery you can knock down**: tower blocks, suburban
-streets, ironwood, monuments, fuel stations and tank farms. They are neutral
+Terrain carries **scenery you can knock down**: tower blocks, apartment
+blocks, suburban streets, chapels, warehouses, water towers, relay masts,
+billboards, ironwood and blackpine, hedgerows, monuments, fountains, wrecked
+buses, grain silos, fuel stations, tank farms and a propane depot. They are neutral
 entities, so they inherit the damage pipeline and splash for nothing — and
 they claim grid cells the way structures do, which means the same fact twice:
 A* routes around them, and **destroying one opens a path**. Blowing a hole
@@ -140,6 +164,14 @@ Fuel is the reason to care *where* you fight. A station has cheap hull and an
 enormous blast, and because splash damages props too, a forecourt goes up in a
 chain. Fuel takes explosive damage in full — light armour would multiply it by
 0.55, and a tank that cannot set off the tank beside it is not a tank farm.
+
+The industrial estate is built out of exactly that: fuel tanks, grain silos
+and a propane depot placed close enough to chain, which makes the estate a
+weapon rather than an obstacle. It is the reason to push an enemy into one,
+and the reason not to garrison it yourself. The three hazards are deliberately
+different — the depot is the biggest blast on the map, a silo is a wider,
+softer one (grain dust, which is what really happens), and a bus is barely
+worth noticing until it is under a mech.
 
 Scenery is emphatically **not** the enemy: it is never auto-targeted (or every
 machine in the game would stop to demolish the landscape on its way to a
@@ -347,9 +379,9 @@ Any right-click order takes the machine back off the sticks — clicking
 somewhere is an unambiguous statement that you have let go. Skirmish has no
 hero, so it starts under the ordinary scheme.
 
-**Touch** — the third scheme, and the one the iOS build runs on. None of the
-original input exists on a phone, so this is a separate grammar rather than a
-translation:
+**Touch** — the third scheme, and the one the Fire OS and iOS builds run on.
+None of the original input exists on a tablet, so this is a separate grammar
+rather than a translation:
 
 | | |
 |---|---|
@@ -358,7 +390,7 @@ translation:
 | Tap one of yours | Select it |
 | Tap the ground or an enemy | Move there, or attack it |
 | Long press | Attack-move — the deliberate version |
-| Thumbstick, bottom left | Drive your pilot |
+| Thumbstick, bottom left | Drive your pilot — dimmed when idle, touch it to take the cockpit |
 | Round buttons, right edge | Chassis ability, Skyfall, attack-move |
 
 Drag-versus-tap is decided by distance and time rather than by a mode: under
@@ -391,13 +423,85 @@ not a wall.
 | Control groups | `Ctrl`+`0`–`9` to set, `0`–`9` to recall |
 | Build menu (Command Rig selected) | `1`–`7`, Shift to keep placing |
 | Pause / speed | `Space` / `+` / `−` |
-| Mute sound | `M` |
+| Mute sound | `M`, or the Sound button in the top bar |
+
+---
+
+## Sound
+
+Every noise in the game is synthesised from oscillators and filtered noise at
+the moment it is needed. There are no sample files, there is no audio
+directory, and there is not going to be one: the game is drawn from vectors and
+stats, and it sounds the way it looks.
+
+`web/sound.js` is a second listener on the `world.events` stream the renderer
+already consumes. It reads world state and never writes it, which puts it on
+the same side of the determinism wall as the sparks.
+
+### Every weapon has a voice
+
+Fourteen weapons, fourteen recipes, and a test that fails if two of them are
+the same sound — the same rule the damage table lives under, where a warhead
+that never beats another warhead is dead content. Rate of fire separates a
+storm repeater from a siege mortar for free, so the recipes work the other axis
+and separate them by *timbre*: a rail spike is a capacitor emptying, a
+scattergun is a door closing, an arc projector is a crackle across a gap.
+
+Loudness runs inverse to rate of fire. The storm repeater is the quietest thing
+in the game per shot because it fires twenty-three times in the window a mortar
+fires once, and a mix that treats those equally is a mix where the repeater is
+the only thing anyone can hear.
+
+### The warhead is audible, and visible, on arrival
+
+The counter triangle is the central decision in the game and it used to be
+invisible at the point of contact. The `impact` event now carries its warhead,
+so kinetic pings off plate and throws hot orange, energy sizzles and throws
+cyan, EMP crackles and throws pale blue — readable in peripheral vision, which
+is where most of an RTS is actually played.
+
+### Machines answer; the base clicks
+
+Command & Conquer answered every order with a voice line, and half of why those
+games feel responsive is that the acknowledgement arrives before the unit has
+moved a pixel. There are no voice samples here, so the acknowledgement is built
+the way a vocal tract builds one: a sawtooth at speech pitch through two
+resonant band-passes sitting where a human's first and second formants sit for
+that vowel, high-passed into a radio. It does not say a word and is not trying
+to.
+
+The split that matters is who is answering. An order given to a machine with a
+pilot in it gets a voice; an order given to the base gets a click. Selling a
+refinery is something you did with a mouse. Telling a Kestrel to walk into a
+fight is something somebody else has to carry out.
+
+Every command in `input.js` passes through one `emit` funnel, and the
+acknowledgement hangs off that funnel rather than off the call sites, so an
+order added later cannot forget to answer.
+
+### The mixer
+
+Two buses into a compressor. World sound is spatial and expendable — it pans,
+it fades with distance, and it is the first thing dropped when the voice
+ceiling is reached. Interface sound is centred and never dropped, because an
+acknowledgement that goes missing reads as an *order* that went missing and the
+player will click again.
+
+The ceiling is 28 concurrent voices. Without one, a fuel depot chain reaction
+schedules hundreds of oscillators in a frame and the tab stalls; past the
+ceiling new world sounds are dropped rather than queued, because a sound that
+arrives late is worse than one that never arrived — it desynchronises from the
+picture.
 
 ---
 
 ## Testing
 
-199 simulation tests and 11 browser tests. The ones worth knowing about:
+Four hundred–odd simulation tests and around fifty browser tests. Exact counts
+deliberately not quoted — a number written in prose drifts from the code the
+moment either moves, which is the whole reason this file now carries a
+drift guard for the two numbers that actually matter. The tests worth knowing
+about:
 
 - **Determinism** — two runs of the same seed and commands stay identical for a
   whole match; the engine never calls `Math.random`.
@@ -425,6 +529,19 @@ not a wall.
   must yield a playable campaign, not a crashed page. Unknown upgrades, pilots
   and missions are dropped rather than carried, so deleting content never
   bricks a save.
+- **Sound is content too** — every weapon has a voice, no two weapons share
+  one, and the browser suite renders each of the fourteen through an
+  `OfflineAudioContext` and measures the waveform. A recipe can differ on paper
+  and still come out sounding like its neighbour; only a rendered buffer says
+  which. That test is what caught the turret gun being an autocannon with the
+  numbers nudged.
+- **A notification is never culled for distance** — world sound fades past the
+  viewport and stops at `EARSHOT`, which is right for a rifle and wrong for a
+  reinforcement landing at the mission start point or a Lance firing from the
+  enemy base. Both carry map coordinates and both are usually far from the
+  camera, so a cull that runs before the event's type is known silences the cue
+  exactly when it is needed. `place()` is pure and takes the camera as an
+  argument, so that decision is testable without an AudioContext.
 
 ---
 
@@ -444,17 +561,24 @@ determinism guarantee above, and expensive without it.
    re-simulation *is* loading. There is no separate snapshot format to
    version or corrupt. (The `world`-plus-`rng.state()` snapshot this list
    used to propose would have been exactly that second format.)
-3. ~~**Sound.**~~ Done — `web/sound.js`, synthesised from WebAudio primitives
-   with zero asset files, spatialised left/right from the camera, fed by the
-   same `world.events` stream the renderer reads. `M` mutes; the choice
-   persists.
+3. ~~**Sound.**~~ Done — see below. `web/sound.js`, synthesised from WebAudio
+   primitives with zero asset files, fed by the same `world.events` stream the
+   renderer reads.
 4. **Art.** Every chassis is currently drawn from its stats — a polygon whose
    silhouette comes from its role. That was a choice: the game had to be
    legible before it was pretty. Sprites drop into `render.js` alone.
 5. **More maps.** `createMap` takes a seed and a size; multi-start and
    four-player symmetry are the natural next step.
 6. **Lockstep multiplayer.** The command queue is the network protocol.
-7. **The Apple port.** Underway — `rocketman/swift/` holds RocketmanKit, the
+7. ~~**The Fire OS port.**~~ Done — `rocketman/android/`. A Kindle Fire HD runs
+   Chromium, so the game ships as itself: one Activity, one WebView, and the
+   same `engine/` and `web/` copied into the APK at build time. No fork and no
+   second copy of the rules. The work was the four things a browser tab was
+   doing for free — giving the assets a real origin so localStorage and ES
+   modules work at all, clearing the system bars, keeping Android's own
+   gestures off the battlefield, and giving the hardware Back button a meaning.
+   188 KB, no permissions, offline. See `rocketman/android/README.md`.
+8. **The Apple port.** Underway — `rocketman/swift/` holds RocketmanKit, the
    engine ported to Swift with a bit-for-bit conformance harness against
    fixtures exported from this engine (see `rocketman/swift/README.md`).
    Numeric groundwork is done: the simulation computes distance only through
@@ -470,7 +594,9 @@ determinism guarantee above, and expensive without it.
   mechs and will show its seams at a hundred; flow fields are the fix.
 - Vision is circular rather than line-of-sight traced. Cheap, and "my mech can
   see over that rock" has never lost anyone a game.
-- There is one map generator and one map size.
+- There is one map generator. Size is a parameter (`createMap` takes one, and
+  the campaign varies it from 112 to 144), but every map is the same *kind* of
+  map: two mirrored corners, a road network, four kinds of district.
 - Balance has been tuned against the AI, not against a human. Expect the
   numbers in `content.js` and `progression.js` to move.
 - The campaign's difficulty curve is set by the AI profile per mission. It has
