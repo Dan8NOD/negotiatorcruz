@@ -325,7 +325,7 @@ This directory is the third route, and it closes most of that list:
 | *"back must do something sensible… no equivalent handling today"* | **Done.** `handleBack()` in `main.js`, called by the shell. |
 | Immersive mode / navigation bar | **Done.** `MainActivity.goImmersive()`, both API paths. |
 | Package id, version code/name scheme | **Done.** |
-| A signed **AAB**, not an APK | **Already builds.** `./gradlew bundleRelease` — the `bundle` block is configured, and a debug AAB has been verified to carry the whole game. |
+| A signed **AAB**, not an APK | **Already builds.** `./gradlew bundleRelease` produces a signed bundle carrying the whole game — verified, using the same `keystore.properties` the APK release path uses. |
 | Service worker for offline play | **Not needed on this route.** That requirement is TWA-only; the assets are in the package. |
 | `manifest.webmanifest` | **Not needed on this route**, same reason. |
 
