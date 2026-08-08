@@ -189,8 +189,12 @@ mobile-first fullscreen layout with safe-area insets.
   `C`; the stick hidden when not driving). When adding any touch control, ask:
   *if the player never touches a keyboard again, can they still get out of this
   state?*
-- **Selection on touch is thin.** There's a roster row and box-select, but no
-  control groups, no double-tap-to-select-all-of-type, no shift-add.
+- **Selection on touch is thin.** Desktop now has the full Age of
+  Empires / StarCraft vocabulary — control groups with Ctrl-assign,
+  Shift-add, recall and tap-twice-to-jump; double-click for all-of-type;
+  Shift-click to add; F2 for the whole army; letters for construction. None
+  of it exists on touch, where there is still only a roster row and a box
+  select. That gap is now the widest one in the game.
 - **Ability targeting** is a reach ring and a tap. No cancel gesture, no preview
   of what will be hit.
 - **The AI** doesn't use abilities or leaps at all, doesn't react to power loss,
@@ -198,6 +202,25 @@ mobile-first fullscreen layout with safe-area insets.
   biggest missed opportunity given how the shield system works.
 - **No formation movement.** A group order sends everyone to the same cell and
   they shuffle.
+
+## Where to do the work
+
+This project moves between two places, and they are good at different things.
+
+**A local terminal is better for anything you have to *feel*.** Balance, pacing,
+whether a control reads right — none of that can be checked from a headless
+container. The agent here takes screenshots and has misread one; the person at
+the keyboard can just play it. Everything downstream of "publish to a store"
+also lives locally: Bubblewrap wants a JDK and the Android SDK, a real device
+wants a cable and `adb`, and Xcode is a Mac application.
+
+**This remote environment is better for anything long and unattended.** It does
+not need the laptop awake, it will happily run a seven-minute simulation suite
+and a six-minute browser suite back to back, and it can work through a batch
+overnight and leave a pull request to review from a phone in the morning.
+
+Neither is a migration — same repository, same branch. `git pull` before
+starting, push before stopping, and read this file first.
 
 ## Google Play — read before starting
 
