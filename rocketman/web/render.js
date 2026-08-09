@@ -526,6 +526,24 @@ export function createRenderer(canvas, world, viewerId) {
       case 'brazier':
         drawBrazier(e, px, py, pw, ph, dx, dy, hurt);
         break;
+      case 'railcar':
+        drawRailcar(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'signal':
+        drawSignal(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'barn':
+        drawBarn(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'windpump':
+        drawWindpump(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'crusher':
+        drawCrusher(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'bunker':
+        drawBunker(e, px, py, pw, ph, dx, dy, hurt);
+        break;
       default:
         if (e.defId === 'statue') drawStatue(e, px, py, pw, ph, dx, dy, hurt);
         else drawBlock(e, px, py, pw, ph, dx, dy, hurt);
@@ -1063,6 +1081,396 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.strokeStyle = 'rgba(0,0,0,0.5)';
     ctx.lineWidth = 1;
     ctx.strokeRect(px + 1.5, py + ph * 0.16 + 0.5, pw - 3, ph * 0.68);
+  }
+
+  /* ---- the rail yard, the farm, the quarry and the chokepoints -------- */
+
+  /**
+   * A wagon standing on a siding.
+   *
+   * Bogies at both ends *outside* the body, which is the whole trick: the
+   * overhang is what separates rolling stock from a shipping container, and at
+   * this scale it is two dark ellipses. The tank wagons are the same silhouette
+   * with a cylinder on it rather than a box, so a player reads "wagon" first
+   * and "the one that goes up" second — which is the order those two facts
+   * matter in.
+   */
+  function drawRailcar(e, px, py, pw, ph, dx, dy, hurt) {
+    const along = pw > ph;
+    const length = along ? pw : ph;
+    const bogieA = along ? { x: px + length * 0.16, y: py + ph / 2 } : { x: px + pw / 2, y: py + length * 0.16 };
+    const bogieB = along ? { x: px + length * 0.84, y: py + ph / 2 } : { x: px + pw / 2, y: py + length * 0.84 };
+
+    ctx.fillStyle = '#16191e';
+    for (const b of [bogieA, bogieB]) {
+      ctx.beginPath();
+      ctx.ellipse(b.x, b.y, along ? 4 : ph * 0.1, along ? pw * 0.05 : 4, 0, 0, TAU);
+      ctx.fill();
+    }
+
+    const inset = 2;
+    const bx = px + (along ? 1 : inset);
+    const by = py + (along ? inset : 1);
+    const bw = pw - (along ? 2 : inset * 2);
+    const bh = ph - (along ? inset * 2 : 2);
+    const rx = bx + dx * 0.6;
+    const ry = by + dy * 0.6;
+
+    // The side that faces the camera, drawn as a quad from footprint to roof.
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.beginPath();
+    ctx.moveTo(bx, by + bh);
+    ctx.lineTo(bx + bw, by + bh);
+    ctx.lineTo(rx + bw, ry + bh);
+    ctx.lineTo(rx, ry + bh);
+    ctx.closePath();
+    ctx.fill();
+
+    if (e.def.volatile) {
+      // A barrel: a rounded body with a dome end and a hazard band.
+      const g = ctx.createLinearGradient(rx, ry, along ? rx : rx + bw, along ? ry + bh : ry);
+      g.addColorStop(0, '#2c343d');
+      g.addColorStop(0.45, '#5d6774');
+      g.addColorStop(1, '#262d35');
+      ctx.fillStyle = g;
+      // A barrel with domed ends: a rectangle between two ellipse caps rather
+      // than a rounded rect, which is not everywhere yet.
+      const r = (along ? bh : bw) * 0.5;
+      if (along) {
+        ctx.fillRect(rx + r, ry, bw - r * 2, bh);
+        for (const cx2 of [rx + r, rx + bw - r]) {
+          ctx.beginPath();
+          ctx.ellipse(cx2, ry + bh / 2, r, bh / 2, 0, 0, TAU);
+          ctx.fill();
+        }
+      } else {
+        ctx.fillRect(rx, ry + r, bw, bh - r * 2);
+        for (const cy2 of [ry + r, ry + bh - r]) {
+          ctx.beginPath();
+          ctx.ellipse(rx + bw / 2, cy2, bw / 2, r, 0, 0, TAU);
+          ctx.fill();
+        }
+      }
+      ctx.fillStyle = hurt > 0.6 ? 'rgba(228, 168, 56, 0.6)' : 'rgba(232, 96, 48, 0.8)';
+      if (along) ctx.fillRect(rx + bw * 0.42, ry, bw * 0.16, bh);
+      else ctx.fillRect(rx, ry + bh * 0.42, bw, bh * 0.16);
+      // The dome hatch on top, which is the one detail that says "tank".
+      ctx.fillStyle = 'rgba(180, 194, 210, 0.28)';
+      ctx.beginPath();
+      ctx.arc(rx + bw * 0.5, ry + bh * 0.5, Math.min(bw, bh) * 0.22, 0, TAU);
+      ctx.fill();
+    } else {
+      const tone = hash2(e.id, e.cx) > 0.5 ? '#4a3a33' : '#33413a';
+      const g = ctx.createLinearGradient(rx, ry, rx + bw, ry + bh);
+      g.addColorStop(0, shade(tone, 0.12));
+      g.addColorStop(1, shade(tone, -0.3));
+      ctx.fillStyle = g;
+      ctx.fillRect(rx, ry, bw, bh);
+      // Corrugated sides and a sliding door in the middle.
+      ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+      ctx.lineWidth = 1;
+      const ribs = 7;
+      for (let i = 1; i < ribs; i++) {
+        ctx.beginPath();
+        if (along) {
+          ctx.moveTo(rx + (bw * i) / ribs, ry);
+          ctx.lineTo(rx + (bw * i) / ribs, ry + bh);
+        } else {
+          ctx.moveTo(rx, ry + (bh * i) / ribs);
+          ctx.lineTo(rx + bw, ry + (bh * i) / ribs);
+        }
+        ctx.stroke();
+      }
+      ctx.fillStyle = 'rgba(10, 12, 16, 0.5)';
+      if (along) ctx.fillRect(rx + bw * 0.38, ry + 1, bw * 0.24, bh - 2);
+      else ctx.fillRect(rx + 1, ry + bh * 0.38, bw - 2, bh * 0.24);
+    }
+
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(rx + 0.5, ry + 0.5, bw - 1, bh - 1);
+  }
+
+  /**
+   * A signal gantry: a post, a bracket, and one lamp still showing.
+   *
+   * The only tall thing in a rail yard, so it is what the yard is recognised
+   * by from a distance — the same job the relay masts do for the map at large.
+   */
+  function drawSignal(e, px, py, pw, ph, dx, dy, hurt) {
+    const bx = px + pw / 2;
+    const by = py + ph / 2;
+    const tx = bx + dx;
+    const ty = by + dy;
+
+    ctx.strokeStyle = '#404a56';
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.moveTo(bx, by + 2);
+    ctx.lineTo(tx, ty);
+    ctx.stroke();
+
+    // The bracket arm, leaning with the parallax like the post it hangs off.
+    const arm = pw * 0.55;
+    ctx.strokeStyle = '#4d5865';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(tx, ty + 2);
+    ctx.lineTo(tx + arm, ty - 1);
+    ctx.stroke();
+
+    // Lamp head: a dark backboard with one aspect lit.
+    ctx.fillStyle = '#1b2027';
+    ctx.fillRect(tx + arm - 2.5, ty - 7, 5, 9);
+    const lit = hurt > 0.4;
+    ctx.fillStyle = lit ? 'rgba(90, 226, 130, 0.95)' : 'rgba(60, 66, 74, 0.9)';
+    ctx.beginPath();
+    ctx.arc(tx + arm, ty - 4.5, 1.8, 0, TAU);
+    ctx.fill();
+    if (lit) {
+      glow(() => {
+        ctx.fillStyle = 'rgba(90, 226, 130, 0.7)';
+        ctx.beginPath();
+        ctx.arc(tx + arm, ty - 4.5, 3.2, 0, TAU);
+        ctx.fill();
+      });
+    }
+  }
+
+  /**
+   * A barn: one long pitched roof and a big open door.
+   *
+   * Deliberately not the suburban roof. A barn's ridge runs the length of the
+   * building rather than across it, and the door goes to the eaves — two
+   * differences, both silhouette, and together they are enough that a farm
+   * yard never reads as a very large bungalow.
+   */
+  function drawBarn(e, px, py, pw, ph, dx, dy, hurt) {
+    const rx = px + dx;
+    const ry = py + dy;
+    const wall = '#4a3a30';
+    const roof = '#3b3a40';
+
+    ctx.fillStyle = shade(wall, -0.45);
+    ctx.beginPath();
+    ctx.moveTo(px, py + ph);
+    ctx.lineTo(px + pw, py + ph);
+    ctx.lineTo(rx + pw, ry + ph);
+    ctx.lineTo(rx, ry + ph);
+    ctx.closePath();
+    ctx.fill();
+
+    // The big doors, on the long face.
+    ctx.fillStyle = 'rgba(12, 14, 18, 0.82)';
+    ctx.fillRect(px + pw * 0.34, py + ph * 0.62, pw * 0.32, ph * 0.36);
+    ctx.strokeStyle = 'rgba(150, 120, 92, 0.35)';
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.moveTo(px + pw * 0.5, py + ph * 0.62);
+    ctx.lineTo(px + pw * 0.5, py + ph * 0.98);
+    ctx.stroke();
+
+    // Roof: two slopes meeting at a ridge that runs the *length* of the barn.
+    const g = ctx.createLinearGradient(rx, ry, rx, ry + ph);
+    g.addColorStop(0, shade(roof, 0.18));
+    g.addColorStop(1, shade(roof, -0.3));
+    ctx.fillStyle = g;
+    ctx.fillRect(rx, ry, pw, ph);
+    ctx.strokeStyle = 'rgba(255,255,255,0.14)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(rx + 1, ry + ph * 0.5);
+    ctx.lineTo(rx + pw - 1, ry + ph * 0.5);
+    ctx.stroke();
+    // Corrugation across the slope, which is what stops it reading as a slab.
+    ctx.strokeStyle = 'rgba(0,0,0,0.14)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 8; i++) {
+      const lx = rx + (pw * i) / 8;
+      ctx.beginPath();
+      ctx.moveTo(lx, ry);
+      ctx.lineTo(lx, ry + ph);
+      ctx.stroke();
+    }
+    if (hurt < 0.5) {
+      // A hole in the roof, because a half-wrecked barn is mostly missing roof.
+      ctx.fillStyle = 'rgba(8, 10, 14, 0.75)';
+      ctx.beginPath();
+      ctx.ellipse(rx + pw * 0.66, ry + ph * 0.36, pw * 0.14, ph * 0.18, 0, 0, TAU);
+      ctx.fill();
+    }
+    ctx.strokeStyle = 'rgba(0,0,0,0.45)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(rx + 0.5, ry + 0.5, pw - 1, ph - 1);
+  }
+
+  /** A wind pump: a lattice tower, a fan, and a tail vane. Still turning. */
+  function drawWindpump(e, px, py, pw, ph, dx, dy, hurt) {
+    const bx = px + pw / 2;
+    const by = py + ph / 2;
+    const tx = bx + dx;
+    const ty = by + dy;
+
+    ctx.strokeStyle = '#414b57';
+    ctx.lineWidth = 1.6;
+    for (const side of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(bx + side * pw * 0.28, by + 2);
+      ctx.lineTo(tx + side * pw * 0.08, ty);
+      ctx.stroke();
+    }
+    ctx.strokeStyle = 'rgba(96, 112, 130, 0.5)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i <= 4; i++) {
+      const t = i / 5;
+      const ly = by + 2 + (ty - by - 2) * t;
+      ctx.beginPath();
+      ctx.moveTo(bx - pw * 0.28 * (1 - t) - pw * 0.08 * t, ly);
+      ctx.lineTo(bx + pw * 0.28 * (1 - t) + pw * 0.08 * t, ly);
+      ctx.stroke();
+    }
+
+    // The fan. Blades are drawn as spokes rather than as a disc so the
+    // rotation is visible — a wheel that spins and cannot be seen spinning is
+    // a wheel that may as well be painted on.
+    const spin = hurt > 0.35 ? frameClock * 0.06 + e.id : e.id;
+    const r = pw * 0.4;
+    ctx.strokeStyle = 'rgba(168, 182, 196, 0.7)';
+    ctx.lineWidth = 1.3;
+    for (let i = 0; i < 8; i++) {
+      const a = spin + (i / 8) * TAU;
+      ctx.beginPath();
+      ctx.moveTo(tx, ty);
+      ctx.lineTo(tx + Math.cos(a) * r, ty + Math.sin(a) * r * 0.8);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#5d6a78';
+    ctx.beginPath();
+    ctx.arc(tx, ty, 2, 0, TAU);
+    ctx.fill();
+    // Tail vane, opposite the lean so the machine reads as pointing into wind.
+    ctx.fillStyle = 'rgba(120, 132, 146, 0.75)';
+    ctx.beginPath();
+    ctx.moveTo(tx, ty);
+    ctx.lineTo(tx - dx * 0.9 - 7, ty - dy * 0.9 - 2);
+    ctx.lineTo(tx - dx * 0.9 - 7, ty - dy * 0.9 + 4);
+    ctx.closePath();
+    ctx.fill();
+  }
+
+  /** A rock crusher: a hopper, a jaw and a conveyor running off it. */
+  function drawCrusher(e, px, py, pw, ph, dx, dy, hurt) {
+    const rx = px + dx;
+    const ry = py + dy;
+
+    ctx.fillStyle = '#242b33';
+    ctx.fillRect(px + 1, py + 1, pw - 2, ph - 2);
+
+    // The conveyor, on the low side: a raked belt on trestles.
+    ctx.strokeStyle = '#39434f';
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(px + pw * 0.1, py + ph * 0.9);
+    ctx.lineTo(rx + pw * 0.42, ry + ph * 0.34);
+    ctx.stroke();
+    ctx.strokeStyle = 'rgba(150, 164, 180, 0.22)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < 5; i++) {
+      const t = i / 5;
+      ctx.beginPath();
+      ctx.moveTo(px + pw * (0.1 + 0.32 * t), py + ph * (0.9 - 0.56 * t));
+      ctx.lineTo(px + pw * (0.1 + 0.32 * t) + dx * t, py + ph * (0.9 - 0.56 * t) + dy * t);
+      ctx.stroke();
+    }
+
+    // The hopper: a truncated wedge, wide at the top.
+    const g = ctx.createLinearGradient(rx, ry, rx + pw, ry + ph);
+    g.addColorStop(0, '#5a636e');
+    g.addColorStop(0.5, '#414a55');
+    g.addColorStop(1, '#262c34');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.moveTo(rx + pw * 0.14, ry + pw * 0.06);
+    ctx.lineTo(rx + pw * 0.9, ry + pw * 0.06);
+    ctx.lineTo(rx + pw * 0.72, ry + ph * 0.78);
+    ctx.lineTo(rx + pw * 0.3, ry + ph * 0.78);
+    ctx.closePath();
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Spoil piled against the base — a crusher without a heap is a machine
+    // that never ran.
+    ctx.fillStyle = 'rgba(58, 54, 46, 0.8)';
+    ctx.beginPath();
+    ctx.ellipse(px + pw * 0.78, py + ph * 0.82, pw * 0.2, ph * 0.14, 0, 0, TAU);
+    ctx.fill();
+
+    if (hurt > 0.5 && ((frameClock + e.id * 5) >> 5) % 3 === 0) {
+      addParticle('smoke', e.x - 0.3, e.y - 1.2);
+    }
+  }
+
+  /**
+   * A blockhouse: a squat concrete box with a firing slit facing outward.
+   *
+   * Kept low on purpose. It stands at the chokepoints, and the chokepoints are
+   * the one place a player has to be able to see what is behind the scenery.
+   */
+  function drawBunker(e, px, py, pw, ph, dx, dy, hurt) {
+    const rx = px + dx * 0.5;
+    const ry = py + dy * 0.5;
+
+    // Battered walls: the roof plate is inset from the footprint, which is
+    // what makes concrete read as poured rather than as a crate.
+    ctx.fillStyle = '#2b3038';
+    ctx.beginPath();
+    ctx.moveTo(px + 1, py + ph - 1);
+    ctx.lineTo(px + pw - 1, py + ph - 1);
+    ctx.lineTo(rx + pw - 4, ry + ph - 4);
+    ctx.lineTo(rx + 4, ry + ph - 4);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#242932';
+    ctx.beginPath();
+    ctx.moveTo(px + 1, py + 1);
+    ctx.lineTo(px + 1, py + ph - 1);
+    ctx.lineTo(rx + 4, ry + ph - 4);
+    ctx.lineTo(rx + 4, ry + 4);
+    ctx.closePath();
+    ctx.fill();
+
+    const g = ctx.createLinearGradient(rx, ry, rx + pw, ry + ph);
+    g.addColorStop(0, '#4b5260');
+    g.addColorStop(1, '#333944');
+    ctx.fillStyle = g;
+    ctx.fillRect(rx + 4, ry + 4, pw - 8, ph - 8);
+
+    // The slit, on the face that leans toward the camera.
+    ctx.fillStyle = 'rgba(6, 8, 12, 0.9)';
+    ctx.fillRect(px + pw * 0.2, py + ph * 0.72, pw * 0.6, 3);
+
+    // Sandbags along one wall, and shell scars once it has been worked over.
+    ctx.fillStyle = 'rgba(78, 74, 58, 0.75)';
+    for (let i = 0; i < 3; i++) {
+      ctx.beginPath();
+      ctx.ellipse(px + pw * (0.24 + i * 0.26), py + ph * 0.96, pw * 0.13, ph * 0.07, 0, 0, TAU);
+      ctx.fill();
+    }
+    if (hurt < 0.6) {
+      ctx.fillStyle = 'rgba(10, 12, 16, 0.5)';
+      for (let i = 0; i < 3; i++) {
+        const hx = rx + 5 + hash2(e.id + i, e.cx) * (pw - 12);
+        const hy = ry + 5 + hash2(e.cx, e.id + i) * (ph - 12);
+        ctx.beginPath();
+        ctx.arc(hx, hy, 1.6 + hash2(i, e.id) * 1.6, 0, TAU);
+        ctx.fill();
+      }
+    }
+    ctx.strokeStyle = 'rgba(0,0,0,0.5)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(rx + 4.5, ry + 4.5, pw - 9, ph - 9);
   }
 
   /** A dry fountain: a basin, a plinth, and no water in it. */
@@ -2659,12 +3067,41 @@ export function createRenderer(canvas, world, viewerId) {
 
     for (const e of world.entities.values()) {
       if (!seenBy(e)) continue;
+      // Trees and hedgerow are not contacts. They were, and it cost nothing
+      // while scenery was scattered — but a farm lays its boundaries in
+      // *lines*, and forty hedges in a row paint a forty-pixel bar across the
+      // minimap that reads exactly like a wall or a road. On an agricultural
+      // map the whole minimap went to speckle and the river went with it.
+      if (e.kind === 'prop' && e.def.canopy) continue;
       mctx.fillStyle = colorOf(e);
       const s =
         e.kind === 'building' || e.kind === 'gateway'
           ? Math.max(3, (e.size ? e.size[0] : 2) * k)
           : Math.max(2, k * 1.4);
       mctx.fillRect(e.x * k - s / 2, e.y * k - s / 2, s, s);
+    }
+
+    // Chokepoints last, as an open bracket rather than a blob, so nothing is
+    // drawn over them.
+    //
+    // A player should be able to look at the minimap and see where the fight
+    // is going to be, and terrain colour alone will not do it at four pixels
+    // to ten cells: a bridge is a road-coloured cell among road-coloured
+    // cells. Only on ground that has been explored — marking a crossing
+    // nobody has walked to would be handing over map knowledge, which is the
+    // one thing the AI is not allowed to have either.
+    mctx.strokeStyle = 'rgba(240, 206, 118, 0.85)';
+    mctx.lineWidth = 1.2;
+    for (const c of [...(world.map.crossings || []), ...(world.map.chokepoints || [])]) {
+      if (c.kind === 'gap') continue;
+      if (!isExplored(world, viewerId, c.x, c.y)) continue;
+      const r = Math.max(2.5, k * 2.5);
+      mctx.beginPath();
+      mctx.moveTo(c.x * k - r, c.y * k - r);
+      mctx.lineTo(c.x * k - r, c.y * k + r);
+      mctx.moveTo(c.x * k + r, c.y * k - r);
+      mctx.lineTo(c.x * k + r, c.y * k + r);
+      mctx.stroke();
     }
 
     // Camera rectangle.
@@ -2936,7 +3373,17 @@ function paintTerrainRegion(ctx, map, cell, cx0, cy0, cx1, cy1) {
         continue;
       }
       if (t === 4) {
-        paintRoad(ctx, map, cell, x, y, px, py, pal);
+        // A bridge is ROAD like everything else prepared — there are five
+        // terrain indices and there will never be a sixth. `map.crossings` is
+        // what tells the two apart, and without it the strongest feature on
+        // the map paints as a stripe of tarmac laid across a river.
+        const bridge = crossingAt(map, x, y, 'bridge');
+        if (bridge) paintBridge(ctx, map, cell, x, y, px, py, pal, bridge);
+        else paintRoad(ctx, map, cell, x, y, px, py, pal);
+        continue;
+      }
+      if (t === 1 && crossingAt(map, x, y, 'ford')) {
+        paintFord(ctx, map, cell, x, y, px, py, pal);
         continue;
       }
 
@@ -3100,6 +3547,16 @@ function paintRoad(ctx, map, cell, x, y, px, py, pal) {
   const horizontal = isRoad(-1, 0) || isRoad(1, 0);
   const vertical = isRoad(0, -1) || isRoad(0, 1);
 
+  // A siding gets sleepers and rails instead of kerbs and a centre line. Same
+  // ground, same cost, entirely different place — and the difference is worth
+  // the twelve lines because a rail yard whose tracks paint as roads reads as
+  // four parallel roads, which is not a district anybody remembers.
+  const rail = railAt(map, x, y);
+  if (rail) {
+    paintSleepers(ctx, cell, px, py, rail.x1 - rail.x0 >= rail.y1 - rail.y0);
+    return;
+  }
+
   // Kerbs on the outward-facing edges only.
   ctx.fillStyle = 'rgba(150, 160, 172, 0.13)';
   if (!isRoad(0, -1)) ctx.fillRect(px, py, cell, 1.5 * k);
@@ -3113,6 +3570,152 @@ function paintRoad(ctx, map, cell, x, y, px, py, pal) {
     if (horizontal) ctx.fillRect(px + cell * 0.2, py + cell / 2 - k, cell * 0.6, 2 * k);
     else ctx.fillRect(px + cell / 2 - k, py + cell * 0.2, 2 * k, cell * 0.6);
   }
+}
+
+/** Ballast, sleepers and two rails, along whichever axis the siding runs. */
+function paintSleepers(ctx, cell, px, py, along) {
+  const k = cell / CELL;
+  ctx.fillStyle = 'rgba(24, 26, 30, 0.5)';
+  const sleepers = 3;
+  for (let i = 0; i < sleepers; i++) {
+    const t = (i + 0.5) / sleepers;
+    if (along) ctx.fillRect(px + cell * t - 1.4 * k, py + cell * 0.14, 2.8 * k, cell * 0.72);
+    else ctx.fillRect(px + cell * 0.14, py + cell * t - 1.4 * k, cell * 0.72, 2.8 * k);
+  }
+  ctx.fillStyle = 'rgba(186, 176, 150, 0.34)';
+  for (const off of [0.34, 0.66]) {
+    if (along) ctx.fillRect(px, py + cell * off - 0.6 * k, cell, 1.6 * k);
+    else ctx.fillRect(px + cell * off - 0.6 * k, py, 1.6 * k, cell);
+  }
+}
+
+/**
+ * A bridge deck.
+ *
+ * Three things make a strip of ground over water read as a bridge from above,
+ * and none of them is colour: parapets down the two long edges, planking
+ * across the direction of travel, and a hard shadow thrown onto the water at
+ * the deck's edge. The shadow is the one that does most of the work — it is
+ * the only cue that says the deck is *above* the water rather than a shallows
+ * somebody paved.
+ */
+function paintBridge(ctx, map, cell, x, y, px, py, pal, crossing) {
+  const k = cell / CELL;
+  // Which way traffic goes over it, which is *across* the river: a channel
+  // that runs east–west is crossed north–south. Getting this the wrong way
+  // round drew the planking along the deck instead of across it and put the
+  // parapets on the two ends, which read as a paved strip rather than as a
+  // bridge — and was invisible until the first screenshot.
+  const along = !crossing.horizontal;
+
+  const n = valueNoise(x, y, 0.09);
+  ctx.fillStyle = `rgb(${Math.round(pal.road[0] + n * 6 + 10)},${Math.round(
+    pal.road[1] + n * 6 + 8
+  )},${Math.round(pal.road[2] + n * 6 + 4)})`;
+  ctx.fillRect(px, py, cell, cell);
+
+  // Planking across the run.
+  ctx.fillStyle = 'rgba(0,0,0,0.16)';
+  for (let i = 0; i < 3; i++) {
+    const t = (i + 0.5) / 3;
+    if (along) ctx.fillRect(px + cell * t - 0.7 * k, py, 1.4 * k, cell);
+    else ctx.fillRect(px, py + cell * t - 0.7 * k, cell, 1.4 * k);
+  }
+
+  // Parapets on the two edges that face out of the deck, and the shadow they
+  // and the deck throw onto whatever is beside them.
+  const edge = (dx, dy) => {
+    const nx = x + dx;
+    const ny = y + dy;
+    if (nx < 0 || ny < 0 || nx >= map.width || ny >= map.height) return true;
+    return !(
+      nx >= crossing.x0 &&
+      nx <= crossing.x1 &&
+      ny >= crossing.y0 &&
+      ny <= crossing.y1
+    );
+  };
+  ctx.fillStyle = 'rgba(158, 166, 178, 0.30)';
+  const rail = 2.6 * k;
+  if (along) {
+    if (edge(0, -1)) ctx.fillRect(px, py, cell, rail);
+    if (edge(0, 1)) ctx.fillRect(px, py + cell - rail, cell, rail);
+  } else {
+    if (edge(-1, 0)) ctx.fillRect(px, py, rail, cell);
+    if (edge(1, 0)) ctx.fillRect(px + cell - rail, py, rail, cell);
+  }
+  ctx.fillStyle = 'rgba(0,0,0,0.42)';
+  if (along) {
+    if (edge(0, -1)) ctx.fillRect(px, py + rail, cell, 1.6 * k);
+    if (edge(0, 1)) ctx.fillRect(px, py + cell - rail - 1.6 * k, cell, 1.6 * k);
+  } else {
+    if (edge(-1, 0)) ctx.fillRect(px + rail, py, 1.6 * k, cell);
+    if (edge(1, 0)) ctx.fillRect(px + cell - rail - 1.6 * k, py, 1.6 * k, cell);
+  }
+}
+
+/**
+ * A ford: the shallows, and the map's slow way over.
+ *
+ * Rough ground with the water colour washed back over it and stones showing
+ * through, because it has to read as *the river, crossable here* rather than
+ * as a gravel patch that happens to be in line with the banks. A player who
+ * cannot tell the ford from the bank does not know the map has three
+ * crossings.
+ */
+function paintFord(ctx, map, cell, x, y, px, py, pal) {
+  const k = cell / CELL;
+  const n = valueNoise(x, y, 0.09);
+  const r = Math.round(pal.ground[0] * 0.45 + pal.water[0] * 0.55 + n * 10);
+  const g = Math.round(pal.ground[1] * 0.45 + pal.water[1] * 0.55 + n * 10);
+  const b = Math.round(pal.ground[2] * 0.45 + pal.water[2] * 0.55 + n * 12);
+  ctx.fillStyle = `rgb(${r},${g},${b})`;
+  ctx.fillRect(px, py, cell, cell);
+
+  // Stones breaking the surface: the whole reason this is walkable.
+  for (let i = 0; i < 4; i++) {
+    const hx = hash2(x * 53 + i, y * 29);
+    const hy = hash2(x * 19, y * 61 + i);
+    const sz = (2 + hash2(x + i, y) * 3) * k;
+    ctx.fillStyle = hash2(x * 3 + i, y * 5) > 0.5
+      ? 'rgba(150, 158, 150, 0.22)'
+      : 'rgba(0, 0, 0, 0.20)';
+    ctx.beginPath();
+    ctx.ellipse(px + hx * (cell - sz), py + hy * (cell - sz), sz * 0.6, sz * 0.42, 0, 0, TAU);
+    ctx.fill();
+  }
+
+  // Riffles: short streaks running with the current, not across it.
+  if (hash2(x * 7, y * 11) > 0.55) {
+    ctx.strokeStyle = pal.glint;
+    ctx.lineWidth = 1.2 * k;
+    const ly = py + cell * hash2(x, y);
+    ctx.beginPath();
+    ctx.moveTo(px + 2 * k, ly);
+    ctx.lineTo(px + cell - 2 * k, ly + 1.5 * k);
+    ctx.stroke();
+  }
+}
+
+/** The crossing of this kind covering a cell, or null. */
+function crossingAt(map, x, y, kind) {
+  const list = map.crossings;
+  if (!list) return null;
+  for (const c of list) {
+    if (c.kind !== kind) continue;
+    if (x >= c.x0 && x <= c.x1 && y >= c.y0 && y <= c.y1) return c;
+  }
+  return null;
+}
+
+/** The siding covering a cell, or null. */
+function railAt(map, x, y) {
+  const list = map.rails;
+  if (!list) return null;
+  for (const r of list) {
+    if (x >= r.x0 && x <= r.x1 && y >= r.y0 && y <= r.y1) return r;
+  }
+  return null;
 }
 
 function paintWater(ctx, map, cell, x, y, px, py, pal) {

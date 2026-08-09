@@ -28,6 +28,15 @@
  * ends because an `enter` objective completed, through the same path as every
  * other victory in the game.
  *
+ * ## What is on the other side
+ *
+ * `to` does not name a mission to go back to the menu and launch. It names the
+ * next **plate** of the same run: the crew walks in here and comes out there,
+ * with one card in between saying where they are going. That chain lives in
+ * `campaign.js` — see "runs" — because it is made of missions, and this file is
+ * made of doors. All a door contributes is `world.exit`: which one was taken,
+ * and what to put on the card.
+ *
  * ## Determinism
  *
  * Binding happens once, at world creation, in mission order. Opening is a
@@ -176,13 +185,22 @@ export function updateGateways(world) {
     if (!arrival) continue;
 
     gateway.entered = true;
-    // Where the mission is going, for the debrief screen. The simulation does
-    // nothing with it — the `enter` objective is what ends the mission.
+    // Where the run is going, and everything the card announcing it needs. The
+    // simulation does nothing with any of this — the `enter` objective is what
+    // ends the mission — but this is the only place that knows *which* gateway
+    // was taken, and a map with two ways off it would otherwise announce
+    // whichever one the mission record happened to list first.
     world.exit = {
       gateway: gateway.id,
       to: gateway.to || null,
       name: gateway.name || GATEWAY_KINDS[gateway.kind].name,
       kind: gateway.kind,
+      /**
+       * The one line the transition card says about the place. Falls back to
+       * the kind's own "it is open" text, so a gateway written without a
+       * flavour string still gets a sentence rather than a blank half-screen.
+       */
+      flavour: gateway.flavour || GATEWAY_KINDS[gateway.kind].opened,
     };
     world.events.push({
       type: 'gatewayEntered',

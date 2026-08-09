@@ -532,6 +532,12 @@ It is enough. It was always going to be.
  * `requires` names whatever has to be cleared first, from either list, which
  * is how a challenge sits at the right point in the story and how a world
  * stays hidden until somebody finds the door to it.
+ *
+ * A gateway's `to` is read as a **chain**, not as a suggestion: taking the
+ * shaft loads the Undercroft straight into the game screen as the next plate
+ * of the same run. See "runs" at the foot of this file for what that means for
+ * the debrief. `requires` still governs launching a hidden world on its own
+ * from the mission list, which is how it stays replayable afterwards.
  */
 export const CHALLENGES = [
   {
@@ -578,6 +584,15 @@ The air coming up is warm.
         /** Placed by the map generator; the shaft opens where it stood. */
         landmark: 'headquarters',
         to: 'undercroft',
+        /**
+         * The whole of what the player is told on the way down.
+         *
+         * A transition card is not a briefing: the crew went into a hole
+         * nobody has a survey of, and a paragraph explaining what is at the
+         * bottom would be the one thing they do not have. One line, and it is
+         * the same line Ironhold's debrief ends on.
+         */
+        flavour: 'The air coming up is warm.',
       },
     ],
     player: {
@@ -726,6 +741,7 @@ There is a courtyard on the other side and it is lit.
          */
         guard: { defId: 'marine', player: 1 },
         to: 'ironkeep',
+        flavour: 'There is a courtyard on the other side, and it is lit.',
       },
     ],
     player: {
@@ -921,6 +937,120 @@ export function missionOutcome(world, mission) {
       failed: o.failed,
       standing: o.standing,
     })),
+  };
+}
+
+/* --------------------------------------------------------------- runs -- */
+
+/**
+ * A run: every plate a single deployment covers.
+ *
+ * A gateway's destination is the next plate of the run, not a separate mission
+ * to relaunch — walking into the shaft under Ironhold loads the Undercroft
+ * directly. The debrief therefore waits until the crew stops finding doors:
+ * one screen at the end of the chain, summarising every plate, instead of a
+ * full scoreboard wedged into the one moment in the game that is pure
+ * momentum.
+ *
+ * Most runs are one plate long. That is the case that has to stay exactly as
+ * it was, because it is every story mission in the game, which is why
+ * `runOutcome` is shaped like `missionOutcome` rather than like something new.
+ *
+ * A run is plain data and everything derived from it is derived here rather
+ * than in the screen that draws it, so the accumulation is testable without a
+ * browser. `recordPlate` spreads whatever else the caller is carrying on the
+ * run object — main.js keeps the profile as it stood before the first plate
+ * there, to show pilot XP across the whole chain — so this file never has to
+ * know what that is.
+ */
+export function createRun() {
+  return { plates: [] };
+}
+
+/** Append a finished plate. Returns a new run; the argument is untouched. */
+export function recordPlate(run, mission, outcome) {
+  const base = run || createRun();
+  return {
+    ...base,
+    plates: [
+      ...base.plates,
+      { id: mission.id, name: mission.name, subtitle: mission.subtitle || '', outcome },
+    ],
+  };
+}
+
+/**
+ * The mission on the other side of the door this plate ended on, or null.
+ *
+ * Null covers three different endings and deliberately does not tell them
+ * apart, because the caller does the same thing in all three: a mission with
+ * no gateway, a challenge whose gateway was never taken, and a gateway leading
+ * to content that has since been deleted all mean "the run stops here".
+ */
+export function plateAfter(outcome) {
+  if (!outcome || !outcome.exit || !outcome.exit.to) return null;
+  return missionById(outcome.exit.to);
+}
+
+/**
+ * Fold a run into the one outcome its debrief renders.
+ *
+ * Salvage, statistics and pilot XP are summed across the chain because that is
+ * what the player earned for the deployment; each plate's objectives are kept
+ * *apart*, under that plate's name, because "clear the lower chambers" and
+ * "level the headquarters" are answers to two different questions and a single
+ * merged tick-list says neither.
+ *
+ * The run's result is the last plate's. Every earlier plate was won by
+ * definition — a plate that was lost has no door on the far side of it.
+ */
+export function runOutcome(run) {
+  const plates = (run && run.plates) || [];
+  const last = plates.length ? plates[plates.length - 1].outcome : null;
+
+  const rewards = { salvage: 0, xp: 0, base: 0, killBonus: 0, speedBonus: 0 };
+  const stats = { ticks: 0, killed: 0, lost: 0, mined: 0 };
+  const pilotXp = {};
+  const pilotsLost = [];
+  let bonusSalvage = 0;
+  let bonusesCleared = 0;
+  let bonusTotal = 0;
+
+  for (const plate of plates) {
+    const o = plate.outcome;
+    for (const key of Object.keys(rewards)) rewards[key] += (o.rewards && o.rewards[key]) || 0;
+    for (const key of Object.keys(stats)) stats[key] += (o.stats && o.stats[key]) || 0;
+    bonusSalvage += o.bonusSalvage || 0;
+    bonusesCleared += o.bonusesCleared || 0;
+    bonusTotal += o.bonusTotal || 0;
+    for (const [id, xp] of Object.entries(o.pilotXp || {})) pilotXp[id] = (pilotXp[id] || 0) + xp;
+    // A pilot shot down on plate one is one loss, not one per plate.
+    for (const id of o.pilotsLost || []) if (!pilotsLost.includes(id)) pilotsLost.push(id);
+  }
+
+  return {
+    won: last ? last.won : false,
+    exit: last ? last.exit : null,
+    rewards,
+    bonusSalvage,
+    bonusesCleared,
+    bonusTotal,
+    pilotXp,
+    pilotsLost,
+    stats,
+    /** Each plate's objectives, under the plate's own name. */
+    plates: plates.map((p) => ({
+      id: p.id,
+      name: p.name,
+      subtitle: p.subtitle,
+      won: p.outcome.won,
+      objectives: p.outcome.objectives || [],
+    })),
+    /**
+     * The same objectives flattened, so anything that only wants "how did the
+     * objectives go" reads a run exactly the way it read a mission.
+     */
+    objectives: plates.flatMap((p) => p.outcome.objectives || []),
   };
 }
 
