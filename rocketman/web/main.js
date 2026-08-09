@@ -32,9 +32,12 @@ import {
   missionWorldConfig,
   missionOutcome,
   missionById,
+  createRun,
+  recordPlate,
+  runOutcome,
+  plateAfter,
   MISSIONS,
 } from '../engine/campaign.js';
-import { GATEWAY_KINDS } from '../engine/content.js';
 import { describeObjective, objectiveProgressText } from '../engine/objectives.js';
 import {
   recruitFor,
@@ -66,6 +69,7 @@ import {
   renderCampaign,
   renderBriefing,
   renderDebrief,
+  renderTransition,
   renderHangar,
   formatTime,
 } from './campaign-ui.js';
@@ -77,7 +81,16 @@ const VIEWER = 0;
 
 const $ = (id) => document.getElementById(id);
 
-const SCREENS = ['title', 'campaign', 'briefing', 'hangar', 'debrief', 'skirmish', 'game'];
+const SCREENS = [
+  'title',
+  'campaign',
+  'briefing',
+  'hangar',
+  'transition',
+  'debrief',
+  'skirmish',
+  'game',
+];
 
 function showScreen(name) {
   for (const id of SCREENS) {
@@ -130,6 +143,15 @@ function handleBack() {
   }
 
   switch (screen) {
+    // Not `openCampaign()`: a transition card has a live dwell timer behind it
+    // that would otherwise fire a few seconds later and drop the player into
+    // the next plate from the mission list. Going through `transitionExit`
+    // cancels it and lands on the run's debrief, which is where declining the
+    // door leaves you.
+    case 'transition':
+      if (transitionExit) transitionExit();
+      else openCampaign();
+      return true;
     case 'briefing':
     case 'hangar':
     case 'debrief':
@@ -153,6 +175,33 @@ let activeMatch = null;
 const sound = createSound();
 /** The last finished match's recording, for "Watch replay" on the end screens. */
 let lastRecording = null;
+
+/**
+ * The run in progress: every plate played since the last Deploy, plus `before`
+ * — the profile as it stood before the first of them, which is what lets the
+ * debrief show pilot levels gained across the whole chain rather than across
+ * the last plate only.
+ *
+ * ## Why this is in memory and not on disk
+ *
+ * The autosave and the replay are the same file (`engine/replay.js`): a config
+ * plus a command log, rebuilt by re-simulating. That file describes *one
+ * world*, and a chain is several — so a resumable chain would need a second
+ * save format holding the finished plates' outcomes and a copy of the profile
+ * from before the run, sitting beside a profile that is rewritten after every
+ * plate and free to disagree with it. That is a new corruptible format bought
+ * to preserve a summary screen.
+ *
+ * So: **the autosave holds the current plate only, and a chain is not resumable
+ * as a chain.** Nothing a player earned is at risk, because each plate's
+ * salvage, XP and discoveries are written to the profile the moment that plate
+ * ends rather than banked to the end of the run. What a reload costs is the
+ * combined debrief: Resume offers the plate you were on, and finishing it
+ * debriefs as that plate. It still chains onward from there if it ends on a
+ * gateway — see `finishMission` — because chaining reads `world.exit` and
+ * needs no memory of the plates before it.
+ */
+let run = null;
 
 function persist() {
   saveProfile(profile);
@@ -215,6 +264,9 @@ function resumeSavedMatch() {
     refreshResumeButton();
     return;
   }
+  // The autosave is one plate, never a chain — see `run`. Whatever run this
+  // page load was in the middle of, the resumed plate is not part of it.
+  run = null;
   startMatch(save.config, { mission: save.config.mission || null, resume: save });
 }
 
@@ -237,6 +289,10 @@ const campaignHandlers = {
 
 function openCampaign() {
   endMatch();
+  // The mission list is where a run ends, however it got here — finished,
+  // abandoned, or declined at a door. Leaving it set would let the next
+  // deployment append its plate to a chain that finished ten minutes ago.
+  run = null;
   renderCampaign(profile, campaignHandlers);
   showScreen('campaign');
 }
@@ -266,38 +322,119 @@ function openHangar() {
   showScreen('hangar');
 }
 
+/** Deploy: the first plate of a new run, from the briefing or from Replay. */
 function launchMission(mission) {
-  const config = missionWorldConfig(mission, profile);
-  startMatch(config, { mission });
+  run = { ...createRun(), before: profile };
+  launchPlate(mission);
+}
+
+/**
+ * Put a plate on the screen. Shared by Deploy and by a gateway chaining
+ * onward, so the two cannot drift apart in what they set up.
+ *
+ * Recruiting here rather than only in `openBriefing` is not tidiness: a
+ * chained plate never sees a briefing, and a pilot the profile has never heard
+ * of earns XP at the debrief that `applyMissionResult` then throws away,
+ * silently, because there is no record to add it to. The Undercroft fields
+ * Sable, and it is reachable long before the mission that introduces her.
+ */
+function launchPlate(mission) {
+  profile = recruitFor(profile, mission);
+  persist();
+  startMatch(missionWorldConfig(mission, profile), { mission });
 }
 
 function finishMission(world, mission) {
   const outcome = missionOutcome(world, mission);
   const before = profile;
+  // Every plate banks its own result immediately. Holding the chain's winnings
+  // until the end of the run would mean a reload — or a closed tab — between
+  // two plates costs the player the first one, and the whole reason a gateway
+  // is worth walking into is that it is not a gamble.
   profile = applyMissionResult(profile, mission, outcome);
   persist();
 
-  // A gateway that was walked into has somewhere on the other side of it, and
-  // the debrief is where the crew goes through. Resolved against the profile
-  // *after* the result is applied, because taking the shaft is what unlocked
-  // what the shaft leads to.
-  const destination = outcome.exit && outcome.exit.to ? missionById(outcome.exit.to) : null;
-  const onward =
-    destination && challengeUnlocked(profile, destination)
-      ? {
-          mission: destination,
-          label: `${GATEWAY_KINDS[outcome.exit.kind].verb} — ${destination.name}`,
-        }
-      : null;
+  // A match resumed from disk arrives with no run in memory (see `run`). It
+  // becomes the first plate of a new one rather than being refused, so a
+  // resumed Ironhold still descends into the Undercroft.
+  run = recordPlate(run || { ...createRun(), before }, mission, outcome);
 
-  renderDebrief(mission, outcome, before, profile, {
-    onward,
-    onOnward: onward
-      ? () => {
-          endMatch();
-          openBriefing(onward.mission);
-        }
-      : null,
+  // Where the run goes next, resolved against the profile *after* the result
+  // is applied: taking the shaft is what unlocks what the shaft leads to, and
+  // the unlock check is what stops a gateway walked into on a mission that was
+  // then lost from dragging the player somewhere they have not earned.
+  const destination = plateAfter(outcome);
+  if (outcome.won && destination && challengeUnlocked(profile, destination)) {
+    openTransition(outcome.exit, destination);
+    return;
+  }
+
+  openDebrief();
+}
+
+/**
+ * The beat between two plates.
+ *
+ * The finished match is torn down first: the card is not a pause in the fight,
+ * it is the end of one, and leaving the loop running would spend the dwell
+ * drawing a decided battlefield behind a hidden screen.
+ *
+ * Advancing is either key, tap, or the dwell running out — but not for the
+ * first `TRANSITION_GUARD` milliseconds. The player was driving a mech with
+ * the keyboard until a moment ago; without the guard a key still on its way
+ * down when the card appears skips it, and the one screen that names where the
+ * crew is going is the one screen nobody ever reads.
+ */
+const TRANSITION_DWELL = 4600;
+const TRANSITION_GUARD = 700;
+
+/** Leaves a transition card without taking it. Set only while one is up. */
+let transitionExit = null;
+
+function openTransition(exit, destination) {
+  endMatch();
+
+  const shown = Date.now();
+  let done = false;
+  let timer = null;
+
+  const close = () => {
+    if (done) return false;
+    done = true;
+    clearTimeout(timer);
+    window.removeEventListener('keydown', onImpatience);
+    transitionExit = null;
+    return true;
+  };
+  const advance = () => {
+    if (close()) launchPlate(destination);
+  };
+  function onImpatience() {
+    if (Date.now() - shown >= TRANSITION_GUARD) advance();
+  }
+
+  renderTransition(exit, destination, { onAdvance: onImpatience });
+  showScreen('transition');
+  window.addEventListener('keydown', onImpatience);
+  timer = setTimeout(advance, TRANSITION_DWELL);
+
+  // Back on the transition card means "do not go on", which lands in the same
+  // place the run would have ended anyway: the debrief for the plates already
+  // won. Nothing is forfeited by it — they were banked as they finished.
+  transitionExit = () => {
+    if (close()) openDebrief();
+  };
+}
+
+/** The end of a run: one screen for every plate of it. */
+function openDebrief() {
+  const outcome = runOutcome(run);
+  // The plate the run ended on — the one that was just lost, or the last one
+  // won. It is what "Replay" means and whose closing prose ends the run.
+  const last = run.plates[run.plates.length - 1];
+  const mission = missionById(last.id);
+
+  renderDebrief(mission, outcome, run.before, profile, {
     onContinue: openCampaign,
     onRetry: (m) => {
       endMatch();

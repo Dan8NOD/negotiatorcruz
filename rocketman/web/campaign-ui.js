@@ -366,37 +366,30 @@ export function renderDebrief(mission, outcome, before, after, handlers) {
 
   const actions = el('div', 'briefActions');
 
-  // The way on, when the crew took one. First and primary, because a player
-  // who has just walked into a shaft has already told you where they want to
-  // go — "Continue" back to a mission list is the wrong default for exactly
-  // one screen in the game, and this is it.
-  if (handlers.onward && handlers.onOnward) {
-    const onward = el('button', 'primary', handlers.onward.label);
-    onward.type = 'button';
-    onward.id = 'debriefOnward';
-    onward.addEventListener('click', handlers.onOnward);
-    actions.appendChild(onward);
-  }
-
-  const cont = el(
-    'button',
-    handlers.onward ? 'ghost' : 'primary',
-    outcome.won ? 'Continue' : 'Back to missions'
-  );
+  // There is no "the way on" button here any more, and its absence is the
+  // feature. A gateway loads the next plate directly, so by the time this
+  // screen is up the crew has already been everywhere the run was going —
+  // where the player used to answer a debrief, a briefing and a Deploy button
+  // between two halves of one descent.
+  const cont = el('button', 'primary', outcome.won ? 'Continue' : 'Back to missions');
   cont.type = 'button';
   cont.id = 'debriefContinue';
   cont.addEventListener('click', handlers.onContinue);
   actions.appendChild(cont);
 
-  const retry = el('button', 'ghost', 'Replay mission');
+  // Replay means the plate the run ended on — the one that was just lost, or
+  // the last one won. "Replay mission" over a three-plate run would be a lie
+  // about which mission, so it says which.
+  const retry = el('button', 'ghost', plates ? `Replay ${mission.name}` : 'Replay mission');
   retry.type = 'button';
   retry.addEventListener('click', () => handlers.onRetry(mission));
   actions.appendChild(retry);
 
   // Watch the match back. Only offered when main.js actually has a recording
-  // in hand, so the button never leads nowhere.
+  // in hand, so the button never leads nowhere — and a recording is one plate,
+  // never a whole chain, so on a run it says which plate it will show.
   if (handlers.onWatch) {
-    const watch = el('button', 'ghost', 'Watch replay');
+    const watch = el('button', 'ghost', plates ? 'Watch the last plate' : 'Watch replay');
     watch.type = 'button';
     watch.id = 'debriefWatch';
     watch.addEventListener('click', handlers.onWatch);

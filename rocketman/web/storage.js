@@ -87,6 +87,15 @@ export function isEphemeral() {
  * format is engine/replay.js's serialised recording — config plus command log —
  * so "load" here is only custody of the string; whether it still *means* a
  * match is deserializeMatch's call, made at read time, every time.
+ *
+ * One key, one *plate*. A gateway chains straight into the next map of a run
+ * (see `run` in main.js), and a chain is several worlds — which one recording
+ * cannot describe, and which a second save format holding the finished plates
+ * would describe only until it disagreed with the profile it was derived from.
+ * So the key always holds the plate currently being played, and Resume offers
+ * that plate and nothing else. Nothing earned is at stake: every plate writes
+ * its salvage, XP and discoveries into the profile the moment it ends, so what
+ * a reload mid-chain costs is the combined debrief, not the run.
  */
 
 const MATCH_KEY = 'rocketman.match.v1';

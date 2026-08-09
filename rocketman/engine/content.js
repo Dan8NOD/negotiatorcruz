@@ -1237,6 +1237,110 @@ export const PROPS = {
     hint: 'Waist-high. Blocks a walker, hides nothing from the air.',
   },
 
+  /* ---- the rail yard, the farm and the quarry ------------------------- */
+
+  /**
+   * Rolling stock, standing where it was left.
+   *
+   * A yard is three or four sidings running the same way with wagons parked
+   * along them, and that is the whole reason it is a good place to fight: the
+   * tracks are the fastest ground in the district and the wagons are hard
+   * cover *across* them, so every siding is a firing lane with a door in it.
+   *
+   * Medium armour rather than structure — a steel box on bogies is not a
+   * building, and it should fold to autocannon rather than needing a rocket.
+   */
+  boxcar: {
+    id: 'boxcar',
+    name: 'Box Wagon',
+    size: [3, 1],
+    hp: 300,
+    armor: ARMOR.MEDIUM,
+    height: 1.1,
+    shape: 'railcar',
+    hint: 'Loaded, sealed, and going nowhere.',
+  },
+  tanker: {
+    id: 'tanker',
+    name: 'Tank Wagon',
+    size: [3, 1],
+    hp: 210,
+    /** Structure, for the same reason the fuel station is: see `gasstation`. */
+    armor: ARMOR.STRUCTURE,
+    height: 1.2,
+    shape: 'railcar',
+    volatile: true,
+    /**
+     * A long thin blast rather than the depot's fat one, and the reason a yard
+     * is not simply a safer industrial estate: the wagons are strung out along
+     * the sidings, so one going up takes the *lane* rather than the block.
+     */
+    deathExplosion: { radius: 4.4, damage: 250, type: DAMAGE.EXPLOSIVE },
+    hint: 'Nobody wrote on it what is inside. It does not matter.',
+  },
+  signal: {
+    id: 'signal',
+    name: 'Signal Gantry',
+    size: [1, 1],
+    hp: 220,
+    /** A lattice, like the relay mast, and it comes down like one. */
+    armor: ARMOR.LIGHT,
+    height: 3.0,
+    shape: 'signal',
+    hint: 'Still showing a clear road for a train that is not coming.',
+  },
+  barn: {
+    id: 'barn',
+    name: 'Barn',
+    size: [3, 2],
+    hp: 620,
+    armor: ARMOR.STRUCTURE,
+    height: 1.7,
+    storeys: 1,
+    shape: 'barn',
+    hint: 'Big doors, empty inside, and one wall you can walk through.',
+  },
+  windpump: {
+    id: 'windpump',
+    name: 'Wind Pump',
+    size: [1, 1],
+    hp: 190,
+    armor: ARMOR.LIGHT,
+    height: 3.4,
+    shape: 'windpump',
+    hint: 'Still turning. It is the only thing out here that is.',
+  },
+  crusher: {
+    id: 'crusher',
+    name: 'Rock Crusher',
+    size: [3, 3],
+    hp: 1500,
+    armor: ARMOR.STRUCTURE,
+    height: 2.2,
+    shape: 'crusher',
+    hint: 'Hopper, jaw and a conveyor to nowhere. Solid all the way down.',
+  },
+
+  /**
+   * The thing somebody built at the chokepoint, before all this.
+   *
+   * A pass or a bridgehead is worth holding whether or not anything stands on
+   * it, but a player has to be able to *see* that it is worth holding, and a
+   * pair of blockhouses either side of the road says so from across the map.
+   * Cheap to draw, low enough not to hide what is behind it, and tough enough
+   * that clearing one is a decision rather than a formality.
+   */
+  bunker: {
+    id: 'bunker',
+    name: 'Blockhouse',
+    size: [2, 2],
+    hp: 1100,
+    armor: ARMOR.STRUCTURE,
+    height: 0.9,
+    shape: 'bunker',
+    hint: 'Somebody held this once. There is a firing slit and no door.',
+  },
+
   /* ---- landmarks: one to a map, and the reason the map exists ---------- */
 
   /**
