@@ -13,6 +13,7 @@
     "test:rocketman:e2e": "playwright test -c rocketman/playwright.config.cjs",
     "serve": "node test/helpers/static-server.js",
     "rocketman:fixtures": "node rocketman/tools/export-fixtures.mjs",
+    "rocketman:estate": "node rocketman/tools/build-estate.mjs",
     "test:rocketman:swift": "swift test --package-path rocketman/swift",
     "rocketman:build": "node rocketman/tools/build-single-file.mjs",
     "rocketman:android": "cd rocketman/android && ./gradlew assembleDebug",
