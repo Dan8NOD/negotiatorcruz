@@ -117,6 +117,53 @@ library you already own.
 
 ---
 
+## Job 4 — The Arch, and landmarks on the other edges
+
+Decided, not open: **30 cells tall** (240m / ~790ft) and placed at the **four
+edge midpoints**, not the corners.
+
+Both of those overrode the original request, for reasons worth keeping:
+
+- **"80ft tall, huge" is a contradiction in this game's units.** A cell is 8m,
+  so 80ft is 3 cells — shorter than the nine-storey Tower Blocks already
+  scattered around the map, and less than a quarter of the castle keep's 13
+  cells. To span a fifth of a corner *and* read as huge, an arch wants about 30
+  cells, which is 2.3x the keep and the largest thing in the game. The Gateway
+  Arch is 630ft for comparison; this is taller.
+- **There are no free corners.** The two players start in the NW and SE, and
+  Hillcrest already holds the other two — one castle placed in the NE produced
+  its twin in the SW automatically, because the generator mirrors everything at
+  180°. A structure in a "free" corner lands in somebody's base. The edge
+  midpoints are genuinely empty, mirror cleanly in pairs, and sit on the routes
+  between bases, so they get fought over rather than admired from a distance.
+
+Build it the way Hillcrest was built, because the reasoning that forced that
+shape has not changed:
+
+1. **Parameters and geometry go in `tools/`, never `engine/`.** An arch is a
+   catenary or a parabola; either needs `cosh` or `pow`, and a test in
+   `test/sim.test.js` scans `engine/` and fails on both. Bake literals the way
+   `tools/build-estate.mjs` does and for the same reason — see `ESTATE.md`.
+2. **Emit the Unity JSON in the same pass.** Nothing should describe this
+   geometry twice.
+3. **Mind the map-size gate.** `ESTATE_MAX_MAP_SHARE` in `grid.js` keeps large
+   features off small maps — including the 72-cell map the Swift port's
+   fixtures are generated from. Ignore it and CI fails with "Engine behaviour
+   changed", because `map.json` silently drifts.
+4. **Skirmish only.** Campaign missions are tuned against fixed seeds; a
+   landmark this size re-tunes all seven. `cold_open` already proved it.
+5. **Sweep seeds, don't spot-check.** `propFits` declines rather than throwing,
+   so a blocked footprint means the structure is silently absent from that map.
+   Every placement bug in Hillcrest was found this way and none would have shown
+   on one seed.
+
+Height 30 is without precedent and the renderer has never drawn anything that
+tall: the elevation offset is `height * CELL * 0.34` px, so the arch's crown
+lands ~245px above its footprint. Check it at normal zoom before committing to
+the number — it may need its own draw path rather than the shared `keep` shape.
+
+---
+
 ## Where things stand
 
 - `main` ← PR #24, branch `claude/rocky-game-dev-setup-f9u419`

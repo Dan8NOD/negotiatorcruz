@@ -292,6 +292,21 @@ const PLATEAU_MARGIN = 0.75;
 const ESTATE_EDGE_MARGIN = 3;
 
 /**
+ * The largest share of the map's shorter edge the estate is allowed to span.
+ *
+ * The estate is bigger than it looks: the hill is 24 cells across, but the
+ * approach road reaches out to radius 15, so the whole thing spans 30. On the
+ * 144-cell default that is a fifth of the board — a landmark. On a 72-cell map
+ * it is *forty per cent*, which is not a landmark, it is the map.
+ *
+ * A quarter is the line. It keeps the estate on full-size maps and off small
+ * ones, and — not incidentally — off the 72-cell map the Swift port's fixtures
+ * are generated from, which is how this number got pinned down: the estate
+ * silently rewrote `map.json` and CI caught the drift.
+ */
+const ESTATE_MAX_MAP_SHARE = 0.25;
+
+/**
  * How far a wreck field has to stay from the estate's centre.
  *
  * The hill's own radius plus the widest field, because the guard compares
@@ -421,7 +436,10 @@ function sealMirrored(map, x, y) {
 function planEstate(map) {
   const { width, height } = map;
   const need = Math.ceil(HILL.outer) + ESTATE_EDGE_MARGIN;
-  if (Math.min(width, height) < need * 4) return null;
+  // Span is set by the approach road, not the hill — the road reaches further
+  // out than the cliffs do, and it is just as much part of the landmark.
+  const span = Math.abs(ROAD_APPROACH[0]) * 2;
+  if (Math.min(width, height) * ESTATE_MAX_MAP_SHARE < span) return null;
 
   const clamp = (v, max) => Math.max(need, Math.min(max - 1 - need, v));
   return {
