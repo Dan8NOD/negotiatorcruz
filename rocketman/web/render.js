@@ -495,6 +495,9 @@ export function createRenderer(canvas, world, viewerId) {
       case 'silo':
         drawSilo(e, px, py, pw, ph, dx, dy, hurt);
         break;
+      case 'keep':
+        drawKeep(e, px, py, pw, ph, dx, dy, hurt);
+        break;
       case 'depot':
         drawDepot(e, px, py, pw, ph, dx, dy, hurt);
         break;
@@ -961,6 +964,102 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.moveTo(cx - r, cy - 3);
     ctx.lineTo(cx + r, cy - 3);
     ctx.stroke();
+  }
+
+  /**
+   * Hillcrest: the keep, its corner towers, and the gatehouse.
+   *
+   * One shape for all three, scaled by footprint and `height`, because they are
+   * the same building at three sizes — a glazed slab with a battered base and a
+   * lit crown. Three near-identical draw functions would drift apart the first
+   * time anybody touched one.
+   *
+   * The keep's height of 13 lifts its roof about 106px, against a 120px
+   * footprint, so on screen it is nearly as tall as it is wide. That is the
+   * whole design intent: the thing you navigate by from across the map. It also
+   * means the silhouette does almost all the work and the detailing has to stay
+   * subordinate to it — hence one accent, not five.
+   */
+  function drawKeep(e, px, py, pw, ph, dx, dy, hurt) {
+    const cx = px + pw / 2;
+    const cy = py + ph / 2;
+    const base = cy + 3;
+    const ty = cy + dy;
+    // Slight batter — wider at the footing than the crown. It is what stops a
+    // plain extruded box reading as a shipping container stood on its end.
+    const halfBase = pw * 0.42;
+    const halfTop = halfBase * 0.86;
+    const lean = cx + dx * 0.35;
+    const rise = base - ty;
+
+    // Body, lit from the north-west like every other structure on the map.
+    const body = ctx.createLinearGradient(cx - halfBase, 0, cx + halfBase, 0);
+    body.addColorStop(0, '#39434f');
+    body.addColorStop(0.34, '#59667a');
+    body.addColorStop(1, '#242c36');
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.moveTo(cx - halfBase, base);
+    ctx.lineTo(cx + halfBase, base);
+    ctx.lineTo(lean + halfTop, ty);
+    ctx.lineTo(lean - halfTop, ty);
+    ctx.closePath();
+    ctx.fill();
+
+    // Vertical mullions. Spaced off the footprint rather than fixed, so the
+    // 2x2 corner towers get two and the 5x5 keep gets five without tuning.
+    const bays = Math.max(2, Math.round(pw / 12));
+    ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < bays; i++) {
+      const f = i / bays;
+      ctx.beginPath();
+      ctx.moveTo(cx - halfBase + halfBase * 2 * f, base);
+      ctx.lineTo(lean - halfTop + halfTop * 2 * f, ty);
+      ctx.stroke();
+    }
+
+    // Glazing. Rows thin out as the building takes damage — the cheapest way to
+    // say "this is being fought over" without another particle system.
+    const floors = Math.max(2, Math.round(rise / 9));
+    const lit = 0.25 + hurt * 0.5;
+    for (let i = 1; i < floors; i++) {
+      const f = i / floors;
+      const y = base - rise * f;
+      const half = halfBase + (halfTop - halfBase) * f;
+      const x = cx + (lean - cx) * f;
+      // Deterministic per floor and per prop, so windows do not crawl frame to
+      // frame — Math.random here would strobe the whole tower.
+      const on = ((e.id * 7 + i * 13) % 5) !== 0;
+      ctx.fillStyle = on ? `rgba(196, 214, 236, ${lit * 0.5})` : 'rgba(18, 24, 32, 0.5)';
+      ctx.fillRect(x - half * 0.72, y - 1.5, half * 1.44, 2);
+    }
+
+    // The crown: a parapet slab, then the roof plate proper.
+    ctx.fillStyle = '#6c7a8c';
+    ctx.fillRect(lean - halfTop - 2, ty - 3, halfTop * 2 + 4, 3.5);
+    ctx.fillStyle = '#48545f';
+    ctx.beginPath();
+    ctx.ellipse(lean, ty - 3, halfTop, halfTop * 0.32, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(150, 168, 188, 0.5)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // Aircraft warning light, on the tall ones only. A blinking red dot at 106px
+    // is what makes the keep read as *tall* rather than merely large — the
+    // gatehouse gets none, because a four-cell building with a beacon is silly.
+    if (e.def.height >= 8) {
+      const beat = (frameClock >> 4) % 4;
+      if (beat === 0) {
+        glow(() => {
+          ctx.fillStyle = 'rgba(255, 110, 100, 0.9)';
+          ctx.beginPath();
+          ctx.arc(lean, ty - 5, 2.2, 0, TAU);
+          ctx.fill();
+        });
+      }
+    }
   }
 
   /** A propane depot: a bank of cylinders behind a wire fence. */
@@ -1480,6 +1579,47 @@ export function createRenderer(canvas, world, viewerId) {
             ctx.fillStyle = g;
             ctx.beginPath();
             ctx.arc(cx, cy, 10 * t, 0, TAU);
+            ctx.fill();
+          });
+        }
+        break;
+      }
+      case 'hangar': {
+        // Until now the Hangar fell through to the generic panel below, which
+        // is why the largest, most expensive production building on the map
+        // read as the smallest thing in the base. It gets the two shapes that
+        // say "aircraft" at this size: a bay mouth wide enough to fly out of,
+        // and a barrel-vault roof.
+        const bayW = pw * 0.52;
+        const bayH = ph * 0.24;
+        ctx.fillStyle = '#0e141b';
+        ctx.fillRect(cx - bayW / 2, cy + 2, bayW, bayH);
+        ctx.strokeStyle = 'rgba(140,160,180,0.5)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(cx - bayW / 2, cy + 2, bayW, bayH);
+
+        // Centreline, and the one place the faction colour is spent.
+        ctx.fillStyle = color;
+        ctx.fillRect(cx - 1.5, cy + 4, 3, bayH - 4);
+
+        // Roof ribs. Three shallow arches read as a vault rather than a slab.
+        ctx.strokeStyle = 'rgba(140,160,180,0.32)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 3; i++) {
+          const y = cy - 11 + i * 5;
+          ctx.beginPath();
+          ctx.moveTo(cx - pw * 0.3, y);
+          ctx.quadraticCurveTo(cx, y - 4, cx + pw * 0.3, y);
+          ctx.stroke();
+        }
+
+        // Approach beacon, lit only while something is in the queue — the art
+        // carrying real state rather than decorating.
+        if (e.queue && e.queue.length > 0 && (frameClock >> 3) % 2 === 0) {
+          glow(() => {
+            ctx.fillStyle = 'rgba(255, 180, 100, 0.9)';
+            ctx.beginPath();
+            ctx.arc(cx + pw * 0.33, cy - 12, 2, 0, TAU);
             ctx.fill();
           });
         }

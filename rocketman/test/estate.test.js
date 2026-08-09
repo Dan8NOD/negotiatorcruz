@@ -18,7 +18,8 @@ import { readFileSync } from 'node:fs';
 
 import { CASTLE_ESTATE, HILL, STRUCTURES, ROAD_POINTS, CELL_METRES } from '../engine/estate.js';
 import { buildEstate, PARAMS } from '../tools/build-estate.mjs';
-import { ABILITIES } from '../engine/content.js';
+import { createMap } from '../engine/grid.js';
+import { ABILITIES, PROPS, TERRAIN, TERRAIN_INFO } from '../engine/content.js';
 
 /** Distance from the hill's centre. Plain sqrt, as `numeric.js` requires. */
 const radius = ([x, y]) => Math.sqrt(x * x + y * y);
@@ -119,6 +120,106 @@ describe('estate geometry', () => {
       assert.ok(r <= HILL.outer, `rim ${i} at ${r} is outside the hill`);
       if (i > 0) assert.ok(r > HILL.rims[i - 1], `rim ${i} is not outside rim ${i - 1}`);
     }
+  });
+});
+
+describe('estate on the map', () => {
+  // Every failure this suite has caught was seed-dependent, and every one of
+  // them failed *silently*: `propFits` declines rather than throwing, so a
+  // buried footprint means the castle is simply absent from that map. A sweep
+  // is the only shape of test that finds those.
+  const seeds = [1, 7, 8, 23, 26, 42, 58, 99, 1234];
+
+  /** Flood the passable terrain from a start, so we can ask what it reaches. */
+  function reachableFrom(map, start) {
+    const { width, height, terrain } = map;
+    const seen = new Uint8Array(width * height);
+    const queue = [start.y * width + start.x];
+    seen[queue[0]] = 1;
+
+    for (let head = 0; head < queue.length; head++) {
+      const i = queue[head];
+      const x = i % width;
+      const y = (i - x) / width;
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nx = x + dx;
+        const ny = y + dy;
+        if (nx < 0 || ny < 0 || nx >= width || ny >= height) continue;
+        const j = ny * width + nx;
+        if (seen[j] || !TERRAIN_INFO[terrain[j]].passable) continue;
+        seen[j] = 1;
+        queue.push(j);
+      }
+    }
+    return seen;
+  }
+
+  for (const seed of seeds) {
+    test(`seed ${seed} builds the whole castle, twice`, () => {
+      // Twice because the generator mirrors everything. One castle would mean
+      // one player has a landmark on their flank and the other does not, which
+      // is the exact unfairness this file exists to prevent.
+      const map = createMap(seed);
+      const count = (id) => map.props.filter((p) => p.defId === id).length;
+      assert.equal(count('keep'), 2, 'keeps');
+      assert.equal(count('castletower'), 8, 'corner towers');
+      assert.equal(count('gatehouse'), 2, 'gatehouses');
+    });
+
+    test(`seed ${seed} leaves the castle reachable on foot`, () => {
+      // The cliff rims mean the road is the only way up. If the road ever fails
+      // to cut them — or the switchbacks get paved over — the castle becomes
+      // decoration that nothing can walk to, and no other test would notice.
+      const map = createMap(seed);
+      const keep = map.props.find((p) => p.defId === 'keep');
+      const seen = reachableFrom(map, map.starts[0]);
+
+      let touching = false;
+      for (let y = keep.cy - 1; y <= keep.cy + PROPS.keep.size[1]; y++) {
+        for (let x = keep.cx - 1; x <= keep.cx + PROPS.keep.size[0]; x++) {
+          if (x < 0 || y < 0 || x >= map.width || y >= map.height) continue;
+          if (seen[y * map.width + x]) touching = true;
+        }
+      }
+      assert.ok(touching, 'nothing walkable adjoins the keep');
+    });
+
+    test(`seed ${seed} buries no scrap under the hill`, () => {
+      // A field under the hill is scrap nobody can collect. It is also what
+      // used to refuse the castle its footprint — the fields are mirrored too,
+      // so a roll far from the estate could drop its twin on the plateau.
+      const map = createMap(seed);
+      const keep = map.props.find((p) => p.defId === 'keep');
+      const cx = keep.cx + Math.floor(PROPS.keep.size[0] / 2);
+      const cy = keep.cy + Math.floor(PROPS.keep.size[1] / 2);
+
+      for (let y = cy - HILL.outer; y <= cy + HILL.outer; y++) {
+        for (let x = cx - HILL.outer; x <= cx + HILL.outer; x++) {
+          if (x < 0 || y < 0 || x >= map.width || y >= map.height) continue;
+          if (radius([x - cx, y - cy]) > HILL.plateau) continue;
+          assert.equal(map.resource[y * map.width + x], 0, `scrap under the castle at ${x},${y}`);
+        }
+      }
+    });
+  }
+
+  test('the cliff rims actually ring the hill', () => {
+    // The rims are the whole reason the switchbacks matter. If a tuning pass
+    // ever thins them to nothing, the hill becomes climbable from any angle and
+    // the road quietly stops being a decision.
+    const map = createMap(42);
+    const keep = map.props.find((p) => p.defId === 'keep');
+    const cx = keep.cx + Math.floor(PROPS.keep.size[0] / 2);
+    const cy = keep.cy + Math.floor(PROPS.keep.size[1] / 2);
+
+    let cliff = 0;
+    for (let y = cy - HILL.outer - 1; y <= cy + HILL.outer + 1; y++) {
+      for (let x = cx - HILL.outer - 1; x <= cx + HILL.outer + 1; x++) {
+        if (x < 0 || y < 0 || x >= map.width || y >= map.height) continue;
+        if (map.terrain[y * map.width + x] === TERRAIN.CLIFF) cliff++;
+      }
+    }
+    assert.ok(cliff > 40, `only ${cliff} cliff cells around the hill`);
   });
 });
 
