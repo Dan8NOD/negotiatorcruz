@@ -36,3 +36,8 @@ mixmatch/
 # negotiatorcruz.com entirely. It is self-contained and moves to its own repo
 # without changes; see rocketman/README.md.
 rocketman/
+
+# Design doc for Rocke (the separate closed-source Unity game), staged in this
+# repo only because a session was branch-assigned here. It is destined for the
+# Rocke repo and must never be served on negotiatorcruz.com.
+ROCKE_MAP_DESIGN_SPEC.md
