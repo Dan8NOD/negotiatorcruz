@@ -72,6 +72,40 @@ jobs:
           path: playwright-report/
           retention-days: 7
 
+  # The Mix & Match arcade games (mixmatch/games/). Same reasoning as the
+  # rocketman job below and the same boundary: `mixmatch/test/` holds the token
+  # meter and the arcade registry, which the site's `npm test` runs because
+  # pricing is not a game. The games themselves are excluded from that script
+  # on purpose, so a hostile pathing badly can never turn negotiatorcruz.com's
+  # build red.
+  #
+  # The script names tank-shooter literally rather than globbing the games
+  # directory, so a second game's tests are orphaned until someone wires them
+  # up — and `test/config.test.js` fails on exactly that, which is how the
+  # omission gets noticed rather than silently shipping untested.
+  arcade:
+    name: Arcade games
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      # Plays whole runs headless with a scripted bot across twenty seeds. The
+      # failures it exists to catch are seed-dependent — three separate causes
+      # of a run that never terminates were found this way, none of them on the
+      # seed being developed against.
+      - name: Simulation tests
+        run: npm run test:tankshooter
+
   # rocketman/ is a side project staged in this repository (see
   # rocketman/README.md). It gets its own job on purpose: the site's `npm test`
   # and `npm run test:e2e` must stay exactly what they were, so a bug in a game
