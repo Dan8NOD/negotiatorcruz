@@ -1,4 +1,4 @@
-Chapter 28 - Claims, Disputes, and Escalation
+Chapter 28: Claims, Disputes, and Escalation
 
 Part 2 of 2 · The Practice
 
@@ -10,7 +10,7 @@ The drill
 
 "Hold the Line at Volume." Twenty minutes, pairs, recorded. The hardest
 drill in the manual.
-The counterpart plays an escalated party with a real grievance - from an
+The counterpart plays an escalated party with a real grievance, from an
  actual matter, not invented.
 They open loud, and they stay loud for the first two minutes.
 The operator may use only Read and Disarm tools. No solutions, no policy,
@@ -20,7 +20,7 @@ Score two things: did the operator's volume rise, and how long before they
 Only after the temperature visibly drops may they move to Steer.
 
 Most people offer a solution inside ninety seconds. Watching yourself do it on
-tape - and watching the counterpart's temperature rise in response - is the
+tape, and watching the counterpart's temperature rise in response, is the
 lesson.
 
 Scored on
@@ -40,7 +40,7 @@ Metric: Policy position. Target: "Our terms state" never appears in the first fi
 Failure mode
 
 Solving before the story is finished. The handler hears enough to identify
-the category, recognizes the fix, and offers it - at ninety seconds, while the
+the category, recognizes the fix, and offers it, at ninety seconds, while the
 other person is still explaining.
 
 The offer is often reasonable and it will be refused, because accepting it
@@ -52,13 +52,13 @@ minutes.
 
 The recovery:
 
-Quote. I jumped in before you'd finished and that wasn't fair. Start again from where the problem actually began - I won't interrupt. End quote.
+Quote. I jumped in before you'd finished and that wasn't fair. Start again from where the problem actually began. I won't interrupt. End quote.
 
 Then don't.
 
 The second failure mode: defending the organization. The handler, feeling
 the accusation land on their employer, begins explaining why the process worked
-as designed. Chapter 14 - every sentence of defence extends the dispute,
+as designed. Chapter 14. Every sentence of defense extends the dispute,
 because the counterpart's actual position is that something went wrong, and
 arguing that nothing went wrong makes settlement the only remaining way for
 them to be right.

@@ -1,4 +1,4 @@
-# Chapter 23 — The Fairness Standard
+# Chapter 23: The Fairness Standard
 
 ### Part 1 of 2 · The Method
 
@@ -7,7 +7,7 @@
 > **Note on the title.** The locked map called this slot "'Fair' and Multiple
 > Offers," carried from the 1st Edition. Checking the catalog before drafting:
 > the shipped `fairness` family is not the F-word deployed as leverage. All
-> twelve lines are the opposite move — **you offering fairness as a standing
+> twelve lines are the opposite move, **you offering fairness as a standing
 > invitation to be corrected.** Multiple offers (MESO) has no shipped lines at
 > all. Retitled to match what actually exists. Flagged for Dan.
 
@@ -18,18 +18,18 @@
 You hand the other side a permanent right to stop you.
 
 *"Stop me the moment this stops feeling fair to you."* Said early, meant
-literally, and honoured when used. That's the tool — and on paper it looks like
+literally, and honored when used. That's the tool, and on paper it looks like
 you've given away something for nothing, which is why almost nobody does it.
 
 What it actually buys is the thing every closing conversation is short of:
 **a counterpart who will tell you when something is wrong instead of going
 quiet and deciding later.** Silence at the close is the most expensive
 condition in commercial negotiation. Deals do not usually die from stated
-objections; they die from unstated ones, discovered in a meeting you weren't
+objections. They die from unstated ones, discovered in a meeting you weren't
 invited to, three weeks after the call where everything seemed fine.
 
-There is a version of "fair" used as a weapon — *"we're just asking you to be
-fair here"* — designed to make refusal feel shameful. That is not this. That
+There is a version of "fair" used as a weapon, *"we're just asking you to be
+fair here"*, designed to make refusal feel shameful. That is not this. That
 move works once, it is transparent to anyone who has seen it, and it is
 outside the standard in Chapter 3. **This chapter is the inverse: fairness
 offered rather than demanded.**
@@ -53,7 +53,7 @@ Reach for it when:
 Do **not** reach for it when:
 
 - **You don't mean it.** This is the only tool in the manual that is actively
-  harmful when insincere. An invitation you decline to honour is worse than no
+  harmful when insincere. An invitation you decline to honor is worse than no
   invitation, because you have now demonstrated exactly what your word is worth
   at the moment it was tested.
 - **It's a one-shot transaction with no relationship.** Fine to skip. It costs
@@ -66,22 +66,22 @@ Do **not** reach for it when:
 ## The words
 
 ```
-FAIRNESS — the standing invitation
+FAIRNESS, the standing invitation
 
   "Stop me the moment this stops feeling fair to you."
   "Tell me the moment this tips out of balance for you."
   "If anything here feels unfair, say so and we'll fix it."
-  "You should feel fairly treated at every step — hold me to that."
+  "You should feel fairly treated at every step, hold me to that."
   "If something about this feels off, I'd rather hear it now
    than after."
   "Say the word and we'll rebalance this on the spot."
 
-FAIRNESS — who defines it
+FAIRNESS, who defines it
 
-  "Fair doesn't mean equal — tell me what fair looks like to you."
+  "Fair doesn't mean equal, tell me what fair looks like to you."
   "You get a say in what fair means here, not just me."
 
-FAIRNESS — pre-authorize the refusal
+FAIRNESS, pre-authorize the refusal
 
   "You don't have to accept something just because I proposed it."
   "If I'm asking for more than I'm offering, call it out."
@@ -90,7 +90,7 @@ FAIRNESS — pre-authorize the refusal
   "If this deal only works for one of us, it doesn't actually work."
 ```
 
-**"Fair doesn't mean equal — tell me what fair looks like to you."** is the
+**"Fair doesn't mean equal, tell me what fair looks like to you."** is the
 most useful sentence in the family, and it's the one that separates this from
 platitude. Most fairness disputes are definitional rather than substantive. One
 side means equal split, the other means proportional to risk, the third means
@@ -100,7 +100,7 @@ argument about justice into a specification you can build against.
 **"If this ever starts to feel one-sided, that's on me to fix, not you to
 absorb."** does something structurally unusual: it assigns the burden of
 detection to them and the burden of repair to you. That asymmetry is what makes
-it credible — you're not asking them to be reasonable, you're promising to act.
+it credible, you're not asking them to be reasonable, you're promising to act.
 
 **"You don't have to accept something just because I proposed it."** is
 Chapter 12's autonomy principle stated outright. It is remarkable how rarely
@@ -110,7 +110,7 @@ anyone says this and how much it changes a room when someone does.
 
 ## What good sounds like
 
-**They use it.** *"Actually — that payment schedule does feel one-sided."*
+**They use it.** *"Actually. That payment schedule does feel one-sided."*
 This is the tool working exactly as designed, it will feel briefly like a cost,
 and it is not. You have just been handed an objection three weeks before it
 would otherwise have surfaced as a delay.
@@ -123,12 +123,12 @@ built around it.
 stop button visibly stops bracing, and the rest of the conversation runs
 faster.
 
-**They reciprocate.** *"Same goes for you — tell me if I'm pushing."* The
+**They reciprocate.** *"Same goes for you, tell me if I'm pushing."* The
 strongest possible sign. The negotiation has become a joint problem.
 
 **What good does not sound like:** "sure, sounds good." Polite acknowledgment
 means it was heard as a pleasantry. Either you delivered it as boilerplate or
-they don't yet believe you. Both are fixable by using it once — the first time
+they don't yet believe you. Both are fixable by using it once. The first time
 you actually rebalance something because they said so, the invitation becomes
 real.
 
@@ -136,4 +136,4 @@ real.
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

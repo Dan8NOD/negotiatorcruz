@@ -1,4 +1,4 @@
-# Chapter 22 — The "That's Right" Summary
+# Chapter 22: The "That's Right" Summary
 
 ### Part 1 of 2 · The Method
 
@@ -11,14 +11,14 @@
 There is exactly one reliable green light in this method, and it is the phrase
 **"that's right."**
 
-Not "you're right," which is appeasement — the sound of someone ending a
-conversation rather than joining it. Not "exactly," which is frequently
+Not "you're right," which is appeasement. The sound of someone ending a
+conversation rather than joining it. Not "exactly," which is often
 politeness. Not a nod. *That's right*, said out loud, unprompted, in response
 to your summary of their position.
 
 It means they believe you understand them. And that belief is the precondition
 for agreement, because nobody signs with someone they think has misread the
-situation — they postpone instead, and give you a reason that isn't the reason.
+situation. They postpone instead, and give you a reason that isn't the reason.
 
 Chapter 17 taught the working summary: collect, state, isolate. This chapter is
 the version aimed at a single target. **You are not summarizing to organize the
@@ -53,14 +53,14 @@ Do **not** reach for it when:
 
 ## The words
 
-### Narrow it first — focusing labels
+### Narrow it first, focusing labels
 
 Before you summarize, establish that the conversation has actually reduced to
 something. Focusing labels do that, and they double as a test of whether you've
 read the shape correctly.
 
 ```
-FOCUSING LABELS — narrow to the one thing
+FOCUSING LABELS, narrow to the one thing
 
   "It sounds like there's one specific thing driving all of this."
   "It seems like you've already narrowed this down to one real issue."
@@ -88,17 +88,16 @@ you have just closed every other item without negotiating any of them.
 THE "THAT'S RIGHT" SUMMARY
 
   "So if I'm hearing you right, this is really about trust."
-  "Tell me if I'm off — the issue isn't the deadline, it's being
+  "Tell me if I'm off. The issue isn't the deadline, it's being
    blindsided."
-  "Correct me if I'm wrong — this isn't really about the money."
-  "So if I've got this right, this isn't really about the plan —
-   it's about what's underneath it."
+  "Correct me if I'm wrong. This isn't really about the money."
+  "So if I've got this right, this isn't really about the plan, it's about what's underneath it."
   "Tell me where I'm wrong: the real issue isn't the deadline,
    it's being last to know."
-  "So really, this isn't a no — it's about saying yes too soon."
+  "So really, this isn't a no, it's about saying yes too soon."
   "If I'm reading this right, the plan's fine. It's who's
    accountable that's the real question."
-  "Tell me if I'm off base — this was never about the number,
+  "Tell me if I'm off base. This was never about the number,
    it's about being pushed."
   "Correct me if I'm off, but this comes down to how you feel
    about it, not what's on the page."
@@ -112,8 +111,7 @@ a claim into a request for an audit, and people audit generously what they
 would resist defensively.
 
 **They name the emotional truth, not the logistics.** Look at the pattern in
-every line: *not the deadline — being blindsided. Not the money. Not the plan —
-what's underneath it.* "That's right" is almost never produced by an accurate
+every line: *not the deadline, being blindsided. Not the money. Not the plan, what's underneath it.* "That's right" is almost never produced by an accurate
 list of terms. It is produced by naming the thing they haven't said.
 
 **They end.** No question tacked on, no ask, no "so does that mean we can…"
@@ -125,19 +123,19 @@ The summary lands and you stop. The silence after it is the tool (Chapter 8).
 
 **"That's right."** Cleared. Move to Chapter 21.
 
-**"That's right — and the other thing is…"** Better. You've cleared the gate
+**"That's right, and the other thing is…"** Better. You've cleared the gate
 *and* been handed the material for the close.
 
 **A correction that sharpens it.** *"Close. It's not being blindsided, it's
 that I defended you internally and then got surprised."* Take it, say it back
 in their words, and wait again. The second attempt usually lands.
 
-**"You're right."** Not cleared. This is appeasement — treat it as a signal you
+**"You're right."** Not cleared. This is appeasement, treat it as a signal you
 were near enough to be polite about and not near enough to be true. Try again,
 more specifically, or fall back to silence.
 
 **Silence and a shift in posture.** Sometimes "that's right" arrives without
-words. Chapter 5's somatic reads. Don't demand the phrase; read the room.
+words. Chapter 5's somatic reads. Don't demand the phrase. Read the room.
 
 **What good does not sound like:** "yeah, pretty much." Approximate agreement
 to a summary aimed at "that's right" means you named logistics. Go back and
@@ -147,4 +145,4 @@ name the emotion.
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

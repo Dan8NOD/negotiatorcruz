@@ -1,16 +1,16 @@
-# Chapter 14 — The Discipline of Not Defending
+# Chapter 14: The Discipline of Not Defending
 
 ### Part 1 of 2 · The Method
 
 **Part II · DISARM**
 
 *Filed into the Ch 14 slot from `PROGRESS.md`. The discipline this chapter
-names is enforced by one instrument — the Attack Decoder — so the decoder is
+names is enforced by one instrument. The Attack Decoder, so the decoder is
 the chapter's spine rather than a separate chapter. Drafted from the
 `negotiation_knowledge` "Attack Decoder" entry plus real lines from the
 `negatives`, `empathy`, and `acknowledge` families.*
 *`[NEEDS: confirmation that Ch 14's scope is the decoder rather than a broader
-survey of defending — the source audit locked the title, not the contents.]`*
+survey of defending. The source audit locked the title, not the contents.]`*
 
 ---
 
@@ -26,7 +26,7 @@ off balance and see what falls out.
 
 The three look nearly identical from the outside. All three raise the
 temperature, all three sound personal, and all three trigger the same instinct
-in you — defend, or change the subject. Both instincts are wrong, and which one
+in you, defend, or change the subject. Both instincts are wrong, and which one
 is *more* wrong depends on which of the three you're actually facing. That is
 the problem this tool solves.
 
@@ -48,7 +48,7 @@ Use the decoder when:
   position on price. It is one of the three, and you need to know which.
 - **You're about to defend yourself.** Treat the defensive impulse as the
   trigger for the tool. If you feel the urge to justify, decode instead.
-- **Someone has escalated in front of an audience** — their team, your team, a
+- **Someone has escalated in front of an audience**, their team, your team, a
   committee. Public attacks skew heavily toward the third type, and the decoder
   is the cheapest way to find out without accusing anyone of gamesmanship.
 
@@ -58,7 +58,7 @@ Do **not** reach for it when:
   twice" is not an attack, it is information. Decoding a real grievance reads as
   deflection and will earn you a second, worse one.
 - **You already know the type.** If they've told you they feel ignored, you
-  don't need a diagnostic — go straight to the response.
+  don't need a diagnostic, go straight to the response.
 - **You are the one who is angry.** Every line in this chapter delivered by
   someone managing their own temper comes out as sarcasm. Use silence until your
   state is fixed. This is not optional and it is the most common way the tool
@@ -79,7 +79,7 @@ Aim slightly wrong on purpose. A label that is close but not exact draws a
 correction, and the correction is the diagnosis.
 
 ```
-THE DECODER — pick one, then stop talking
+THE DECODER, pick one, then stop talking
 
   Suspecting DEFENSIVE (they feel exposed)
   "It probably seems like we're being selfish."
@@ -92,7 +92,7 @@ THE DECODER — pick one, then stop talking
   "Seems like you've got something on your mind."
   "It sounds like you have a reason to say that."
 
-  Type unknown — the safe opener when you have no read
+  Type unknown. The safe opener when you have no read
   "Seems like something's going on here."
   "It seems like there's something here that bothers you."
   "Sounds like this bothers you."
@@ -131,7 +131,7 @@ TACTICAL  →  name the state, decline the fight, hold
 
 Those last two are from the acknowledgement family, and they are deliberately
 uncomfortable. A tactical attack depends on you scrambling. An opponent who
-calmly describes the tactic back to them — and then says nothing — has removed
+calmly describes the tactic back to them, and then says nothing, has removed
 the only thing the tactic was going to produce.
 
 **Stay in the moment.** The strong instinct mid-attack is to change the subject,
@@ -143,7 +143,7 @@ move to logistics, or offer something. All three confirm the attack worked.
 
 **A correction.** "It's not that I think you're unreasonable, it's that I've
 been asking for this for three weeks." That is the diagnosis, volunteered, in
-one sentence — and it is the *unheard* type. You now know exactly what to do.
+one sentence, and it is the *unheard* type. You now know exactly what to do.
 Corrections are the most common good outcome and the reason to aim slightly
 wrong.
 
@@ -155,7 +155,7 @@ above and then stop.
 
 **A tactical attack that simply stops.** The clearest tell of type three. A
 deliberate tactic that gets described out loud and met with silence has nowhere
-to go, and it will often be abandoned without acknowledgement — the conversation
+to go, and it will often be abandoned without acknowledgement. The conversation
 just resumes at a normal temperature. Do not point this out. Ever.
 
 **What is not good:** escalation *after* an accurate label. That usually means
@@ -165,4 +165,4 @@ you delivered it with an edge. The words were right and 7-38-55 was against you.
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

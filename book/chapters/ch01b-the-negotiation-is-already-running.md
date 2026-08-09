@@ -1,4 +1,4 @@
-# Chapter 1 — The Negotiation Is Already Running
+# Chapter 1: The Negotiation Is Already Running
 
 ### Part 2 of 2 · The Practice
 
@@ -14,7 +14,7 @@
 preparation.
 
 1. Each rep picks **three open deals** from their own pipeline.
-2. For each one, they write the date they think the negotiation *started* — not
+2. For each one, they write the date they think the negotiation *started*, not
    the date of first contact, the date the other side first formed a position.
 3. Next to it: **the evidence** for that date. A comment, a timing coincidence,
    a budget cycle, a reorganization. No evidence, no date.
@@ -27,7 +27,7 @@ preparation.
 The output isn't a plan. It's the number of blanks. Most reps discover they can
 name one or two participants in a deal with five or six, and that the
 negotiation predates their first call by six weeks. That discovery is the
-entire point of the drill, and it doesn't survive being told — it has to be
+entire point of the drill, and it doesn't survive being told. It has to be
 found.
 
 Run this once a quarter on live pipeline, not on closed deals. Closed deals
@@ -58,7 +58,7 @@ can pull without listening to a single call.
 hasn't started, so they behave as though nothing they do is being scored. They
 answer a casual question about pricing casually. They mention a discount another
 client received. They agree to a timeline without checking it. They volunteer a
-weakness to seem candid — which is a real tool, used deliberately, in Chapter
+weakness to seem candid, which is a real tool, used deliberately, in Chapter
 11, and a liability used accidentally here.
 
 Every one of those is a concession, made in a negotiation the rep didn't know
@@ -76,8 +76,7 @@ instability. What you can do is find out what it cost you.
    carefully about. Where did that land on your end?"
 ```
 
-That question does two things. It surfaces whether the concession registered —
-often it didn't, and you've spent a week worrying about nothing. And when it
+That question does two things. It surfaces whether the concession registered, often it didn't, and you've spent a week worrying about nothing. And when it
 did register, you get to hear the position it created, in their words, while
 there's still time to work on it.
 
@@ -91,43 +90,43 @@ invisible internal positions are usually the most confident ones in the room.
 
 > ### Evidence
 >
-> `[NEEDS: one real case — a deal where the position was set internally before
+> `[NEEDS: one real case. A deal where the position was set internally before
 > first contact, and finding that out changed the approach. Corporate, with a
-> committee behind it. 150–200 words. End on the mechanism, not the win.]`
+> committee behind it. 150-200 words. End on the mechanism, not the win.]`
 
 ---
 
-## FIELD CARD 01 — THE NEGOTIATION IS ALREADY RUNNING
+## FIELD CARD 01: THE NEGOTIATION IS ALREADY RUNNING
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  ALREADY RUNNING                    Part 0 · STANDARD    │
-├──────────────────────────────────────────────────────────┤
-│  It started before you. Find out where it stands.        │
-│                                                          │
-│  ASSUME        Positions were formed in rooms you        │
-│                weren't in, by people you can't name.     │
-│                                                          │
-│  EARLY JOB     Locate. Not persuade. Not present.        │
-│                                                          │
-│  ASK           "When did this first come up?"            │
-│                "Who else has been part of this?"         │
-│                "What's the feeling internally?"          │
-│                "If this stalled, what happens instead?"  │
-│                                                          │
-│  LISTEN FOR    A date        → work backwards from it    │
-│                A new name    → most important person     │
-│                "Just gathering info"  → position exists  │
-│                A long pause  → don't fill it             │
-│                                                          │
-│  SCORED        3+ named participants · start date        │
-│                precedes first contact · alternative      │
-│                documented · talk time under 40%          │
-│                                                          │
-│  FAILS WHEN    You treat the early phase as neutral.     │
-│                It is never neutral.                      │
-│  RECOVER       "I threw a number at you earlier I        │
-│                hadn't thought through. Where did         │
-│                that land on your end?"                   │
-└──────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│  ALREADY RUNNING                    Part 0 · STANDARD  │
+├────────────────────────────────────────────────────────┤
+│  It started before you. Find out where it stands.      │
+│                                                        │
+│  ASSUME        Positions were formed in rooms you      │
+│                weren't in, by people you can't name.   │
+│                                                        │
+│  EARLY JOB     Locate. Not persuade. Not present.      │
+│                                                        │
+│  ASK           "When did this first come up?"          │
+│                "Who else has been part of this?"       │
+│                "What's the feeling internally?"        │
+│                "If this stalled, what happens instead?"│
+│                                                        │
+│  LISTEN FOR    A date        → work backwards from it  │
+│                A new name    → most important person   │
+│                "Just gathering info"  → position exists│
+│                A long pause  → don't fill it           │
+│                                                        │
+│  SCORED        3+ named participants · start date      │
+│                precedes first contact · alternative    │
+│                documented · talk time under 40%        │
+│                                                        │
+│  FAILS WHEN    You treat the early phase as neutral.   │
+│                It is never neutral.                    │
+│  RECOVER       "I threw a number at you earlier I      │
+│                hadn't thought through. Where did       │
+│                that land on your end?"                 │
+└────────────────────────────────────────────────────────┘
 ```

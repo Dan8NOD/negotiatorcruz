@@ -1,4 +1,4 @@
-Chapter 23 - The Fairness Standard
+Chapter 23: The Fairness Standard
 
 Part 1 of 2 · The Method
 
@@ -9,18 +9,18 @@ The Standard
 You hand the other side a permanent right to stop you.
 
 "Stop me the moment this stops feeling fair to you." Said early, meant
-literally, and honoured when used. That's the tool - and on paper it looks like
+literally, and honored when used. That's the tool, and on paper it looks like
 you've given away something for nothing, which is why almost nobody does it.
 
 What it actually buys is the thing every closing conversation is short of:
 a counterpart who will tell you when something is wrong instead of going
 quiet and deciding later. Silence at the close is the most expensive
 condition in commercial negotiation. Deals do not usually die from stated
-objections; they die from unstated ones, discovered in a meeting you weren't
+objections. They die from unstated ones, discovered in a meeting you weren't
 invited to, three weeks after the call where everything seemed fine.
 
-There is a version of "fair" used as a weapon - "we're just asking you to be
-fair here" - designed to make refusal feel shameful. That is not this. That
+There is a version of "fair" used as a weapon, "we're just asking you to be
+fair here", designed to make refusal feel shameful. That is not this. That
 move works once, it is transparent to anyone who has seen it, and it is
 outside the standard in Chapter 3. This chapter is the inverse: fairness
 offered rather than demanded.
@@ -40,7 +40,7 @@ The relationship outlives the deal. Renewals, long implementations,
 
 Do not reach for it when:
 You don't mean it. This is the only tool in the manual that is actively
- harmful when insincere. An invitation you decline to honour is worse than no
+ harmful when insincere. An invitation you decline to honor is worse than no
  invitation, because you have now demonstrated exactly what your word is worth
  at the moment it was tested.
 It's a one-shot transaction with no relationship. Fine to skip. It costs
@@ -50,7 +50,7 @@ As a substitute for an actual concession. Offering fairness while
 
 The words
 
-FAIRNESS - the standing invitation
+FAIRNESS, the standing invitation
 
 Quote. Stop me the moment this stops feeling fair to you. End quote.
 
@@ -58,19 +58,19 @@ Quote. Tell me the moment this tips out of balance for you. End quote.
 
 Quote. If anything here feels unfair, say so and we'll fix it. End quote.
 
-Quote. You should feel fairly treated at every step - hold me to that. End quote.
+Quote. You should feel fairly treated at every step, hold me to that. End quote.
 
 Quote. If something about this feels off, I'd rather hear it now than after. End quote.
 
 Quote. Say the word and we'll rebalance this on the spot. End quote.
 
-FAIRNESS - who defines it
+FAIRNESS, who defines it
 
-Quote. Fair doesn't mean equal - tell me what fair looks like to you. End quote.
+Quote. Fair doesn't mean equal, tell me what fair looks like to you. End quote.
 
 Quote. You get a say in what fair means here, not just me. End quote.
 
-FAIRNESS - pre-authorize the refusal
+FAIRNESS, pre-authorize the refusal
 
 Quote. You don't have to accept something just because I proposed it. End quote.
 
@@ -80,7 +80,7 @@ Quote. If this ever starts to feel one-sided, that's on me to fix, not you to ab
 
 Quote. If this deal only works for one of us, it doesn't actually work. End quote.
 
-"Fair doesn't mean equal - tell me what fair looks like to you." is the
+"Fair doesn't mean equal, tell me what fair looks like to you." is the
 most useful sentence in the family, and it's the one that separates this from
 platitude. Most fairness disputes are definitional rather than substantive. One
 side means equal split, the other means proportional to risk, the third means
@@ -90,7 +90,7 @@ argument about justice into a specification you can build against.
 "If this ever starts to feel one-sided, that's on me to fix, not you to
 absorb." does something structurally unusual: it assigns the burden of
 detection to them and the burden of repair to you. That asymmetry is what makes
-it credible - you're not asking them to be reasonable, you're promising to act.
+it credible, you're not asking them to be reasonable, you're promising to act.
 
 "You don't have to accept something just because I proposed it." is
 Chapter 12's autonomy principle stated outright. It is remarkable how rarely
@@ -98,7 +98,7 @@ anyone says this and how much it changes a room when someone does.
 
 What good sounds like
 
-They use it. "Actually - that payment schedule does feel one-sided."
+They use it. "Actually. That payment schedule does feel one-sided."
 This is the tool working exactly as designed, it will feel briefly like a cost,
 and it is not. You have just been handed an objection three weeks before it
 would otherwise have surfaced as a delay.
@@ -111,13 +111,13 @@ They relax. Observable. A counterpart braced for extraction who is handed a
 stop button visibly stops bracing, and the rest of the conversation runs
 faster.
 
-They reciprocate. "Same goes for you - tell me if I'm pushing." The
+They reciprocate. "Same goes for you, tell me if I'm pushing." The
 strongest possible sign. The negotiation has become a joint problem.
 
 What good does not sound like: "sure, sounds good." Polite acknowledgment
 means it was heard as a pleasantry. Either you delivered it as boilerplate or
-they don't yet believe you. Both are fixable by using it once - the first time
+they don't yet believe you. Both are fixable by using it once. The first time
 you actually rebalance something because they said so, the invitation becomes
 real.
 
-Continues in Part 2 of 2 - the drill, the scoring, and the failure mode.
+Continues in Part 2 of 2. The drill, the scoring, and the failure mode.

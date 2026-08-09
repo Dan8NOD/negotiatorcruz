@@ -1,4 +1,4 @@
-# Chapter 21 — No-Oriented Questions
+# Chapter 21: No-Oriented Questions
 
 ### Part 2 of 2 · The Practice
 
@@ -14,7 +14,7 @@
 
 1. The operator delivers a closing ask in no-oriented form.
 2. The counterpart's instruction, unknown to the operator, is to answer
-   honestly — and roughly a third of the time, to say the hard version: *"Yes,
+   honestly, and roughly a third of the time, to say the hard version: *"Yes,
    actually, close the file."*
 3. The operator must **respond without arguing.** Acknowledge, ask one
    calibrated question, and stop.
@@ -22,7 +22,7 @@
    operator absorb the no without negotiating against it?
 5. Swap.
 
-Step 3 is the drill. Anyone can ask a no-oriented question; the skill is what
+Step 3 is the drill. Anyone can ask a no-oriented question. The skill is what
 you do in the two seconds after a real no, which is when most reps start
 discounting.
 
@@ -60,12 +60,12 @@ sentence, and no question mark anywhere near a decision.
 **The recovery:** ask it again, clean, and say why.
 
 ```
-  "I buried that. Let me ask it properly — is there any
+  "I buried that. Let me ask it properly, is there any
    reason we can't proceed?"
 ```
 
 **The second failure mode: treating a no as a starting gun.** They say no, and
-the rep — who has been trained that no means "not yet" — immediately begins
+the rep, who has been trained that no means "not yet", immediately begins
 improving the offer. This teaches the counterpart that refusal is profitable,
 and it converts your close into an auction where you are the only bidder. A no
 gets acknowledged and questioned. It does not get paid.
@@ -74,46 +74,46 @@ gets acknowledged and questioned. It does not get paid.
 
 > ### Evidence
 >
-> `[NEEDS: one real case where a no-oriented close resolved a stalled deal —
+> `[NEEDS: one real case where a no-oriented close resolved a stalled deal,
 > ideally "should I close your file?" and the answer was no, followed by what
-> had actually been going on. 150–200 words.]`
+> had actually been going on. 150-200 words.]`
 
 ---
 
-## FIELD CARD 21 — NO-ORIENTED QUESTIONS
+## FIELD CARD 21: NO-ORIENTED QUESTIONS
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  NO-ORIENTED QUESTIONS               Part IV · CLOSE     │
-├──────────────────────────────────────────────────────────┤
-│  Ask for the decision. Leave the exit lit.               │
-│  Freely given agreement doesn't need re-securing.        │
-│                                                          │
-│  THE CLOSE   "Is there any reason we can't proceed?"     │
-│              "Would it be ridiculous to shake on it?"    │
-│              "Is it unreasonable to ask for a decision?" │
-│                                                          │
-│  THE BLOCKER "Would it be unfair to ask what's           │
-│               blocking this?"                            │
-│              "Am I totally wrong about where you stand?" │
-│                                                          │
-│  DEAD DEAL   "Should I close your file?"                 │
-│              "Has this stopped being a priority?"        │
-│              Flat. Genuine. Willing to hear yes.         │
-│                                                          │
-│  AFTER A     "Have I lost your confidence here?"         │
-│  MISTAKE     "Have I made this harder than necessary?"   │
-│                                                          │
-│  RULES       Only after "that's right" (Ch 22).          │
-│              Only ask what you can absorb.               │
-│              Ask, then SILENCE. Never re-ask.            │
-│                                                          │
-│  SCORED      Close is no-oriented · follows a confirmed  │
-│              summary · silence held · ZERO concessions   │
-│              after a no · 60-day stalls resolved         │
-│                                                          │
-│  FAILS WHEN  You hedge it into something unanswerable.   │
-│  RECOVER     "I buried that. Let me ask it properly —    │
-│              is there any reason we can't proceed?"      │
-└──────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  NO-ORIENTED QUESTIONS               Part IV · CLOSE    │
+├─────────────────────────────────────────────────────────┤
+│  Ask for the decision. Leave the exit lit.              │
+│  Freely given agreement doesn't need re-securing.       │
+│                                                         │
+│  THE CLOSE   "Is there any reason we can't proceed?"    │
+│              "Would it be ridiculous to shake on it?"   │
+│              "Is it unreasonable to ask for a decision?"│
+│                                                         │
+│  THE BLOCKER "Would it be unfair to ask what's          │
+│               blocking this?"                           │
+│              "Am I totally wrong about where you stand?"│
+│                                                         │
+│  DEAD DEAL   "Should I close your file?"                │
+│              "Has this stopped being a priority?"       │
+│              Flat. Genuine. Willing to hear yes.        │
+│                                                         │
+│  AFTER A     "Have I lost your confidence here?"        │
+│  MISTAKE     "Have I made this harder than necessary?"  │
+│                                                         │
+│  RULES       Only after "that's right" (Ch 22).         │
+│              Only ask what you can absorb.              │
+│              Ask, then SILENCE. Never re-ask.           │
+│                                                         │
+│  SCORED      Close is no-oriented · follows a confirmed │
+│              summary · silence held · ZERO concessions  │
+│              after a no · 60-day stalls resolved        │
+│                                                         │
+│  FAILS WHEN  You hedge it into something unanswerable.  │
+│  RECOVER     "I buried that. Let me ask it properly,    │
+│              is there any reason we can't proceed?"     │
+└─────────────────────────────────────────────────────────┘
 ```

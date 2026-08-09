@@ -1,4 +1,4 @@
-# Chapter 29 — Negotiating Internally: Up, Down, and Sideways
+# Chapter 29: Negotiating Internally: Up, Down, and Sideways
 
 ### Part 1 of 2 · The Method
 
@@ -10,8 +10,8 @@
 
 You cannot walk away from your own organization.
 
-That single fact changes everything. Chapter 2's walkaway power — the strongest
-lever in commercial negotiation — is simply unavailable when the counterpart is
+That single fact changes everything. Chapter 2's walkaway power. The strongest
+lever in commercial negotiation, is simply unavailable when the counterpart is
 your own manager, your peer in operations, or the person who runs the team you
 depend on. There is no BATNA. You will be in a meeting with them again on
 Thursday, and again next quarter, and the relationship outlives every
@@ -54,7 +54,7 @@ Do **not**:
 
 ## The words
 
-### Managing up — the audit is the tool
+### Managing up. The audit is the tool
 
 Disagreeing with a senior person is the case the accusation audit was built for,
 because every objection they'll have is one you can name first.
@@ -83,10 +83,10 @@ your request to grant:
 
 *"What am I not seeing from where you sit?"* is the safest and most productive
 sentence available to anyone managing up. It concedes nothing, invites the
-senior view, and it very often produces the actual constraint — which is
-frequently something they haven't been able to say publicly.
+senior view, and it very often produces the actual constraint, which is
+often something they haven't been able to say publicly.
 
-### Sideways — the hardest direction
+### Sideways. The hardest direction
 
 Peer negotiation has no authority to appeal to and no exit. Trading (Chapter
 18) is the core instrument, and the currency is almost never money.
@@ -113,7 +113,7 @@ That last one is a positive label (Chapter 13) with real work to do. Internal
 work is chronically under-acknowledged, and naming it accurately buys more
 cooperation than any escalation.
 
-### Downward — the trap is authority
+### Downward. The trap is authority
 
 You have leverage and using it is usually the wrong move, because compliance
 obtained by rank is compliance you have to keep supplying.
@@ -144,7 +144,7 @@ because nobody ever asks.
 **Disagreement, stated.** From a report, this is the highest-value output in
 the section. Silent disagreement executes badly.
 
-**"Let me think about it" — and then they do.** Internal decisions genuinely
+**"Let me think about it", and then they do.** Internal decisions genuinely
 take time, and pressing produces a fast no.
 
 **What good does not sound like:** immediate agreement from a peer with no
@@ -154,4 +154,4 @@ trade. That's compliance, it's remembered, and it will be invoiced later.
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

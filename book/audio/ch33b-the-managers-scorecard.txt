@@ -1,4 +1,4 @@
-Chapter 33 - The Manager's Scorecard
+Chapter 33: The Manager's Scorecard
 
 Part 2 of 2 · The Practice
 
@@ -10,7 +10,7 @@ The drill
 
 The Twelve-Row Scorecard.
 
-Score each row 0 or 1 from a recording. No half points - a half point is a judgment about intent, and intent is not auditable.
+Score each row 0 or 1 from a recording. No half points. A half point is a judgment about intent, and intent is not auditable.
 
 READ 0/1
 
@@ -22,7 +22,7 @@ READ 0/1
 
 4 A correction from the other side was taken cleanly, not defended
 
-5 The decision structure was surfaced - who else has to be comfortable
+5 The decision structure was surfaced, who else has to be comfortable
 
 DISARM 0/1
 
@@ -34,7 +34,7 @@ STEER 0/1
 
 8 A calibrated (how/what) question preceded the first number
 
-9 No unrequested concession - the rep never improved their own offer without the other side asking
+9 No unrequested concession. The rep never improved their own offer without the other side asking
 
 10 A summary was offered and drew agreement
 
@@ -48,13 +48,13 @@ TOTAL ___ / 12
 
 Reading the total:
 
-Score: 0–4. Read: The Protocol is not being run. Start at row 1 and nothing else.
+Score: 0-4. Read: The Protocol is not being run. Start at row 1 and nothing else.
 
-Score: 5–7. Read: Floor average. Normal. Pick the lowest-value single row.
+Score: 5-7. Read: Floor average. Normal. Pick the lowest-value single row.
 
-Score: 8–10. Read: Strong. Coach the two rows they never score on - those are the plateau.
+Score: 8-10. Read: Strong. Coach the two rows they never score on. Those are the plateau.
 
-Score: 11–12. Read: Score a harder call. This one wasn't a negotiation.
+Score: 11-12. Read: Score a harder call. This one wasn't a negotiation.
 
 That last line is not a joke. A perfect score usually means the counterparty had
 already decided, and a call with no resistance in it teaches nobody anything.
@@ -71,7 +71,7 @@ Inter-rater agreement within 2 points. Two managers score the same tape
  independently and land within two. If they don't, the rows are being read as
  opinions and the rubric needs re-reading, not the reps.
 Self-score convergence. Rep self-scores move toward manager scores over
- eight weeks. This is the transfer metric - it is what "capability" actually
+ eight weeks. This is the transfer metric. It is what "capability" actually
  means in practice.
 Tape submission above 70%. Below that, the number you are looking at
  describes your most confident reps and nobody else.
@@ -91,37 +91,53 @@ more than two points in a month. Nobody argues with a row anymore.
 
 The recovery: hard. Announce plainly that scores are out of the review
 process, then score only your own calls in public for two weeks. The practice
-recovers roughly a quarter after the incentive is removed - which is the reason
+recovers roughly a quarter after the incentive is removed, which is the reason
 to simply never connect them.
 
 The second failure mode is scoring everything. A manager who reviews eleven
 tapes a week burns out inside a month and the practice dies with them. Two tapes
 per rep per week, one row of feedback each. The instrument is designed for
-sustainability, not coverage - a scorecard run for a year at two calls a week
+sustainability, not coverage. A scorecard run for a year at two calls a week
 beats a thorough one abandoned in March.
 
-Field Card - The Manager's Scorecard
+Field Card. The Manager's Scorecard
 
 SCORE THE CALL, NOT THE PERSON. Timestamp + behavior + question.
 
-READ 1 talk-time <40% 2 label before number 3 label then silence
+READ 1 talk-time <40%
 
-4 correction taken cleanly 5 decision structure surfaced
+2 label before number
 
-DISARM 6 objection named first 7 no undefended defending
+3 label then silence
+
+4 correction taken cleanly
+
+5 decision structure surfaced
+
+DISARM 6 objection named first
+
+7 no undefended defending
 
 STEER 8 calibrated Q before number 9 no unrequested concession
 
 10 summary drew agreement
 
-CLOSE 11 silence held ≥5s after number 12 next action, owner, date
+CLOSE 11 silence held ≥5s after number
 
-TOTAL /12 0–4 start at row 1 · 5–7 floor · 8–10 coach the plateau · 11–12 harder call
+12 next action, owner, date
+
+TOTAL /12 0-4 start at row 1 · 5-7 floor ·
+
+8-10 coach the plateau · 11-12 harder call
 
 MONEY ROWS 9 and 11. Track these two if you track nothing else.
 
 Quote. DELIVER one row, never twelve. "Next two calls, only row __. End quote.
 
-NEVER tied to comp · scored from memory · mid-deal · 12 rows to a new hire
+NEVER tied to comp · scored from memory · mid-deal ·
 
-HEALTHY 2 managers within 2 pts · self-scores converging · ≥70% tape · median moving
+12 rows to a new hire
+
+HEALTHY 2 managers within 2 pts · self-scores converging ·
+
+≥70% tape · median moving

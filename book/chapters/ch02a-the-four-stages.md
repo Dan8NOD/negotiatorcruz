@@ -1,4 +1,4 @@
-# Chapter 2 — The Four Stages
+# Chapter 2: The Four Stages
 
 ### Part 1 of 2 · The Method
 
@@ -20,7 +20,7 @@ The order is not a preference and it is not a style. It is the operating
 constraint of the entire method. Each stage produces the input the next one
 requires: you cannot defuse resistance you haven't identified, you cannot
 steer someone who is still defending, and you cannot close a person who hasn't
-arrived at the answer themselves. Run out of order, the tools still fire — they
+arrived at the answer themselves. Run out of order, the tools still fire. They
 just fire into a situation that isn't ready for them, which is worse than not
 firing at all.
 
@@ -36,7 +36,7 @@ Crisis negotiators arrived at a fixed sequence for a reason that has nothing to
 do with elegance: **a sequence works when the person running it is exhausted,
 frightened, or new.** A judgment call doesn't. When the cost of a wrong move is
 immediate and irreversible, you do not want a practitioner improvising an order
-of operations — you want them running the same sequence they have run four
+of operations. You want them running the same sequence they have run four
 hundred times.
 
 Commercial negotiation has lower stakes and identical ergonomics. Your rep is
@@ -47,7 +47,7 @@ the same order, in every deal, in every vertical, regardless of size.
 
 Here is what each stage produces and what it costs to skip it.
 
-### Stage 1 — READ · *diagnose*
+### Stage 1. READ · *diagnose*
 
 **Produces:** an accurate read of the emotional state and the decision
 structure. Who is in this, what they're feeling, what they're actually
@@ -59,36 +59,36 @@ while the real obstacle is a stakeholder who was overruled in March and is
 quietly waiting to be proven right.
 
 **Tools:** the emotion vocabulary, labels, mirrors, tactical silence, reading
-decision structure. Chapters 4–9.
+decision structure. Chapters 4-9.
 
-### Stage 2 — DISARM · *defuse*
+### Stage 2. DISARM · *defuse*
 
 **Produces:** resistance that has been named out loud and can no longer be
 deployed against you.
 
-**Skip it and:** you steer into a loaded gun. Every unspoken objection —
-you're too expensive, you'll disappear after signing, we've done this before
-and it didn't work — stays live and gets used at the worst possible moment,
-usually after you've already made your case and have nothing left to answer
+**Skip it and:** you steer into a loaded gun. You're too expensive. You'll
+disappear after signing. We've done this before and it didn't work. Every one
+of those stays live and gets used at the worst possible moment, which is
+usually right after you've made your case and have nothing left to answer
 with.
 
 **Tools:** the accusation audit, naming your own weakness first, no-oriented
-questions, validation, the discipline of not defending. Chapters 10–14.
+questions, validation, the discipline of not defending. Chapters 10-14.
 
-### Stage 3 — STEER · *redirect*
+### Stage 3. STEER · *redirect*
 
 **Produces:** movement the other side owns, because they generated it.
 
 **Skip it and:** you're presenting. Presenting produces compliance at best and
 resistance at worst, and neither survives the buyer's next internal
-conversation — the one you're not in, where your argument has to be repeated
+conversation. The one you're not in, where your argument has to be repeated
 by someone else. Answers people arrive at themselves get repeated accurately.
 Answers you gave them do not.
 
 **Tools:** calibrated questions, the How/What grammar, summaries, trading,
-the Ackerman system, deadline dynamics. Chapters 15–20.
+the Ackerman system, deadline dynamics. Chapters 15-20.
 
-### Stage 4 — CLOSE · *resolve*
+### Stage 4. CLOSE · *resolve*
 
 **Produces:** agreement, arrived at rather than extracted.
 
@@ -97,7 +97,7 @@ they were ready. This is the most common expensive failure on an experienced
 floor, and it is almost always a rep filling a silence.
 
 **Tools:** no-oriented questions, the "that's right" summary, reframing, the
-six-second hold. Chapters 21–25.
+six-second hold. Chapters 21-25.
 
 ---
 
@@ -109,7 +109,7 @@ nothing about how good you are at running it.
 That is the second axis, and it is the one the training program is organized
 around:
 
-| | **Level 1 — Listening** | **Level 2 — Dialogue** | **Level 3 — Collaboration** |
+| | **Level 1, Listening** | **Level 2, Dialogue** | **Level 3. Collaboration** |
 |---|---|---|---|
 | **Competence** | Keep the conversation open. Hear what is actually said. | Surface constraints. Move someone without pressure. | Reframe the problem. Hold the room under load. |
 | **Stages in play** | Read | Read → Disarm → Steer | All four, under pressure |
@@ -120,9 +120,9 @@ Stage 1 well and hands off. A Level 3 operator runs all four alone in a room
 with a hostile committee. Both are running the same Protocol.
 
 This distinction matters commercially, not just pedagogically. It is what
-allows a manager to be **certified to run the Protocol on their own floor** —
-scoring reps, running the drills, signing off on levels — without the author
-in the building. Chapters 31–33 are the installation instructions for exactly
+allows a manager to be **certified to run the Protocol on their own floor**.
+Scoring reps, running the drills, signing off on levels, all without the
+author in the building. Chapters 31-33 are the installation instructions for exactly
 that.
 
 ---
@@ -145,7 +145,7 @@ STAGE TRANSITIONS
   DISARM → STEER
   After the objection has been named and you have NOT
   defended it. Hand them the problem.
-  "So given all of that — how would you want to
+  "So given all of that, how would you want to
    approach this?"
 
   STEER → CLOSE
@@ -156,7 +156,7 @@ STAGE TRANSITIONS
 ```
 
 Notice what is absent. There is no transition sentence that contains your
-offer, your price, or your case. Those exist — they just don't live in the
+offer, your price, or your case. Those exist. They just don't live in the
 transitions. If your movement between stages requires you to present
 something, you are not changing stages, you are pitching in four parts.
 
@@ -164,8 +164,7 @@ something, you are not changing stages, you are pitching in four parts.
 
 ## What good sounds like
 
-You are allowed to advance a stage when the stage has produced its output —
-not when you're ready, and not when the clock says so.
+You are allowed to advance a stage when the stage has produced its output, not when you're ready, and not when the clock says so.
 
 **Cleared to leave Read:** you can state, out loud, what they're feeling and
 who else is in the decision, and you have evidence for both. If you can't name
@@ -180,7 +179,7 @@ audit was aimed at the wrong objection. Go back to Read.
 the other side starts constructing rather than evaluating, Stage 3 has done its
 job.
 
-**Cleared to close:** they say "that's right" to your summary — not "you're
+**Cleared to close:** they say "that's right" to your summary, not "you're
 right," which is appeasement (Chapter 6), and not "exactly," which is often
 politeness. "That's right" is the sound of someone who feels understood, and it
 is the only reliable green light in the method.
@@ -189,4 +188,4 @@ is the only reliable green light in the method.
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

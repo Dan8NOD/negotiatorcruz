@@ -1,4 +1,4 @@
-Chapter 1 - The Negotiation Is Already Running
+Chapter 1: The Negotiation Is Already Running
 
 Part 2 of 2 · The Practice
 
@@ -11,7 +11,7 @@ The drill
 "Backdate the Deal." Twenty minutes. Run it in a pipeline review with no
 preparation.
 Each rep picks three open deals from their own pipeline.
-For each one, they write the date they think the negotiation started - not
+For each one, they write the date they think the negotiation started, not
  the date of first contact, the date the other side first formed a position.
 Next to it: the evidence for that date. A comment, a timing coincidence,
  a budget cycle, a reorganization. No evidence, no date.
@@ -24,7 +24,7 @@ Around the table. The question for each rep is the same one: what happened
 The output isn't a plan. It's the number of blanks. Most reps discover they can
 name one or two participants in a deal with five or six, and that the
 negotiation predates their first call by six weeks. That discovery is the
-entire point of the drill, and it doesn't survive being told - it has to be
+entire point of the drill, and it doesn't survive being told. It has to be
 found.
 
 Run this once a quarter on live pipeline, not on closed deals. Closed deals
@@ -52,7 +52,7 @@ Treating the early phase as neutral. The rep believes the negotiation
 hasn't started, so they behave as though nothing they do is being scored. They
 answer a casual question about pricing casually. They mention a discount another
 client received. They agree to a timeline without checking it. They volunteer a
-weakness to seem candid - which is a real tool, used deliberately, in Chapter
+weakness to seem candid, which is a real tool, used deliberately, in Chapter
 11, and a liability used accidentally here.
 
 Every one of those is a concession, made in a negotiation the rep didn't know
@@ -67,8 +67,7 @@ instability. What you can do is find out what it cost you.
 
 Quote. I threw a number at you earlier that I hadn't thought carefully about. Where did that land on your end? End quote.
 
-That question does two things. It surfaces whether the concession registered - 
-often it didn't, and you've spent a week worrying about nothing. And when it
+That question does two things. It surfaces whether the concession registered, often it didn't, and you've spent a week worrying about nothing. And when it
 did register, you get to hear the position it created, in their words, while
 there's still time to work on it.
 

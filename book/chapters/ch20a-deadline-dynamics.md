@@ -1,4 +1,4 @@
-# Chapter 20 — Deadline Dynamics
+# Chapter 20: Deadline Dynamics
 
 ### Part 1 of 2 · The Method
 
@@ -11,15 +11,15 @@
 Most deadlines in commercial negotiation are not real, and the ones that are
 real usually belong to someone who isn't in the room.
 
-A deadline is the cheapest leverage available, which is precisely why so much
+A deadline is the cheapest leverage available, which is exactly why so much
 of it is manufactured. Quarter end, board meeting, budget expiry, "this pricing
-is only good until Friday" — some of those are load-bearing and some are
+is only good until Friday", some of those are load-bearing and some are
 atmosphere, and the difference is worth more than most tactical skill. A rep
 who cannot tell them apart concedes against fiction roughly once a quarter.
 
 There are two moves here and they pull in opposite directions. **The urgency
 check** tests whether a clock is real. **Loss aversion** makes a real cost of
-inaction visible when someone is stalling. One dismantles false pressure; the
+inaction visible when someone is stalling. One dismantles false pressure. The
 other applies true pressure. Using the second when you should have used the
 first is how a negotiator becomes the thing they're defending against.
 
@@ -41,7 +41,7 @@ first is how a negotiator becomes the thing they're defending against.
 - **They're stalling and the cost is genuine.** The shipped trigger is exact:
   *they're stalling or hedging. Show them what inaction costs.*
 - **Nothing is wrong and nothing is happening.** The Not Yet state from Chapter
-  5. No problem means no negotiation — loss aversion is how you locate the
+  5. No problem means no negotiation, loss aversion is how you locate the
   problem that already exists.
 
 Do **not** use loss aversion when:
@@ -56,10 +56,10 @@ Do **not** use loss aversion when:
 
 ## The words
 
-### The urgency check — is this clock real?
+### The urgency check, is this clock real?
 
 ```
-URGENCY CHECK — test the mechanism
+URGENCY CHECK, test the mechanism
 
   "What actually breaks if this takes one more week?"
   "Is there a real consequence to missing this date, or just discomfort?"
@@ -69,42 +69,42 @@ URGENCY CHECK — test the mechanism
    actually change?"
   "What would you do differently if there were no deadline at all?"
 
-URGENCY CHECK — name it out loud
+URGENCY CHECK, name it out loud
 
   "It seems like the deadline is doing more negotiating than either of us."
   "It sounds like the rush is manufactured, not real."
   "It sounds like the clock is louder than the reasons behind it."
   "It seems like urgency is standing in for a decision nobody's made yet."
 
-URGENCY CHECK — whose clock is it?
+URGENCY CHECK, whose clock is it?
 
   "Who benefits from rushing this decision right now?"
-  "Whose deadline is this really — yours, or someone you're trying
+  "Whose deadline is this really, yours, or someone you're trying
    not to disappoint?"
   "Is this timeline driven by real stakes or by someone's anxiety?"
 ```
 
 **"What actually breaks if this takes one more week?"** is the whole test in
-nine words. Real deadlines have mechanisms — a contract lapses, a rate expires,
+nine words. Real deadlines have mechanisms. A contract lapses, a rate expires,
 a team is disbanded, a budget returns to the centre. Manufactured ones have
 adjectives. If the answer is a feeling rather than an event, you are looking at
 atmosphere.
 
 **"It seems like the deadline is doing more negotiating than either of us."**
 Naming the clock is a label (Chapter 6) aimed at a thing rather than a person,
-which makes it unusually safe to say. It frequently produces a small confession
-— *"honestly, the 15th is just when I'd like it done"* — and the pressure
+which makes it unusually safe to say. It often produces a small confession
+*"honestly, the 15th is just when I'd like it done"*, and the pressure
 evaporates without anyone losing face.
 
-**"Whose deadline is this really — yours, or someone you're trying not to
+**"Whose deadline is this really, yours, or someone you're trying not to
 disappoint?"** is Chapter 9's decision structure surfacing through a timeline.
 A deadline belonging to an invisible third party tells you who the real
 counterpart is.
 
-### Loss aversion — what does waiting cost?
+### Loss aversion, what does waiting cost?
 
 ```
-LOSS AVERSION — the cost of standing still
+LOSS AVERSION, the cost of standing still
 
   "What's the cost of staying exactly where you are right now?"
   "If nothing changes, what do you actually lose here?"
@@ -112,7 +112,7 @@ LOSS AVERSION — the cost of standing still
   "What's already slipping away while this sits unresolved?"
   "What does it cost you if this falls apart?"
 
-LOSS AVERSION — run the clock forward
+LOSS AVERSION, run the clock forward
 
   "If you walk away with nothing, what does next month look like?"
   "What does the version of you who didn't take this deal look like
@@ -121,7 +121,7 @@ LOSS AVERSION — run the clock forward
    that feel like?"
   "What would be the outcome if that doesn't happen?"
 
-LOSS AVERSION — the relationship and the irreversible
+LOSS AVERSION, the relationship and the irreversible
 
   "Every day this sits unresolved, what's it costing the relationship?"
   "What happens to the relationship if this just quietly falls apart?"
@@ -131,14 +131,14 @@ LOSS AVERSION — the relationship and the irreversible
    beyond the deal itself?"
 ```
 
-Every one of these is a **question**, not a warning — and that is the entire
+Every one of these is a **question**, not a warning, and that is the entire
 craft of the family. "You're going to lose market share" is a threat and gets
 argued with. *"What's already slipping away while this sits unresolved?"* asks
 them to compute the loss themselves, and a loss you calculated yourself is not
 one you can dispute.
 
 **"What's the first thing you lose that you can't get back?"** is the sharpest
-of the thirteen. Reversible losses don't move anyone; people tolerate
+of the thirteen. Reversible losses don't move anyone. People tolerate
 recoverable costs indefinitely. Irreversibility is what converts a stall into a
 decision, and this question asks them to locate their own.
 
@@ -163,7 +163,7 @@ run another year on the old system, and that's another year of the support
 tickets."* Nobody argues with their own arithmetic.
 
 **Silence after a loss question.** Usually good. They're doing the sum. Chapter
-8 — let it run.
+8, let it run.
 
 **What good does not sound like:** a brisk "we'd be fine." That's a loss
 question that landed as a sales tactic. Back off, validate, and come back to it
@@ -173,4 +173,4 @@ from Read.
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

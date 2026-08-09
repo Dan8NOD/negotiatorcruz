@@ -1,4 +1,4 @@
-Chapter 5 - The Emotion Vocabulary
+Chapter 5: The Emotion Vocabulary
 
 Part 2 of 2 · The Practice
 
@@ -13,11 +13,11 @@ foundation drill of Part I.
 Play three minutes of a real recorded call.
 Everyone stays silent and writes three emotions they believe the
  counterpart is in.
-Next to each, the evidence - the exact phrase, the pause, the shift in
+Next to each, the evidence, the exact phrase, the pause, the shift in
  pace. No evidence, no credit.
 Everyone also writes the state: Torn, Ready, or Not Yet.
-Around the table. Two rules for scoring: "frustrated" scores zero - it is
- the "loud" of emotional vocabulary - and any emotion without an evidence
+Around the table. Two rules for scoring: "frustrated" scores zero, it is
+ the "loud" of emotional vocabulary, and any emotion without an evidence
  line scores zero regardless of how right it sounds.
 Compare the state calls. Where the room splits, replay that thirty seconds
  and argue about it. The argument is the training.
@@ -29,7 +29,7 @@ that gap is until they've watched it happen to them.
 
 Scored on
 
-Metric: Specificity. Target: Named state is specific - cornered, exposed, worn down, outflanked - not generic. The four default words score zero.
+Metric: Specificity. Target: Named state is specific, cornered, exposed, worn down, outflanked, not generic. The four default words score zero.
 
 Metric: Evidence attached. Target: Every named emotion has a citable moment. Under 100% means guessing.
 
@@ -41,12 +41,12 @@ Metric: Ready detection. Target: Of deals that closed, how many were identified 
 
 That last row deserves attention from anyone running a floor. Reps who
 routinely miss the Ready state are re-selling closed deals, and the cost shows
-up as cycle length rather than lost revenue - which is why nobody catches it.
+up as cycle length rather than lost revenue, which is why nobody catches it.
 
 Failure mode
 
 Reaching for the same three adjectives. The vocabulary collapses back to
-default under pressure, which is precisely when accuracy matters most. You will
+default under pressure, which is exactly when accuracy matters most. You will
 watch a rep who named "outmaneuvered by their own procurement team" on
 Tuesday say "seems like you're frustrated" on Thursday to a buyer who is
 plainly humiliated. Same rep. Higher stakes. Worse instrument.
@@ -65,6 +65,5 @@ gets you the word from the only person who actually has it.
 The second failure mode: diagnosing the person instead of the moment.
 Deciding in minute three that this is An Anxious Buyer and then filtering
 everything after through that. States are weather, not climate. The same person
-is Not Yet at 9am and Torn by 9:40 because something you said moved them - 
-which is the entire point of the work, and you'll miss it if you've already
+is Not Yet at 9am and Torn by 9:40 because something you said moved them, which is the entire point of the work, and you'll miss it if you've already
 filed them.

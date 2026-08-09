@@ -1,4 +1,4 @@
-# Chapter 6 — Labeling
+# Chapter 6: Labeling
 
 ### Part 2 of 2 · The Practice
 
@@ -13,7 +13,7 @@
 **"Three Emotions, Three Minutes."** Fifteen minutes, no preparation, run by
 a manager with a laptop.
 
-1. Play three minutes of a recorded call — the team's own, not a demo.
+1. Play three minutes of a recorded call. The team's own, not a demo.
 2. Everyone stays silent and writes down **three emotions** they believe the
    counterpart is experiencing.
 3. Next to each, they write the **evidence**: the exact phrase, pause, or
@@ -24,7 +24,7 @@ a manager with a laptop.
    out loud, in full, to the room. The room's job is to catch anything that
    starts with "I" or ends with a question mark.
 
-Run it weekly. The point is not the recording — it's the evidence column.
+Run it weekly. The point is not the recording, it's the evidence column.
 Reps who can't cite evidence are pattern-matching on tone, and tone is the
 first thing that misleads you on a hard call.
 
@@ -51,7 +51,7 @@ a habit.
 
 **Solving before diagnosing.** This is the most expensive habit in the stage
 and it is almost always well-intentioned. The counterpart describes a
-problem, the rep feels the pull to be useful, and out comes a fix — a
+problem, the rep feels the pull to be useful, and out comes a fix. A
 discount, an expedited timeline, a concession nobody asked for.
 
 The moment you offer a solution, you have told them you were assembling a
@@ -71,8 +71,8 @@ a number, a date, or the word "we can."
 ```
 
 This works better than it has any right to. You have modeled the exact
-behavior you're asking for — naming an uncomfortable truth out loud instead
-of defending it — and you have handed the conversation back.
+behavior you're asking for, naming an uncomfortable truth out loud instead
+of defending it, and you have handed the conversation back.
 
 **The second failure mode, less common but harder to recover from:** the
 performed label. Delivered with warmth turned up, eye contact held a half
@@ -84,37 +84,37 @@ because they are unremarkable. Say them flatly, the way you'd say the weather.
 
 > ### Evidence
 >
-> `[NEEDS: one real case — a negotiation where a label surfaced an obstacle
+> `[NEEDS: one real case. A negotiation where a label surfaced an obstacle
 > nobody had stated. Ideally a corporate deal with a committee behind it.
-> 150–200 words, ending with the mechanism named, not the outcome
+> 150-200 words, ending with the mechanism named, not the outcome
 > celebrated.]`
 
 ---
 
-## FIELD CARD 06 — LABELING
+## FIELD CARD 06: LABELING
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  LABELING                           Part I · READ        │
-├──────────────────────────────────────────────────────────┤
-│  Name their emotion out loud. Then stop.                 │
-│                                                          │
-│  OPENERS      "It seems like…"  "It sounds like…"        │
-│               "It looks like…"                           │
-│                                                          │
-│  RULES        Points at them. Never starts with "I."     │
-│               No question mark. Nothing follows it.      │
-│                                                          │
-│  LISTEN FOR   "That's right."     → landed, move on      │
-│               A correction        → better; take it      │
-│               "You're right."     → appeasement; retry   │
-│               Silence             → wait four seconds    │
-│                                                          │
-│  SCORED       Specific, not generic · Landing rate >50%  │
-│               Before the first ask · Clean delivery      │
-│                                                          │
-│  FAILS WHEN   You solve before you diagnose.             │
-│  RECOVER      "I jumped to fixing that before I under-   │
-│               stood it. What's the hardest part here?"   │
-└──────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│  LABELING                           Part I · READ      │
+├────────────────────────────────────────────────────────┤
+│  Name their emotion out loud. Then stop.               │
+│                                                        │
+│  OPENERS      "It seems like…"  "It sounds like…"      │
+│               "It looks like…"                         │
+│                                                        │
+│  RULES        Points at them. Never starts with "I."   │
+│               No question mark. Nothing follows it.    │
+│                                                        │
+│  LISTEN FOR   "That's right."     → landed, move on    │
+│               A correction        → better; take it    │
+│               "You're right."     → appeasement; retry │
+│               Silence             → wait four seconds  │
+│                                                        │
+│  SCORED       Specific, not generic · Landing rate >50%│
+│               Before the first ask · Clean delivery    │
+│                                                        │
+│  FAILS WHEN   You solve before you diagnose.           │
+│  RECOVER      "I jumped to fixing that before I under- │
+│               stood it. What's the hardest part here?" │
+└────────────────────────────────────────────────────────┘
 ```

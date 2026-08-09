@@ -1,4 +1,4 @@
-Chapter 29 - Negotiating Internally: Up, Down, and Sideways
+Chapter 29: Negotiating Internally: Up, Down, and Sideways
 
 Part 2 of 2 · The Practice
 
@@ -9,7 +9,7 @@ Part 1 of 2 covers the standard, when to reach for it, the words, and what good 
 The drill
 
 "No Exit." Twenty minutes, pairs, using real internal situations.
-Each person brings a live internal negotiation - a request they need to make
+Each person brings a live internal negotiation. A request they need to make
  or a demand they're absorbing.
 Run it with one hard constraint: the operator may not escalate, may not
  invoke authority, and may not threaten a deadline.
@@ -25,9 +25,9 @@ usually wins the scenario and visibly damages the next one.
 
 Scored on
 
-Metric: Relationship scored separately. Target: Every internal negotiation scored twice - outcome and relationship. Both recorded.
+Metric: Relationship scored separately. Target: Every internal negotiation scored twice, outcome and relationship. Both recorded.
 
-Metric: Escalations used. Target: As close to zero as the work allows. Track it; it's a leading indicator of a manager who's running out of influence.
+Metric: Escalations used. Target: As close to zero as the work allows. Track it. It's a leading indicator of a manager who's running out of influence.
 
 Metric: Trades made. Target: Peer requests paid for with something. Unreciprocated internal asks tracked the same way as external concessions.
 
@@ -38,7 +38,7 @@ Metric: Audit used upward. Target: Objections named before the senior person rai
 Failure mode
 
 Winning the meeting. The rep or manager builds a case, presents it well,
-and prevails in the room - in front of an audience, against a colleague who now
+and prevails in the room, in front of an audience, against a colleague who now
 has to explain the loss to their own team.
 
 The decision reverses within two weeks, quietly, through channels you don't
@@ -54,7 +54,7 @@ Quote. That went my way in the room and I don't think it landed well. What did I
 
 The second failure mode: treating internal negotiation as beneath the
 method. People who run the Protocol carefully with a $200K prospect will walk
-into a resourcing conversation with a peer and open with a demand - because it's
+into a resourcing conversation with a peer and open with a demand, because it's
 "just internal." Internal negotiations are more frequent, more consequential to
 a career, and harder, because you cannot leave. They deserve the same sequence.
 

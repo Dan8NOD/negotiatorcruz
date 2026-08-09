@@ -1,4 +1,4 @@
-# Chapter 33 — The Manager's Scorecard
+# Chapter 33: The Manager's Scorecard
 
 ### Part 1 of 2 · The Method
 
@@ -23,7 +23,7 @@ fixable, and the rep can hear it without defending themselves.
 Every negotiation tool in this manual has a metric because of this chapter. A
 method that cannot be audited is a philosophy, and philosophies do not survive
 contact with a sales floor under quota. The scorecard is what makes the Protocol
-a standard rather than a point of view — and it is the reason a manager who has
+a standard rather than a point of view, and it is the reason a manager who has
 never met the author can run it correctly.
 
 ---
@@ -53,7 +53,7 @@ Do **not** use it when:
   not walk a new hire through twelve rows of things they did wrong. Use one row.
 - **As an input to compensation.** The moment a scorecard touches pay, tape
   submission becomes adversarial and every number in it stops being true. This
-  is not a soft preference — it is the failure mode that ends the practice
+  is not a soft preference. It is the failure mode that ends the practice
   permanently. See below.
 
 ---
@@ -64,7 +64,7 @@ The scorecard is scored silently, then delivered. These are the four sentences
 that carry it.
 
 ```
-THE OPEN — before any row is read
+THE OPEN, before any row is read
 
   "I scored the call, not you. Twelve rows, most calls land
    around six. If you come out at six you're where the floor
@@ -72,7 +72,7 @@ THE OPEN — before any row is read
 ```
 
 ```
-THE BAD ROW — the format that makes a low score usable
+THE BAD ROW, the format that makes a low score usable
 
   "Row 9. At [timestamp] you [observable behavior].
    What were you working with there?"
@@ -81,7 +81,7 @@ THE BAD ROW — the format that makes a low score usable
 ```
 
 ```
-THE GOOD ROW — do not skip these, and be as specific
+THE GOOD ROW, do not skip these, and be as specific
 
   "Row 4. At 2:40 they said 'that's not really the issue'
    and you said nothing for six seconds. That's where the
@@ -89,14 +89,14 @@ THE GOOD ROW — do not skip these, and be as specific
 ```
 
 ```
-THE CLOSE — one row, never twelve
+THE CLOSE, one row, never twelve
 
   "Next two calls, we're only working row 9. Everything else
    stays as it is. Bring me the tape Thursday."
 ```
 
 The last one is the discipline that makes the instrument work. Twelve rows of
-feedback produces zero behavior change; it produces a rep who feels generally
+feedback produces zero behavior change. It produces a rep who feels generally
 bad at negotiating. One row produces one changed behavior, which is the entire
 achievable outcome of a coaching conversation.
 
@@ -105,7 +105,7 @@ achievable outcome of a coaching conversation.
 ## What good sounds like
 
 **A rep who argues with a specific row.** "I did label there, at 3:15." That is
-the instrument working exactly as designed — you are now both looking at the
+the instrument working exactly as designed. You are now both looking at the
 same tape, discussing an observable thing, and one of you is going to be right.
 Go to the tape. If they're right, say so in front of the room next time.
 
@@ -124,4 +124,4 @@ friction has not engaged with any of them.
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

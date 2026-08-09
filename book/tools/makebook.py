@@ -199,7 +199,7 @@ def build():
         txt = re.sub(r"(?m)^### Part \d of 2 · .*$","",txt)
         txt = re.sub(r"(?m)^\*Continues in Part 2 of 2.*$","",txt)
         txt = re.sub(r"(?m)^\*Part 1 of 2 covers.*$","",txt)
-        title = re.search(r"^#\s*Chapter\s*\d+\s*[—-]\s*(.+?)\s*$",txt,re.M).group(1)
+        title = re.search(r"^#\s*Chapter\s*\d+\s*[:—-]\s*(.+?)\s*$",txt,re.M).group(1)
         h = md(txt)
         if n in DIAGRAMS:
             h = h.replace("</h2>","</h2>\n"+DIAGRAMS[n],1)

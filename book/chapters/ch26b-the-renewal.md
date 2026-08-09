@@ -1,4 +1,4 @@
-# Chapter 26 — The Renewal and the Price Increase
+# Chapter 26: The Renewal and the Price Increase
 
 ### Part 2 of 2 · The Practice
 
@@ -12,8 +12,7 @@
 
 **"Write Their Review."** Thirty minutes, run ninety days before any renewal.
 
-1. The rep writes the **internal review the client would write about you** —
-   in the client's voice, including the criticism.
+1. The rep writes the **internal review the client would write about you**, in the client's voice, including the criticism.
 2. They mark each line **known** (they've said it), **suspected**, or
    **invented**.
 3. Anything in the suspected column becomes a question for the next call,
@@ -55,58 +54,58 @@ Nobody escalates a slow decline. They just don't renew.
    year went for you?"
 ```
 
-**The second failure mode: apologising for the increase.** The rep raises price
+**The second failure mode: apologizing for the increase.** The rep raises price
 and then spends four minutes justifying it, discounting the number's legitimacy
 with every additional sentence. Audit the objection, state the mechanism once,
 and hold the silence (Chapter 8). A price you defend at length is a price you
-have already signalled is negotiable.
+have already signaled is negotiable.
 
 ---
 
 > ### Evidence
 >
 > `[NEEDS: a real renewal where you raised price and kept the account. What did
-> you say first? What was the criticism you surfaced in the read window? 150–200
+> you say first? What was the criticism you surfaced in the read window? 150-200
 > words. End on the mechanism.]`
 
 ---
 
-## FIELD CARD 26 — THE RENEWAL
+## FIELD CARD 26: THE RENEWAL
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  THE RENEWAL                    Part V · APPLICATIONS    │
-├──────────────────────────────────────────────────────────┤
-│  Won or lost during delivery. The meeting is a           │
-│  reading exercise, not a persuasion one.                 │
-│                                                          │
-│  START       90 days out. The extra month is for Read.   │
-│                                                          │
-│  READ FIRST  "Looking back over the year — what's the    │
-│               thing we got most wrong?"                  │
-│              "Who inside your organization has been      │
-│               least happy with us?"                      │
-│                                                          │
-│  THE         Audit BEFORE the number:                    │
-│  INCREASE    "You're probably thinking we're charging    │
-│               more for exactly the same thing."          │
-│              Then the mechanism, once. Then stop.        │
-│                                                          │
-│  LEVERAGE    Positive — something they want              │
-│              Negative — something they'd lose (strongest,│
-│                say it LEAST directly; let them compute)  │
-│              Normative — their own stated standards      │
-│              Positive-only = weaker than the forecast    │
-│                                                          │
-│  SCORED      90-day start · criticism surfaced before    │
-│              terms · audit precedes increase · leverage  │
-│              named · committee mapped not assumed        │
-│                                                          │
-│  FAILS WHEN  You treat it as paperwork. Nobody           │
-│              escalates a slow decline — they just        │
-│              don't renew.                                │
-│  RECOVER     "I've been treating this like paperwork     │
-│              and I haven't earned that. What's the       │
-│              honest version of how this year went?"      │
-└──────────────────────────────────────────────────────────┘
+┌─────────────────────────────────────────────────────────┐
+│  THE RENEWAL                    Part V · APPLICATIONS   │
+├─────────────────────────────────────────────────────────┤
+│  Won or lost during delivery. The meeting is a          │
+│  reading exercise, not a persuasion one.                │
+│                                                         │
+│  START       90 days out. The extra month is for Read.  │
+│                                                         │
+│  READ FIRST  "Looking back over the year, what's the    │
+│               thing we got most wrong?"                 │
+│              "Who inside your organization has been     │
+│               least happy with us?"                     │
+│                                                         │
+│  THE         Audit BEFORE the number:                   │
+│  INCREASE    "You're probably thinking we're charging   │
+│               more for exactly the same thing."         │
+│              Then the mechanism, once. Then stop.       │
+│                                                         │
+│  LEVERAGE    Positive, something they want              │
+│              Negative, something they'd lose (strongest,│
+│                say it LEAST directly; let them compute) │
+│              Normative. Their own stated standards      │
+│              Positive-only = weaker than the forecast   │
+│                                                         │
+│  SCORED      90-day start · criticism surfaced before   │
+│              terms · audit precedes increase · leverage │
+│              named · committee mapped not assumed       │
+│                                                         │
+│  FAILS WHEN  You treat it as paperwork. Nobody          │
+│              escalates a slow decline. They just        │
+│              don't renew.                               │
+│  RECOVER     "I've been treating this like paperwork    │
+│              and I haven't earned that. What's the      │
+│              honest version of how this year went?"     │
+└─────────────────────────────────────────────────────────┘
 ```

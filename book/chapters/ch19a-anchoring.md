@@ -1,4 +1,4 @@
-# Chapter 19 — Anchoring
+# Chapter 19: Anchoring
 
 ### Part 1 of 2 · The Method
 
@@ -6,10 +6,10 @@
 
 > **Note on the title.** The locked map called this slot "The Ackerman System,"
 > carried over from the 1st Edition. Checking the shipped catalog *before*
-> drafting — the process fix recorded after Ch 11 and Ch 16 — the two families
+> drafting, the process fix recorded after Ch 11 and Ch 16, the two families
 > here are `anchor` (12 lines, probing *their* number) and `bracket` (12 lines,
 > establishing a range). Ackerman is one move inside anchoring, not the whole
-> subject. Retitled and widened; the ladder survives as a section. Flagged for
+> subject. Retitled and widened. The ladder survives as a section. Flagged for
 > Dan's confirmation.
 
 ---
@@ -19,10 +19,10 @@
 The first number said out loud bends every number that follows it, including
 the ones said by people who know it's happening.
 
-That is anchoring, and there are three moves in it. **Probe theirs** — find out
+That is anchoring, and there are three moves in it. **Probe theirs.** Find out
 what a number is actually built on, because most numbers are constructed rather
-than calculated. **Bracket the range** — establish the field before anyone
-commits to a point on it. **Set yours** — deliberately, with a structure, so
+than calculated. **Bracket the range.** Establish the field before anyone
+commits to a point on it. **Set yours.** Deliberately, with a structure, so
 your concessions signal a floor instead of an invitation.
 
 Most commercial training covers only the third and does it badly, usually as
@@ -34,7 +34,7 @@ field: probe, bracket, then set.
 
 ## When to reach for it
 
-**Probe** when a number lands — theirs, a competitor's, a benchmark, a
+**Probe** when a number lands, theirs, a competitor's, a benchmark, a
 "budget." Any figure that arrives as a fact.
 
 **Bracket** when nobody has committed yet and you want the field defined before
@@ -77,16 +77,16 @@ ANCHOR PROBE
   "What would have to change for that number to move?"
 ```
 
-**"Compared to what, exactly?"** — three words, and the highest-yield sentence
+**"Compared to what, exactly?"**, three words, and the highest-yield sentence
 in the chapter. Every claim that something is expensive is a comparison with
 the second half missing. Ask for the second half and roughly half the time the
 comparison turns out to be a different product, a different scope, a
 three-year-old quote, or a number somebody made up in a meeting.
 
 **"Is that the number, or just the first one anyone said out loud?"** is the
-one to keep for internal-sounding figures. Budgets are frequently the residue
+one to keep for internal-sounding figures. Budgets are often the residue
 of a single unchallenged sentence in a planning session, and asking this
-politely invites your counterpart to admit it — which they often want to,
+politely invites your counterpart to admit it, which they often want to,
 because they didn't set it either.
 
 **"Is that number based on this deal, or the last one that went badly?"** Half
@@ -100,12 +100,12 @@ BRACKET
 
   "Before we talk exact numbers, what range are you even considering?"
   "Most deals like this land between two numbers. Where do you see it?"
-  "Let's bracket it — too low, too high, and somewhere in between."
+  "Let's bracket it, too low, too high, and somewhere in between."
   "If we're both guessing right now, what's your honest range?"
   "If you had to guess a range blind, what would you say?"
   "If we could wave a magic wand, what range would feel fair?"
   "What range would make this an easy conversation instead of a hard one?"
-  "Let's set a range first — what's the highest you'd go?"
+  "Let's set a range first, what's the highest you'd go?"
   "What's the low end you'd still feel good about?"
   "What would the top of your range need to include to make sense?"
   "Where does this stop feeling worth it for you?"
@@ -117,11 +117,11 @@ volunteered range is almost always above the number they'd have named. That
 gap is free.
 
 **"What would the top of your range need to include to make sense?"** is the
-best of the twelve because it does two jobs — it gets the ceiling *and* it
+best of the twelve because it does two jobs. It gets the ceiling *and* it
 gets the specification that justifies the ceiling, which is your build list for
 the proposal.
 
-### Set yours — the Ackerman ladder
+### Set yours. The Ackerman ladder
 
 When you're setting, use a structure rather than instinct. The ladder from the
 1st Edition still holds:
@@ -129,7 +129,7 @@ When you're setting, use a structure rather than instinct. The ladder from the
 | Step | Offer | What it signals |
 |---|---|---|
 | 1 | 65% of your target | Opening. Deliberately uncomfortable. |
-| 2 | 85% | You move — but by a large amount, once. |
+| 2 | 85% | You move, but by a large amount, once. |
 | 3 | 95% | Decelerating. They can feel the floor now. |
 | 4 | 100% | Final. Use a precise, non-round number. |
 
@@ -157,7 +157,7 @@ budgeted last year plus a bit."* You now know the anchor has nothing under it.
 **A range where the top surprises you.** They were prepared to go higher than
 you'd have guessed. This happens often enough to justify always bracketing.
 
-**"Compared to the other quote"** — followed by a scope that isn't yours.
+**"Compared to the other quote"**, followed by a scope that isn't yours.
 Extremely common and usually resolves the objection entirely.
 
 **They defend the number with detail.** Real, calculated numbers come with
@@ -172,4 +172,4 @@ and curious (Chapter 8).
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

@@ -1,4 +1,4 @@
-Chapter 14 - The Discipline of Not Defending
+Chapter 14: The Discipline of Not Defending
 
 Part 2 of 2 · The Practice
 
@@ -22,8 +22,7 @@ Negotiator's only job: one decoder line, then silence.
 
 Then one response line matched to the type they read.
 
-SCORE Observer records two things only - 
-Did the negotiator label before defending? Y/N
+SCORE Observer records two things only, 1. Did the negotiator label before defending? Y/N
 Did they call the type correctly? Y/N
 
 ROTATE Three rounds. Everyone attacks once.
@@ -41,8 +40,8 @@ Label before defense. Did any justifying sentence come out before the
  row 7 in Chapter 33.
 Silence after the decoder. At least three seconds. A decoder line with a
  follow-up stapled to it is not a test, it is a plea.
-Type called correctly, measured against what the counterparty
- subsequently revealed. Target above 60% by week 4 of a rollout - chance is
+Type called correctly. Measured against what the counterparty
+ then revealed. Target above 60% by week 4 of a rollout, chance is
  33%.
 Subject changes during an attack. Target zero. Changing the subject is
  the single most reliable indicator that an attack achieved its purpose.
@@ -65,13 +64,13 @@ weeks" costs nothing and puts the conversation back. Being right about the delay
 is worth less than the deal.
 
 The second failure mode is using the decoder on the same person twice in one
-conversation. The first label reads as perception; the second reads as
+conversation. The first label reads as perception. The second reads as
 technique. The moment your counterpart notices the technique, every label you
-have left is dead for the rest of the meeting - and against a type-three
+have left is dead for the rest of the meeting, and against a type-three
 attacker, they will now use your own tool against you by performing emotions
 they don't have. If you have already decoded once, use silence.
 
-Field Card - The Attack Decoder
+Field Card. The Attack Decoder
 
 EVERY ATTACK IS ONE OF THREE. Decode before you respond. Never defend first.
 
@@ -79,7 +78,7 @@ DEFENSIVE they feel exposed UNHEARD volume is the last lever
 
 TACTICAL deliberate, to unbalance you
 
-Quote. DECODE (then stop talking - 3 seconds minimum) no read "Seems like something's going on here. End quote.
+Quote. DECODE (then stop talking, 3 seconds minimum) no read "Seems like something's going on here. End quote.
 
 Quote. defensive? "It probably seems like we're being selfish. End quote.
 
@@ -91,7 +90,7 @@ Quote. DEFENSIVE "That reaction makes complete sense given what's on the line. E
 
 Quote. UNHEARD "You're doing more processing here than you're getting credit for. End quote.
 
-TACTICAL "It sounds like you're waiting for me to just accept where this landed." - then silence.
+TACTICAL "It sounds like you're waiting for me to just accept where this landed.", then silence.
 
 AIM SLIGHTLY WRONG. The correction is the diagnosis.
 

@@ -1,4 +1,4 @@
-Chapter 18 - Trading: Never Give, Always Swap
+Chapter 18: Trading: Never Give, Always Swap
 
 Part 1 of 2 · The Method
 
@@ -8,15 +8,14 @@ The Standard
 
 Nothing leaves your side of the table without something coming back.
 
-Not because generosity is weakness - because an unreciprocated concession
-teaches the other side that pressure works. You gave once under pressure;
-they now know the mechanism. Every subsequent ask is cheaper for them to make
+Not because generosity is weakness, because an unreciprocated concession
+teaches the other side that pressure works. You gave once under pressure. They now know the mechanism. Every subsequent ask is cheaper for them to make
 and more expensive for you to refuse, and by the fourth round you are
 negotiating against a version of yourself you created.
 
 The discipline is simple to state and hard to hold: every movement is a trade.
 "If I do X, you do Y." Not "I'll do X and hope you remember." The trade can be
-small, it can be non-cash, it can be almost symbolic - but it has to exist, and
+small, it can be non-cash, it can be almost symbolic, but it has to exist, and
 it has to be named out loud in the same breath as the concession.
 
 The second half of the chapter is the more profitable one: most of what's
@@ -46,7 +45,7 @@ You haven't found their currency yet. Trading before you know what they
 
 The words
 
-TRADING - the basic swap
+TRADING, the basic swap
 
 Quote. If I move on price, what moves on your side? End quote.
 
@@ -54,9 +53,9 @@ Quote. If we can't move the number, what else could move? End quote.
 
 Quote. If not the price, what else is actually on the table? End quote.
 
-Quote. There's flexibility somewhere in this - where is it on your side? End quote.
+Quote. There's flexibility somewhere in this, where is it on your side? End quote.
 
-TRADING - signal without conceding
+TRADING, signal without conceding
 
 Quote. There's something here I can flex on. It isn't the number. End quote.
 
@@ -64,7 +63,7 @@ Quote. What would you trade timeline for? End quote.
 
 Quote. Is there a non-cash way to make this work for both of us? End quote.
 
-TRADING - find the asymmetry
+TRADING, find the asymmetry
 
 Quote. What could I give you that wouldn't cost you anything to accept? End quote.
 
@@ -79,7 +78,7 @@ Quote. What's something small I could offer that would matter more than it costs
 "There's something here I can flex on. It isn't the number." is the most
 efficient sentence in the family. It does three things at once: it keeps them
 at the table, it takes price off the board without a refusal, and it invites
-them to start hunting for the flexible thing - which means they're now working
+them to start hunting for the flexible thing, which means they're now working
 on your behalf.
 
 The four asymmetry questions are the ones worth memorizing, because they
@@ -91,9 +90,9 @@ start date. Those trade at a profit to both sides, and none of them is money.
 
 A worked structure:
 
-They want: 10% off. Costs you: Real margin. Ask for: 24-month term instead of 12. Costs them: Nothing - they were staying anyway.
+They want: 10% off. Costs you: Real margin. Ask for: 24-month term instead of 12. Costs them: Nothing. They were staying anyway.
 
-They want: Faster start. Costs you: Scheduling pain. Ask for: Signature this week. Costs them: Nothing - the decision is made.
+They want: Faster start. Costs you: Scheduling pain. Ask for: Signature this week. Costs them: Nothing. The decision is made.
 
 They want: Extra seats. Costs you: Marginal. Ask for: A reference call. Costs them: Twenty minutes.
 
@@ -124,4 +123,4 @@ What good does not sound like: "sure, whatever, let's just get it done."
 Fast agreement to a trade usually means the thing you asked for was worthless
 to them and you've been paid in confetti. Ask for something else.
 
-Continues in Part 2 of 2 - the drill, the scoring, and the failure mode.
+Continues in Part 2 of 2. The drill, the scoring, and the failure mode.
