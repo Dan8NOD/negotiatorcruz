@@ -15,6 +15,9 @@
     "rocketman:fixtures": "node rocketman/tools/export-fixtures.mjs",
     "test:rocketman:swift": "swift test --package-path rocketman/swift",
     "rocketman:build": "node rocketman/tools/build-single-file.mjs",
+    "rocketman:audio": "node rocketman/tools/audio-pack.mjs",
+    "rocketman:audio:check": "node rocketman/tools/audio-pack.mjs --check",
+    "rocketman:audio:sheet": "node rocketman/tools/audio-cue-sheet.mjs",
     "rocketman:android": "cd rocketman/android && ./gradlew assembleDebug",
     "rocketman:android:release": "cd rocketman/android && ./gradlew assembleRelease",
     "rocketman:store-assets": "node rocketman/android/tools/store-assets.mjs"

@@ -67,11 +67,23 @@ const $ = (id) => document.getElementById(id);
 
 const SCREENS = ['title', 'campaign', 'briefing', 'hangar', 'debrief', 'skirmish', 'game'];
 
+/**
+ * Screens that put the score back to the front-end bed.
+ *
+ * `game` is absent because the match drives its own music off the event
+ * stream. `debrief` is absent for a subtler reason: the mission that just
+ * ended already asked for `victory` or `defeat` as it ended, and the debrief
+ * is the screen that sting is *for*. Putting menu music back here would cut it
+ * off a second after it started.
+ */
+const MENU_SCREENS = new Set(['title', 'campaign', 'briefing', 'hangar', 'skirmish']);
+
 function showScreen(name) {
   for (const id of SCREENS) {
     const node = $(id);
     if (node) node.hidden = id !== name;
   }
+  if (MENU_SCREENS.has(name)) sound.setMusicState('menu');
 }
 
 function currentScreen() {
@@ -398,6 +410,10 @@ function startMatch(config, { mission, resume = null, watch = null }) {
   activeMatch = match;
 
   showScreen('game');
+  // A match opens quiet: nothing has been shot at yet. From here the score
+  // rides the event stream — see `stateFromEvents` in music.js — and this is
+  // the only place that has to say so out loud.
+  sound.setMusicState('calm');
   renderer.resize();
 
   const onResize = () => renderer.resize();
