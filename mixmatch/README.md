@@ -1,9 +1,11 @@
 # Mix & Match — the token arcade
 
-**Foundation only.** This directory contains one config module, its tests, and a
-Swift port of it held to the same numbers by CI. No *feature* here is built. It
-exists so that when each one *is* built, it is a config entry rather than a new
-pricing scheme.
+**Mostly foundation.** This directory contains the token meter (one config
+module, its tests, and a Swift port held to the same numbers by CI) plus the
+first user-facing piece: the **Timer tab** in `web/`, a practice-round clock
+with a small arcade game on the same clock. Nothing here spends tokens yet —
+the meter exists so that when each feature *is* metered, it is a config entry
+rather than a new pricing scheme.
 
 Staged in `negotiatorcruz` for the same reason `practice-lab/` is: Mix & Match
 belongs to `negotiatorsondemand.com` (the `NOD-ify` repo), which this session
@@ -130,9 +132,12 @@ chargeable on a guessed cost basis.
 meter registry, and the guards. No user-visible change.
 
 **Phase 1 — meter the arcade.** Lowest risk in the whole plan: no new vendor, no
-legal surface, and the game already exists and is tested. Wire Rocketman to
-auth, spend one token per round, prove reserve → play → settle end to end. If
-the loop works for a game it works for everything else.
+legal surface, and the game already exists and is tested. The Timer tab in
+`web/` is now the obvious candidate — it lives inside Mix & Match rather than on
+a separate page, so it already has whatever session the app has. Spend one token
+per round, prove reserve → play → settle end to end. If the loop works for a
+game it works for everything else. (Rocketman remains the other option, but it
+is a standalone static page with no auth at all, so it is strictly more wiring.)
 
 **Phase 2 — self-debrief coaching.** Text only, no audio. The user types or
 pastes what happened; `debrief_analysis` runs one pass. Reuses the coach's
@@ -147,6 +152,99 @@ Confirm the real per-minute rate, flip `costsVerified`, unblock the meter.
 step, and per-jurisdiction handling. A legitimate decision here is *never*.
 
 Phases 1 and 2 need nothing that does not already exist.
+
+---
+
+## The Timer tab — `web/`
+
+The first piece of Mix & Match in this directory that a user can actually see:
+a practice-round clock, with a small arcade game that runs on the same clock.
+
+**Open `web/timer-tab.html` to play it.** On an iPad, Share → Add to Home
+Screen puts it on the home screen as a fullscreen app — no developer account,
+no Xcode, no App Store.
+
+### Why the game is *inside* the timer
+
+A timer is the least interesting thing an app can offer, and Mix & Match's
+whole pitch is that practice should not feel like homework. So the arcade is
+not a separate tab competing with the timer; it is what the timer looks like
+when you want something to do while it runs. One `session` object, one clock,
+a `mode` flag.
+
+`rocketman/` is the other game in this repository and is unrelated — a full
+real-time strategy game with its own engine and 400 tests. This is a few
+hundred lines that fits in a tab.
+
+### The game, in one paragraph
+
+Pressure tactics fall — Lowball, Nibble, Deadline, Exploding. Shoot them.
+Genuine offers also fall — Fair Offer, Good Faith, Real Ask. Let those land.
+Your finger both steers and fires, so *holding fire* is a move you have to
+choose to play. That is the entire mechanic, and it is a fair caricature of
+the actual skill: the hard part of a negotiation is rarely having a rebuttal
+ready, it is noticing that the thing in front of you does not need one.
+
+### Three decisions worth knowing about
+
+**The clock is the only thing that can end a round.** The first version had
+three lives, and the first time it was played they ran out at 0:47 of a
+1:00 round. A facilitator running a twelve-minute drill cannot have the arcade
+decide the drill is over. A tactic getting through now costs points and
+nothing else.
+
+**Shooting an offer and missing a tactic cost exactly the same.** Charging
+them differently would say one of those is the lesser error. It also has to be
+steep: offers are a quarter of what spawns, so at a small penalty *doing
+nothing* comes out positive and the game is a screensaver. A test pins the
+ordering — choosing beats spraying beats ignoring it.
+
+**The clock is wall-clock accurate; the game is not.** Background the tab and
+the timer keeps its real time, because a practice timer that loses a minute is
+broken. The simulation deliberately does *not* catch up, because coming back to
+thirty seconds of blocks that fell while you were in another app is also
+broken. The two rules disagree only in the case where nobody was watching.
+
+### Files, and which one you paste
+
+| | |
+|---|---|
+| `web/timer-engine.js` | the clock and the game. Pure: no DOM, no canvas, no `Date.now()`, seeded RNG, fixed step |
+| `web/timer-tab.html` | the drawing, the input, and a standalone page you can just open |
+| `web/timer-tab.inline.html` | **generated.** The same block with the engine inlined — this is what goes into `MixMatch.html` |
+| `test/timer-engine.test.js` | 48 tests, including a heuristic player that proves the balance holds |
+
+`MixMatch.html` is a single file and cannot `import` anything, but developing
+against a hand-inlined copy would mean editing the game in two places forever.
+So the module is the source and the paste-ready file is built from it:
+
+```sh
+npm run mixmatch:timer   # regenerate web/timer-tab.inline.html
+```
+
+CI regenerates it and fails on a diff, the same discipline the token fixtures
+use. Do not hand-edit the generated file.
+
+To install: paste everything in `timer-tab.inline.html` into `MixMatch.html`
+where the tab body goes. It is scoped (`mmt-` classes), self-contained, and
+pulls nothing from the network. If the tab switcher can call
+`window.MMTimerTab.onShow()` / `.onHide()`, wire those up and a running round
+pauses when you leave the tab; skip them and everything still works.
+
+### It costs nothing, on purpose
+
+Nothing in the Timer tab spends tokens. `arcade_play` is still `planned` in
+`config/tokens.js`, and `meterCostMicros()` throws for a meter that is not
+live, so this cannot quietly start charging. Metering it is a later, separate
+decision — see Phase 1 below, and the open question at the end of this file
+about whether an arcade round should cost a token at all.
+
+### No assets, ever
+
+Every mark on screen is a rectangle or a text label, and the end-of-round chime
+is a two-note oscillator burst rather than an audio file. Nothing to upload,
+nothing to cache-bust, nothing to 404 — which is what lets the whole feature
+live on a static host and inside a single-file app at the same time.
 
 ---
 
