@@ -2,7 +2,7 @@
 
 **Generated from `web/audio-cues.js` by `tools/audio-cue-sheet.mjs`. Do not edit by hand** — change the catalogue and regenerate, or the sheet and the game will disagree on the day you are holding a microphone.
 
-60 cues, 226 takes if every one is recorded to its full count. Nothing here is required: any cue without a recording plays its synthesised voice instead, so this is a list you can work down in any order and ship at any point.
+62 cues, 238 takes if every one is recorded to its full count. Nothing here is required: any cue without a recording plays its synthesised voice instead, so this is a list you can work down in any order and ship at any point.
 
 ## What to deliver
 
@@ -49,6 +49,7 @@ One per weapon, and no two alike. The rule each of these follows: a weapon shoul
 | --- | ----: | ------ | ------------------ |
 | `weapon.arcprojector` | 4 | 0.2–0.8s | Chained lightning across a splash. Crackle with a path through it. |
 | `weapon.autocannon` | 6 | 0.05–0.25s | The baseline gun. Dry mechanical crack — every other weapon is read against this one. |
+| `weapon.bastioncannon` | 4 | 0.25–0.8s | The Robot Marine’s main gun, one shell every two and a half seconds. The cycle *is* the fight — the counter-play is to be somewhere else between shots — so the report has to be unmistakable and the reload has to be audible in it. Heavy, but under the siege mortar: the mortar stays the biggest report in the game. |
 | `weapon.beamlance` | 3 | 0.2–0.8s | Continuous energy. Tone, not transient. |
 | `weapon.empprojector` | 3 | 0.2–0.8s | Disables rather than damages. It should sound like something being switched off. |
 | `weapon.flakburst` | 5 | 0.1–0.35s | Airburst flak. Three pops, because one pop is just a gun. |
@@ -61,6 +62,7 @@ One per weapon, and no two alike. The rule each of these follows: a weapon shoul
 | `weapon.talon` | 4 | 0.2–0.6s | Tube-launched. It thumps out cold before the motor lights. |
 | `weapon.thermite` | 4 | 0.2–0.7s | Incendiary. Ignition rather than detonation — a whoosh with a chemical edge. |
 | `weapon.turretgun` | 6 | 0.1–0.4s | Base defence. Heavier than a mech arm, because it is bolted to the ground — this and the autocannon are the two sounds a player hears most, and they must not converge. |
+| `weapon.wardrepeater` | 8 | 0.04–0.16s | The Robot Marine’s off hand, three shots a second under its own cannon. Heavier than the storm repeater and slower, but the thing it must not be mistaken for is the autocannon — that is the sound the player hears most, and a boss whose chip damage reads as their own gun is a boss they cannot hear coming. Give it a harder, flatter attack with metal in it. |
 
 ### Impacts
 

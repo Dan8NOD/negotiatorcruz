@@ -122,6 +122,14 @@ export const CUES = {
     gain: 0.15,
     pitch: [0.92, 1.08],
   },
+  'weapon.wardrepeater': {
+    what: 'The Robot Marine’s off hand, three shots a second under its own cannon. Heavier than the storm repeater and slower, but the thing it must not be mistaken for is the autocannon — that is the sound the player hears most, and a boss whose chip damage reads as their own gun is a boss they cannot hear coming. Give it a harder, flatter attack with metal in it.',
+    bus: 'world',
+    takes: 8,
+    seconds: [0.04, 0.16],
+    gain: 0.2,
+    pitch: [0.92, 1.08],
+  },
   'weapon.scattergun': {
     what: 'Twenty-six damage at three cells. It should sound like a door closing.',
     bus: 'world',
@@ -184,6 +192,14 @@ export const CUES = {
     takes: 4,
     seconds: [0.3, 1.0],
     gain: 0.9,
+    pitch: [0.97, 1.03],
+  },
+  'weapon.bastioncannon': {
+    what: 'The Robot Marine’s main gun, one shell every two and a half seconds. The cycle *is* the fight — the counter-play is to be somewhere else between shots — so the report has to be unmistakable and the reload has to be audible in it. Heavy, but under the siege mortar: the mortar stays the biggest report in the game.',
+    bus: 'world',
+    takes: 4,
+    seconds: [0.25, 0.8],
+    gain: 0.8,
     pitch: [0.97, 1.03],
   },
   'weapon.railspike': {
