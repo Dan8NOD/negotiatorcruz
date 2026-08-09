@@ -100,12 +100,22 @@ export function createWorld({
   mission = null,
   biome = undefined,
   landmarks = undefined,
+  /**
+   * The map character the player picked, or null for "let the seed decide".
+   *
+   * Part of the config, which means the recorder writes it into the log and a
+   * replay rebuilds the same ground. A chosen map that replayed as a rolled
+   * one would desync on the first pathfind.
+   */
+  character = null,
 } = {}) {
   const map = createMap(seed, {
     width: mapSize,
     height: mapSize,
     biome: biome || (mission && mission.biome) || undefined,
     landmarks: landmarks || gatewayLandmarks(mission),
+    // Missions author their own ground; only skirmish offers the choice.
+    character: mission ? null : character,
   });
 
   const world = {
