@@ -20,6 +20,7 @@ import {
   TICKS_PER_SECOND,
   damageMultiplier,
   HERO_ABILITY,
+  GATEWAY_KINDS,
 } from './content.js';
 import { occupy, vacate, footprint, nearestWalkable } from './grid.js';
 import { len } from './numeric.js';
@@ -274,12 +275,70 @@ export function spawnProp(world, defId, cx, cy) {
     disabledUntil: 0,
     vet: 0,
     vetValue: 0,
+    /** A landmark wall the challenge is built around. See PROPS.castle. */
+    invulnerable: !!def.indestructible,
     dead: false,
   };
 
   occupy(world.map, def.size, cx, cy, e.id);
   displaceUnits(world, e);
   world.entities.set(e.id, e);
+  return e;
+}
+
+/* ------------------------------------------------------------- gateways -- */
+
+/**
+ * Spawn a way off the map.
+ *
+ * A gateway is neither scenery nor a structure. It has no hull, claims no
+ * cells and cannot be shot — a shaft in the floor is not something you destroy
+ * and a door you could demolish would make the guard in front of it optional.
+ * Deliberately *not* occupying its cells is the mechanic rather than an
+ * oversight: a machine has to be able to stand on it to go through it.
+ *
+ * It is an entity rather than a field on the map so that vision, the spatial
+ * index and the renderer's draw order all handle it for nothing — the same
+ * argument that made props entities.
+ */
+export function spawnGateway(world, gateway, x, y) {
+  const kind = GATEWAY_KINDS[gateway.kind] || GATEWAY_KINDS.shaft;
+
+  const e = {
+    id: world.nextId++,
+    kind: 'gateway',
+    defId: gateway.kind,
+    def: kind,
+    /** Which gateway record in `world.gateways` this is the marker for. */
+    gatewayId: gateway.id,
+    player: NEUTRAL_PLAYER,
+    x,
+    y,
+    facing: 0,
+    layer: 'ground',
+    radius: kind.radius,
+    size: [1, 1],
+    cx: Math.floor(x),
+    cy: Math.floor(y),
+
+    hp: 1,
+    maxHp: 1,
+    shield: 0,
+    maxShield: 0,
+    shieldTimer: 0,
+    tempShield: 0,
+    invulnerable: true,
+
+    weapons: [],
+    targetId: null,
+    disabledUntil: 0,
+    vet: 0,
+    vetValue: 0,
+    dead: false,
+  };
+
+  world.entities.set(e.id, e);
+  world.events.push({ type: 'gatewayOpened', id: e.id, gateway: gateway.id, x, y });
   return e;
 }
 
@@ -395,6 +454,11 @@ export function exitPoint(world, building) {
  */
 export function applyDamage(world, target, amount, damageType, sourceId = 0) {
   if (!target || target.dead || amount <= 0) return 0;
+
+  // Landmark walls and gateways absorb fire without recording it. Returning
+  // zero rather than skipping the call is what keeps splash, chain reactions
+  // and kill attribution from having to know these exist.
+  if (target.invulnerable) return 0;
 
   let remaining = amount;
 
@@ -563,7 +627,7 @@ export function rangeTo(a, b) {
  * goes through this.
  */
 export function isCombatant(e) {
-  return e.kind !== 'prop';
+  return e.kind !== 'prop' && e.kind !== 'gateway';
 }
 
 export function isEnemy(world, a, b) {

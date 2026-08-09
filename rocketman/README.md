@@ -5,8 +5,9 @@ warhead/armour counters, fought with **War Robots**' piloted mechs — regenerat
 shields, named hardpoints, and one active ability per chassis that the player
 fires by hand.
 
-Two modes: a **seven-mission story campaign** with named pilots who gain levels
-and permanent upgrades bought between missions, and a **skirmish** against the
+Three modes: a **seven-mission story campaign** with named pilots who gain
+levels and permanent upgrades bought between missions, a set of **challenges**
+— landmarks with a locked world behind them — and a **skirmish** against the
 AI. Open `web/rocketman.html` on any static server and play it. There is no
 build step, no bundler and no runtime dependency.
 
@@ -288,13 +289,94 @@ Two consequences are enforced by test:
 ### Missions are data
 
 An objective is a small tagged record — `destroyStructures`, `survive`,
-`accumulate`, `build`, `field`, `reach`, `protect`, `destroyCount` — evaluated
-against world state. A new mission is written in `engine/campaign.js` and
-nowhere else: no simulation changes, no per-mission scripting hooks, and every
-objective type is tested once instead of once per mission.
+`accumulate`, `build`, `field`, `reach`, `protect`, `destroyCount`, `enter` —
+evaluated against world state. A new mission is written in `engine/campaign.js`
+and nowhere else: no simulation changes, no per-mission scripting hooks, and
+every objective type is tested once instead of once per mission.
 
 Objectives outrank annihilation. A mission is won when its objectives say so,
 and can be lost with an army still standing.
+
+---
+
+## Challenges — the two locked worlds
+
+Four missions that are not the story: two landmarks, one thing standing
+between you and the way past each of them, and somewhere the campaign never
+goes on the other side.
+
+| Challenge | The landmark | What has to die | Where it goes |
+|---|---|---|---|
+| **Ironhold** | Bulwark headquarters | The headquarters itself | a shaft, down into **The Undercroft** |
+| **The Bastion** | A castle with one door | The **Robot Marine** in front of it | the great door, into **The Iron Keep** |
+
+Both are the same record — *something anchors it, something else has to die,
+and then it is a way out* — so the second one cost a mission file rather than
+a system, and a third (a sealed hangar, a lift, a bridge with a bridgekeeper)
+costs the same.
+
+```js
+gateways: [
+  { id: 'undercroft', kind: 'shaft', landmark: 'headquarters', to: 'undercroft' },
+  { id: 'ironkeep',   kind: 'gate',  landmark: 'castle',
+    guard: { defId: 'marine', player: 1 }, to: 'ironkeep' },
+]
+```
+
+Knocking the headquarters down uncovers the shaft it was built over; killing
+the Robot Marine opens the door it is standing in front of. Then you walk a
+machine into it, which is the second half of the job and tracked as such — a
+shaft nobody has gone down has not been taken.
+
+### The castle does not come down
+
+The one deliberate exception to "the map is destructible", and it is the whole
+challenge. A castle you can demolish makes the Robot Marine optional: walk
+round the back, put four rockets through the wall, and the guard you were
+supposed to beat is a thing you ignored. So the wall is the boundary of the
+puzzle and the gate is the answer to it. It still takes hits, still shows
+damage, still blocks line of sight — it simply does not fall.
+
+The Robot Marine itself is not a bigger Anvil. An Anvil is beaten by trading;
+the Marine's shield comes back faster than chip damage removes it, so the
+answer is focus — everything on it at once, and use the two-and-a-half second
+cannon cycle to be somewhere else in between.
+
+### Biomes
+
+The worlds behind the doors are not recoloured surface maps. A biome changes
+three things: the generator that arranges the terrain, the scenery scattered
+over it, and the palette it is painted in.
+
+| Biome | Generator | Reads as |
+|---|---|---|
+| `surface` | districts, roads, ridgelines | the campaign |
+| `cavern` | chambers cut out of solid rock | **The Undercroft** |
+| `keep` | the same chambers, in masonry | **The Iron Keep** |
+
+The surface generator starts from open ground and adds obstacles; the chamber
+generator inverts it — everything is wall until something carves it away — and
+that inversion is the whole difference in how the two play. Up top you route
+*around* things. Down here every fight is in a room or in the corridor between
+two rooms, and a held doorway is genuinely held.
+
+The five terrain indices never change meaning, because pathfinding, vision,
+the Swift port and every saved replay read raw indices — renumbering them for
+one new colour of rock would be a silent, map-wide corruption. A biome changes
+what index 2 *is*, not what it is called.
+
+### Why a gateway is not a scripting hook
+
+The campaign's rule is that missions are data. A per-mission hook that ran
+"when the HQ dies, do this" would break that rule on its first use and the
+second challenge would have bought a second hook.
+
+So a gateway is a tagged record evaluated against world state, exactly like an
+objective. It binds to entities once, watches a single id, and the only two
+things it can do are open and be entered. It cannot end the mission by itself:
+the mission ends because an `enter` objective completed, through the same path
+as every other victory in the game — which is why a challenge replays and
+resumes tick-for-tick like everything else.
 
 ---
 
@@ -315,7 +397,8 @@ engine/            pure simulation — no DOM, no canvas, no timers, no I/O
   sim.js           createWorld / tick / applyCommand — the whole public API
 
   objectives.js    mission objective kinds and evaluation
-  campaign.js      the seven missions, as data
+  gateways.js      the ways off a map: what opens one, and who walked in
+  campaign.js      the seven missions and the four challenges, as data
   progression.js   upgrades, pilots, and the stat tables they resolve into
   profile.js       what a save file is, and how it changes
 
@@ -567,8 +650,10 @@ determinism guarantee above, and expensive without it.
 4. **Art.** Every chassis is currently drawn from its stats — a polygon whose
    silhouette comes from its role. That was a choice: the game had to be
    legible before it was pretty. Sprites drop into `render.js` alone.
-5. **More maps.** `createMap` takes a seed and a size; multi-start and
-   four-player symmetry are the natural next step.
+5. **More maps.** `createMap` takes a seed, a size, a biome and a list of
+   landmarks. Biomes turned out to be the cheap half — the Undercroft and the
+   Iron Keep are a second generator and a palette, not a second game — so
+   multi-start and four-player symmetry are the natural next step.
 6. **Lockstep multiplayer.** The command queue is the network protocol.
 7. ~~**The Fire OS port.**~~ Done — `rocketman/android/`. A Kindle Fire HD runs
    Chromium, so the game ships as itself: one Activity, one WebView, and the

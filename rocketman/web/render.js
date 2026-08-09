@@ -24,7 +24,7 @@
  * `globalCompositeOperation = 'lighter'` so light stacks the way light does.
  */
 
-import { CELL, TERRAIN_INFO, FACTIONS, UNITS, BUILDINGS } from '../engine/content.js';
+import { CELL, TERRAIN_INFO, FACTIONS, UNITS, BUILDINGS, biomeOf } from '../engine/content.js';
 import { superweaponReady } from '../engine/economy.js';
 import { isVisible, isExplored } from '../engine/vision.js';
 
@@ -303,6 +303,7 @@ export function createRenderer(canvas, world, viewerId) {
 
     drawResources();
     drawProps();
+    drawGateways();
     drawBuildings(selection);
     drawPlacementPreview();
     drawStrikePreview();
@@ -506,6 +507,24 @@ export function createRenderer(canvas, world, viewerId) {
         break;
       case 'volatile':
         drawVolatile(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'headquarters':
+        drawHeadquarters(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'castle':
+        drawCastle(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'pillar':
+        drawPillar(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'crystal':
+        drawCrystal(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'rubble':
+        drawRubble(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'brazier':
+        drawBrazier(e, px, py, pw, ph, dx, dy, hurt);
         break;
       default:
         if (e.defId === 'statue') drawStatue(e, px, py, pw, ph, dx, dy, hurt);
@@ -1118,6 +1137,377 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.moveTo(tx - 1.5, ty + 8);
     ctx.lineTo(tx - 1.5, ty - 4);
     ctx.stroke();
+  }
+
+  /* ------------------------------------------------- landmarks and below -- */
+
+  /** The gateway record anchored to this landmark, if there is one. */
+  function gatewayFor(e) {
+    return (world.gateways || []).find((g) => g.landmark === e.defId) || null;
+  }
+
+  /**
+   * The headquarters: a slab with setbacks, a lit crown and a service mast.
+   *
+   * Drawn deliberately taller and colder than anything else on the map. It is
+   * the only thing on it worth crossing the map to destroy, and a landmark
+   * that does not read as a landmark from the minimap is just a big house.
+   */
+  function drawHeadquarters(e, px, py, pw, ph, dx, dy, hurt) {
+    const rx = px + dx;
+    const ry = py + dy;
+
+    // Walls, as quads from footprint corners to roof corners.
+    const wall = ctx.createLinearGradient(px, py + ph, rx, ry);
+    wall.addColorStop(0, '#141a22');
+    wall.addColorStop(1, '#28323f');
+    ctx.fillStyle = wall;
+    ctx.beginPath();
+    ctx.moveTo(px, py + ph);
+    ctx.lineTo(px + pw, py + ph);
+    ctx.lineTo(rx + pw, ry + ph);
+    ctx.lineTo(rx, ry + ph);
+    ctx.closePath();
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(px + pw, py);
+    ctx.lineTo(px + pw, py + ph);
+    ctx.lineTo(rx + pw, ry + ph);
+    ctx.lineTo(rx + pw, ry);
+    ctx.closePath();
+    ctx.fill();
+
+    // Window bands, dimming as the building is worked over.
+    const lit = Math.max(0.06, hurt * 0.5);
+    for (let i = 1; i < 6; i++) {
+      const t = i / 6;
+      ctx.fillStyle = `rgba(150, 190, 230, ${lit * 0.5})`;
+      ctx.fillRect(px + (rx - px) * t, py + ph + (ry - py) * t, pw, 2);
+    }
+
+    // Roof plate and its parapet.
+    ctx.fillStyle = '#39465a';
+    ctx.fillRect(rx, ry, pw, ph);
+    ctx.fillStyle = '#4a5a70';
+    ctx.fillRect(rx, ry, pw, 3);
+    ctx.fillStyle = 'rgba(0,0,0,0.35)';
+    ctx.fillRect(rx + 4, ry + 4, pw - 8, ph - 8);
+
+    // Mast and beacon: the bit you can see from anywhere on the map.
+    ctx.strokeStyle = '#5c6b7d';
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.moveTo(rx + pw / 2, ry + ph / 2);
+    ctx.lineTo(rx + pw / 2 + dx * 0.25, ry + ph / 2 - 16);
+    ctx.stroke();
+    const beat = 0.4 + 0.6 * Math.abs(Math.sin(frameClock * 0.06));
+    glow(() => {
+      ctx.fillStyle = `rgba(255, 90, 70, ${beat * 0.8})`;
+      ctx.beginPath();
+      ctx.arc(rx + pw / 2 + dx * 0.25, ry + ph / 2 - 16, 3, 0, TAU);
+      ctx.fill();
+    });
+  }
+
+  /**
+   * The castle: curtain wall, four corner towers, and the great door.
+   *
+   * The door is drawn from the definition's own `door` offset — the same
+   * number the gateway opens on — so the way in can never be drawn in a
+   * different wall from the one you can walk through.
+   */
+  function drawCastle(e, px, py, pw, ph, dx, dy) {
+    const rx = px + dx * 0.6;
+    const ry = py + dy * 0.6;
+    const cell = pw / e.size[0];
+
+    // Curtain wall.
+    const wall = ctx.createLinearGradient(px, py + ph, rx, ry);
+    wall.addColorStop(0, '#1b1a18');
+    wall.addColorStop(1, '#3b3833');
+    ctx.fillStyle = wall;
+    ctx.beginPath();
+    ctx.moveTo(px, py + ph);
+    ctx.lineTo(px + pw, py + ph);
+    ctx.lineTo(rx + pw, ry + ph);
+    ctx.lineTo(rx, ry + ph);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#46423b';
+    ctx.fillRect(rx, ry, pw, ph);
+    ctx.fillStyle = 'rgba(0,0,0,0.4)';
+    ctx.fillRect(rx + cell, ry + cell, pw - cell * 2, ph - cell * 2);
+
+    // Crenellations along the front parapet.
+    ctx.fillStyle = '#565149';
+    for (let i = 0; i < e.size[0] * 2; i++) {
+      if (i % 2) continue;
+      ctx.fillRect(rx + (i * pw) / (e.size[0] * 2), ry + ph - 4, pw / (e.size[0] * 2) - 1, 4);
+    }
+
+    // Corner towers, drawn last so they sit proud of the wall.
+    for (const [ox, oy] of [
+      [0, 0],
+      [1, 0],
+      [0, 1],
+      [1, 1],
+    ]) {
+      const tx = rx + ox * (pw - cell * 1.4) + cell * 0.7;
+      const ty = ry + oy * (ph - cell * 1.4) + cell * 0.7;
+      ctx.fillStyle = '#4e493f';
+      ctx.beginPath();
+      ctx.arc(tx, ty, cell * 0.78, 0, TAU);
+      ctx.fill();
+      ctx.fillStyle = '#5e584c';
+      ctx.beginPath();
+      ctx.arc(tx - 1, ty - 1.5, cell * 0.6, 0, TAU);
+      ctx.fill();
+    }
+
+    // The great door, in the wall the definition says it is in.
+    const door = e.def.door || [Math.floor(e.size[0] / 2), e.size[1]];
+    const gateway = gatewayFor(e);
+    const open = gateway && gateway.open;
+    const gx = px + door[0] * cell;
+    const gy = py + Math.min(door[1], e.size[1]) * cell - cell * 0.9;
+
+    ctx.fillStyle = '#221f1b';
+    ctx.beginPath();
+    ctx.moveTo(gx - cell * 0.1, gy + cell * 1.1);
+    ctx.lineTo(gx - cell * 0.1, gy + cell * 0.3);
+    ctx.arc(gx + cell * 0.9, gy + cell * 0.3, cell, Math.PI, 0);
+    ctx.lineTo(gx + cell * 1.9, gy + cell * 1.1);
+    ctx.closePath();
+    ctx.fill();
+
+    if (open) {
+      // Light from the other side, which is the whole payoff of the fight.
+      glow(() => {
+        const spill = ctx.createLinearGradient(gx, gy, gx, gy + cell * 2.2);
+        spill.addColorStop(0, 'rgba(255, 206, 140, 0.55)');
+        spill.addColorStop(1, 'rgba(255, 176, 90, 0)');
+        ctx.fillStyle = spill;
+        ctx.fillRect(gx - cell * 0.1, gy + cell * 0.1, cell * 2, cell * 2.2);
+      });
+    } else {
+      // Barred: two leaves, banded iron, and a very solid drop bar.
+      ctx.fillStyle = '#3a2f24';
+      ctx.fillRect(gx, gy + cell * 0.1, cell * 1.8, cell);
+      ctx.strokeStyle = '#5a4b3a';
+      ctx.lineWidth = 2;
+      for (let i = 1; i < 3; i++) {
+        ctx.beginPath();
+        ctx.moveTo(gx, gy + cell * 0.1 + (i * cell) / 3);
+        ctx.lineTo(gx + cell * 1.8, gy + cell * 0.1 + (i * cell) / 3);
+        ctx.stroke();
+      }
+      ctx.fillStyle = '#6b5a44';
+      ctx.fillRect(gx + cell * 0.1, gy + cell * 0.5, cell * 1.6, 3);
+    }
+  }
+
+  /** A rock column, floor to roof. Tapers, so it reads as load-bearing. */
+  function drawPillar(e, px, py, pw, ph, dx, dy) {
+    const cx = px + pw / 2;
+    const cy = py + ph / 2;
+    const tx = cx + dx;
+    const ty = cy + dy;
+
+    const body = ctx.createLinearGradient(cx - pw * 0.4, 0, cx + pw * 0.4, 0);
+    body.addColorStop(0, '#241f2b');
+    body.addColorStop(0.45, '#3d3546');
+    body.addColorStop(1, '#1d1924');
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.moveTo(cx - pw * 0.42, cy + ph * 0.28);
+    ctx.lineTo(cx + pw * 0.42, cy + ph * 0.28);
+    ctx.lineTo(tx + pw * 0.26, ty);
+    ctx.lineTo(tx - pw * 0.26, ty);
+    ctx.closePath();
+    ctx.fill();
+    ctx.fillStyle = '#4a4055';
+    ctx.beginPath();
+    ctx.ellipse(tx, ty, pw * 0.26, ph * 0.16, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(0,0,0,0.4)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(cx - pw * 0.1, cy + ph * 0.26);
+    ctx.lineTo(tx - pw * 0.06, ty + 2);
+    ctx.stroke();
+  }
+
+  /** Firestone: a cluster of shards, lit from inside. */
+  function drawCrystal(e, px, py, pw, ph, dx, dy, hurt) {
+    const cx = px + pw / 2;
+    const cy = py + ph / 2;
+    for (let i = 0; i < 3; i++) {
+      const lean = (i - 1) * pw * 0.22;
+      const tipX = cx + lean + dx * 0.7;
+      const tipY = cy + dy * 0.7 + i * 2;
+      ctx.fillStyle = i === 1 ? '#a45fd0' : '#7a44a0';
+      ctx.beginPath();
+      ctx.moveTo(cx + lean - pw * 0.14, cy + ph * 0.24);
+      ctx.lineTo(cx + lean + pw * 0.14, cy + ph * 0.24);
+      ctx.lineTo(tipX, tipY);
+      ctx.closePath();
+      ctx.fill();
+    }
+    // Under pressure, and the renderer says so before it goes off.
+    const pulse = 0.45 + 0.55 * Math.abs(Math.sin(frameClock * 0.05 + e.id));
+    glow(() => {
+      ctx.fillStyle = `rgba(214, 130, 255, ${pulse * (hurt < 0.7 ? 0.5 : 0.28)})`;
+      ctx.beginPath();
+      ctx.arc(cx + dx * 0.5, cy + dy * 0.5, pw * 0.5, 0, TAU);
+      ctx.fill();
+    });
+  }
+
+  /** A rockfall: low, broken, and something to shoot over rather than through. */
+  function drawRubble(e, px, py, pw, ph) {
+    for (let i = 0; i < 5; i++) {
+      const hx = hash2(e.id * 7 + i, e.cx) * (pw - 6);
+      const hy = hash2(e.cy, e.id * 3 + i) * (ph - 4);
+      const size = 4 + hash2(e.id + i, e.cx + e.cy) * 6;
+      ctx.fillStyle = i % 2 ? '#3a3442' : '#2b2634';
+      ctx.beginPath();
+      ctx.moveTo(px + hx, py + hy + size);
+      ctx.lineTo(px + hx + size * 0.6, py + hy);
+      ctx.lineTo(px + hx + size, py + hy + size * 0.8);
+      ctx.closePath();
+      ctx.fill();
+    }
+  }
+
+  /** A brazier: bowl, legs, and a flame somebody lit this morning. */
+  function drawBrazier(e, px, py, pw, ph, dx, dy) {
+    const cx = px + pw / 2;
+    const cy = py + ph / 2;
+    ctx.strokeStyle = '#3a332b';
+    ctx.lineWidth = 2;
+    for (const off of [-4, 0, 4]) {
+      ctx.beginPath();
+      ctx.moveTo(cx + off * 0.6, cy + ph * 0.3);
+      ctx.lineTo(cx + off, cy + dy * 0.5);
+      ctx.stroke();
+    }
+    ctx.fillStyle = '#4b4238';
+    ctx.beginPath();
+    ctx.ellipse(cx + dx * 0.5, cy + dy * 0.5, pw * 0.32, ph * 0.2, 0, 0, TAU);
+    ctx.fill();
+    const flare = 0.6 + 0.4 * Math.abs(Math.sin(frameClock * 0.11 + e.id));
+    glow(() => {
+      ctx.fillStyle = `rgba(255, 176, 80, ${flare * 0.75})`;
+      ctx.beginPath();
+      ctx.ellipse(cx + dx * 0.5, cy + dy * 0.5 - 3, pw * 0.2, ph * 0.3 * flare, 0, 0, TAU);
+      ctx.fill();
+    });
+  }
+
+  /* ---------------------------------------------------------- gateways -- */
+
+  /**
+   * The ways off the map.
+   *
+   * Drawn after the scenery and before the units, for the same reason props
+   * are: a machine standing in a doorway has to be visible in it. A gateway is
+   * always animated — a hole with light coming out of it reads as a thing to
+   * walk into, and a static one reads as a decal.
+   */
+  function drawGateways() {
+    for (const e of world.entities.values()) {
+      if (e.kind !== 'gateway' || e.dead) continue;
+      if (!isExplored(world, viewerId, e.x, e.y)) continue;
+      const s = { x: e.x * CELL, y: e.y * CELL };
+      if (e.defId === 'gate') drawGateMarker(e, s);
+      else drawShaftMarker(e, s);
+      drawWayMarker(e, s);
+    }
+  }
+
+  /** A shaft: a hole, a broken rim, and warm air coming up out of it. */
+  function drawShaftMarker(e, s) {
+    const r = e.radius * CELL;
+
+    ctx.fillStyle = '#07060a';
+    ctx.beginPath();
+    ctx.ellipse(s.x, s.y, r * 0.82, r * 0.6, 0, 0, TAU);
+    ctx.fill();
+
+    // Broken slabs around the lip — this was a floor an hour ago.
+    for (let i = 0; i < 8; i++) {
+      const a = (i / 8) * TAU + hash2(e.id, i) * 0.4;
+      ctx.fillStyle = i % 2 ? '#2f2a37' : '#413a4b';
+      ctx.beginPath();
+      ctx.moveTo(s.x + Math.cos(a) * r * 0.8, s.y + Math.sin(a) * r * 0.58);
+      ctx.lineTo(s.x + Math.cos(a + 0.4) * r * 1.05, s.y + Math.sin(a + 0.4) * r * 0.76);
+      ctx.lineTo(s.x + Math.cos(a - 0.1) * r * 1.02, s.y + Math.sin(a - 0.1) * r * 0.74);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    glow(() => {
+      const rise = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r);
+      rise.addColorStop(0, 'rgba(196, 128, 232, 0.30)');
+      rise.addColorStop(1, 'rgba(196, 128, 232, 0)');
+      ctx.fillStyle = rise;
+      ctx.beginPath();
+      ctx.ellipse(s.x, s.y, r, r * 0.75, 0, 0, TAU);
+      ctx.fill();
+    });
+  }
+
+  /** An open gate: an arch with the next world lit behind it. */
+  function drawGateMarker(e, s) {
+    const r = e.radius * CELL;
+    ctx.fillStyle = '#0b0906';
+    ctx.beginPath();
+    ctx.moveTo(s.x - r * 0.6, s.y + r * 0.5);
+    ctx.lineTo(s.x - r * 0.6, s.y - r * 0.1);
+    ctx.arc(s.x, s.y - r * 0.1, r * 0.6, Math.PI, 0);
+    ctx.lineTo(s.x + r * 0.6, s.y + r * 0.5);
+    ctx.closePath();
+    ctx.fill();
+
+    glow(() => {
+      const spill = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, r);
+      spill.addColorStop(0, 'rgba(255, 206, 140, 0.40)');
+      spill.addColorStop(1, 'rgba(255, 176, 90, 0)');
+      ctx.fillStyle = spill;
+      ctx.beginPath();
+      ctx.ellipse(s.x, s.y, r, r * 0.8, 0, 0, TAU);
+      ctx.fill();
+    });
+  }
+
+  /**
+   * The "walk in here" ring.
+   *
+   * Both gateway kinds get the same one, because it is answering the same
+   * question — *this is the thing, put a machine on it* — and a player who
+   * learned it under the headquarters should not have to learn it again at
+   * the castle.
+   */
+  function drawWayMarker(e, s) {
+    const r = e.radius * CELL;
+    const pulse = (frameClock * 0.02) % 1;
+    ctx.strokeStyle = `rgba(255, 233, 180, ${0.5 * (1 - pulse)})`;
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.ellipse(s.x, s.y, r * (0.6 + pulse * 0.55), r * (0.45 + pulse * 0.42), 0, 0, TAU);
+    ctx.stroke();
+
+    // Two chevrons pointing in, drifting inward on the same clock.
+    ctx.strokeStyle = 'rgba(255, 233, 180, 0.7)';
+    ctx.lineWidth = 2;
+    for (const dir of [-1, 1]) {
+      const off = r * (1.25 - pulse * 0.35) * dir;
+      ctx.beginPath();
+      ctx.moveTo(s.x + off - 5 * dir, s.y - 6);
+      ctx.lineTo(s.x + off, s.y);
+      ctx.lineTo(s.x + off - 5 * dir, s.y + 6);
+      ctx.stroke();
+    }
   }
 
   /** Fuel: a canopy on posts, pumps beneath, hazard stripes. */
@@ -2259,8 +2649,7 @@ export function createRenderer(canvas, world, viewerId) {
         if (world.map.resource[i] > 0) {
           mctx.fillStyle = `rgba(190,214,100,${dim})`;
         } else {
-          const info = TERRAIN_INFO[world.map.terrain[i]];
-          mctx.fillStyle = info.color;
+          mctx.fillStyle = biomeOf(world.map).palette.minimap[world.map.terrain[i]];
           mctx.globalAlpha = dim;
         }
         mctx.fillRect(x * k, y * k, Math.ceil(k), Math.ceil(k));
@@ -2271,7 +2660,10 @@ export function createRenderer(canvas, world, viewerId) {
     for (const e of world.entities.values()) {
       if (!seenBy(e)) continue;
       mctx.fillStyle = colorOf(e);
-      const s = e.kind === 'building' ? Math.max(3, e.size[0] * k) : Math.max(2, k * 1.4);
+      const s =
+        e.kind === 'building' || e.kind === 'gateway'
+          ? Math.max(3, (e.size ? e.size[0] : 2) * k)
+          : Math.max(2, k * 1.4);
       mctx.fillRect(e.x * k - s / 2, e.y * k - s / 2, s, s);
     }
 
@@ -2292,15 +2684,21 @@ export function createRenderer(canvas, world, viewerId) {
   /** Can the viewing player see this entity at all? */
   function seenBy(e) {
     if (e.player === viewerId) return true;
-    if (e.kind === 'building') {
+    if (e.kind === 'building' || e.kind === 'gateway') {
       // Structures stay drawn once discovered, the way every RTS does it —
-      // buildings do not walk away while you are not looking.
+      // buildings do not walk away while you are not looking. A gateway is
+      // the same promise and a stronger one: the whole reason it is on the
+      // minimap is so a player who found it can find it again.
       return isExplored(world, viewerId, e.x, e.y);
     }
     return isVisible(world, viewerId, e.x, e.y);
   }
 
+  /** Warm gold: the way out is not owned by either side, and reads as neither. */
+  const GATEWAY_TINT = '#ffd27a';
+
   function colorOf(e) {
+    if (e.kind === 'gateway') return GATEWAY_TINT;
     const player = world.players[e.player];
     if (!player) return NEUTRAL;
     return player.id === viewerId ? FACTIONS[player.faction].color : enemyColor(player);
@@ -2518,6 +2916,10 @@ export function createRenderer(canvas, world, viewerId) {
 function paintTerrainRegion(ctx, map, cell, cx0, cy0, cx1, cy1) {
   const originX = cx0 * cell;
   const originY = cy0 * cell;
+  // Which world this is. Only the base tones change — the noise, the speckle
+  // and the cliff facets below are the same rock everywhere, which is what
+  // keeps the underworld looking like this game rather than a different one.
+  const pal = biomeOf(map).palette;
 
   for (let y = cy0; y < cy1; y++) {
     for (let x = cx0; x < cx1; x++) {
@@ -2526,15 +2928,15 @@ function paintTerrainRegion(ctx, map, cell, cx0, cy0, cx1, cy1) {
       const py = y * cell - originY;
 
       if (t === 3) {
-        paintWater(ctx, map, cell, x, y, px, py);
+        paintWater(ctx, map, cell, x, y, px, py, pal);
         continue;
       }
       if (t === 2) {
-        paintCliff(ctx, map, cell, x, y, px, py);
+        paintCliff(ctx, map, cell, x, y, px, py, pal);
         continue;
       }
       if (t === 4) {
-        paintRoad(ctx, map, cell, x, y, px, py);
+        paintRoad(ctx, map, cell, x, y, px, py, pal);
         continue;
       }
 
@@ -2543,10 +2945,10 @@ function paintTerrainRegion(ctx, map, cell, cx0, cy0, cx1, cy1) {
       // static — that was tried, and it read as blotches.
       const n = valueNoise(x, y, 0.07) * 0.8 + valueNoise(x, y, 0.31) * 0.2;
       const rough = t === 1;
-      const base = 40 + n * 13 - (rough ? 5 : 0);
-      const r = Math.round(base + n * 5);
-      const g = Math.round(base + 6 + n * 4);
-      const b = Math.round(base + 13);
+      const dim = rough ? 5 : 0;
+      const r = Math.round(pal.ground[0] + n * 18 - dim);
+      const g = Math.round(pal.ground[1] + n * 17 - dim);
+      const b = Math.round(pal.ground[2] + n * 13 - dim);
       ctx.fillStyle = `rgb(${r},${g},${b})`;
       ctx.fillRect(px, py, cell, cell);
 
@@ -2621,11 +3023,13 @@ function paintTerrainRegion(ctx, map, cell, cx0, cy0, cx1, cy1) {
   }
 }
 
-function paintCliff(ctx, map, cell, x, y, px, py) {
+function paintCliff(ctx, map, cell, x, y, px, py, pal) {
   const k = cell / CELL;
   const n = valueNoise(x, y, 0.12);
-  const base = 24 + n * 9;
-  ctx.fillStyle = `rgb(${Math.round(base)},${Math.round(base + 4)},${Math.round(base + 9)})`;
+  const lift = n * 9;
+  ctx.fillStyle = `rgb(${Math.round(pal.cliff[0] + lift)},${Math.round(
+    pal.cliff[1] + lift
+  )},${Math.round(pal.cliff[2] + lift)})`;
   ctx.fillRect(px, py, cell, cell);
 
   // Rock facets: angular shards, lit from the north-west.
@@ -2646,7 +3050,7 @@ function paintCliff(ctx, map, cell, x, y, px, py) {
   // Lit top edge where open ground sits above — height at a glance.
   const above = y > 0 ? map.terrain[(y - 1) * map.width + x] : 2;
   if (TERRAIN_INFO[above].passable) {
-    ctx.fillStyle = 'rgba(160, 175, 190, 0.22)';
+    ctx.fillStyle = pal.lit;
     ctx.fillRect(px, py, cell, 2.5 * k);
   }
   const below = y < map.height - 1 ? map.terrain[(y + 1) * map.width + x] : 2;
@@ -2668,7 +3072,7 @@ function paintCliff(ctx, map, cell, x, y, px, py) {
  * The kerb is drawn on edges that face away from other road cells, which is
  * what stops a two-lane road looking like two one-lane roads.
  */
-function paintRoad(ctx, map, cell, x, y, px, py) {
+function paintRoad(ctx, map, cell, x, y, px, py, pal) {
   const k = cell / CELL;
   const isRoad = (dx, dy) => {
     const nx = x + dx;
@@ -2678,8 +3082,10 @@ function paintRoad(ctx, map, cell, x, y, px, py) {
   };
 
   const n = valueNoise(x, y, 0.09);
-  const base = 44 + n * 8;
-  ctx.fillStyle = `rgb(${Math.round(base)},${Math.round(base + 2)},${Math.round(base + 6)})`;
+  const lift = n * 8;
+  ctx.fillStyle = `rgb(${Math.round(pal.road[0] + lift)},${Math.round(
+    pal.road[1] + lift
+  )},${Math.round(pal.road[2] + lift)})`;
   ctx.fillRect(px, py, cell, cell);
 
   // Patches and repairs — a uniform slab reads as a placeholder.
@@ -2703,13 +3109,13 @@ function paintRoad(ctx, map, cell, x, y, px, py) {
 
   // Centre dashes, only on a straight run — a junction has no centre line.
   if (horizontal !== vertical && hash2(x * 3, y * 3) > 0.32) {
-    ctx.fillStyle = 'rgba(214, 198, 120, 0.20)';
+    ctx.fillStyle = pal.dash;
     if (horizontal) ctx.fillRect(px + cell * 0.2, py + cell / 2 - k, cell * 0.6, 2 * k);
     else ctx.fillRect(px + cell / 2 - k, py + cell * 0.2, 2 * k, cell * 0.6);
   }
 }
 
-function paintWater(ctx, map, cell, x, y, px, py) {
+function paintWater(ctx, map, cell, x, y, px, py, pal) {
   // Depth: darker away from shore, banded like a survey chart.
   let shore = 0;
   for (let dy = -1; dy <= 1; dy++) {
@@ -2721,16 +3127,16 @@ function paintWater(ctx, map, cell, x, y, px, py) {
     }
   }
   const n = valueNoise(x, y, 0.06);
-  const r = Math.round(16 + n * 4 + shore * 3);
-  const g = Math.round(40 + n * 5 + shore * 5);
-  const b = Math.round(58 + n * 6 + shore * 6);
+  const r = Math.round(pal.water[0] + n * 4 + shore * 3);
+  const g = Math.round(pal.water[1] + n * 5 + shore * 5);
+  const b = Math.round(pal.water[2] + n * 6 + shore * 6);
   ctx.fillStyle = `rgb(${r},${g},${b})`;
   ctx.fillRect(px, py, cell, cell);
 
   // Sparse still-water highlights.
   if (hash2(x * 5, y * 9) > 0.86) {
     const k = cell / CELL;
-    ctx.strokeStyle = 'rgba(140, 190, 220, 0.07)';
+    ctx.strokeStyle = pal.glint;
     ctx.lineWidth = k;
     ctx.beginPath();
     ctx.moveTo(px + 3 * k, py + cell * hash2(x, y));

@@ -10,7 +10,7 @@
  * no amount of unit balance fixes that.
  */
 
-import { TERRAIN, TERRAIN_INFO, PROPS, MIN_TERRAIN_COST } from './content.js';
+import { TERRAIN, TERRAIN_INFO, PROPS, MIN_TERRAIN_COST, BIOMES, DEFAULT_BIOME } from './content.js';
 import { createRng } from './rng.js';
 import { len, ringOffset } from './numeric.js';
 
@@ -28,11 +28,17 @@ import { len, ringOffset } from './numeric.js';
  */
 export const DEFAULT_MAP_SIZE = 144;
 
-export function createMap(seed, { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP_SIZE } = {}) {
+export function createMap(
+  seed,
+  { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP_SIZE, biome = DEFAULT_BIOME, landmarks = [] } = {}
+) {
   const rng = createRng(seed ^ 0x9e3779b9);
+  const biomeDef = BIOMES[biome] || BIOMES[DEFAULT_BIOME];
   const map = {
     width,
     height,
+    /** Which world this is. Terrain indices are unchanged; see BIOMES. */
+    biome: biomeDef.id,
     terrain: new Uint8Array(width * height),
     resource: new Uint16Array(width * height),
     /** The richness each cell started with — the ceiling regrowth restores to. */
@@ -51,9 +57,24 @@ export function createMap(seed, { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP
     props: [],
     /** Cells already claimed by a prop, so placement never double-books. */
     propCells: new Uint8Array(width * height),
+    /**
+     * Where each named landmark ended up, by prop id. A landmark is placed
+     * once rather than mirrored, and `gateways.js` reads these to work out
+     * where a shaft opens or a door stands.
+     */
+    landmarks: {},
+    /**
+     * Chambers cut out of the rock, for the underworld biomes. Empty on the
+     * surface, where the open ground is the room and the cliffs are the walls.
+     */
+    rooms: [],
   };
 
-  carveTerrain(map, rng);
+  if (biomeDef.generator === 'chambers') {
+    carveChambers(map, biomeDef, rng);
+  } else {
+    carveTerrain(map, rng);
+  }
 
   // Start positions on opposing corners of the usable area, mirrored.
   const inset = Math.round(Math.min(width, height) * 0.16);
@@ -63,6 +84,11 @@ export function createMap(seed, { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP
   ];
 
   for (const s of map.starts) clearArea(map, s.x, s.y, 6);
+
+  // A chamber map is solid rock with holes in it, so the landing zones the
+  // step above just cut are holes of their own until something joins them to
+  // the network. On the surface this is what the open ground already is.
+  if (biomeDef.generator === 'chambers') linkStartsToRooms(map);
 
   // One guaranteed field per start, plus contested fields toward the middle.
   //
@@ -96,12 +122,23 @@ export function createMap(seed, { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP
   // structural instead of lucky.
   for (const s of map.starts) clearResource(map, s.x, s.y, 2);
 
+  // Named landmarks before the ordinary scenery, so a headquarters claims its
+  // ground and the districts grow around it rather than through it. One to a
+  // map and *not* mirrored — which is a deliberate exception to the symmetry
+  // rule above, and the reason for it is that a landmark is the objective
+  // rather than a resource. Two headquarters would be two missions.
+  landmarks.forEach((defId, i) => placeLandmark(map, defId, i, landmarks.length, rng));
+
   // Scenery last: it reads the finished terrain and the wreck fields so it can
   // refuse to stand on either.
-  const districts = planDistricts(map, rng);
-  for (const d of districts) buildDistrict(map, d, rng);
-  connectDistricts(map, districts);
-  addLandmarks(map, rng);
+  if (biomeDef.generator === 'chambers') {
+    furnishChambers(map, biomeDef, rng);
+  } else {
+    const districts = planDistricts(map, rng);
+    for (const d of districts) buildDistrict(map, d, rng);
+    connectDistricts(map, districts);
+    addLandmarks(map, rng);
+  }
   ensureConnected(map);
 
   return map;
@@ -551,6 +588,269 @@ function addLandmarks(map, rng) {
   }
 }
 
+
+/* -------------------------------------------------------- the underworld -- */
+
+/**
+ * The other kind of world: chambers cut out of solid rock.
+ *
+ * The surface generator starts from open ground and adds obstacles. This one
+ * inverts it — everything is wall until something carves it away — and that
+ * inversion is the whole difference in how the two play. Up top you route
+ * *around* things and the map's shape is a suggestion; down here the map's
+ * shape is the only thing there is, every fight happens in a room or in the
+ * corridor between two, and a held doorway is genuinely held.
+ *
+ * Same discipline as the surface: every cell is written mirrored, so the two
+ * halves are provably identical and neither side gets the better chamber.
+ */
+function carveChambers(map, biome, rng) {
+  const { width, height } = map;
+  map.terrain.fill(TERRAIN.CLIFF);
+
+  const [minR, maxR] = biome.chamberRadius;
+  const count = Math.max(4, Math.round((width * height) / 900));
+  const rooms = [];
+
+  for (let i = 0; i < count; i++) {
+    const r = minR + rng.int(maxR - minR + 1);
+    const x = r + 2 + rng.int(Math.max(1, width - (r + 2) * 2));
+    const y = r + 2 + rng.int(Math.max(1, height - (r + 2) * 2));
+    // Rooms are allowed to overlap — two chambers that share a wall read as
+    // one bigger, more interesting space, and refusing the overlap produces a
+    // grid of identical circles.
+    carveChamber(map, x, y, r, rng);
+    rooms.push({ x, y, r });
+    // The mirror image is carved by paintMirrored as the original is written;
+    // recording it here is what lets the corridor pass and the furnishing pass
+    // see both halves.
+    rooms.push({ x: width - 1 - x, y: height - 1 - y, r });
+  }
+
+  // Corridors. Each room reaches for the next one in the list plus one further
+  // off, which produces a network with loops in it rather than a tree — a
+  // corridor system you can only ever back out of is a corridor system where
+  // every fight is decided by who walked in first.
+  const half = rooms.filter((_, i) => i % 2 === 0);
+  for (let i = 0; i < half.length; i++) {
+    const a = half[i];
+    const b = half[(i + 1) % half.length];
+    cutTunnel(map, a.x, a.y, b.x, b.y, biome.corridor);
+    if (i % 3 === 0) {
+      const far = half[(i + 3) % half.length];
+      cutTunnel(map, a.x, a.y, far.x, far.y, biome.corridor);
+    }
+  }
+
+  // Chasms: the underworld's water. A hole in the floor of a room is the
+  // cheapest way to make a chamber a shape rather than a circle.
+  //
+  // Minimum radius two, and only in a chamber with room for it: the circle
+  // test at radius one produces a five-cell plus sign, and a keep whose moats
+  // are little blue crosses reads as a rendering bug rather than as water.
+  for (let i = 0; i < Math.max(1, Math.round(rooms.length / 6)); i++) {
+    const room = rooms[rng.int(rooms.length)];
+    if (room.r < 5) continue;
+    const r = 2 + rng.int(Math.max(1, room.r - 4));
+    for (let y = room.y - r; y <= room.y + r; y++) {
+      for (let x = room.x - r; x <= room.x + r; x++) {
+        if ((x - room.x) ** 2 + (y - room.y) ** 2 <= r * r) paintMirrored(map, x, y, TERRAIN.WATER);
+      }
+    }
+  }
+
+  weatherWalls(map, rng);
+  map.rooms = rooms;
+
+  for (let x = 0; x < width; x++) {
+    map.terrain[x] = TERRAIN.CLIFF;
+    map.terrain[(height - 1) * width + x] = TERRAIN.CLIFF;
+  }
+  for (let y = 0; y < height; y++) {
+    map.terrain[y * width] = TERRAIN.CLIFF;
+    map.terrain[y * width + width - 1] = TERRAIN.CLIFF;
+  }
+}
+
+/**
+ * Break the straight edges off the rock.
+ *
+ * Corridors are axis-aligned, so the rock left standing between them comes out
+ * as clean rectangles — which reads as a tiled dungeon rather than as a cave,
+ * and the first zoomed-out screenshot made that unarguable. Nibbling the wall
+ * cells that face open floor turns every straight run ragged for one pass over
+ * the grid.
+ *
+ * Candidates are collected before any of them are written, because eroding in
+ * place lets one nibbled cell expose the next and the whole wall dissolves.
+ */
+function weatherWalls(map, rng) {
+  const { width, height } = map;
+  const bite = [];
+
+  for (let y = 1; y < height - 1; y++) {
+    for (let x = 1; x < width - 1; x++) {
+      if (map.terrain[y * width + x] !== TERRAIN.CLIFF) continue;
+      let open = 0;
+      for (const [dx, dy] of [
+        [-1, 0],
+        [1, 0],
+        [0, -1],
+        [0, 1],
+      ]) {
+        if (TERRAIN_INFO[map.terrain[(y + dy) * width + x + dx]].passable) open++;
+      }
+      // A cell with one open neighbour is the flat face of a wall; one with
+      // three is a spur already. Chewing the faces is what does the work.
+      if (open === 0 || open > 2) continue;
+      if (!rng.chance(open === 1 ? 0.3 : 0.55)) continue;
+      bite.push({ x, y });
+    }
+  }
+
+  for (const cell of bite) paintMirrored(map, cell.x, cell.y, TERRAIN.ROUGH);
+}
+
+/** One chamber: a rough disc of floor with a scree fringe. */
+function carveChamber(map, cx, cy, r, rng) {
+  for (let y = cy - r; y <= cy + r; y++) {
+    for (let x = cx - r; x <= cx + r; x++) {
+      const d = len(x - cx, y - cy);
+      if (d > r) continue;
+      // A ragged edge, so a chamber reads as cut rather than as drawn.
+      if (d > r * 0.78 && rng.chance(0.42)) continue;
+      paintMirrored(map, x, y, d > r * 0.7 && rng.chance(0.4) ? TERRAIN.ROUGH : TERRAIN.GROUND);
+    }
+  }
+}
+
+/**
+ * A corridor between two points, with the worn path down the middle.
+ *
+ * The centre line is ROAD — the same 0.72 movement cost the surface's tarmac
+ * has — which keeps the map's one real routing decision intact underground:
+ * the fast way is the middle of the corridor, and the middle of the corridor
+ * is exactly where anything holding the far end is aiming.
+ */
+function cutTunnel(map, x0, y0, x1, y1, width) {
+  const half = Math.max(0, Math.floor(width / 2));
+  const carve = (x, y) => {
+    for (let dy = -half; dy <= half; dy++) {
+      for (let dx = -half; dx <= half; dx++) {
+        paintMirrored(map, x + dx, y + dy, TERRAIN.GROUND);
+      }
+    }
+    paintMirrored(map, x, y, TERRAIN.ROAD);
+  };
+
+  // L-shaped: across, then down. Two straight runs make a corner, and a corner
+  // is a place worth standing.
+  const stepX = Math.sign(x1 - x0);
+  for (let x = x0; x !== x1; x += stepX || 1) {
+    carve(x, y0);
+    if (!stepX) break;
+  }
+  const stepY = Math.sign(y1 - y0);
+  for (let y = y0; y !== y1; y += stepY || 1) {
+    carve(x1, y);
+    if (!stepY) break;
+  }
+  carve(x1, y1);
+}
+
+/** Join each landing zone to the chamber nearest it. */
+function linkStartsToRooms(map) {
+  if (map.rooms.length === 0) return;
+  for (const s of map.starts) {
+    let best = map.rooms[0];
+    let bestD = Infinity;
+    for (const room of map.rooms) {
+      const d = len(room.x - s.x, room.y - s.y);
+      if (d < bestD) {
+        bestD = d;
+        best = room;
+      }
+    }
+    cutTunnel(map, s.x, s.y, best.x, best.y, 3);
+  }
+}
+
+/**
+ * Scenery for a chamber map.
+ *
+ * Rolled per room rather than scattered over the whole map, for the same
+ * reason the surface builds streets rather than sprinkling houses: a chamber
+ * with a pillar in the middle and firestone round the edge is a place, and a
+ * place is something you fight over twice.
+ */
+function furnishChambers(map, biome, rng) {
+  for (const room of map.rooms) {
+    const pieces = 2 + rng.int(4);
+    for (let i = 0; i < pieces; i++) {
+      const defId = biome.scenery[rng.int(biome.scenery.length)];
+      const off = ringOffset(i + 1, room.r * (0.35 + rng.next() * 0.5));
+      addPropPair(map, defId, Math.round(room.x + off.x), Math.round(room.y + off.y));
+    }
+    // One hazard near the centre of the bigger chambers, which is what turns
+    // "the room with the pillar" into "the room you do not brawl in".
+    if (room.r >= 6 && rng.chance(0.55)) {
+      addPropPair(map, biome.hazard, room.x + 1, room.y + 1);
+    }
+  }
+}
+
+/* ------------------------------------------------------------ landmarks -- */
+
+/**
+ * Place a unique landmark and record where it went.
+ *
+ * Unlike every other prop this one is placed by fiat rather than by fit: the
+ * ground under it is flattened, the scrap is stripped and a ring around it is
+ * cleared. A challenge that only works on seeds where a 6×6 footprint happened
+ * to find a home is not a challenge, it is a lottery — and a castle you cannot
+ * walk round is a castle whose door nobody can reach.
+ *
+ * Landmarks are strung along the line between the two landing zones, weighted
+ * toward the far end: whoever built the thing built it on their own ground.
+ */
+function placeLandmark(map, defId, index, total, rng) {
+  const def = PROPS[defId];
+  if (!def || map.starts.length < 2) return null;
+
+  const [w, h] = def.size;
+  const [from, to] = map.starts;
+  const t = total <= 1 ? 0.72 : 0.55 + (index / Math.max(1, total - 1)) * 0.3;
+
+  // A little sideways drift off the diagonal, so a two-landmark map does not
+  // read as beads on a string. Rolled, so it is part of the seed.
+  const drift = (rng.next() - 0.5) * Math.min(map.width, map.height) * 0.18;
+  const ax = Math.round(from.x + (to.x - from.x) * t - drift);
+  const ay = Math.round(from.y + (to.y - from.y) * t + drift);
+
+  const cx = clampCell(map, ax - Math.floor(w / 2), w);
+  const cy = clampCell(map, ay - Math.floor(h / 2), h, true);
+
+  // Clear approach, floor and footprint, in that order: the ring is what
+  // guarantees a way round to the door.
+  const ring = Math.max(w, h) + 3;
+  clearArea(map, cx + Math.floor(w / 2), cy + Math.floor(h / 2), ring);
+  clearResource(map, cx + Math.floor(w / 2), cy + Math.floor(h / 2), ring);
+
+  map.props.push({ defId, cx, cy });
+  for (let y = cy; y < cy + h; y++) {
+    for (let x = cx; x < cx + w; x++) {
+      if (inBounds(map, x, y)) map.propCells[y * map.width + x] = 1;
+    }
+  }
+  map.landmarks[defId] = { defId, cx, cy, size: [w, h] };
+  return map.landmarks[defId];
+}
+
+/** Keep a footprint of `span` cells inside the sealed border. */
+function clampCell(map, v, span, vertical = false) {
+  const limit = (vertical ? map.height : map.width) - span - 3;
+  return Math.max(3, Math.min(limit, v));
+}
 
 /**
  * Random-walk blobs of cliff and rough, mirrored as they are written so the

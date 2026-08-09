@@ -290,9 +290,12 @@ test('the campaign lists every mission and locks all but the first', async ({ pa
   await page.click('#playCampaign');
 
   await expect(page.locator('#campaign h2')).toContainText('Just You and Your Rocket Crew');
-  await expect(page.locator('.mission')).toHaveCount(7);
-  await expect(page.locator('.mission:not(.locked)')).toHaveCount(1);
-  await expect(page.locator('.mission').first()).toContainText('Hard Landing');
+  // Scoped to the story list: the challenges below it are their own track with
+  // their own unlock rule, and counting them here would make this test read as
+  // "the campaign is nine missions long", which it is not.
+  await expect(page.locator('.storyList .mission')).toHaveCount(7);
+  await expect(page.locator('.storyList .mission:not(.locked)')).toHaveCount(1);
+  await expect(page.locator('.storyList .mission').first()).toContainText('Hard Landing');
 });
 
 test('a briefing shows the objectives and the crew before you commit', async ({ page }) => {
