@@ -372,6 +372,30 @@
         border-left: 3px solid var(--good);
       }
 
+      /* Challenges: the same card, warmed up. They are optional, and the list
+         should say so at a glance without saying it in words. */
+      .challengeHead {
+        margin-top: 4px;
+      }
+
+      .challengeHead h3 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.02em;
+      }
+
+      .mission.challenge {
+        background: linear-gradient(90deg, rgba(255, 210, 122, 0.07), var(--panel) 55%);
+      }
+
+      .mission.challenge .no {
+        color: #ffd27a;
+      }
+
+      .mission.challenge:not(.locked):hover {
+        border-color: #ffd27a;
+      }
+
       .mission .no {
         font: 600 18px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
         color: var(--muted);

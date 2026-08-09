@@ -7,7 +7,14 @@
  * four rockets are going somewhere, even if the target dies to the first.
  */
 
-import { applyDamage, disable, rangeTo, buildSpatialIndex, vetBonus } from './entities.js';
+import {
+  applyDamage,
+  disable,
+  rangeTo,
+  buildSpatialIndex,
+  vetBonus,
+  isCombatant,
+} from './entities.js';
 import { len, facingTo } from './numeric.js';
 
 /** Idle units engage what wanders into range but do not chase it. */
@@ -59,7 +66,11 @@ export function acquireTarget(world, e, index, radius) {
     // trees would have every unit in the game stop to demolish the landscape
     // on its way to the fight. A player-ordered attack still works, because
     // that path sets the target directly rather than going through here.
-    if (other.kind === 'prop') continue;
+    //
+    // Routed through `isCombatant` rather than testing for a prop, because
+    // everything owned by nobody has this problem: a gateway is neutral too,
+    // and an army that stopped to shoot the way out would never take it.
+    if (!isCombatant(other)) continue;
     if (!e.weapons.some((w) => weaponCanHit(w, other))) continue;
     // Under construction is still a valid target, but not a priority one.
     const dist = rangeTo(e, other);

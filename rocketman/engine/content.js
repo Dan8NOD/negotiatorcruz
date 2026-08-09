@@ -334,6 +334,44 @@ export const WEAPONS = {
     targets: ['ground', 'air'],
     spread: 0.05,
   },
+
+  /* ---- the Robot Marine's hardpoints ---------------------------------- */
+
+  /**
+   * The gate gun. Enormous single shells on a long cycle, which is what makes
+   * the Robot Marine a fight with a *rhythm*: you have two seconds between
+   * rounds to be somewhere else, and standing still through one is how the
+   * challenge ends early.
+   */
+  bastioncannon: {
+    id: 'bastioncannon',
+    name: 'Bastion Cannon',
+    damage: 78,
+    type: DAMAGE.EXPLOSIVE,
+    range: 8.5,
+    cooldown: secs(2.6),
+    projectile: 'shell',
+    speed: 20,
+    splash: { radius: 1.8, falloff: 0.55 },
+    targets: ['ground', 'air'],
+    spread: 0.07,
+  },
+  /**
+   * And the reason you cannot simply walk up to it. Short, fast and kinetic:
+   * the cannon punishes standing in the open, this punishes closing.
+   */
+  wardrepeater: {
+    id: 'wardrepeater',
+    name: 'Ward Repeater',
+    damage: 15,
+    type: DAMAGE.KINETIC,
+    range: 4.8,
+    cooldown: secs(0.28),
+    projectile: 'tracer',
+    speed: 36,
+    targets: ['ground', 'air'],
+    spread: 0.06,
+  },
 };
 
 /**
@@ -749,6 +787,52 @@ export const UNITS = {
     heroOnly: true,
     hint: 'Bulwark hardware, repainted badly. Disables what it cannot kill.',
   },
+
+  /* ---- the gate guard: placed by a challenge, never trained ----------- */
+
+  /**
+   * The Robot Marine.
+   *
+   * A door guard, and built like one. It does not raid, it does not expand
+   * and it never leaves the ground it is standing on — the whole machine is a
+   * single question: can this crew kill a thing with four thousand hull and a
+   * fourteen-hundred-point shield before it kills them?
+   *
+   * Deliberately not a bigger Anvil. An Anvil is beaten by trading; the Marine
+   * regenerates its shield fast enough that trading loses, so the answer is
+   * *focus* — everything on it at once, and use the two-second cannon cycle to
+   * be somewhere else in between. That is a different fight from anything in
+   * the campaign, which is why it is the thing standing between the player and
+   * a door rather than another wave of Ticks.
+   *
+   * Off both faction rosters and with no `builtAt`, so the AI's production
+   * options — and therefore the faction balance the suite pins — are untouched.
+   */
+  marine: {
+    id: 'marine',
+    name: 'Robot Marine',
+    faction: 'bulwark',
+    role: 'guardian',
+    cost: 3400,
+    buildTime: secs(45),
+    hp: 4200,
+    shield: 1400,
+    /** Fast enough that chip damage is wasted and only a focused push works. */
+    shieldRegen: 46,
+    armor: ARMOR.HEAVY,
+    /** Slow. It is not chasing anybody; it is standing in a doorway. */
+    speed: 1.9,
+    sight: 11,
+    layer: 'ground',
+    radius: 0.95,
+    hardpoints: ['bastioncannon', 'wardrepeater'],
+    ability: 'empburst',
+    tier: 3,
+    heroOnly: true,
+    /** Marks a machine a challenge places at a landmark. See gateways.js. */
+    guardian: true,
+    hint: 'Four storeys of door guard. Kill it and the door it is standing in front of opens.',
+  },
 };
 
 /**
@@ -1152,6 +1236,120 @@ export const PROPS = {
     low: true,
     hint: 'Waist-high. Blocks a walker, hides nothing from the air.',
   },
+
+  /* ---- landmarks: one to a map, and the reason the map exists ---------- */
+
+  /**
+   * The Bulwark headquarters, and the first of the two challenge landmarks.
+   *
+   * Ordinary scenery is something you fight *around*. A landmark is something
+   * you fight *for*, which is why this one is four times the hull of a tower
+   * block and sits on a footprint you can see from the minimap.
+   *
+   * What makes it a challenge rather than a big house is what is underneath
+   * it: the headquarters was built over the shaft, and knocking it down is
+   * the only way to uncover the entrance. The gateway that appears is mission
+   * data, not a property of this record — see `gateways.js` — so the same
+   * landmark can anchor a different secret on a different map.
+   */
+  headquarters: {
+    id: 'headquarters',
+    name: 'Bulwark Headquarters',
+    size: [4, 4],
+    hp: 6400,
+    armor: ARMOR.STRUCTURE,
+    height: 4.6,
+    storeys: 12,
+    shape: 'headquarters',
+    landmark: true,
+    hint: 'Eight years of occupation, administered from here. Built over something older.',
+  },
+
+  /**
+   * The castle, and the second landmark. Unlike the headquarters this one is
+   * **indestructible**, which is a deliberate exception to "the map is
+   * destructible" and worth stating plainly:
+   *
+   * The challenge is the door. A castle you can demolish makes the Robot
+   * Marine optional — walk round the back, put four rockets through the wall,
+   * and the guard you were supposed to beat is a thing you ignored. Every
+   * version of this that stayed destructible ended the same way, so the wall
+   * is the boundary of the puzzle and the gate is the answer to it.
+   *
+   * It still takes hits, still shows damage, still blocks line of sight and
+   * still claims its cells. It simply does not fall.
+   */
+  castle: {
+    id: 'castle',
+    name: 'The Bastion',
+    size: [6, 6],
+    hp: 12000,
+    armor: ARMOR.STRUCTURE,
+    height: 5.4,
+    storeys: 5,
+    shape: 'castle',
+    landmark: true,
+    indestructible: true,
+    /**
+     * Where the great door sits, as an offset from the footprint's top-left.
+     * The renderer draws the door here and the gateway opens here, so the two
+     * can never disagree about which wall the way in is.
+     */
+    door: [2, 6],
+    hint: 'Curtain wall, four towers, and one door that has not opened in eight years.',
+  },
+
+  /* ---- underworld scenery: the cavern and the keep --------------------- */
+
+  pillar: {
+    id: 'pillar',
+    name: 'Rock Pillar',
+    size: [2, 2],
+    hp: 1400,
+    armor: ARMOR.STRUCTURE,
+    height: 4.4,
+    shape: 'pillar',
+    hint: 'Floor to roof. Whatever is above is resting on these.',
+  },
+  crystal: {
+    id: 'crystal',
+    name: 'Firestone',
+    size: [1, 1],
+    hp: 240,
+    armor: ARMOR.LIGHT,
+    height: 2.1,
+    shape: 'crystal',
+    volatile: true,
+    /**
+     * The cavern's answer to the fuel station. Energy rather than explosive,
+     * because down here the hazard should read as *the place* rather than as
+     * a petrol station somebody buried.
+     */
+    deathExplosion: { radius: 4.0, damage: 260, type: DAMAGE.ENERGY },
+    hint: 'It glows because it is under pressure. Do not relieve the pressure.',
+  },
+  rubble: {
+    id: 'rubble',
+    name: 'Rockfall',
+    size: [2, 1],
+    hp: 380,
+    armor: ARMOR.STRUCTURE,
+    height: 0.7,
+    shape: 'rubble',
+    hint: 'The roof came down here once already.',
+  },
+  brazier: {
+    id: 'brazier',
+    name: 'Brazier',
+    size: [1, 1],
+    hp: 160,
+    armor: ARMOR.LIGHT,
+    height: 1.4,
+    shape: 'brazier',
+    volatile: true,
+    deathExplosion: { radius: 2.0, damage: 90, type: DAMAGE.EXPLOSIVE },
+    hint: 'Still lit. Somebody is still lighting them.',
+  },
 };
 
 /** Props are neutral: owned by nobody, hostile to nobody, in everybody's way. */
@@ -1267,6 +1465,138 @@ export const MIN_TERRAIN_COST = TERRAIN_INFO.reduce(
   (min, t) => (t.passable && t.cost < min ? t.cost : min),
   Infinity
 );
+
+/**
+ * Biomes — what a world is made of.
+ *
+ * The five terrain indices never change meaning: 0 is the floor you walk on,
+ * 1 is the slow floor, 2 is the wall you cannot pass, 3 is the hole you cannot
+ * cross, 4 is the fast lane. A biome only changes what those five *are* — the
+ * generator that arranges them, the scenery scattered over them, and the
+ * colours they are painted in.
+ *
+ * Doing it this way rather than adding terrain classes is what keeps the
+ * underworld free: pathfinding, vision, the Swift port and every saved replay
+ * read raw indices, and renumbering them out from under those would be a
+ * silent, map-wide corruption for one new colour of rock.
+ *
+ * `palette` is the *base* tone per terrain, before the renderer's noise and
+ * per-cell detail. The surface values are the literals the renderer used
+ * before biomes existed, so a surface map paints byte-for-byte as it did.
+ */
+export const BIOMES = {
+  surface: {
+    id: 'surface',
+    name: 'Surface',
+    generator: 'surface',
+    palette: {
+      ground: [40, 46, 53],
+      cliff: [24, 28, 33],
+      water: [16, 40, 58],
+      road: [44, 46, 50],
+      lit: 'rgba(160, 175, 190, 0.22)',
+      glint: 'rgba(140, 190, 220, 0.07)',
+      /** The centre line down a straight run of the fast ground. */
+      dash: 'rgba(214, 198, 120, 0.20)',
+      minimap: TERRAIN_INFO.map((t) => t.color),
+    },
+  },
+
+  /**
+   * Under the headquarters. Chambers cut out of solid rock, joined by
+   * tunnels, lit by whatever is growing in the walls — the map is the
+   * negative space rather than the obstacles, which is why it needs its own
+   * generator rather than a recoloured surface.
+   */
+  cavern: {
+    id: 'cavern',
+    name: 'The Undercroft',
+    generator: 'chambers',
+    /** Cut rock. Wide enough for a firing line, narrow enough to hold. */
+    corridor: 3,
+    chamberRadius: [5, 9],
+    /** Scenery, rolled per chamber. */
+    scenery: ['pillar', 'crystal', 'rubble'],
+    /** Chance a given scenery roll is the volatile one. */
+    hazard: 'crystal',
+    palette: {
+      // Cut rock reads as *cut* only if the floor is clearly lighter than the
+      // wall. The first pass sat both in the high thirties and the chambers
+      // dissolved into the rock at any zoom — down here the terrain is the
+      // whole map, so this contrast is load-bearing rather than decorative.
+      ground: [48, 42, 55],
+      cliff: [15, 12, 19],
+      water: [8, 7, 13],
+      road: [60, 52, 58],
+      lit: 'rgba(196, 130, 210, 0.20)',
+      glint: 'rgba(210, 140, 240, 0.10)',
+      dash: 'rgba(198, 146, 226, 0.11)',
+      minimap: ['#2a2530', '#342c38', '#12101a', '#0a0910', '#3b3338'],
+    },
+  },
+
+  /**
+   * Behind the castle door. The same chamber generator — a keep interior *is*
+   * rooms joined by corridors — with masonry for walls, flagstone for the
+   * fast ground, and a moat you still cannot cross.
+   */
+  keep: {
+    id: 'keep',
+    name: 'The Iron Keep',
+    generator: 'chambers',
+    corridor: 2,
+    chamberRadius: [4, 8],
+    scenery: ['statue', 'brazier', 'rubble'],
+    hazard: 'brazier',
+    palette: {
+      ground: [56, 51, 45],
+      cliff: [24, 22, 20],
+      water: [16, 30, 42],
+      road: [70, 63, 55],
+      lit: 'rgba(214, 186, 130, 0.24)',
+      glint: 'rgba(150, 195, 225, 0.08)',
+      dash: 'rgba(222, 196, 146, 0.13)',
+      minimap: ['#3a352f', '#443d35', '#1d1b19', '#122029', '#4a443b'],
+    },
+  },
+};
+
+export const DEFAULT_BIOME = 'surface';
+
+/** The biome record for a map, falling back to the surface for old saves. */
+export function biomeOf(map) {
+  return BIOMES[(map && map.biome) || DEFAULT_BIOME] || BIOMES[DEFAULT_BIOME];
+}
+
+/**
+ * Gateway kinds — the two ways off a map.
+ *
+ * A gateway is not scenery and not a structure: it is a *way out*, and the
+ * only thing the simulation does with one is notice that it opened and notice
+ * that somebody walked into it. Everything else about it — what unlocks it,
+ * where it goes — is mission data. See `engine/gateways.js`.
+ */
+export const GATEWAY_KINDS = {
+  /** A hole in the ground, uncovered by knocking down what was built on it. */
+  shaft: {
+    id: 'shaft',
+    name: 'Shaft',
+    verb: 'Descend',
+    /** How close a machine has to get to be counted as having gone in. */
+    radius: 1.7,
+    sealed: 'Something is buried here.',
+    opened: 'The floor has given way. There is a way down.',
+  },
+  /** A door in a wall, opened by killing what is standing in front of it. */
+  gate: {
+    id: 'gate',
+    name: 'Gate',
+    verb: 'Enter',
+    radius: 2.0,
+    sealed: 'Barred from the inside.',
+    opened: 'The great door is open.',
+  },
+};
 
 /** Starting economy, shared by both factions. */
 export const START = {

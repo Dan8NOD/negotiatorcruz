@@ -91,7 +91,20 @@ export function updateAI(world, player) {
   const buildings = playerEntities(world, player.id, 'building');
   const units = playerEntities(world, player.id, 'unit');
   const collectors = units.filter((u) => u.harvest);
-  const army = units.filter((u) => !u.harvest);
+  /**
+   * Collectors are not soldiers, and neither is a door guard.
+   *
+   * A guardian is placed at a landmark by a challenge and its whole job is to
+   * be standing there — swept into the army it would join the first push and
+   * the door it was guarding would be unguarded by minute two, which is the
+   * challenge deleting itself. It still auto-fires at anything that comes to
+   * it, which is the only behaviour it was ever meant to have.
+   *
+   * Keeping it out of `army` also keeps it out of the value threshold the
+   * push waits on, so a Robot Marine cannot convince the AI it has an army it
+   * is unable to move.
+   */
+  const army = units.filter((u) => !u.harvest && !u.def.guardian);
 
   commands.push(...economyCommands(world, player, buildings, collectors));
   commands.push(...constructionCommands(world, player, buildings));

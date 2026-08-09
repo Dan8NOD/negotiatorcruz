@@ -17,7 +17,13 @@ import {
   MAX_PILOT_LEVEL,
   PERK_LEVEL,
 } from '../engine/progression.js';
-import { missionUnlocked, canBuy, campaignComplete } from '../engine/profile.js';
+import {
+  missionUnlocked,
+  canBuy,
+  campaignComplete,
+  challengeUnlocked,
+  visibleChallenges,
+} from '../engine/profile.js';
 import { TICKS_PER_SECOND } from '../engine/content.js';
 
 const $ = (id) => document.getElementById(id);
@@ -64,32 +70,38 @@ export function renderCampaign(profile, handlers) {
     );
   }
 
-  const list = el('div', 'missionList');
+  const list = el('div', 'missionList storyList');
   for (const mission of MISSIONS) {
-    const unlocked = missionUnlocked(profile, mission);
-    const cleared = profile.completed.includes(mission.id);
-    const record = profile.records[mission.id];
-
-    const card = el('button', `mission${cleared ? ' cleared' : ''}${unlocked ? '' : ' locked'}`);
-    card.type = 'button';
-    card.disabled = !unlocked;
-    card.innerHTML = `
-      <span class="no">${String(mission.index).padStart(2, '0')}</span>
-      <span class="body">
-        <strong>${mission.name}</strong>
-        <em>${mission.subtitle}</em>
-        ${mission.teaches ? `<span class="teaches">${mission.teaches}</span>` : ''}
-        ${
-          record
-            ? `<span class="record">Best ${formatTime(record.ticks)} · ${record.killed} kills</span>`
-            : ''
-        }
-      </span>
-      <span class="badge">${cleared ? 'Cleared' : unlocked ? 'Available' : 'Locked'}</span>`;
-    if (unlocked) card.addEventListener('click', () => handlers.onBrief(mission));
-    list.appendChild(card);
+    list.appendChild(missionCard(mission, profile, missionUnlocked(profile, mission), handlers));
   }
   root.appendChild(list);
+
+  /* --- challenges ------------------------------------------------------
+   *
+   * A separate list under the story rather than seven-plus-four in one,
+   * because they are a different promise: the campaign is a sequence you
+   * finish and these are two locked doors and whatever is behind them. Hidden
+   * worlds only appear in it once somebody has been through the door — the
+   * screen should not be able to tell you the Undercroft exists before you
+   * have stood in the hole.
+   */
+  const challenges = visibleChallenges(profile);
+  if (challenges.length) {
+    const head = el('div', 'campaignHead challengeHead');
+    head.appendChild(el('h3', null, 'Challenges'));
+    head.appendChild(
+      el('p', 'hint', 'Landmarks with something behind them. Optional, and not easy.')
+    );
+    root.appendChild(head);
+
+    const bonus = el('div', 'missionList challengeList');
+    for (const mission of challenges) {
+      bonus.appendChild(
+        missionCard(mission, profile, challengeUnlocked(profile, mission), handlers)
+      );
+    }
+    root.appendChild(bonus);
+  }
 
   const actions = el('div', 'campaignActions');
   const hangar = el('button', 'ghost', 'Hangar');
@@ -112,6 +124,43 @@ export function renderCampaign(profile, handlers) {
   root.appendChild(actions);
 }
 
+/**
+ * One row in a mission list.
+ *
+ * Story missions and challenges share it deliberately: they are the same
+ * object with the same record, and giving the optional ones their own card
+ * design would say they are a different kind of thing to play.
+ */
+function missionCard(mission, profile, unlocked, handlers) {
+  const cleared = profile.completed.includes(mission.id);
+  const record = profile.records[mission.id];
+
+  const card = el(
+    'button',
+    `mission${cleared ? ' cleared' : ''}${unlocked ? '' : ' locked'}${
+      mission.challenge ? ' challenge' : ''
+    }`
+  );
+  card.type = 'button';
+  card.disabled = !unlocked;
+  card.dataset.mission = mission.id;
+  card.innerHTML = `
+      <span class="no">${mission.challenge ? '★' : String(mission.index).padStart(2, '0')}</span>
+      <span class="body">
+        <strong>${mission.name}</strong>
+        <em>${mission.subtitle}</em>
+        ${mission.teaches ? `<span class="teaches">${mission.teaches}</span>` : ''}
+        ${
+          record
+            ? `<span class="record">Best ${formatTime(record.ticks)} · ${record.killed} kills</span>`
+            : ''
+        }
+      </span>
+      <span class="badge">${cleared ? 'Cleared' : unlocked ? 'Available' : 'Locked'}</span>`;
+  if (unlocked) card.addEventListener('click', () => handlers.onBrief(mission));
+  return card;
+}
+
 /* -------------------------------------------------------------- briefing -- */
 
 export function renderBriefing(mission, profile, handlers) {
@@ -119,8 +168,13 @@ export function renderBriefing(mission, profile, handlers) {
   root.innerHTML = '';
 
   const card = el('div', 'brief');
+  // Challenges number themselves, so a briefing cannot say "Mission 01" over
+  // Ironhold while the campaign's own mission 01 is a different fight.
+  const label = mission.challenge
+    ? `Challenge ${String(mission.index).padStart(2, '0')}`
+    : `Mission ${String(mission.index).padStart(2, '0')}`;
   card.innerHTML = `
-    <span class="no">Mission ${String(mission.index).padStart(2, '0')}</span>
+    <span class="no">${label}</span>
     <h2>${mission.name}</h2>
     <em>${mission.subtitle}</em>
     <pre>${mission.briefing}</pre>`;
@@ -251,7 +305,24 @@ export function renderDebrief(mission, outcome, before, after, handlers) {
   }
 
   const actions = el('div', 'briefActions');
-  const cont = el('button', 'primary', outcome.won ? 'Continue' : 'Back to missions');
+
+  // The way on, when the crew took one. First and primary, because a player
+  // who has just walked into a shaft has already told you where they want to
+  // go — "Continue" back to a mission list is the wrong default for exactly
+  // one screen in the game, and this is it.
+  if (handlers.onward && handlers.onOnward) {
+    const onward = el('button', 'primary', handlers.onward.label);
+    onward.type = 'button';
+    onward.id = 'debriefOnward';
+    onward.addEventListener('click', handlers.onOnward);
+    actions.appendChild(onward);
+  }
+
+  const cont = el(
+    'button',
+    handlers.onward ? 'ghost' : 'primary',
+    outcome.won ? 'Continue' : 'Back to missions'
+  );
   cont.type = 'button';
   cont.id = 'debriefContinue';
   cont.addEventListener('click', handlers.onContinue);

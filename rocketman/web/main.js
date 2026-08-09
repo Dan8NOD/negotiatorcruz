@@ -28,9 +28,21 @@ import { techAllows, availableBuildings } from '../engine/economy.js';
 import { VETERANCY, SELL_REFUND } from '../engine/content.js';
 import { abilityReady, CHASSIS_SLOT, HERO_SLOT } from '../engine/abilities.js';
 import { superweaponReady } from '../engine/economy.js';
-import { missionWorldConfig, missionOutcome, MISSIONS } from '../engine/campaign.js';
+import {
+  missionWorldConfig,
+  missionOutcome,
+  missionById,
+  MISSIONS,
+} from '../engine/campaign.js';
+import { GATEWAY_KINDS } from '../engine/content.js';
 import { describeObjective, objectiveProgressText } from '../engine/objectives.js';
-import { recruitFor, applyMissionResult, buyUpgrade, nextMission } from '../engine/profile.js';
+import {
+  recruitFor,
+  applyMissionResult,
+  buyUpgrade,
+  nextMission,
+  challengeUnlocked,
+} from '../engine/profile.js';
 import {
   createRecorder,
   record,
@@ -265,7 +277,27 @@ function finishMission(world, mission) {
   profile = applyMissionResult(profile, mission, outcome);
   persist();
 
+  // A gateway that was walked into has somewhere on the other side of it, and
+  // the debrief is where the crew goes through. Resolved against the profile
+  // *after* the result is applied, because taking the shaft is what unlocked
+  // what the shaft leads to.
+  const destination = outcome.exit && outcome.exit.to ? missionById(outcome.exit.to) : null;
+  const onward =
+    destination && challengeUnlocked(profile, destination)
+      ? {
+          mission: destination,
+          label: `${GATEWAY_KINDS[outcome.exit.kind].verb} — ${destination.name}`,
+        }
+      : null;
+
   renderDebrief(mission, outcome, before, profile, {
+    onward,
+    onOnward: onward
+      ? () => {
+          endMatch();
+          openBriefing(onward.mission);
+        }
+      : null,
     onContinue: openCampaign,
     onRetry: (m) => {
       endMatch();
@@ -597,6 +629,17 @@ function startMatch(config, { mission, resume = null, watch = null }) {
         // roster bar; taking the seat stays their decision.
         toast(ev.message || `${ev.name || 'Reinforcements'} joined the fight`);
         renderer.centreOn(ev.x, ev.y);
+      } else if (ev.type === 'gatewayOpened') {
+        // The single biggest thing that happens in a challenge, and it happens
+        // wherever the landmark was rather than wherever the player is
+        // looking. Same treatment as an unannounced arrival: say it, and show
+        // it — a shaft that opens off-screen is a shaft nobody finds.
+        const gateway = world.gateways.find((g) => g.id === ev.gateway);
+        toast(gateway ? `${gateway.name} — the way is open` : 'The way is open');
+        renderer.centreOn(ev.x, ev.y);
+      } else if (ev.type === 'gatewayEntered') {
+        toast(`${ev.name || 'The crew'} — going in`);
+        renderer.centreOn(ev.x, ev.y);
       }
     }
 
@@ -686,6 +729,23 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       return null;
     })(),
     selection: [...input.selection],
+    /**
+     * Challenge state, so the browser suite can assert on the two things a
+     * screenshot cannot show: that the way opened when the landmark or the
+     * guard died, and that walking into it took the mission somewhere.
+     */
+    gateways: world.gateways.map((g) => ({
+      id: g.id,
+      kind: g.kind,
+      name: g.name || null,
+      open: g.open,
+      entered: g.entered,
+      to: g.to || null,
+      x: g.x,
+      y: g.y,
+    })),
+    exit: world.exit,
+    biome: world.map.biome,
     objectives: world.objectives.map((o) => ({
       key: o.key,
       text: describeObjective(o),

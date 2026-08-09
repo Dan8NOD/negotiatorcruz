@@ -11,7 +11,7 @@
  */
 
 import { PILOTS, UPGRADES, upgradeAvailable, levelForXp, MAX_PILOT_LEVEL } from './progression.js';
-import { MISSIONS } from './campaign.js';
+import { MISSIONS, CHALLENGES, ALL_MISSIONS } from './campaign.js';
 
 /** Bumped when the shape changes in a way `migrate` has to handle. */
 export const PROFILE_VERSION = 1;
@@ -33,6 +33,16 @@ export function createProfile() {
     pilots: {
       ash: newPilot('ash'),
     },
+    /**
+     * Gateway ids the crew has actually walked into.
+     *
+     * Kept separately from `completed` because they answer different
+     * questions: clearing Ironhold says the challenge is beaten, and finding
+     * the shaft says the campaign screen may now admit the Undercroft exists.
+     * A challenge cleared some other way — every objective met, the gateway
+     * never taken — should not spoil what is on the other side of it.
+     */
+    discovered: [],
     totals: { killed: 0, lost: 0, mined: 0, missions: 0 },
   };
 }
@@ -86,6 +96,40 @@ export function campaignComplete(profile) {
   return MISSIONS.every((m) => profile.completed.includes(m.id));
 }
 
+/* ----------------------------------------------------------- challenges -- */
+
+/**
+ * Is this challenge playable?
+ *
+ * Challenges gate on a named mission from either list rather than on position,
+ * because they are not a second sequence — Ironhold sits after the mission
+ * that teaches you what a reactor is worth, and the Undercroft sits behind a
+ * shaft somebody has to have gone down.
+ */
+export function challengeUnlocked(profile, mission) {
+  if (!mission.requires) return true;
+  if (!profile.completed.includes(mission.requires)) return false;
+  // A hidden world additionally needs its door to have been walked through.
+  // The gateway that leads here is the one whose `to` names it.
+  if (!mission.hidden) return true;
+  return (profile.discovered || []).includes(gatewayLeadingTo(mission.id));
+}
+
+/** The gateway id whose destination is this mission, or null. */
+export function gatewayLeadingTo(missionId) {
+  for (const m of ALL_MISSIONS) {
+    for (const g of m.gateways || []) {
+      if (g.to === missionId) return g.id;
+    }
+  }
+  return null;
+}
+
+/** Challenges worth showing: unlocked, or the next one still to unlock. */
+export function visibleChallenges(profile) {
+  return CHALLENGES.filter((m) => !m.hidden || challengeUnlocked(profile, m));
+}
+
 /* ------------------------------------------------------------- rewards -- */
 
 /**
@@ -108,8 +152,16 @@ export function applyMissionResult(profile, mission, outcome) {
     pilots: { ...profile.pilots },
     records: { ...profile.records },
     completed: [...profile.completed],
+    discovered: [...(profile.discovered || [])],
     totals: { ...profile.totals },
   };
+
+  // A gateway that was walked into is remembered whatever the mission then
+  // did. Taking the shaft *is* the discovery — nothing that happens after it
+  // can un-find the Undercroft.
+  if (outcome.exit && outcome.exit.gateway && !next.discovered.includes(outcome.exit.gateway)) {
+    next.discovered.push(outcome.exit.gateway);
+  }
 
   next.totals.killed += stats.killed || 0;
   next.totals.lost += stats.lost || 0;
@@ -192,12 +244,18 @@ export function deserialize(text) {
   if (!raw || typeof raw !== 'object') return createProfile();
 
   const fresh = createProfile();
-  const known = new Set(MISSIONS.map((m) => m.id));
+  const known = new Set(ALL_MISSIONS.map((m) => m.id));
+  const gateways = new Set(ALL_MISSIONS.flatMap((m) => (m.gateways || []).map((g) => g.id)));
 
   const profile = {
     version: PROFILE_VERSION,
     salvage: Number.isFinite(raw.salvage) ? Math.max(0, Math.floor(raw.salvage)) : 0,
     completed: Array.isArray(raw.completed) ? raw.completed.filter((id) => known.has(id)) : [],
+    // Same rule as upgrades: a gateway the game no longer has is dropped
+    // rather than carried, so removing content never bricks a save.
+    discovered: Array.isArray(raw.discovered)
+      ? [...new Set(raw.discovered.filter((id) => gateways.has(id)))]
+      : [],
     records: raw.records && typeof raw.records === 'object' ? { ...raw.records } : {},
     upgrades: Array.isArray(raw.upgrades)
       ? [...new Set(raw.upgrades.filter((id) => UPGRADES[id]))].sort()

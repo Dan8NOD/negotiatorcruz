@@ -96,6 +96,25 @@ const KINDS = {
     return { done: count >= o.count, progress: Math.min(count, o.count), total: o.count };
   },
 
+  /**
+   * Walk a machine into a gateway — the way off the map.
+   *
+   * Two steps, and the tracker counts both, because they are two different
+   * jobs: knock the headquarters down and the shaft is *there*, but a shaft
+   * nobody has walked into has not been taken. Reading the state off
+   * `world.gateways` rather than re-deriving it keeps one answer to "is the
+   * way open", shared by the objective, the HUD and the debrief.
+   */
+  enter(world, o) {
+    const gateway = (world.gateways || []).find((g) => g.id === o.gateway);
+    if (!gateway) return { done: false, progress: 0, total: 2 };
+    return {
+      done: gateway.entered,
+      progress: (gateway.open ? 1 : 0) + (gateway.entered ? 1 : 0),
+      total: 2,
+    };
+  },
+
   /** Get any unit within radius of a point. */
   reach(world, o) {
     const arrived = playerEntities(world, o.player ?? 0, 'unit').some(
@@ -211,6 +230,8 @@ export function describeObjective(o) {
       return `Build ${o.count} ${o.defId}`;
     case 'field':
       return `Field ${o.count} ${o.defId}`;
+    case 'enter':
+      return 'Find the way through and take it';
     case 'reach':
       return 'Reach the marker';
     case 'protect':

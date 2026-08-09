@@ -222,7 +222,10 @@ function separation(world, e, index) {
   const neighbours = index.query(e.x, e.y, 1.6);
 
   for (const other of neighbours) {
-    if (other === e || other.dead || other.kind === 'building') continue;
+    // Structures are pathed around rather than shoved off, and a gateway is
+    // somewhere to *stand* — pushing machines out of the doorway would make
+    // walking into one impossible, which is the whole of the mechanic.
+    if (other === e || other.dead || other.kind === 'building' || other.kind === 'gateway') continue;
     if (other.layer !== e.layer) continue;
     const dx = e.x - other.x;
     const dy = e.y - other.y;
