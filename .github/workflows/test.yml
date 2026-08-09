@@ -61,8 +61,10 @@ jobs:
       - name: Timer tab drop-in is current
         run: |
           npm run mixmatch:timer
-          git diff --exit-code --stat mixmatch/web/timer-tab.inline.html \
-            || { echo "::error::The Timer tab changed. Commit the regenerated drop-in."; exit 1; }
+          git diff --exit-code --stat \
+            mixmatch/web/timer-tab.inline.html \
+            mixmatch/ios/MixMatch.swiftpm/Resources/index.html \
+            || { echo "::error::The Timer tab changed. Commit the regenerated drop-in and app page."; exit 1; }
 
   e2e:
     name: End-to-end

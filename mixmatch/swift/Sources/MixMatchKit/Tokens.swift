@@ -99,9 +99,34 @@ public struct Meter: Sendable {
     }
 }
 
+/// A way money arrives, and what it costs to arrive that way.
+///
+/// The iPad is the one client that can sell the same SKU through two different
+/// rails, so it is the one place a wrong net figure shows up as a real
+/// reporting error rather than a typo in a spreadsheet.
+public struct Rail: Sendable {
+    public let id: String
+    /// Percentage cut, in basis points. Apple is 1500 (15%, Small Business
+    /// Program, under $1M of proceeds a year — a yearly enrollment that can
+    /// lapse, at which point this becomes 3000). Stripe is 290.
+    public let feeBps: Int
+    /// Per-transaction flat fee. Stripe charges 30c; Apple charges none, which
+    /// is why the two rails are nearly level at subscription size and are not
+    /// at pack size.
+    public let fixedCents: Int
+
+    public init(id: String, feeBps: Int, fixedCents: Int) {
+        self.id = id
+        self.feeBps = feeBps
+        self.fixedCents = fixedCents
+    }
+}
+
 public enum TokenError: Error, Equatable, Sendable {
     case negativeTokens(Int)
     case unknownMeter(String)
+    case unknownGrant(String)
+    case unknownRail(String)
     case meterNotChargeable(id: String, status: MeterStatus)
 }
 
@@ -172,6 +197,39 @@ public enum Tokens {
     /// Meters a user can actually be charged for right now.
     public static var liveMeters: [Meter] {
         meters.values.filter { $0.status == .live }.sorted { $0.id < $1.id }
+    }
+
+    // MARK: - rails
+
+    public static let rails: [String: Rail] = [
+        "stripe": Rail(id: "stripe", feeBps: 290, fixedCents: 30),
+        "apple_iap": Rail(id: "apple_iap", feeBps: 1500, fixedCents: 0),
+    ]
+
+    /// What lands in the bank from one sale, in cents, rounded **down**.
+    ///
+    /// Optimistic rounding on a fee estimate is how a margin quietly goes
+    /// negative, so this floors and the integer arithmetic below never
+    /// intermediates through a Double.
+    public static func netCents(ofGrant grantID: String, on railID: String) throws -> Int {
+        guard let grant = grants[grantID] else { throw TokenError.unknownGrant(grantID) }
+        guard let rail = rails[railID] else { throw TokenError.unknownRail(railID) }
+        // floor(price - (price * bps / 10000 + fixed)) with integers only:
+        // the percentage part is ceiled so the fee is never understated.
+        let percentFee = (grant.priceCents * rail.feeBps + 9_999) / 10_000
+        return grant.priceCents - percentFee - rail.fixedCents
+    }
+
+    /// What one token of a grant nets on a rail, in micros of real money.
+    ///
+    /// Compare against a meter's `worstCaseCostMicros`: if a token nets less
+    /// than the cheapest thing it buys costs to serve, the pack loses money on
+    /// that rail no matter how many people buy it.
+    public static func netMicrosPerToken(ofGrant grantID: String, on railID: String) throws -> Int {
+        guard let grant = grants[grantID] else { throw TokenError.unknownGrant(grantID) }
+        let count = grant.tokens
+        guard count > 0 else { return 0 }
+        return try netCents(ofGrant: grantID, on: railID) * 10_000 / count
     }
 
     // MARK: - display

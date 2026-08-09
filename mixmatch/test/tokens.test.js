@@ -18,6 +18,7 @@ import {
   TOKEN_MICROS, GRANTS, METERS,
   tokensToMicros, microsToTokens, grantTokens, formatTokens,
   meterCostMicros, meterMargin, liveMeters,
+  RAILS, netCents, netMicrosPerToken,
 } from '../config/tokens.js';
 
 // ── the unit ────────────────────────────────────────────────────────────────
@@ -87,6 +88,78 @@ test('subscribing is better per-token value than topping up', () => {
 
 test('unknown grants throw', () => {
   assert.throws(() => grantTokens('pack_99'), TypeError);
+});
+
+// ── rails ───────────────────────────────────────────────────────────────────
+
+test('Apple takes 15%, not 30%', () => {
+  // The Small Business Program rate, which applies under $1M of proceeds a
+  // year. Enrollment is yearly and can lapse. If it does, this becomes 3000
+  // and every net figure below moves -- which is the point of asserting it
+  // rather than leaving it as an assumption in someone's head.
+  assert.equal(RAILS.apple_iap.feeBps, 1500);
+  assert.equal(RAILS.apple_iap.fixedCents, 0, 'Apple takes no per-transaction fixed fee');
+  assert.equal(RAILS.stripe.feeBps, 290);
+  assert.equal(RAILS.stripe.fixedCents, 30);
+});
+
+test('what each rail nets, to the cent', () => {
+  assert.equal(netCents('pack_15', 'stripe'), 1426);
+  assert.equal(netCents('pack_15', 'apple_iap'), 1275);
+  assert.equal(netCents('subscription_monthly', 'stripe'), 455);
+  assert.equal(netCents('subscription_monthly', 'apple_iap'), 425);
+});
+
+test('rounding a fee estimate never rounds in our favour', () => {
+  // Optimistic rounding on a fee is how a margin quietly goes negative. Every
+  // net must be at or below the exact arithmetic, never above it.
+  for (const grantId of Object.keys(GRANTS)) {
+    for (const rail of Object.values(RAILS)) {
+      const exact =
+        GRANTS[grantId].priceCents -
+        ((GRANTS[grantId].priceCents * rail.feeBps) / 10_000 + rail.fixedCents);
+      assert.ok(
+        netCents(grantId, rail.id) <= exact,
+        `${grantId} on ${rail.id} reports more than it earns`
+      );
+    }
+  }
+});
+
+test('Apple costs the pack real money and the subscription almost nothing', () => {
+  // Worth knowing before deciding which rail to push people toward: Stripe's
+  // 30c fixed fee is most of the fee on a $5 charge, so at subscription size
+  // the two rails are within pennies. On the $15 pack they are not.
+  const packGap = netCents('pack_15', 'stripe') - netCents('pack_15', 'apple_iap');
+  const subGap =
+    netCents('subscription_monthly', 'stripe') - netCents('subscription_monthly', 'apple_iap');
+  assert.equal(packGap, 151, 'the $15 pack gives up $1.51 on Apple');
+  assert.equal(subGap, 30, 'the $5/mo gives up 30c on Apple');
+  assert.ok(subGap < packGap, 'the subscription is the rail-agnostic one');
+});
+
+test('a token still earns more than the cheapest thing it buys costs', () => {
+  // The check that actually matters. If a token nets less than serving one
+  // token's worth of the priciest live meter costs, the pack loses money on
+  // that rail no matter how many people buy it -- and Apple's cut is the case
+  // where that would happen first.
+  const worstPerToken = Math.max(
+    ...liveMeters().map((m) => m.worstCaseCostMicros / m.tokens)
+  );
+  for (const grantId of Object.keys(GRANTS)) {
+    for (const railId of Object.keys(RAILS)) {
+      const net = netMicrosPerToken(grantId, railId);
+      assert.ok(
+        net > worstPerToken,
+        `${grantId} on ${railId} nets ${net} micros/token against ${worstPerToken} of cost`
+      );
+    }
+  }
+});
+
+test('unknown rails throw', () => {
+  assert.throws(() => netCents('pack_15', 'google_play'), TypeError);
+  assert.throws(() => netMicrosPerToken('pack_15', 'paypal'), TypeError);
 });
 
 // ── meters ──────────────────────────────────────────────────────────────────

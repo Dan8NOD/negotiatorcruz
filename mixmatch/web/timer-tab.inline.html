@@ -105,9 +105,15 @@
 .mmt-field{position:relative;margin:14px 0 0;border-radius:12px;overflow:hidden;
   background:#1B1712;border:1px solid rgba(38,30,20,.25)}
 .mmt-field canvas{display:block;width:100%;height:auto;touch-action:none}
+/* Blocks enter at the top edge, which is exactly where the score sits. Without
+   a scrim a red block slides under the HUD and neither is readable. */
+.mmt-field::before{content:'';position:absolute;inset:0 0 auto 0;height:42px;
+  background:linear-gradient(180deg,rgba(27,23,18,.92) 0%,rgba(27,23,18,0) 100%);
+  pointer-events:none;z-index:1}
 .mmt-hud{position:absolute;inset:8px 10px auto 10px;display:flex;justify-content:space-between;
   font-size:13px;font-weight:800;color:#F6EFE2;text-shadow:0 1px 3px rgba(0,0,0,.7);
-  pointer-events:none;font-variant-numeric:tabular-nums}
+  pointer-events:none;font-variant-numeric:tabular-nums;z-index:2}
+.mmt-over{z-index:3}
 .mmt-over{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;
   justify-content:center;gap:8px;text-align:center;padding:16px;
   background:rgba(27,23,18,.88);color:#F6EFE2}

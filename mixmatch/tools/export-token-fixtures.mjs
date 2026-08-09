@@ -23,8 +23,8 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-  TOKEN_MICROS, GRANTS, METERS,
-  tokensToMicros, microsToTokens, grantTokens,
+  TOKEN_MICROS, GRANTS, METERS, RAILS,
+  tokensToMicros, microsToTokens, grantTokens, netCents, netMicrosPerToken,
 } from '../config/tokens.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -65,6 +65,23 @@ const fixture = {
 
   flooring: [0, 1, TOKEN_MICROS - 1, TOKEN_MICROS, TOKEN_MICROS * 3 - 1, 3_000_000]
     .map((micros) => ({ micros, tokens: microsToTokens(micros) })),
+
+  rails: sorted(RAILS, (r) => ({
+    id: r.id,
+    feeBps: r.feeBps,
+    fixedCents: r.fixedCents,
+  })),
+
+  /* Every grant on every rail. The iPad is the one client that can sell the
+     same SKU through two different rails, so it is the one place a wrong net
+     figure would show up as a real reporting error rather than a typo. */
+  netByRail: Object.keys(GRANTS).sort().flatMap((grantId) =>
+    Object.keys(RAILS).sort().map((railId) => ({
+      grantId,
+      railId,
+      netCents: netCents(grantId, railId),
+      netMicrosPerToken: netMicrosPerToken(grantId, railId),
+    }))),
 };
 
 mkdirSync(outDir, { recursive: true });

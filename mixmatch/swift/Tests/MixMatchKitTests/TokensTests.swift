@@ -24,6 +24,21 @@ struct TokenFixture: Decodable {
     let meters: [FixtureMeter]
     let conversions: [FixtureConversion]
     let flooring: [FixtureFlooring]
+    let rails: [FixtureRail]
+    let netByRail: [FixtureNet]
+}
+
+struct FixtureRail: Decodable {
+    let id: String
+    let feeBps: Int
+    let fixedCents: Int
+}
+
+struct FixtureNet: Decodable {
+    let grantId: String
+    let railId: String
+    let netCents: Int
+    let netMicrosPerToken: Int
 }
 
 struct FixtureGrant: Decodable {
@@ -202,6 +217,71 @@ final class TokenCatalogTests: XCTestCase {
         // output ceiling moves, its own CI check moves that number and this
         // one has to follow.
         XCTAssertGreaterThanOrEqual(Tokens.meters["coach_request"]!.micros, 34_500)
+    }
+
+    func testRailsMatchJavaScript() throws {
+        let fixture = try loadTokenFixture()
+        XCTAssertEqual(Tokens.rails.count, fixture.rails.count)
+        for expected in fixture.rails {
+            guard let actual = Tokens.rails[expected.id] else {
+                XCTFail("Swift is missing rail \(expected.id)")
+                continue
+            }
+            XCTAssertEqual(actual.feeBps, expected.feeBps, "\(expected.id) percentage cut")
+            XCTAssertEqual(actual.fixedCents, expected.fixedCents, "\(expected.id) flat fee")
+        }
+    }
+
+    /// The arithmetic, not just the inputs. Swift floors integer division and
+    /// JavaScript floors a float; those agree here, but only because the Swift
+    /// side ceils the percentage fee first. This is the test that would catch
+    /// it if someone "simplified" that.
+    func testNetPerRailMatchesJavaScriptToTheCent() throws {
+        for expected in try loadTokenFixture().netByRail {
+            XCTAssertEqual(
+                try Tokens.netCents(ofGrant: expected.grantId, on: expected.railId),
+                expected.netCents,
+                "\(expected.grantId) on \(expected.railId)")
+            XCTAssertEqual(
+                try Tokens.netMicrosPerToken(ofGrant: expected.grantId, on: expected.railId),
+                expected.netMicrosPerToken,
+                "\(expected.grantId) per token on \(expected.railId)")
+        }
+    }
+
+    func testAppleTakesFifteenPercentNotThirty() {
+        // Small Business Program, under $1M of proceeds a year. Enrollment is
+        // yearly and can lapse; if it does this becomes 3000 and every net
+        // figure moves.
+        XCTAssertEqual(Tokens.rails["apple_iap"]?.feeBps, 1500)
+        XCTAssertEqual(Tokens.rails["apple_iap"]?.fixedCents, 0)
+    }
+
+    /// The check that actually matters once an iPad build exists: if a token
+    /// nets less than serving one token's worth of the priciest live meter
+    /// costs, the pack loses money on that rail however many people buy it.
+    /// Apple's cut is where that would bite first.
+    func testATokenEarnsMoreThanTheCheapestThingItBuysCosts() throws {
+        let worstPerToken = Tokens.liveMeters
+            .map { Double($0.worstCaseCostMicros) / Double($0.tokens) }
+            .max() ?? 0
+        for grantID in Tokens.grants.keys {
+            for railID in Tokens.rails.keys {
+                let net = try Tokens.netMicrosPerToken(ofGrant: grantID, on: railID)
+                XCTAssertGreaterThan(
+                    Double(net), worstPerToken,
+                    "\(grantID) on \(railID) nets \(net) micros/token against \(worstPerToken) of cost")
+            }
+        }
+    }
+
+    func testUnknownGrantsAndRailsThrow() {
+        XCTAssertThrowsError(try Tokens.netCents(ofGrant: "pack_99", on: "stripe")) { error in
+            XCTAssertEqual(error as? TokenError, .unknownGrant("pack_99"))
+        }
+        XCTAssertThrowsError(try Tokens.netCents(ofGrant: "pack_15", on: "google_play")) { error in
+            XCTAssertEqual(error as? TokenError, .unknownRail("google_play"))
+        }
     }
 
     func testSubscribingBeatsToppingUpPerToken() throws {
