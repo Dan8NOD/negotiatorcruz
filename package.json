@@ -7,6 +7,7 @@
     "test": "node --test \"test/**/*.test.js\" \"practice-lab/test/**/*.test.js\" \"mixmatch/test/**/*.test.js\"",
     "test:watch": "node --test --watch \"test/**/*.test.js\" \"practice-lab/test/**/*.test.js\" \"mixmatch/test/**/*.test.js\"",
     "test:coverage": "node --test --experimental-test-coverage \"test/**/*.test.js\" \"practice-lab/test/**/*.test.js\" \"mixmatch/test/**/*.test.js\"",
+    "test:tankshooter": "node --test \"mixmatch/games/tank-shooter/test/**/*.test.js\"",
     "test:e2e": "playwright test",
     "test:all": "npm test && npm run test:e2e",
     "test:rocketman": "node --test \"rocketman/test/**/*.test.js\"",
@@ -15,6 +16,9 @@
     "rocketman:fixtures": "node rocketman/tools/export-fixtures.mjs",
     "test:rocketman:swift": "swift test --package-path rocketman/swift",
     "rocketman:build": "node rocketman/tools/build-single-file.mjs",
+    "rocketman:audio": "node rocketman/tools/audio-pack.mjs",
+    "rocketman:audio:check": "node rocketman/tools/audio-pack.mjs --check",
+    "rocketman:audio:sheet": "node rocketman/tools/audio-cue-sheet.mjs",
     "rocketman:android": "cd rocketman/android && ./gradlew assembleDebug",
     "rocketman:android:release": "cd rocketman/android && ./gradlew assembleRelease",
     "rocketman:store-assets": "node rocketman/android/tools/store-assets.mjs"

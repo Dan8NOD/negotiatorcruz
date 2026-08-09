@@ -1,5 +1,5 @@
 /**
- * Sound — synthesised, spatial, and entirely outside the simulation.
+ * Sound — spatial, layered, and entirely outside the simulation.
  *
  * The engine already narrates everything that happens as events (`fire`,
  * `impact`, `shieldBreak`, `promoted`, …) for the renderer's sake; this module
@@ -7,10 +7,20 @@
  * state and the simulation never waits for it, so it sits on the presentation
  * side of the determinism wall along with the sparks.
  *
- * Everything is synthesised with WebAudio primitives — oscillators, filtered
- * noise, envelopes, formant filters — rather than samples. Zero asset files,
- * zero network fetches, and a coherent palette: this game looks like vectors,
- * it may as well sound like an oscilloscope.
+ * There are two layers, and the order between them is the whole design.
+ *
+ * The **synthesised palette** below is the floor. Oscillators, filtered noise,
+ * envelopes, formant filters — zero asset files, zero network fetches, and a
+ * coherent palette that ships inside the single-file build and works on a
+ * plane. Every sound in the game exists here first.
+ *
+ * **Recorded takes** are the ceiling, and they are strictly optional. When an
+ * audio pack has been built and deployed, `samples.js` plays a real recording
+ * for any cue that has one and `play()` below falls through to the oscillator
+ * for every cue that does not. That makes a half-finished recording session a
+ * perfectly playable game rather than a game with holes in it, and it means
+ * the pack can be deployed one family of sounds at a time. See
+ * `audio-cues.js` for the catalogue and `audio/README.md` for the pipeline.
  *
  * Browsers refuse audio before a user gesture, so the context is created lazily
  * on the first pointer/key event and every path in here survives having no
@@ -27,6 +37,9 @@
  * interface as an argument, which is what lets them be data out here while the
  * AudioContext stays private in there.
  */
+
+import { createSampleBank } from './samples.js';
+import { createMusic, stateFromEvents } from './music.js';
 
 /* ============================================================== the palette */
 
@@ -363,18 +376,40 @@ export const ABILITY_VOICES = {
 };
 
 /**
+ * What kind of thing came apart, as a cue name.
+ *
+ * A mech, a structure and a lamp post are three different collapses and the
+ * synthesised `deathVoice` already treats them as three. This is the same
+ * split written as data, so the recorded layer can honour it and so the pack
+ * tool knows there are three recordings to make rather than one.
+ *
+ * @type {Record<string, string>}
+ */
+export const DEATH_CUES = {
+  mech: 'world.deathMech',
+  building: 'world.deathBuilding',
+  prop: 'world.deathProp',
+};
+
+/**
  * Order acknowledgements, as formant pairs.
  *
  * Command & Conquer answered every order with a voice line, and half of why
  * those games feel responsive is that the acknowledgement arrives before the
- * unit has moved a pixel. There are no voice samples here and there is not
- * going to be a `.wav` in this repository, so the acknowledgement is
- * synthesised the way a vocal tract makes one: a buzzing source at the pitch
- * of a voice, run through two resonant band-passes sitting where a human's
- * first and second formants sit for that vowel.
+ * unit has moved a pixel. So the acknowledgement is synthesised the way a
+ * vocal tract makes one: a buzzing source at the pitch of a voice, run through
+ * two resonant band-passes sitting where a human's first and second formants
+ * sit for that vowel.
  *
  * It does not say a word and it is not trying to. It answers, in a voice, on
- * a radio — which is the whole job.
+ * a radio — which is the whole job, and it is the job it keeps doing on the
+ * day nobody has recorded a pilot yet.
+ *
+ * The `ack.*` cues in `audio-cues.js` are where recorded lines go when someone
+ * does record them, and the two layers coexist rather than compete: a session
+ * that captures "moving out" and "engaging" but not "holding" gets recorded
+ * voices for two orders and a formant answer for the third, which is a mixed
+ * crew rather than a broken one.
  *
  * F1/F2 in Hz, then a relative pitch multiplier for the syllable.
  */
@@ -477,6 +512,16 @@ export const UNMISSABLE_EVENTS = new Set([
 
 /** Beyond this many pixels outside the viewport, a world sound is not heard. */
 export const EARSHOT = 900;
+
+/**
+ * The place an interface sound happens: nowhere, at full volume.
+ *
+ * A click has no position on the map and `place()` is never asked about one.
+ * Naming the constant rather than writing `{ pan: 0, vol: 1 }` at each call
+ * site is what makes "interface sound, therefore centred and undimmed" a
+ * statement in the code rather than a coincidence between four literals.
+ */
+export const CENTRE = { pan: 0, vol: 1 };
 
 /**
  * Where on the stereo field and how loud, given where the camera is — or
@@ -719,13 +764,33 @@ const VOLUME_KEY = 'rocketman.volume.v1';
  */
 const MAX_VOICES = 28;
 
-export function createSound() {
+/**
+ * Where the audio pack is served from, relative to the page.
+ *
+ * A directory rather than a bundled import, because the pack is tens of
+ * megabytes of recordings that must stay out of the JavaScript bundle, out of
+ * git, and cacheable independently of the code. `tools/audio-pack.mjs` writes
+ * it; `audio/README.md` explains how it gets deployed.
+ *
+ * `../audio/` and not `./audio/`, because this resolves against the *page* —
+ * `web/rocketman.html` — and the pack is a sibling of `web/` rather than a
+ * child of it. Recordings are not source and do not belong in the source
+ * directory. The Android asset tree mirrors the same shape (`game/web/` and
+ * `game/audio/`) so that one path works everywhere.
+ */
+const AUDIO_BASE = '../audio/';
+
+export function createSound({ audioBase = AUDIO_BASE } = {}) {
   let ctx = null;
   let master = null;
   let worldBus = null;
   let uiBus = null;
   let muted = readStored(MUTE_KEY) === '1';
   let volume = clampVolume(parseFloat(readStored(VOLUME_KEY)));
+
+  /** The recorded layer and the score. Null until there is a context. */
+  let samples = null;
+  let music = null;
 
   /** Scheduled end times, in context seconds, of everything currently alive. */
   let voices = [];
@@ -806,9 +871,24 @@ export function createSound() {
       uiBus.connect(master);
 
       synth = createSynth(ctx, { world: worldBus, ui: uiBus, reserve });
+
+      // The recorded layer, and the score. Both attach to the mix that already
+      // exists rather than building one of their own, so a take goes through
+      // the same limiter and the same voice ceiling as an oscillator does.
+      samples = createSampleBank(ctx, { world: worldBus, ui: uiBus, reserve, base: audioBase });
+      music = createMusic(ctx, { destination: master, base: audioBase });
+
+      // Deliberately not awaited. The game is already running and already
+      // making noise; the pack lands cue by cue underneath it.
+      samples
+        .load()
+        .then(() => samples.manifest && music.adopt(samples.manifest))
+        .catch(() => {});
     } catch {
       ctx = null;
       synth = null;
+      samples = null;
+      music = null;
     }
   }
 
@@ -856,6 +936,28 @@ export function createSound() {
   const chime = (base, steps, pan, bus) => synth && synth.chime(base, steps, pan, bus);
   const vox = (opts) => synth && synth.vox(opts);
 
+  /**
+   * Make one sound: the recording if there is one, the oscillators if not.
+   *
+   * Every noise the game makes goes through here, which is what keeps the two
+   * layers from drifting. A cue name without a fallback would be a sound that
+   * exists only once someone has recorded it — that is a content hole hiding
+   * behind an asset pipeline, so `fallback` is required and the suite checks
+   * that every call site passes one.
+   *
+   * The recording wins when it exists. That is the point of recording it, and
+   * anything cleverer — layering the synth under the take, crossfading between
+   * them by distance — was tried and sounds like two guns.
+   *
+   * @param {string} cue name from `audio-cues.js`
+   * @param {Place} at
+   * @param {() => void} fallback the synthesised recipe
+   */
+  function play(cue, at, fallback) {
+    if (samples && samples.play(cue, at)) return;
+    fallback();
+  }
+
   /* ----------------------------------------------------------- mapping -- */
 
   function allow(type, now) {
@@ -895,119 +997,149 @@ export function createSound() {
         case 'fire': {
           if (!allow('fire', now)) break;
           const voice = WEAPON_VOICES[ev.weapon] || PROJECTILE_VOICES.tracer;
-          voice(synth, at);
+          play(`weapon.${ev.weapon}`, at, () => voice(synth, at));
           break;
         }
         case 'impact': {
           if (!allow('impact', now)) break;
           const voice = IMPACT_VOICES[ev.damageType] || IMPACT_VOICES.kinetic;
-          voice(synth, at);
+          play(`impact.${ev.damageType}`, at, () => voice(synth, at));
           break;
         }
         case 'explosion': {
           if (!allow('explosion', now)) break;
           const big = !!ev.big;
-          noise({ dur: big ? 0.7 : 0.3, freq: big ? 500 : 900, gain: (big ? 1.0 : 0.55) * vol, pan });
-          tone({ freq: big ? 90 : 130, to: 40, type: 'sine', dur: big ? 0.5 : 0.25, gain: 0.8 * vol, pan });
+          // A depot going up pulls the score down under it for a moment. The
+          // blast is not louder for it; everything else is quieter, which is
+          // the only way to make a mix feel bigger than its ceiling.
+          if (big && music) music.duck();
+          play(big ? 'world.explosionBig' : 'world.explosion', at, () => {
+            noise({ dur: big ? 0.7 : 0.3, freq: big ? 500 : 900, gain: (big ? 1.0 : 0.55) * vol, pan });
+            tone({ freq: big ? 90 : 130, to: 40, type: 'sine', dur: big ? 0.5 : 0.25, gain: 0.8 * vol, pan });
+          });
           break;
         }
         case 'death': {
           if (!allow('death', now)) break;
-          deathVoice(ev, at);
+          play(DEATH_CUES[ev.kind] || DEATH_CUES.mech, at, () => deathVoice(ev, at));
           break;
         }
         case 'shieldBreak':
           if (!allow('shieldBreak', now)) break;
-          tone({ freq: 2200, to: 300, type: 'sawtooth', dur: 0.18, gain: 0.4 * vol, pan });
-          noise({ dur: 0.2, freq: 2400, filter: 'bandpass', q: 4, gain: 0.22 * vol, pan });
+          play('world.shieldBreak', at, () => {
+            tone({ freq: 2200, to: 300, type: 'sawtooth', dur: 0.18, gain: 0.4 * vol, pan });
+            noise({ dur: 0.2, freq: 2400, filter: 'bandpass', q: 4, gain: 0.22 * vol, pan });
+          });
           break;
         case 'emp':
         case 'empBurst':
           if (!allow('emp', now)) break;
-          tone({ freq: 60, to: 55, type: 'sine', dur: 0.5, gain: 0.9 * vol, pan });
-          tone({ freq: 1800, to: 100, type: 'sawtooth', dur: 0.4, gain: 0.25 * vol, pan });
+          play('world.emp', at, () => {
+            tone({ freq: 60, to: 55, type: 'sine', dur: 0.5, gain: 0.9 * vol, pan });
+            tone({ freq: 1800, to: 100, type: 'sawtooth', dur: 0.4, gain: 0.25 * vol, pan });
+          });
           break;
         case 'ability': {
           const voice = ABILITY_VOICES[ev.ability];
-          if (voice) voice(synth, at);
+          if (voice) play(`ability.${ev.ability}`, at, () => voice(synth, at));
           break;
         }
         case 'deploy':
           // Anchors down, or anchors up. Two clunks, second one lower.
-          noise({ dur: 0.09, freq: 900, gain: 0.5 * vol, pan });
-          tone({
-            freq: ev.deployed ? 190 : 260,
-            to: ev.deployed ? 80 : 150,
-            type: 'square',
-            dur: 0.14,
-            gain: 0.45 * vol,
-            pan,
-            delay: 0.07,
+          play(ev.deployed ? 'world.deployDown' : 'world.deployUp', at, () => {
+            noise({ dur: 0.09, freq: 900, gain: 0.5 * vol, pan });
+            tone({
+              freq: ev.deployed ? 190 : 260,
+              to: ev.deployed ? 80 : 150,
+              type: 'square',
+              dur: 0.14,
+              gain: 0.45 * vol,
+              pan,
+              delay: 0.07,
+            });
+            noise({ dur: 0.12, freq: 500, gain: 0.4 * vol, pan, delay: 0.07 });
           });
-          noise({ dur: 0.12, freq: 500, gain: 0.4 * vol, pan, delay: 0.07 });
           break;
         case 'leapStart':
           if (!allow('leapStart', now)) break;
-          noise({ dur: 0.25, freq: 600, gain: 0.3 * vol, pan, drop: false });
-          tone({ freq: 140, to: 420, type: 'sawtooth', dur: 0.22, gain: 0.14 * vol, pan });
+          play('world.leapStart', at, () => {
+            noise({ dur: 0.25, freq: 600, gain: 0.3 * vol, pan, drop: false });
+            tone({ freq: 140, to: 420, type: 'sawtooth', dur: 0.22, gain: 0.14 * vol, pan });
+          });
           break;
         case 'leapEnd':
           // The landing. Without it a jump has a take-off and no arrival, and
           // the mech reads as having teleported.
           if (!allow('leapEnd', now)) break;
-          noise({ dur: 0.16, freq: 420, gain: 0.5 * vol, pan });
-          tone({ freq: 90, to: 42, type: 'sine', dur: 0.18, gain: 0.5 * vol, pan });
+          play('world.leapEnd', at, () => {
+            noise({ dur: 0.16, freq: 420, gain: 0.5 * vol, pan });
+            tone({ freq: 90, to: 42, type: 'sine', dur: 0.18, gain: 0.5 * vol, pan });
+          });
           break;
         case 'deposit':
           if (!mine(ev.id)) break;
           if (!allow('deposit', now)) break;
-          tone({ freq: 1050, type: 'triangle', dur: 0.05, gain: 0.4, pan, bus: uiBus });
-          tone({ freq: 1550, type: 'triangle', dur: 0.06, gain: 0.4, pan, delay: 0.06, bus: uiBus });
+          play('ui.deposit', at, () => {
+            tone({ freq: 1050, type: 'triangle', dur: 0.05, gain: 0.4, pan, bus: uiBus });
+            tone({ freq: 1550, type: 'triangle', dur: 0.06, gain: 0.4, pan, delay: 0.06, bus: uiBus });
+          });
           break;
         case 'promoted':
-          if (mine(ev.id)) chime(500, 3, pan);
+          if (mine(ev.id)) play('ui.promoted', at, () => chime(500, 3, pan));
           break;
         case 'placed':
-          if (ev.player === viewerId) noise({ dur: 0.15, freq: 300, gain: 0.5, pan, bus: uiBus, drop: false });
+          if (ev.player === viewerId) {
+            play('ui.placed', at, () =>
+              noise({ dur: 0.15, freq: 300, gain: 0.5, pan, bus: uiBus, drop: false })
+            );
+          }
           break;
         case 'built':
           // Construction finished. `placed` was the foundation going down;
           // this is the thing standing up, and they are different moments.
           if (ev.player !== viewerId) break;
           if (!allow('built', now)) break;
-          tone({ freq: 280, to: 300, type: 'triangle', dur: 0.12, gain: 0.45, pan, bus: uiBus });
-          tone({ freq: 420, to: 450, type: 'triangle', dur: 0.16, gain: 0.45, pan, delay: 0.1, bus: uiBus });
-          noise({ dur: 0.1, freq: 400, gain: 0.3, pan, bus: uiBus });
+          play('ui.built', at, () => {
+            tone({ freq: 280, to: 300, type: 'triangle', dur: 0.12, gain: 0.45, pan, bus: uiBus });
+            tone({ freq: 420, to: 450, type: 'triangle', dur: 0.16, gain: 0.45, pan, delay: 0.1, bus: uiBus });
+            noise({ dur: 0.1, freq: 400, gain: 0.3, pan, bus: uiBus });
+          });
           break;
         case 'produced':
           if (ev.player === viewerId) {
-            tone({ freq: 350, to: 520, type: 'triangle', dur: 0.1, gain: 0.5, pan, bus: uiBus });
+            play('ui.produced', at, () =>
+              tone({ freq: 350, to: 520, type: 'triangle', dur: 0.1, gain: 0.5, pan, bus: uiBus })
+            );
           }
           break;
         case 'sold':
-          if (ev.player === viewerId) chime(700, 2, pan);
+          if (ev.player === viewerId) play('ui.sold', at, () => chime(700, 2, pan));
           break;
         case 'repairStalled':
           // Out of scrap mid-repair. A warning, and it should sound like one.
           if (ev.player !== viewerId) break;
-          tone({ freq: 320, to: 300, type: 'square', dur: 0.14, gain: 0.3, pan: 0, bus: uiBus });
-          tone({ freq: 240, to: 220, type: 'square', dur: 0.2, gain: 0.3, pan: 0, delay: 0.16, bus: uiBus });
+          play('ui.repairStalled', at, () => {
+            tone({ freq: 320, to: 300, type: 'square', dur: 0.14, gain: 0.3, pan: 0, bus: uiBus });
+            tone({ freq: 240, to: 220, type: 'square', dur: 0.2, gain: 0.3, pan: 0, delay: 0.16, bus: uiBus });
+          });
           break;
         case 'reinforcement':
           // A pilot the crew had written off walks out of the fog. This is the
           // biggest thing that happens in a mission and it gets a fanfare.
           if (ev.player !== viewerId) break;
-          for (const [i, mult] of [1, 1.5, 2].entries()) {
-            tone({
-              freq: 262 * mult,
-              type: 'triangle',
-              dur: 0.5,
-              gain: 0.5,
-              pan: 0,
-              delay: i * 0.13,
-              bus: uiBus,
-            });
-          }
+          play('ui.reinforcement', at, () => {
+            for (const [i, mult] of [1, 1.5, 2].entries()) {
+              tone({
+                freq: 262 * mult,
+                type: 'triangle',
+                dur: 0.5,
+                gain: 0.5,
+                pan: 0,
+                delay: i * 0.13,
+                bus: uiBus,
+              });
+            }
+          });
           break;
         /**
          * A way off the map opening.
@@ -1037,41 +1169,65 @@ export function createSound() {
           tone({ freq: 150, to: 450, type: 'triangle', dur: 0.9, gain: 0.4, pan: 0, bus: uiBus });
           break;
         case 'objectiveComplete':
-          if (ev.optional) chime(660, 2, 0);
-          else chime(523, 3, 0);
+          if (ev.optional) play('ui.objectiveBonus', at, () => chime(660, 2, 0));
+          else play('ui.objectiveComplete', at, () => chime(523, 3, 0));
           break;
         case 'objectiveFailed':
-          tone({ freq: 330, to: 160, type: 'sawtooth', dur: 0.5, gain: 0.45, pan: 0, bus: uiBus });
-          tone({ freq: 220, to: 110, type: 'sawtooth', dur: 0.6, gain: 0.35, pan: 0, delay: 0.1, bus: uiBus });
+          play('ui.objectiveFailed', at, () => {
+            tone({ freq: 330, to: 160, type: 'sawtooth', dur: 0.5, gain: 0.45, pan: 0, bus: uiBus });
+            tone({ freq: 220, to: 110, type: 'sawtooth', dur: 0.6, gain: 0.35, pan: 0, delay: 0.1, bus: uiBus });
+          });
           break;
         case 'superweaponReady':
-          if (ev.player === viewerId) chime(400, 4, 0);
+          if (ev.player === viewerId) play('ui.superweaponReady', at, () => chime(400, 4, 0));
           break;
         case 'superweaponFired':
           // Everyone hears a Lance fire, wherever the camera is. That is the
           // telegraph doing its job.
-          tone({ freq: 200, to: 1400, type: 'sawtooth', dur: 1.0, gain: 0.5, pan: 0 });
+          play('world.superweaponFired', at, () =>
+            tone({ freq: 200, to: 1400, type: 'sawtooth', dur: 1.0, gain: 0.5, pan: 0 })
+          );
           break;
         case 'superweapon':
-          noise({ dur: 1.1, freq: 400, gain: 1.2 * (vol || 1), pan });
-          tone({ freq: 70, to: 35, type: 'sine', dur: 0.9, gain: 1.0, pan });
+          if (music) music.duck(0.7, 2.4);
+          play('world.superweaponImpact', at, () => {
+            noise({ dur: 1.1, freq: 400, gain: 1.2 * (vol || 1), pan });
+            tone({ freq: 70, to: 35, type: 'sine', dur: 0.9, gain: 1.0, pan });
+          });
           break;
         case 'missionEnd':
           if (ended) break;
           ended = true;
-          if (ev.result === 'won') chime(440, 5, 0);
-          else tone({ freq: 220, to: 90, type: 'sawtooth', dur: 1.2, gain: 0.6, pan: 0, bus: uiBus });
+          endSting(ev.result === 'won', at);
           break;
         case 'gameOver':
           if (ended) break;
           ended = true;
-          if (ev.winner === viewerId) chime(440, 5, 0);
-          else tone({ freq: 220, to: 90, type: 'sawtooth', dur: 1.2, gain: 0.6, pan: 0, bus: uiBus });
+          endSting(ev.winner === viewerId, at);
           break;
         default:
           break;
       }
     }
+
+    // The score reads the same event stream, one step behind: what just
+    // happened decides what should be playing, and `music.update` refuses to
+    // act on a single frame of it. See `music.js` for why that matters.
+    if (music) music.update(stateFromEvents(events, viewerId));
+  }
+
+  /**
+   * Won or lost, played once.
+   *
+   * Split out because two different events reach it — a campaign mission that
+   * ends by objective and an annihilation in the same tick — and the sting has
+   * to be identical either way or the same moment sounds like two moments.
+   */
+  function endSting(won, at) {
+    play(won ? 'ui.victory' : 'ui.defeat', at, () => {
+      if (won) chime(440, 5, 0);
+      else tone({ freq: 220, to: 90, type: 'sawtooth', dur: 1.2, gain: 0.6, pan: 0, bus: uiBus });
+    });
   }
 
   /**
@@ -1122,11 +1278,15 @@ export function createSound() {
     const spec = ACK_VOICES[kind];
     if (!spec) return;
     if (!allow('ack', performance.now())) return;
-    vox({
-      syllables: spec.syllables,
-      f0: 104 + (Math.abs(seed) % 6) * 9,
-      gain: spec.gain === undefined ? 0.7 : spec.gain,
-    });
+    // Recorded lines carry their own crew variety — that is what the takes
+    // are for — so the pitch scatter only applies to the formant fallback.
+    play(`ack.${kind}`, CENTRE, () =>
+      vox({
+        syllables: spec.syllables,
+        f0: 104 + (Math.abs(seed) % 6) * 9,
+        gain: spec.gain === undefined ? 0.7 : spec.gain,
+      })
+    );
   }
 
   /**
@@ -1147,9 +1307,13 @@ export function createSound() {
   function click(ok = true) {
     if (muted || !ctx || ctx.state !== 'running') return;
     if (ok) {
-      tone({ freq: 900, to: 1200, type: 'triangle', dur: 0.03, gain: 0.35, bus: uiBus });
+      play('ui.click', CENTRE, () =>
+        tone({ freq: 900, to: 1200, type: 'triangle', dur: 0.03, gain: 0.35, bus: uiBus })
+      );
     } else {
-      tone({ freq: 200, to: 140, type: 'square', dur: 0.12, gain: 0.4, bus: uiBus });
+      play('ui.deny', CENTRE, () =>
+        tone({ freq: 200, to: 140, type: 'square', dur: 0.12, gain: 0.4, bus: uiBus })
+      );
     }
   }
 
@@ -1157,6 +1321,12 @@ export function createSound() {
     muted = !muted;
     writeStored(MUTE_KEY, muted ? '1' : '0');
     if (!muted) unlock();
+    // Mute used to be nothing but an early return in the event handlers, which
+    // was complete when every sound was a one-shot fired from one of them. The
+    // score is neither: it is already playing when the button is pressed, and
+    // no amount of refusing *new* sounds stops a bed that is mid-loop. So the
+    // switch now reaches the master gain as well.
+    if (master) master.gain.value = muted ? 0 : MASTER_VOLUME * volume;
     return muted;
   }
 
@@ -1164,7 +1334,7 @@ export function createSound() {
   function setVolume(v) {
     volume = clampVolume(v);
     writeStored(VOLUME_KEY, String(volume));
-    if (master) master.gain.value = MASTER_VOLUME * volume;
+    if (master && !muted) master.gain.value = MASTER_VOLUME * volume;
     return volume;
   }
 
@@ -1184,7 +1354,22 @@ export function createSound() {
       scheduled,
       dropped,
       live: ctx ? voices.filter((t) => t > ctx.currentTime).length : 0,
+      // How much of the mix is coming from recordings rather than from
+      // oscillators. `samples.cues` at zero with a deployed pack is the
+      // failure this number exists to catch: the game sounds fine, because
+      // the synth covers for it, and nothing else would ever say so.
+      samples: samples ? samples.stats() : null,
+      music: music ? music.stats() : null,
     };
+  }
+
+  /**
+   * Put the score somewhere directly — menus and end screens, which are not
+   * in the event stream because they are not in the simulation.
+   */
+  function setMusicState(state) {
+    ensureContext();
+    if (music) music.go(state);
   }
 
   return {
@@ -1195,8 +1380,14 @@ export function createSound() {
     stats,
     toggleMute,
     setVolume,
+    setMusicState,
+    setMusicVolume: (v) => (music ? music.setVolume(v) : v),
+    stopMusic: () => music && music.stop(),
     get volume() {
       return volume;
+    },
+    get musicVolume() {
+      return music ? music.volume : null;
     },
     get muted() {
       return muted;

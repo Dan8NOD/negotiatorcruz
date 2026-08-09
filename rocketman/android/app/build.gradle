@@ -1,5 +1,11 @@
 import javax.inject.Inject
 
+// Explicit, because Groovy default-imports java.util.* and Gradle
+// default-imports org.gradle.api.tasks.* — so a bare `@Optional` is ambiguous
+// between an annotation and a container class, and which one wins is not a
+// thing to leave to import ordering.
+import org.gradle.api.tasks.Optional
+
 plugins {
   id 'com.android.application'
 }
@@ -42,6 +48,20 @@ abstract class SyncGameAssets extends DefaultTask {
   @PathSensitive(PathSensitivity.RELATIVE)
   abstract DirectoryProperty getWebDir()
 
+  /*
+   * The recorded audio pack, and `optional` is the whole point of it.
+   *
+   * A checkout has no pack — `audio/raw/` and `audio/out/` are git-ignored, and
+   * a machine that has never run the pack tool has neither. The game is
+   * designed to be complete without one, so an APK built on that machine must
+   * build and ship rather than fail on a missing directory. See
+   * rocketman/audio/README.md.
+   */
+  @InputDirectory
+  @Optional
+  @PathSensitive(PathSensitivity.RELATIVE)
+  abstract DirectoryProperty getAudioDir()
+
   @OutputDirectory
   abstract DirectoryProperty getOutputDir()
 
@@ -52,6 +72,7 @@ abstract class SyncGameAssets extends DefaultTask {
   void sync() {
     def engine = engineDir.get().asFile
     def web = webDir.get().asFile
+    def audio = audioDir.isPresent() ? audioDir.get().asFile : null
 
     // sync, not copy: a file deleted upstairs must disappear from the APK too.
     // A stale asset tree is worse than a slow build, because it ships a version
@@ -67,14 +88,31 @@ abstract class SyncGameAssets extends DefaultTask {
         s.include('**/*.js')
         s.include('**/*.html')
       }
+      if (audio != null) {
+        // A sibling of game/web, mirroring the repository, because the page
+        // fetches '../audio/' relative to itself and the asset server has no
+        // rewrite rules — the URL the game asks for is the path in the APK.
+        spec.from(audio) { s ->
+          s.into('game/audio')
+          s.include('manifest.json')
+          s.include('out/**')
+        }
+      }
     }
   }
 }
 
+def gameAudioDir = rootProject.file('../audio')
+
 def syncGameAssets = tasks.register('syncGameAssets', SyncGameAssets) {
-  description = 'Copies the Rocketman engine and web front end into the APK assets.'
+  description = 'Copies the Rocketman engine, web front end and audio pack into the APK assets.'
   engineDir.set(rootProject.file('../engine'))
   webDir.set(rootProject.file('../web'))
+  // Only when a pack has actually been built. Without this the APK is the
+  // synthesised palette, which is a complete game and always has been.
+  if (new File(gameAudioDir, 'manifest.json').exists()) {
+    audioDir.set(gameAudioDir)
+  }
 }
 
 android {

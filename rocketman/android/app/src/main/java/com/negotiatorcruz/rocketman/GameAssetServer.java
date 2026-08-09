@@ -70,6 +70,17 @@ final class GameAssetServer {
     MIME_TYPES.put("jpeg", "image/jpeg");
     MIME_TYPES.put("webp", "image/webp");
     MIME_TYPES.put("woff2", "font/woff2");
+    // The audio pack. `decodeAudioData` works off the bytes and does not
+    // consult the Content-Type, so these are not load-bearing the way the
+    // JavaScript line above is — but a WebView handed application/octet-stream
+    // for a media file logs a warning per take, and a boot that prints two
+    // hundred warnings is a boot nobody reads the log of.
+    MIME_TYPES.put("webm", "audio/webm");
+    MIME_TYPES.put("m4a", "audio/mp4");
+    MIME_TYPES.put("mp3", "audio/mpeg");
+    MIME_TYPES.put("ogg", "audio/ogg");
+    MIME_TYPES.put("opus", "audio/ogg");
+    MIME_TYPES.put("wav", "audio/wav");
   }
 
   private final AssetManager assets;

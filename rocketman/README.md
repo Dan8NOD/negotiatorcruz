@@ -512,10 +512,26 @@ not a wall.
 
 ## Sound
 
-Every noise in the game is synthesised from oscillators and filtered noise at
-the moment it is needed. There are no sample files, there is no audio
-directory, and there is not going to be one: the game is drawn from vectors and
-stats, and it sounds the way it looks.
+Two layers, and the order between them is the design.
+
+Every noise in the game is **synthesised** from oscillators and filtered noise
+at the moment it is needed. That is the floor: no asset files, no network, it
+ships inside the single-file build, and the whole game is playable and complete
+with nothing else present.
+
+**Recorded audio** sits in front of it, and is strictly optional. When an audio
+pack has been built, any cue with a real recording plays the recording and
+every cue without one plays its oscillator. So a half-finished recording
+session is a game that sounds recorded where it is recorded and synthesised
+where it is not — never a game with holes in it, and never a game that has to
+wait for audio to load before it will make a noise.
+
+That is the property worth protecting, and the suite protects it: every
+`play()` call site must hand over a synthesised fallback, and a cue that no
+code plays or a weapon that no cue covers both fail the tests.
+
+See **[audio/README.md](./audio/README.md)** for the pipeline and
+**[audio/CUE-SHEET.md](./audio/CUE-SHEET.md)** for the cue list.
 
 `web/sound.js` is a second listener on the `world.events` stream the renderer
 already consumes. It reads world state and never writes it, which puts it on
