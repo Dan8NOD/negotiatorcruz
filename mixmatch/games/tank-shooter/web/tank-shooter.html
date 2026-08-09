@@ -6,6 +6,28 @@
     <title>NOD Tank Shooter</title>
     <meta name="description" content="A small robot arena shooter. One token a round." />
     <meta name="theme-color" content="#0b0f14" />
+    <!--
+      Added to the Home Screen on an iPhone, these two drop Safari's chrome and
+      let the game keep the whole display. Without them the URL bar and the
+      toolbar stay, which on a landscape phone is most of the arena.
+
+      `black-translucent` puts the status bar over the page rather than above
+      it, which is only safe because the body already pads by
+      env(safe-area-inset-*) — the clock sits over padding, not over the HUD.
+    -->
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Tank Shooter" />
+    <!--
+      Inline so the page still fetches nothing. Without an icon the browser asks
+      for /favicon.ico on every boot and logs a 404 when the host has none —
+      the same reasoning that put an empty manifest.json in the audio pack
+      rather than leaving the file absent.
+    -->
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%230b0f14'/%3E%3Crect x='29' y='7' width='6' height='24' rx='2' fill='%238ef2e8'/%3E%3Ccircle cx='32' cy='36' r='14' fill='%234fd1c5'/%3E%3Ccircle cx='32' cy='36' r='6' fill='%230b0f14'/%3E%3C/svg%3E"
+    />
     <style>
       /*
        * Self-contained on purpose: no fonts, no stylesheets, no images. The
@@ -26,6 +48,15 @@
       html, body {
         margin: 0;
         height: 100%;
+        /*
+         * `dvh` is the one that survives an iPhone. Safari's URL bar and
+         * toolbar shrink and grow as you play, and `100%`/`100vh` both resolve
+         * against the *largest* viewport — so the bottom of the arena, which is
+         * where the right thumb lives, sits under the toolbar. `dvh` tracks the
+         * viewport that is actually visible. Declared second so a browser
+         * without it keeps the `100%` above.
+         */
+        height: 100dvh;
         background: var(--bg);
         color: var(--text);
         font: 15px/1.5 system-ui, -apple-system, Segoe UI, Roboto, sans-serif;
@@ -37,6 +68,24 @@
         justify-content: center;
         /* Notch-safe on a phone held sideways, which is how this is played. */
         padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+        /*
+         * iOS Safari ignores `overscroll-behavior` on the document, so a thumb
+         * dragged past the edge of a stick rubber-bands the whole page and the
+         * arena slides out from under the player. Pinning the body is the only
+         * thing that actually holds it still.
+         */
+        position: fixed;
+        inset: 0;
+        overflow: hidden;
+        /*
+         * A stick is a thumb held down in one place, which is exactly the
+         * gesture iOS reads as "select this" or "show me a callout". Both
+         * interrupt the round with system UI over the arena.
+         */
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
       }
       [hidden] { display: none !important; }
 
@@ -175,6 +224,51 @@
       .results span:first-child { color: var(--dim); }
       .big { font-size: 46px; font-weight: 700; color: var(--accent); font-variant-numeric: tabular-nums; }
       .seedline { color: var(--dim); font-size: 12px; margin-top: 16px; }
+
+      /* ---------------------------------------------------------- rotate -- */
+      /*
+       * The camera fits the whole arena with min(w/arena, h/arena), so a phone
+       * held upright does not crop the game — it shrinks it, to something like
+       * a third of the screen with two thumbs parked over the rest. Asking for
+       * the rotation is better than rendering a stamp and calling it playable.
+       *
+       * Gated on `pointer: coarse` so a narrow desktop window never sees it:
+       * a mouse can play this at any aspect ratio, and the sticks are the only
+       * reason the shape matters.
+       */
+      #rotate { display: none; }
+      @media (orientation: portrait) and (pointer: coarse) {
+        #rotate {
+          display: flex;
+          position: fixed;
+          inset: 0;
+          z-index: 10;
+          background: var(--bg);
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 18px;
+          padding: 24px;
+          text-align: center;
+        }
+        #rotate .phone {
+          width: 46px;
+          height: 76px;
+          border: 2px solid var(--accent);
+          border-radius: 9px;
+          animation: tip 1.8s ease-in-out infinite;
+        }
+        #rotate p { margin: 0; color: var(--dim); max-width: 260px; }
+        #rotate strong { color: var(--text); display: block; margin-bottom: 6px; font-size: 17px; }
+      }
+      @keyframes tip {
+        0%, 40% { transform: rotate(0deg); }
+        60%, 100% { transform: rotate(-90deg); }
+      }
+      /* A player who has asked not to see motion gets the message, not the tip. */
+      @media (prefers-reduced-motion: reduce) {
+        #rotate .phone { animation: none; transform: rotate(-90deg); }
+      }
     </style>
   </head>
   <body>
@@ -246,6 +340,13 @@
         <p class="seedline">Seed <span id="finalSeed">0</span> — same seed, same arena and same waves.</p>
       </div>
     </section>
+
+    <!-- =========================================================== rotate -->
+    <!-- CSS decides whether this is visible; it is inert everywhere else. -->
+    <div id="rotate">
+      <div class="phone"></div>
+      <p><strong>Turn your phone sideways</strong>The arena is wider than it is tall, and so are your thumbs.</p>
+    </div>
 
     <script type="module" src="./main.js"></script>
   </body>

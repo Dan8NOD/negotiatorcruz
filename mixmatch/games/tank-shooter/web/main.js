@@ -189,6 +189,23 @@ function seedForRun() {
   return (Date.now() ^ (Math.random() * 0xffffffff)) >>> 0;
 }
 
+/**
+ * Keep the canvas fitted to whatever the viewport just became.
+ *
+ * `orientationchange` is the awkward one: iOS fires it while the rotation is
+ * still animating and reports the dimensions it is leaving, so a resize handled
+ * on the event alone fits the arena to the *old* orientation and leaves it
+ * there until something else happens to trigger a second one. Re-fitting on the
+ * next frame and again once it has settled costs two canvas resizes per
+ * rotation, which nobody can measure, and is the difference between a game that
+ * fills a rotated phone and one that occupies a third of it.
+ */
+function fitToViewport() {
+  renderer.resize();
+  requestAnimationFrame(() => renderer.resize());
+  setTimeout(() => renderer.resize(), 300);
+}
+
 function boot() {
   $('start').addEventListener('click', () => startRun(seedForRun()));
   $('again').addEventListener('click', () => startRun(seedForRun()));
@@ -199,8 +216,38 @@ function boot() {
     startRun(seed);
   });
   window.addEventListener('resize', () => renderer.resize());
+  window.addEventListener('orientationchange', fitToViewport);
+  // Fires when Safari's toolbars slide away mid-round, which `resize` does not
+  // reliably report on iOS.
+  window.visualViewport?.addEventListener('resize', () => renderer.resize());
 
-  renderer.resize();
+  /*
+   * Safari on iOS ignores `user-scalable=no` — deliberately, so that a badly
+   * built page can still be zoomed into. That is the right default for a page
+   * and the wrong one for this: a twin-stick game is *two thumbs on the glass
+   * at once*, which is precisely the shape of a pinch, so playing normally
+   * zooms the arena away and there is no gesture to undo it with.
+   *
+   * `touch-action: none` covers the canvas. These cover the rest of the
+   * document, and they are Safari-only events that no other browser fires.
+   */
+  for (const type of ['gesturestart', 'gesturechange', 'gestureend']) {
+    document.addEventListener(type, (e) => e.preventDefault());
+  }
+  // Two taps in quick succession on the HUD or a button is still a zoom on
+  // older iOS, where `touch-action: manipulation` is not honoured.
+  let lastTouchEnd = 0;
+  document.addEventListener(
+    'touchend',
+    (e) => {
+      const now = Date.now();
+      if (now - lastTouchEnd < 300) e.preventDefault();
+      lastTouchEnd = now;
+    },
+    { passive: false },
+  );
+
+  fitToViewport();
   show('title');
 
   /**

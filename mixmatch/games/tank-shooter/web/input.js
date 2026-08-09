@@ -69,8 +69,17 @@ export function createInput(canvas, renderer) {
     if (e.pointerType === 'touch') {
       touchUsed = true;
       sticks.set(e.pointerId, { originX: x, originY: y, x, y, left: x < rect.width / 2 });
-      canvas.setPointerCapture(e.pointerId);
+      // Before the capture, not after. `setPointerCapture` throws if the
+      // pointer is already gone — a fast tap, a pointer iOS cancelled out from
+      // under us — and an exception here used to skip the preventDefault,
+      // which is the call that stops the page scrolling under the player. The
+      // capture is an optimisation; not scrolling is the requirement.
       e.preventDefault();
+      try {
+        canvas.setPointerCapture(e.pointerId);
+      } catch {
+        // Nothing to do: the stick still tracks through the window listeners.
+      }
       return;
     }
     pointer.down = true;
@@ -101,7 +110,12 @@ export function createInput(canvas, renderer) {
    * anything a second call would see differently.
    */
   function read(world) {
-    if (sticks.size) return readTouch(world);
+    // Once a thumb has landed this is a touch device and it stays one, even
+    // between touches. Switching back to the desktop reader whenever both
+    // thumbs lift would aim at `pointer`, which on a phone no mouse has ever
+    // moved is still {0, 0} — so the turret whips to the top-left corner of
+    // the arena every time the player stops steering, which is constantly.
+    if (touchUsed) return readTouch(world);
     return readDesktop(world);
   }
 
@@ -129,6 +143,11 @@ export function createInput(canvas, renderer) {
   const FULL_THROW = 62;
 
   function readTouch(world) {
+    // With no thumbs down this returns "stopped, not shooting, still facing
+    // where you left it" — `state.aim` is deliberately not cleared. A tank that
+    // holds its facing between touches is one the player can let go of to look
+    // at the screen; one that recentres is one that has to be re-aimed after
+    // every dodge.
     state.moveX = 0;
     state.moveY = 0;
     state.fire = false;
