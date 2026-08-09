@@ -1101,7 +1101,19 @@ export function createRenderer(canvas, world, viewerId) {
   function drawArches() {
     const arches = world.map.arches;
     if (!arches || arches.length === 0) return;
-    for (const a of arches) drawArch(a);
+    for (const a of arches) {
+      // Explored-gated like every prop. Without this a 790ft arch is visible in
+      // territory nobody has scouted, which both leaks map information and
+      // looks wrong beside the props around it, which do hide.
+      //
+      // Either footing is enough: the span is a single object, and revealing
+      // one foot but not the other would draw half an arch.
+      const [lw, lh] = a.legSize;
+      const seen =
+        isExplored(world, viewerId, a.left.x + lw / 2, a.left.y + lh / 2) ||
+        isExplored(world, viewerId, a.right.x + lw / 2, a.right.y + lh / 2);
+      if (seen) drawArch(a);
+    }
   }
 
   function drawArch(a) {
