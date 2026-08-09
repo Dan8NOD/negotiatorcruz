@@ -14,6 +14,7 @@ import { TERRAIN, TERRAIN_INFO, PROPS, MIN_TERRAIN_COST } from './content.js';
 import { createRng } from './rng.js';
 import { len, ringOffset } from './numeric.js';
 import { HILL, STRUCTURES, ROAD_POINTS, ROAD_APPROACH, ROAD_LANES } from './estate.js';
+import { ARCH_SPAN, ARCH_HEIGHT, LEG_SIZE } from './arch.js';
 
 /* ------------------------------------------------------------------ map -- */
 
@@ -34,13 +35,13 @@ export const DEFAULT_MAP_SIZE = 144;
  * @param {object} [options]
  * @param {number} [options.width]
  * @param {number} [options.height]
- * @param {boolean} [options.estate]
- *   Whether to build the castle on the hill. On for skirmish, off for campaign
- *   missions — see `planEstate` for why.
+ * @param {boolean} [options.landmarks]
+ *   Whether to build the Hillcrest estate and the Arch. On for skirmish, off
+ *   for campaign missions — see `planEstate` for why.
  */
 export function createMap(
   seed,
-  { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP_SIZE, estate: wantEstate = true } = {}
+  { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP_SIZE, landmarks = true } = {}
 ) {
   const rng = createRng(seed ^ 0x9e3779b9);
   const map = {
@@ -73,6 +74,17 @@ export function createMap(
      * second approach and undoing the reason the rims are there.
      */
     sealed: new Uint8Array(width * height),
+    /**
+     * Arches, as placement data for the renderer.
+     *
+     * Deliberately *not* entities and deliberately claiming no cells. The two
+     * footings are ordinary props and block movement; everything between them
+     * is 240 metres up, so the ground beneath is walkable and an army marches
+     * under it. Nothing in the simulation reads this — an arch has no hitbox at
+     * head height, so giving it one would be modelling the drawing rather than
+     * the thing.
+     */
+    arches: [],
   };
 
   carveTerrain(map, rng);
@@ -102,7 +114,8 @@ export function createMap(
   // below can be told to keep off it. Nothing is stamped yet — `planEstate`
   // reads the map's size and nothing else, which is what makes it safe to ask
   // before the terrain is finished.
-  const estate = wantEstate ? planEstate(map) : null;
+  const estate = landmarks ? planEstate(map) : null;
+  const arch = landmarks ? planArch(map) : null;
 
   // Expansion fields, so a doubled map has something worth crossing it for.
   // Scaled by area: on the old 72×72 this adds none and the map is exactly
@@ -116,6 +129,9 @@ export function createMap(
     // hill refuses to bury one — it also blocks the castle from placing at all.
     // That failed silently on roughly one seed in six before this guard.
     if (estate && nearAny(estateCentres(map, estate), fx, fy, estateFieldClear())) continue;
+    // Same trap, smaller target: a field under either footing refuses the whole
+    // arch, because all four legs are placed or none are.
+    if (arch && nearAny(estateCentres(map, arch), fx, fy, ARCH_SPAN)) continue;
     addFieldPair(map, fx, fy, 4 + rng.int(2), 1400 + rng.int(700), rng);
   }
 
@@ -136,8 +152,9 @@ export function createMap(
   // rather than rolled, so it wins the ground it needs and the rolled anchors
   // work around it.
   if (estate) addEstate(map, estate.x, estate.y);
+  if (arch) addArch(map, arch.x, arch.y);
 
-  const districts = planDistricts(map, rng, estate);
+  const districts = planDistricts(map, rng, estate, arch);
   for (const d of districts) buildDistrict(map, d, rng);
 
   // Join the estate's approach to the road network *after* the districts are
@@ -415,6 +432,97 @@ function sealMirrored(map, x, y) {
   map.sealed[(height - 1 - y) * width + (width - 1 - x)] = 1;
 }
 
+/* ------------------------------------------------------------------ arch -- */
+
+/**
+ * The Arch: 30 cells to the crown, 30 foot to foot — 240m each way, or about
+ * 790ft, which makes it the tallest thing in the game by a factor of two.
+ *
+ * It goes on the **north edge midpoint**, which means it also goes on the south
+ * one: the generator mirrors everything at 180°, so an arch is necessarily a
+ * pair. That is not a limitation to work around, it is the fairness guarantee —
+ * a landmark on one player's approach and not the other's is exactly the
+ * invisible asymmetry the whole file exists to prevent.
+ *
+ * The midpoints rather than the corners because there are no free corners left:
+ * the two players start in the NW and SE, and Hillcrest already holds the other
+ * two. The midpoints are empty, they mirror cleanly, and they sit across the
+ * routes between bases, so the arch gets fought under rather than admired from
+ * a distance.
+ *
+ * Only the two footings are solid. The span is in `map.arches`, claims no
+ * cells, and is drawn by the renderer.
+ */
+function addArch(map, cx, cy) {
+  const [lw, lh] = LEG_SIZE;
+  const half = ARCH_SPAN / 2;
+  const top = Math.round(cy - lh / 2);
+  const left = { x: Math.round(cx - half - lw / 2), y: top };
+  const right = { x: Math.round(cx + half - lw / 2), y: top };
+
+  // A prop's twin, by the same arithmetic `addPropPair` uses — so the recorded
+  // span lines up with the legs that actually got placed rather than with where
+  // a point-mirror would have put them.
+  const twin = (p) => ({ x: map.width - lw - p.x, y: map.height - lh - p.y });
+
+  // Flatten a plaza under each footing first.
+  //
+  // `propFits` demands all sixteen cells be GROUND, and the arch is placed at a
+  // fixed point rather than hunting for somewhere that already qualifies — so
+  // on raw generated terrain it declined about five seeds in six. Every other
+  // fixed feature does the same thing: the starts get `clearArea`, the estate
+  // stamps its own hill. A monument gets a plaza.
+  //
+  // The apron is one cell proud of the footing so the arch does not appear to
+  // grow straight out of a cliff face. Resource is skipped rather than paved —
+  // scrap under a leg is scrap nobody collects, and burying it would hide the
+  // very thing the placement guard upstream is trying to avoid.
+  for (const p of [left, right]) {
+    for (let y = p.y - 1; y < p.y + lh + 1; y++) {
+      for (let x = p.x - 1; x < p.x + lw + 1; x++) {
+        if (!inBounds(map, x, y)) continue;
+        if (x < 1 || y < 1 || x >= map.width - 1 || y >= map.height - 1) continue;
+        if (map.resource[y * map.width + x] > 0) continue;
+        if (map.propCells[y * map.width + x]) continue;
+        paintMirrored(map, x, y, TERRAIN.GROUND);
+      }
+    }
+  }
+
+  // All four footings or none. `addPropPair` checks each side independently, so
+  // without this an arch whose far leg lands on a wreck field is placed as a
+  // single pillar with a span drawn to nowhere.
+  for (const p of [left, right, twin(left), twin(right)]) {
+    if (!propFits(map, PROPS.archleg, p.x, p.y)) return false;
+  }
+
+  addPropPair(map, 'archleg', left.x, left.y);
+  addPropPair(map, 'archleg', right.x, right.y);
+
+  // The twin's legs swap sides under a 180° rotation, so re-order them to keep
+  // `left` genuinely west of `right` and the renderer's curve the right way up.
+  map.arches.push(
+    { left, right, height: ARCH_HEIGHT, legSize: LEG_SIZE },
+    { left: twin(right), right: twin(left), height: ARCH_HEIGHT, legSize: LEG_SIZE }
+  );
+  return true;
+}
+
+/**
+ * Where the arch goes, or null if the map cannot hold it.
+ *
+ * Same share-of-the-map test as the estate, measured across the full span plus
+ * both footings — and for the same reason, which CI taught once already: a
+ * landmark that fits the 144-cell default does not fit the 72-cell map the
+ * Swift port's fixtures are generated from, and silently rewrites `map.json`.
+ */
+function planArch(map) {
+  const { width, height } = map;
+  const span = ARCH_SPAN + LEG_SIZE[0];
+  if (Math.min(width, height) * ESTATE_MAX_MAP_SHARE < span) return null;
+  return { x: Math.round(width / 2), y: Math.round(height * 0.15) };
+}
+
 /**
  * Where the estate goes, or null if this map is too small for it.
  *
@@ -458,7 +566,7 @@ function planEstate(map) {
  * Only the anchor is chosen here. Each district is stamped once and mirrored
  * by the prop placer, so both players always face the same city.
  */
-function planDistricts(map, rng, estate = null) {
+function planDistricts(map, rng, estate = null, arch = null) {
   const { width, height } = map;
   const wanted = Math.max(2, Math.round((width * height) / 1500));
   const chosen = [];
@@ -476,6 +584,7 @@ function planDistricts(map, rng, estate = null) {
     if (nearAny(map.starts, x, y, 16)) continue;
     if (nearAny(chosen, x, y, 15)) continue;
     if (estate && nearAny(estateCentres(map, estate), x, y, estateClear)) continue;
+    if (arch && nearAny(estateCentres(map, arch), x, y, ARCH_SPAN)) continue;
     chosen.push({ x, y, kind: DISTRICT_KINDS[rng.int(DISTRICT_KINDS.length)] });
   }
   return chosen;

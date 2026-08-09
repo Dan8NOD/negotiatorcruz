@@ -25,6 +25,7 @@
  */
 
 import { CELL, TERRAIN_INFO, FACTIONS, UNITS, BUILDINGS } from '../engine/content.js';
+import { ARCH_CURVE, ARCH_HEIGHT } from '../engine/arch.js';
 import { superweaponReady } from '../engine/economy.js';
 import { isVisible, isExplored } from '../engine/vision.js';
 
@@ -303,6 +304,7 @@ export function createRenderer(canvas, world, viewerId) {
 
     drawResources();
     drawProps();
+    drawArches();
     drawBuildings(selection);
     drawPlacementPreview();
     drawStrikePreview();
@@ -497,6 +499,9 @@ export function createRenderer(canvas, world, viewerId) {
         break;
       case 'keep':
         drawKeep(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'archleg':
+        drawArchLeg(e, px, py, pw, ph, dx, dy, hurt);
         break;
       case 'depot':
         drawDepot(e, px, py, pw, ph, dx, dy, hurt);
@@ -1059,6 +1064,153 @@ export function createRenderer(canvas, world, viewerId) {
           ctx.fill();
         });
       }
+    }
+  }
+
+  /**
+   * The footing an Arch stands on.
+   *
+   * Deliberately almost nothing: `drawArches` runs after the prop pass and
+   * draws each arch as one continuous silhouette from footing to crown, so
+   * anything elaborate here would only be overpainted. What it does draw is the
+   * plinth skirt — the part that sits *outside* the column's taper and would
+   * otherwise leave the arch looking balanced on a point.
+   */
+  function drawArchLeg(e, px, py, pw, ph, dx, dy, hurt) {
+    ctx.fillStyle = '#1b222b';
+    ctx.fillRect(px + 1, py + ph * 0.42, pw - 2, ph * 0.5);
+    ctx.fillStyle = '#2b3542';
+    ctx.fillRect(px + 3, py + ph * 0.34, pw - 6, ph * 0.16);
+    ctx.strokeStyle = hurt < 0.6 ? 'rgba(230, 120, 50, 0.5)' : 'rgba(140,160,180,0.35)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(px + 3, py + ph * 0.34, pw - 6, ph * 0.16);
+  }
+
+  /**
+   * The Arch — 30 cells to the crown, which is 240m, or about 790ft.
+   *
+   * Drawn here rather than as a prop because it is not one. Only its two
+   * footings occupy cells; the 240 metres between them is air, and an army
+   * marches under it. There is no entity to hang this on and there should not
+   * be, so the geometry comes from `map.arches` — placement data the simulation
+   * never reads.
+   *
+   * Its shape comes from `engine/arch.js`, baked offline: a catenary needs
+   * `cosh`, and the engine is not allowed to call it. See ESTATE.md.
+   */
+  function drawArches() {
+    const arches = world.map.arches;
+    if (!arches || arches.length === 0) return;
+    for (const a of arches) drawArch(a);
+  }
+
+  function drawArch(a) {
+    const [lw, lh] = a.legSize;
+    const cx = ((a.left.x + a.right.x) / 2 + lw / 2) * CELL;
+    const baseY = (a.left.y + lh / 2) * CELL;
+    // The same 0.34 the prop elevation uses, so the arch is drawn to the same
+    // scale as every other tall thing rather than to one of its own.
+    const lift = CELL * 0.34;
+    const span = (a.right.x - a.left.x) * CELL;
+
+    // Screen position of a curve sample. `h` is height above ground, not a y
+    // coordinate — the arch stands up out of a map that has no third axis.
+    const at = ([ox, h]) => ({
+      x: cx + ox * CELL,
+      y: baseY - h * lift,
+      t: h / ARCH_HEIGHT,
+    });
+
+    // Half-thickness, tapering with height: as wide as the footing where it
+    // meets the ground, a third of that at the crown. A constant-width ribbon
+    // reads as a croquet hoop.
+    const halfAt = (t) => ((lw * CELL) / 2) * (1 - 0.62 * t);
+
+    const pts = ARCH_CURVE.map(at);
+
+    // Offset perpendicular to the curve, not horizontally. Horizontally is the
+    // tempting shortcut and it collapses the crown to nothing, because there
+    // the curve is running sideways and a horizontal offset is along it.
+    //
+    // Near the feet it is the other way round. There the curve is steep, so a
+    // perpendicular offset is nearly *horizontal* — which caps each foot with a
+    // diagonal flare that hangs in the air instead of standing on the ground.
+    // So the offset rotates back to horizontal over the last stretch, giving a
+    // vertical-sided column that meets the ground square, exactly like the
+    // footprint it is standing on. The clamp catches the rest: no part of the
+    // arch is ever drawn below the ground it rises from.
+    const side = (sign) =>
+      pts.map((p, i) => {
+        const prev = pts[Math.max(0, i - 1)];
+        const next = pts[Math.min(pts.length - 1, i + 1)];
+        const tx = next.x - prev.x;
+        const ty = next.y - prev.y;
+        const m = Math.sqrt(tx * tx + ty * ty) || 1;
+        const h = halfAt(p.t);
+        // 0 at the ground, 1 once clear of it — how much of the true normal to
+        // use versus a flat horizontal offset.
+        //
+        // The flat direction has to keep the normal's *sign*, not just go
+        // right: the normal points east at the left foot and west at the right
+        // one, so blending both toward +x would flip the ribbon's sides at the
+        // right foot and fold it through itself.
+        const blend = Math.min(1, p.t / 0.12);
+        const rawNx = -ty / m;
+        const flatNx = rawNx >= 0 ? 1 : -1;
+        const nx = rawNx * blend + flatNx * (1 - blend);
+        const ny = (tx / m) * blend;
+        return {
+          x: p.x + nx * h * sign,
+          y: Math.min(baseY, p.y + ny * h * sign),
+        };
+      });
+
+    const outer = side(1);
+    const inner = side(-1);
+
+    // Ground shadow, thrown between the feet. Without it the arch floats.
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.beginPath();
+    ctx.ellipse(cx + 6, baseY + 6, span * 0.5, lh * CELL * 0.42, 0, 0, TAU);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(outer[0].x, outer[0].y);
+    for (const p of outer) ctx.lineTo(p.x, p.y);
+    for (let i = inner.length - 1; i >= 0; i--) ctx.lineTo(inner[i].x, inner[i].y);
+    ctx.closePath();
+
+    const skin = ctx.createLinearGradient(cx - span / 2, 0, cx + span / 2, 0);
+    skin.addColorStop(0, '#6c7a8c');
+    skin.addColorStop(0.32, '#8d9cb0');
+    skin.addColorStop(0.62, '#4a5563');
+    skin.addColorStop(1, '#333c48');
+    ctx.fillStyle = skin;
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(18, 24, 32, 0.55)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // A single highlight down the north-west face, which is what makes a flat
+    // fill read as stainless rather than as a cut-out.
+    ctx.beginPath();
+    ctx.moveTo(outer[0].x, outer[0].y);
+    for (const p of outer) ctx.lineTo(p.x, p.y);
+    ctx.strokeStyle = 'rgba(220, 236, 255, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Aircraft warning lights at the crown. At 790ft they are not decoration —
+    // they are the thing that tells you how far up the crown actually is.
+    const crown = pts[Math.floor(pts.length / 2)];
+    if ((frameClock >> 4) % 4 === 0) {
+      glow(() => {
+        ctx.fillStyle = 'rgba(255, 110, 100, 0.95)';
+        ctx.beginPath();
+        ctx.arc(crown.x, crown.y - 2, 2.6, 0, TAU);
+        ctx.fill();
+      });
     }
   }
 

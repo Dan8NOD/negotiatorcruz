@@ -1220,6 +1220,40 @@ export const PROPS = {
      */
     hint: 'The only way up the hill runs through here.',
   },
+
+  /* ---- The Arch -------------------------------------------------------- */
+
+  archleg: {
+    id: 'archleg',
+    name: 'Arch Footing',
+    size: [4, 4],
+    /**
+     * The toughest thing on the map, above even the keep.
+     *
+     * Not because anyone should want to kill it — nothing is gained by doing so
+     * — but because two footings are all that hold up 240m of catenary, and an
+     * arch that a stray artillery volley can quietly fell is an arch the map
+     * stops having. Expensive to remove is the point.
+     */
+    hp: 6000,
+    armor: ARMOR.STRUCTURE,
+    /**
+     * The full crown height, not the footing's own.
+     *
+     * The renderer draws the arch as one continuous silhouette in its own pass
+     * — see `drawArches` — so this exists for everything that reasons about
+     * height without drawing it, the collapse sound being the obvious one.
+     */
+    height: 30,
+    storeys: 60,
+    shape: 'archleg',
+    /**
+     * Solid, while the span overhead is not: `map.arches` is presentation data
+     * and claims no cells. An army marches under the arch and only has to walk
+     * around the two footings, which is the whole reason to build one.
+     */
+    hint: 'One of two. Everything between them is 240 metres of air.',
+  },
 };
 
 /** Props are neutral: owned by nobody, hostile to nobody, in everybody's way. */

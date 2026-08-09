@@ -145,9 +145,69 @@ on this hardware is rarely where a desktop instinct expects it.
 
 ---
 
+## The Arch
+
+The map's other landmark, and the taller one: **30 cells to the crown and 30
+foot to foot — 240m each way, about 790ft.** That is 2.3× the castle keep and
+taller than the real Gateway Arch, which is 630ft.
+
+Same pipeline, same reasons:
+
+```
+tools/build-arch.mjs
+    ├─→ engine/arch.js   baked literals, read by the game
+    └─→ arch.json        plain data, read by a Unity importer
+```
+
+A catenary needs `cosh`, which `engine/` may not call, so the curve is sampled
+offline and baked — exactly as the estate's spiral is. `ARCH_CURVE` is 121
+points of `[offsetFromCentre, heightAboveGround]` in cells, symmetric about
+zero, with height **exactly** 0 at both feet.
+
+### The thing worth knowing before you import it
+
+**Only the two footings are solid.** They are ordinary 4×4 props. Everything
+between them is 240 metres of air, lives in `map.arches`, claims no cells, and
+is drawn in its own pass. An army marches under the arch — that is the entire
+reason to build one rather than a wall, and there is a test pinning it.
+
+In Unity that maps cleanly: two collider boxes at the footings, and the span as
+geometry with no collider at all.
+
+### Coordinates
+
+`curveMetres` is already in Unity's convention — **x along the span, y up** —
+with `z: 0`, so the arch sits in a plane you rotate into place. The footing
+centres are in `leg.centresMetres` on the ground plane.
+
+The curve is a centreline, not a solid. Give it thickness yourself: the game
+tapers from the full footing width at the ground to about a third of that at
+the crown, which is what stops it reading as a croquet hoop.
+
+One trap worth inheriting — near the feet the curve is almost vertical, so a
+perpendicular offset there is nearly *horizontal* and caps each foot with a
+diagonal flare hanging in mid-air. Rotate the offset back to horizontal over
+the last stretch so the column meets the ground square.
+
+### Why not 80ft
+
+The brief asked for 80ft. A cell is 8m, so that is 3 cells — shorter than the
+nine-storey Tower Blocks already scattered around the map, and a quarter of the
+castle keep. At this scale 80ft is street furniture. The number moved; the
+intent did not.
+
+---
+
 ## Regenerating
 
 ```bash
 npm run rocketman:estate     # rewrites engine/estate.js and estate.json
-npm run test:rocketman       # the spec invariants live in test/estate.test.js
+npm run rocketman:arch       # rewrites engine/arch.js and arch.json
+npm run test:rocketman       # invariants live in test/estate.test.js and test/arch.test.js
 ```
+
+A green suite is not sufficient. `npm run rocketman:fixtures` must also leave
+`swift/Tests/RocketmanKitTests/Fixtures` unchanged — the Swift port asserts
+against a 72-cell map, and a landmark that appears there rewrites `map.json`
+and fails CI with "Engine behaviour changed". Both landmarks are gated off maps
+too small to hold them, which is what keeps that guard quiet.

@@ -83,9 +83,10 @@ export { TICKS_PER_SECOND };
  * @param {object} [options.mission] Objectives and mission metadata.
  */
 export function createWorld({ seed = 1, players: playerConfigs, mapSize = DEFAULT_MAP_SIZE, mission = null } = {}) {
-  // The castle estate is skirmish-only: campaign missions are tuned against
-  // their seeds, and a hill ringed by cliffs re-tunes every one of them.
-  const map = createMap(seed, { width: mapSize, height: mapSize, estate: !mission });
+  // Landmarks — the Hillcrest estate and the Arch — are skirmish-only.
+  // Campaign missions are tuned against their seeds, and terrain features this
+  // size re-tune every one of them.
+  const map = createMap(seed, { width: mapSize, height: mapSize, landmarks: !mission });
 
   const world = {
     tick: 0,
