@@ -25,6 +25,7 @@
  */
 
 import { CELL, TERRAIN_INFO, FACTIONS, UNITS, BUILDINGS } from '../engine/content.js';
+import { ARCH_CURVE, ARCH_HEIGHT } from '../engine/arch.js';
 import { superweaponReady } from '../engine/economy.js';
 import { isVisible, isExplored } from '../engine/vision.js';
 
@@ -303,6 +304,7 @@ export function createRenderer(canvas, world, viewerId) {
 
     drawResources();
     drawProps();
+    drawArches();
     drawBuildings(selection);
     drawPlacementPreview();
     drawStrikePreview();
@@ -494,6 +496,12 @@ export function createRenderer(canvas, world, viewerId) {
         break;
       case 'silo':
         drawSilo(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'keep':
+        drawKeep(e, px, py, pw, ph, dx, dy, hurt);
+        break;
+      case 'archleg':
+        drawArchLeg(e, px, py, pw, ph, dx, dy, hurt);
         break;
       case 'depot':
         drawDepot(e, px, py, pw, ph, dx, dy, hurt);
@@ -961,6 +969,261 @@ export function createRenderer(canvas, world, viewerId) {
     ctx.moveTo(cx - r, cy - 3);
     ctx.lineTo(cx + r, cy - 3);
     ctx.stroke();
+  }
+
+  /**
+   * Hillcrest: the keep, its corner towers, and the gatehouse.
+   *
+   * One shape for all three, scaled by footprint and `height`, because they are
+   * the same building at three sizes — a glazed slab with a battered base and a
+   * lit crown. Three near-identical draw functions would drift apart the first
+   * time anybody touched one.
+   *
+   * The keep's height of 13 lifts its roof about 106px, against a 120px
+   * footprint, so on screen it is nearly as tall as it is wide. That is the
+   * whole design intent: the thing you navigate by from across the map. It also
+   * means the silhouette does almost all the work and the detailing has to stay
+   * subordinate to it — hence one accent, not five.
+   */
+  function drawKeep(e, px, py, pw, ph, dx, dy, hurt) {
+    const cx = px + pw / 2;
+    const cy = py + ph / 2;
+    const base = cy + 3;
+    const ty = cy + dy;
+    // Slight batter — wider at the footing than the crown. It is what stops a
+    // plain extruded box reading as a shipping container stood on its end.
+    const halfBase = pw * 0.42;
+    const halfTop = halfBase * 0.86;
+    const lean = cx + dx * 0.35;
+    const rise = base - ty;
+
+    // Body, lit from the north-west like every other structure on the map.
+    const body = ctx.createLinearGradient(cx - halfBase, 0, cx + halfBase, 0);
+    body.addColorStop(0, '#39434f');
+    body.addColorStop(0.34, '#59667a');
+    body.addColorStop(1, '#242c36');
+    ctx.fillStyle = body;
+    ctx.beginPath();
+    ctx.moveTo(cx - halfBase, base);
+    ctx.lineTo(cx + halfBase, base);
+    ctx.lineTo(lean + halfTop, ty);
+    ctx.lineTo(lean - halfTop, ty);
+    ctx.closePath();
+    ctx.fill();
+
+    // Vertical mullions. Spaced off the footprint rather than fixed, so the
+    // 2x2 corner towers get two and the 5x5 keep gets five without tuning.
+    const bays = Math.max(2, Math.round(pw / 12));
+    ctx.strokeStyle = 'rgba(0,0,0,0.22)';
+    ctx.lineWidth = 1;
+    for (let i = 1; i < bays; i++) {
+      const f = i / bays;
+      ctx.beginPath();
+      ctx.moveTo(cx - halfBase + halfBase * 2 * f, base);
+      ctx.lineTo(lean - halfTop + halfTop * 2 * f, ty);
+      ctx.stroke();
+    }
+
+    // Glazing. Rows thin out as the building takes damage — the cheapest way to
+    // say "this is being fought over" without another particle system.
+    const floors = Math.max(2, Math.round(rise / 9));
+    const lit = 0.25 + hurt * 0.5;
+    for (let i = 1; i < floors; i++) {
+      const f = i / floors;
+      const y = base - rise * f;
+      const half = halfBase + (halfTop - halfBase) * f;
+      const x = cx + (lean - cx) * f;
+      // Deterministic per floor and per prop, so windows do not crawl frame to
+      // frame — Math.random here would strobe the whole tower.
+      const on = ((e.id * 7 + i * 13) % 5) !== 0;
+      ctx.fillStyle = on ? `rgba(196, 214, 236, ${lit * 0.5})` : 'rgba(18, 24, 32, 0.5)';
+      ctx.fillRect(x - half * 0.72, y - 1.5, half * 1.44, 2);
+    }
+
+    // The crown: a parapet slab, then the roof plate proper.
+    ctx.fillStyle = '#6c7a8c';
+    ctx.fillRect(lean - halfTop - 2, ty - 3, halfTop * 2 + 4, 3.5);
+    ctx.fillStyle = '#48545f';
+    ctx.beginPath();
+    ctx.ellipse(lean, ty - 3, halfTop, halfTop * 0.32, 0, 0, TAU);
+    ctx.fill();
+    ctx.strokeStyle = 'rgba(150, 168, 188, 0.5)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // Aircraft warning light, on the tall ones only. A blinking red dot at 106px
+    // is what makes the keep read as *tall* rather than merely large — the
+    // gatehouse gets none, because a four-cell building with a beacon is silly.
+    if (e.def.height >= 8) {
+      const beat = (frameClock >> 4) % 4;
+      if (beat === 0) {
+        glow(() => {
+          ctx.fillStyle = 'rgba(255, 110, 100, 0.9)';
+          ctx.beginPath();
+          ctx.arc(lean, ty - 5, 2.2, 0, TAU);
+          ctx.fill();
+        });
+      }
+    }
+  }
+
+  /**
+   * The footing an Arch stands on.
+   *
+   * Deliberately almost nothing: `drawArches` runs after the prop pass and
+   * draws each arch as one continuous silhouette from footing to crown, so
+   * anything elaborate here would only be overpainted. What it does draw is the
+   * plinth skirt — the part that sits *outside* the column's taper and would
+   * otherwise leave the arch looking balanced on a point.
+   */
+  function drawArchLeg(e, px, py, pw, ph, dx, dy, hurt) {
+    ctx.fillStyle = '#1b222b';
+    ctx.fillRect(px + 1, py + ph * 0.42, pw - 2, ph * 0.5);
+    ctx.fillStyle = '#2b3542';
+    ctx.fillRect(px + 3, py + ph * 0.34, pw - 6, ph * 0.16);
+    ctx.strokeStyle = hurt < 0.6 ? 'rgba(230, 120, 50, 0.5)' : 'rgba(140,160,180,0.35)';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(px + 3, py + ph * 0.34, pw - 6, ph * 0.16);
+  }
+
+  /**
+   * The Arch — 30 cells to the crown, which is 240m, or about 790ft.
+   *
+   * Drawn here rather than as a prop because it is not one. Only its two
+   * footings occupy cells; the 240 metres between them is air, and an army
+   * marches under it. There is no entity to hang this on and there should not
+   * be, so the geometry comes from `map.arches` — placement data the simulation
+   * never reads.
+   *
+   * Its shape comes from `engine/arch.js`, baked offline: a catenary needs
+   * `cosh`, and the engine is not allowed to call it. See ESTATE.md.
+   */
+  function drawArches() {
+    const arches = world.map.arches;
+    if (!arches || arches.length === 0) return;
+    for (const a of arches) {
+      // Explored-gated like every prop. Without this a 790ft arch is visible in
+      // territory nobody has scouted, which both leaks map information and
+      // looks wrong beside the props around it, which do hide.
+      //
+      // Either footing is enough: the span is a single object, and revealing
+      // one foot but not the other would draw half an arch.
+      const [lw, lh] = a.legSize;
+      const seen =
+        isExplored(world, viewerId, a.left.x + lw / 2, a.left.y + lh / 2) ||
+        isExplored(world, viewerId, a.right.x + lw / 2, a.right.y + lh / 2);
+      if (seen) drawArch(a);
+    }
+  }
+
+  function drawArch(a) {
+    const [lw, lh] = a.legSize;
+    const cx = ((a.left.x + a.right.x) / 2 + lw / 2) * CELL;
+    const baseY = (a.left.y + lh / 2) * CELL;
+    // The same 0.34 the prop elevation uses, so the arch is drawn to the same
+    // scale as every other tall thing rather than to one of its own.
+    const lift = CELL * 0.34;
+    const span = (a.right.x - a.left.x) * CELL;
+
+    // Screen position of a curve sample. `h` is height above ground, not a y
+    // coordinate — the arch stands up out of a map that has no third axis.
+    const at = ([ox, h]) => ({
+      x: cx + ox * CELL,
+      y: baseY - h * lift,
+      t: h / ARCH_HEIGHT,
+    });
+
+    // Half-thickness, tapering with height: as wide as the footing where it
+    // meets the ground, a third of that at the crown. A constant-width ribbon
+    // reads as a croquet hoop.
+    const halfAt = (t) => ((lw * CELL) / 2) * (1 - 0.62 * t);
+
+    const pts = ARCH_CURVE.map(at);
+
+    // Offset perpendicular to the curve, not horizontally. Horizontally is the
+    // tempting shortcut and it collapses the crown to nothing, because there
+    // the curve is running sideways and a horizontal offset is along it.
+    //
+    // Near the feet it is the other way round. There the curve is steep, so a
+    // perpendicular offset is nearly *horizontal* — which caps each foot with a
+    // diagonal flare that hangs in the air instead of standing on the ground.
+    // So the offset rotates back to horizontal over the last stretch, giving a
+    // vertical-sided column that meets the ground square, exactly like the
+    // footprint it is standing on. The clamp catches the rest: no part of the
+    // arch is ever drawn below the ground it rises from.
+    const side = (sign) =>
+      pts.map((p, i) => {
+        const prev = pts[Math.max(0, i - 1)];
+        const next = pts[Math.min(pts.length - 1, i + 1)];
+        const tx = next.x - prev.x;
+        const ty = next.y - prev.y;
+        const m = Math.sqrt(tx * tx + ty * ty) || 1;
+        const h = halfAt(p.t);
+        // 0 at the ground, 1 once clear of it — how much of the true normal to
+        // use versus a flat horizontal offset.
+        //
+        // The flat direction has to keep the normal's *sign*, not just go
+        // right: the normal points east at the left foot and west at the right
+        // one, so blending both toward +x would flip the ribbon's sides at the
+        // right foot and fold it through itself.
+        const blend = Math.min(1, p.t / 0.12);
+        const rawNx = -ty / m;
+        const flatNx = rawNx >= 0 ? 1 : -1;
+        const nx = rawNx * blend + flatNx * (1 - blend);
+        const ny = (tx / m) * blend;
+        return {
+          x: p.x + nx * h * sign,
+          y: Math.min(baseY, p.y + ny * h * sign),
+        };
+      });
+
+    const outer = side(1);
+    const inner = side(-1);
+
+    // Ground shadow, thrown between the feet. Without it the arch floats.
+    ctx.fillStyle = 'rgba(0,0,0,0.28)';
+    ctx.beginPath();
+    ctx.ellipse(cx + 6, baseY + 6, span * 0.5, lh * CELL * 0.42, 0, 0, TAU);
+    ctx.fill();
+
+    ctx.beginPath();
+    ctx.moveTo(outer[0].x, outer[0].y);
+    for (const p of outer) ctx.lineTo(p.x, p.y);
+    for (let i = inner.length - 1; i >= 0; i--) ctx.lineTo(inner[i].x, inner[i].y);
+    ctx.closePath();
+
+    const skin = ctx.createLinearGradient(cx - span / 2, 0, cx + span / 2, 0);
+    skin.addColorStop(0, '#6c7a8c');
+    skin.addColorStop(0.32, '#8d9cb0');
+    skin.addColorStop(0.62, '#4a5563');
+    skin.addColorStop(1, '#333c48');
+    ctx.fillStyle = skin;
+    ctx.fill();
+
+    ctx.strokeStyle = 'rgba(18, 24, 32, 0.55)';
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // A single highlight down the north-west face, which is what makes a flat
+    // fill read as stainless rather than as a cut-out.
+    ctx.beginPath();
+    ctx.moveTo(outer[0].x, outer[0].y);
+    for (const p of outer) ctx.lineTo(p.x, p.y);
+    ctx.strokeStyle = 'rgba(220, 236, 255, 0.4)';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Aircraft warning lights at the crown. At 790ft they are not decoration —
+    // they are the thing that tells you how far up the crown actually is.
+    const crown = pts[Math.floor(pts.length / 2)];
+    if ((frameClock >> 4) % 4 === 0) {
+      glow(() => {
+        ctx.fillStyle = 'rgba(255, 110, 100, 0.95)';
+        ctx.beginPath();
+        ctx.arc(crown.x, crown.y - 2, 2.6, 0, TAU);
+        ctx.fill();
+      });
+    }
   }
 
   /** A propane depot: a bank of cylinders behind a wire fence. */
@@ -1480,6 +1743,47 @@ export function createRenderer(canvas, world, viewerId) {
             ctx.fillStyle = g;
             ctx.beginPath();
             ctx.arc(cx, cy, 10 * t, 0, TAU);
+            ctx.fill();
+          });
+        }
+        break;
+      }
+      case 'hangar': {
+        // Until now the Hangar fell through to the generic panel below, which
+        // is why the largest, most expensive production building on the map
+        // read as the smallest thing in the base. It gets the two shapes that
+        // say "aircraft" at this size: a bay mouth wide enough to fly out of,
+        // and a barrel-vault roof.
+        const bayW = pw * 0.52;
+        const bayH = ph * 0.24;
+        ctx.fillStyle = '#0e141b';
+        ctx.fillRect(cx - bayW / 2, cy + 2, bayW, bayH);
+        ctx.strokeStyle = 'rgba(140,160,180,0.5)';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(cx - bayW / 2, cy + 2, bayW, bayH);
+
+        // Centreline, and the one place the faction colour is spent.
+        ctx.fillStyle = color;
+        ctx.fillRect(cx - 1.5, cy + 4, 3, bayH - 4);
+
+        // Roof ribs. Three shallow arches read as a vault rather than a slab.
+        ctx.strokeStyle = 'rgba(140,160,180,0.32)';
+        ctx.lineWidth = 1;
+        for (let i = 0; i < 3; i++) {
+          const y = cy - 11 + i * 5;
+          ctx.beginPath();
+          ctx.moveTo(cx - pw * 0.3, y);
+          ctx.quadraticCurveTo(cx, y - 4, cx + pw * 0.3, y);
+          ctx.stroke();
+        }
+
+        // Approach beacon, lit only while something is in the queue — the art
+        // carrying real state rather than decorating.
+        if (e.queue && e.queue.length > 0 && (frameClock >> 3) % 2 === 0) {
+          glow(() => {
+            ctx.fillStyle = 'rgba(255, 180, 100, 0.9)';
+            ctx.beginPath();
+            ctx.arc(cx + pw * 0.33, cy - 12, 2, 0, TAU);
             ctx.fill();
           });
         }

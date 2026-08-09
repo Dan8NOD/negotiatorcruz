@@ -13,6 +13,8 @@
 import { TERRAIN, TERRAIN_INFO, PROPS, MIN_TERRAIN_COST } from './content.js';
 import { createRng } from './rng.js';
 import { len, ringOffset } from './numeric.js';
+import { HILL, STRUCTURES, ROAD_POINTS, ROAD_APPROACH, ROAD_LANES } from './estate.js';
+import { ARCH_SPAN, ARCH_HEIGHT, LEG_SIZE } from './arch.js';
 
 /* ------------------------------------------------------------------ map -- */
 
@@ -28,7 +30,19 @@ import { len, ringOffset } from './numeric.js';
  */
 export const DEFAULT_MAP_SIZE = 144;
 
-export function createMap(seed, { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP_SIZE } = {}) {
+/**
+ * @param {number} seed
+ * @param {object} [options]
+ * @param {number} [options.width]
+ * @param {number} [options.height]
+ * @param {boolean} [options.landmarks]
+ *   Whether to build the Hillcrest estate and the Arch. On for skirmish, off
+ *   for campaign missions — see `planEstate` for why.
+ */
+export function createMap(
+  seed,
+  { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP_SIZE, landmarks = true } = {}
+) {
   const rng = createRng(seed ^ 0x9e3779b9);
   const map = {
     width,
@@ -51,6 +65,26 @@ export function createMap(seed, { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP
     props: [],
     /** Cells already claimed by a prop, so placement never double-books. */
     propCells: new Uint8Array(width * height),
+    /**
+     * Ground closed to further road-building.
+     *
+     * Only the castle estate uses this, and only after its own switchbacks are
+     * down: the district road network paves dog-legs that would otherwise cut
+     * straight through the hill and its cliff rings, handing the castle a
+     * second approach and undoing the reason the rims are there.
+     */
+    sealed: new Uint8Array(width * height),
+    /**
+     * Arches, as placement data for the renderer.
+     *
+     * Deliberately *not* entities and deliberately claiming no cells. The two
+     * footings are ordinary props and block movement; everything between them
+     * is 240 metres up, so the ground beneath is walkable and an army marches
+     * under it. Nothing in the simulation reads this — an arch has no hitbox at
+     * head height, so giving it one would be modelling the drawing rather than
+     * the thing.
+     */
+    arches: [],
   };
 
   carveTerrain(map, rng);
@@ -76,6 +110,13 @@ export function createMap(seed, { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP
   addFieldPair(map, Math.round(width * 0.33), Math.round(height * 0.62), 5, 1900, rng);
   addFieldPair(map, Math.round(width * 0.5), Math.round(height * 0.5), 6, 2600, rng);
 
+  // Where the castle will go, decided this early only so the wreck fields
+  // below can be told to keep off it. Nothing is stamped yet — `planEstate`
+  // reads the map's size and nothing else, which is what makes it safe to ask
+  // before the terrain is finished.
+  const estate = landmarks ? planEstate(map) : null;
+  const arch = landmarks ? planArch(map) : null;
+
   // Expansion fields, so a doubled map has something worth crossing it for.
   // Scaled by area: on the old 72×72 this adds none and the map is exactly
   // the three-field economy it always was.
@@ -84,6 +125,13 @@ export function createMap(seed, { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP
     const fx = 6 + rng.int(width - 12);
     const fy = 6 + rng.int(height - 12);
     if (nearAny(map.starts, fx, fy, 14)) continue;
+    // A field under the hill is scrap nobody can ever reach, and — because the
+    // hill refuses to bury one — it also blocks the castle from placing at all.
+    // That failed silently on roughly one seed in six before this guard.
+    if (estate && nearAny(estateCentres(map, estate), fx, fy, estateFieldClear())) continue;
+    // Same trap, smaller target: a field under either footing refuses the whole
+    // arch, because all four legs are placed or none are.
+    if (arch && nearAny(estateCentres(map, arch), fx, fy, ARCH_SPAN)) continue;
     addFieldPair(map, fx, fy, 4 + rng.int(2), 1400 + rng.int(700), rng);
   }
 
@@ -98,8 +146,29 @@ export function createMap(seed, { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP
 
   // Scenery last: it reads the finished terrain and the wreck fields so it can
   // refuse to stand on either.
-  const districts = planDistricts(map, rng);
+  //
+  // The estate goes down before the districts so they can be told to keep off
+  // it. It claims a far larger footprint than any district and it is placed
+  // rather than rolled, so it wins the ground it needs and the rolled anchors
+  // work around it.
+  if (estate) addEstate(map, estate.x, estate.y);
+  if (arch) addArch(map, arch.x, arch.y);
+
+  const districts = planDistricts(map, rng, estate, arch);
   for (const d of districts) buildDistrict(map, d, rng);
+
+  // Join the estate's approach to the road network *after* the districts are
+  // built but before they are connected, so the switchbacks are reachable by
+  // road rather than being a spiral that starts nowhere. Appended once the
+  // buildDistrict loop is done because the estate is already built — this entry
+  // exists only to give connectDistricts something to aim at.
+  if (estate) {
+    districts.push({
+      x: estate.x + ROAD_APPROACH[0],
+      y: estate.y + ROAD_APPROACH[1],
+      kind: 'estate',
+    });
+  }
   connectDistricts(map, districts);
   addLandmarks(map, rng);
   ensureConnected(map);
@@ -197,6 +266,296 @@ function cutCorridor(map, x0, y0, x1, y1) {
  */
 const DISTRICT_KINDS = ['suburb', 'downtown', 'industrial', 'park'];
 
+/* --------------------------------------------------------------- estate -- */
+
+/**
+ * Hillcrest, the castle on the hill.
+ *
+ * Not a district kind, and deliberately so. Districts are rolled — how many,
+ * where, of what sort — and a landmark that only exists on some seeds is not a
+ * landmark, which is the same reasoning `addLandmarks` gives for spiralling the
+ * monument out from the centre rather than dropping it on a fixed cell. The
+ * estate is placed once, on a known corner, on every map big enough to hold it.
+ *
+ * "A corner" means one corner *here* and two corners on the finished map: like
+ * everything else the generator produces, it is stamped once and mirrored, so
+ * both players face the same castle at the same distance. That is the fairness
+ * guarantee the whole file is built around, not an accident of placement.
+ *
+ * The geometry — hill radii, where the castle stands, and the switchback road —
+ * comes from `estate.js`, which is generated. See ESTATE.md.
+ */
+
+/**
+ * How wide a cliff rim is, in cells either side of its radius.
+ *
+ * A hairline ring reads as a scratch and, worse, leaves diagonal gaps a walker
+ * can squeeze through — which would quietly undo the reason the cliffs are
+ * there. Just over half a cell each way guarantees a solid ring.
+ */
+const RIM_HALF_WIDTH = 0.75;
+
+/**
+ * Extra flat ground beyond the plateau radius.
+ *
+ * The gatehouse is centred exactly on the plateau's edge, so its far corners
+ * sit a fraction outside it — and `propFits` refuses anything but GROUND. Without
+ * this margin the gate silently fails to place and the road climbs to a blank
+ * hillside.
+ */
+const PLATEAU_MARGIN = 0.75;
+
+/** Clear of the map edge the hill has to be before it is worth placing. */
+const ESTATE_EDGE_MARGIN = 3;
+
+/**
+ * The largest share of the map's shorter edge the estate is allowed to span.
+ *
+ * The estate is bigger than it looks: the hill is 24 cells across, but the
+ * approach road reaches out to radius 15, so the whole thing spans 30. On the
+ * 144-cell default that is a fifth of the board — a landmark. On a 72-cell map
+ * it is *forty per cent*, which is not a landmark, it is the map.
+ *
+ * A quarter is the line. It keeps the estate on full-size maps and off small
+ * ones, and — not incidentally — off the 72-cell map the Swift port's fixtures
+ * are generated from, which is how this number got pinned down: the estate
+ * silently rewrote `map.json` and CI caught the drift.
+ */
+const ESTATE_MAX_MAP_SHARE = 0.25;
+
+/**
+ * How far a wreck field has to stay from the estate's centre.
+ *
+ * The hill's own radius plus the widest field, because the guard compares
+ * centres: a field whose centre clears the hill can still have an edge inside
+ * it, and one buried cell is enough to refuse the castle its footprint.
+ */
+const estateFieldClear = () => Math.ceil(HILL.outer) + 8;
+
+/**
+ * Both centres the estate occupies — the one it was placed at, and its twin.
+ *
+ * Anything that wants to keep off the castle has to check both, and this is
+ * subtler than it looks. Fields and district anchors are *also* mirrored, so a
+ * roll that lands nowhere near the estate can still put its twin squarely on
+ * the plateau. Checking the roll against both castles is equivalent to checking
+ * both the roll and its twin against one, and it does not need the caller to
+ * know how mirroring works.
+ *
+ * Before this existed, wreck fields buried the keep's footprint on about one
+ * seed in twelve — and because `propFits` just declines, the castle went
+ * missing silently rather than failing loudly.
+ */
+function estateCentres(map, estate) {
+  return [estate, { x: map.width - 1 - estate.x, y: map.height - 1 - estate.y }];
+}
+
+/**
+ * Stamp the estate, centred on (cx, cy).
+ *
+ * Order is forced by `propFits`, which accepts only GROUND: the hill has to
+ * exist before the castle can stand on it, and the castle has to exist before
+ * the road is paved, because `paveLine` refuses cells a prop has claimed — which
+ * is what makes the road stop at the gatehouse door rather than run through it.
+ */
+function addEstate(map, cx, cy) {
+  const { plateau, outer, rims } = HILL;
+  const reach = Math.ceil(outer) + 1;
+
+  for (let y = cy - reach; y <= cy + reach; y++) {
+    for (let x = cx - reach; x <= cx + reach; x++) {
+      if (!inBounds(map, x, y)) continue;
+      // Leave the sealed border alone, the same way paveLine does.
+      if (x < 1 || y < 1 || x >= map.width - 1 || y >= map.height - 1) continue;
+      const i = y * map.width + x;
+      // Never bury the economy. A wreck field under a cliff is scrap nobody can
+      // ever collect, and it would be invisible in the finished map.
+      if (map.resource[i] > 0) continue;
+      if (map.propCells[i]) continue;
+
+      const r = len(x - cx, y - cy);
+      if (r > outer + RIM_HALF_WIDTH) continue;
+
+      if (rims.some((rim) => Math.abs(r - rim) <= RIM_HALF_WIDTH)) {
+        paintMirrored(map, x, y, TERRAIN.CLIFF);
+      } else if (r <= plateau + PLATEAU_MARGIN) {
+        paintMirrored(map, x, y, TERRAIN.GROUND);
+      } else {
+        paintMirrored(map, x, y, TERRAIN.ROUGH);
+      }
+    }
+  }
+
+  for (const s of STRUCTURES) {
+    // The spec gives each structure's centre; prop placement wants a top-left.
+    // Deriving the prop id from the structure id keeps the four corner towers
+    // one entry in the content table rather than four near-identical ones.
+    const defId = s.id.startsWith('tower_') ? 'castletower' : s.id;
+    const left = cx + s.at[0] - Math.floor(s.size[0] / 2);
+    const top = cy + s.at[1] - Math.floor(s.size[1] / 2);
+    addPropPair(map, defId, left, top);
+  }
+
+  // The road, before the hill is sealed. Straight segments between consecutive
+  // samples rather than a curve rasteriser: the spec is sampled finely enough
+  // that the corners do not show, and reusing paveLine means the road obeys
+  // every rule the rest of the network already does — including cutting cleanly
+  // through the cliff rims, which is the only reason the rims are passable.
+  for (let i = 1; i < ROAD_POINTS.length; i++) {
+    const [ax, ay] = ROAD_POINTS[i - 1];
+    const [bx, by] = ROAD_POINTS[i];
+    paveLine(map, cx + ax, cy + ay, cx + bx, cy + by, ROAD_LANES);
+  }
+
+  // Seal the hill against every road laid after this one.
+  //
+  // Without this, `connectDistricts` runs later and paves dog-legs between
+  // district anchors straight across the estate — including straight through
+  // the cliff rings. Each of those is a second way up, and the moment a second
+  // way up exists the switchbacks stop being a decision and the cliffs stop
+  // meaning anything. The estate's own road is already down, so nothing that
+  // still needs to cross this ground has a legitimate reason to.
+  for (let y = cy - reach; y <= cy + reach; y++) {
+    for (let x = cx - reach; x <= cx + reach; x++) {
+      if (!inBounds(map, x, y)) continue;
+      if (len(x - cx, y - cy) > outer + RIM_HALF_WIDTH) continue;
+      sealMirrored(map, x, y);
+    }
+  }
+}
+
+/** Mark a cell — and its twin — as closed to any further road-building. */
+function sealMirrored(map, x, y) {
+  const { width, height } = map;
+  if (x < 0 || y < 0 || x >= width || y >= height) return;
+  map.sealed[y * width + x] = 1;
+  map.sealed[(height - 1 - y) * width + (width - 1 - x)] = 1;
+}
+
+/* ------------------------------------------------------------------ arch -- */
+
+/**
+ * The Arch: 30 cells to the crown, 30 foot to foot — 240m each way, or about
+ * 790ft, which makes it the tallest thing in the game by a factor of two.
+ *
+ * It goes on the **north edge midpoint**, which means it also goes on the south
+ * one: the generator mirrors everything at 180°, so an arch is necessarily a
+ * pair. That is not a limitation to work around, it is the fairness guarantee —
+ * a landmark on one player's approach and not the other's is exactly the
+ * invisible asymmetry the whole file exists to prevent.
+ *
+ * The midpoints rather than the corners because there are no free corners left:
+ * the two players start in the NW and SE, and Hillcrest already holds the other
+ * two. The midpoints are empty, they mirror cleanly, and they sit across the
+ * routes between bases, so the arch gets fought under rather than admired from
+ * a distance.
+ *
+ * Only the two footings are solid. The span is in `map.arches`, claims no
+ * cells, and is drawn by the renderer.
+ */
+function addArch(map, cx, cy) {
+  const [lw, lh] = LEG_SIZE;
+  const half = ARCH_SPAN / 2;
+  const top = Math.round(cy - lh / 2);
+  const left = { x: Math.round(cx - half - lw / 2), y: top };
+  const right = { x: Math.round(cx + half - lw / 2), y: top };
+
+  // A prop's twin, by the same arithmetic `addPropPair` uses — so the recorded
+  // span lines up with the legs that actually got placed rather than with where
+  // a point-mirror would have put them.
+  const twin = (p) => ({ x: map.width - lw - p.x, y: map.height - lh - p.y });
+
+  // Flatten a plaza under each footing first.
+  //
+  // `propFits` demands all sixteen cells be GROUND, and the arch is placed at a
+  // fixed point rather than hunting for somewhere that already qualifies — so
+  // on raw generated terrain it declined about five seeds in six. Every other
+  // fixed feature does the same thing: the starts get `clearArea`, the estate
+  // stamps its own hill. A monument gets a plaza.
+  //
+  // The apron is one cell proud of the footing so the arch does not appear to
+  // grow straight out of a cliff face. Resource is skipped rather than paved —
+  // scrap under a leg is scrap nobody collects, and burying it would hide the
+  // very thing the placement guard upstream is trying to avoid.
+  for (const p of [left, right]) {
+    for (let y = p.y - 1; y < p.y + lh + 1; y++) {
+      for (let x = p.x - 1; x < p.x + lw + 1; x++) {
+        if (!inBounds(map, x, y)) continue;
+        if (x < 1 || y < 1 || x >= map.width - 1 || y >= map.height - 1) continue;
+        if (map.resource[y * map.width + x] > 0) continue;
+        if (map.propCells[y * map.width + x]) continue;
+        paintMirrored(map, x, y, TERRAIN.GROUND);
+      }
+    }
+  }
+
+  // All four footings or none. `addPropPair` checks each side independently, so
+  // without this an arch whose far leg lands on a wreck field is placed as a
+  // single pillar with a span drawn to nowhere.
+  for (const p of [left, right, twin(left), twin(right)]) {
+    if (!propFits(map, PROPS.archleg, p.x, p.y)) return false;
+  }
+
+  addPropPair(map, 'archleg', left.x, left.y);
+  addPropPair(map, 'archleg', right.x, right.y);
+
+  // The twin's legs swap sides under a 180° rotation, so re-order them to keep
+  // `left` genuinely west of `right` and the renderer's curve the right way up.
+  map.arches.push(
+    { left, right, height: ARCH_HEIGHT, legSize: LEG_SIZE },
+    { left: twin(right), right: twin(left), height: ARCH_HEIGHT, legSize: LEG_SIZE }
+  );
+  return true;
+}
+
+/**
+ * Where the arch goes, or null if the map cannot hold it.
+ *
+ * Same share-of-the-map test as the estate, measured across the full span plus
+ * both footings — and for the same reason, which CI taught once already: a
+ * landmark that fits the 144-cell default does not fit the 72-cell map the
+ * Swift port's fixtures are generated from, and silently rewrites `map.json`.
+ */
+function planArch(map) {
+  const { width, height } = map;
+  const span = ARCH_SPAN + LEG_SIZE[0];
+  if (Math.min(width, height) * ESTATE_MAX_MAP_SHARE < span) return null;
+  return { x: Math.round(width / 2), y: Math.round(height * 0.15) };
+}
+
+/**
+ * Where the estate goes, or null if this map is too small for it.
+ *
+ * The starts sit on opposing corners, so the estate takes one of the two that
+ * are free — and mirroring fills the other. Positioned as a fraction of the map
+ * rather than a fixed cell so it lands in the same *place* on any size, then
+ * clamped so the hill never runs off the edge.
+ *
+ * Callers decide *whether* to ask, and only skirmish does — a balance decision
+ * rather than a technical one. Every campaign mission is hand-tuned against a
+ * fixed seed: the enemy base is scripted building by building, the par time is
+ * set against a route somebody actually walked, and the reinforcements assume
+ * that map. A hill ringed by cliffs is a map-wide terrain change, so dropping
+ * it into all seven missions silently re-tunes every one of them — which it
+ * did. `cold_open` went from winnable to lost the first time this ran against
+ * the campaign suite. Skirmish has no such contract, which is where a landmark
+ * belongs.
+ */
+function planEstate(map) {
+  const { width, height } = map;
+  const need = Math.ceil(HILL.outer) + ESTATE_EDGE_MARGIN;
+  // Span is set by the approach road, not the hill — the road reaches further
+  // out than the cliffs do, and it is just as much part of the landmark.
+  const span = Math.abs(ROAD_APPROACH[0]) * 2;
+  if (Math.min(width, height) * ESTATE_MAX_MAP_SHARE < span) return null;
+
+  const clamp = (v, max) => Math.max(need, Math.min(max - 1 - need, v));
+  return {
+    x: clamp(width - Math.round(width * 0.22), width),
+    y: clamp(Math.round(height * 0.22), height),
+  };
+}
+
 /**
  * Choose district anchors: how many, where, and of what kind.
  *
@@ -207,10 +566,14 @@ const DISTRICT_KINDS = ['suburb', 'downtown', 'industrial', 'park'];
  * Only the anchor is chosen here. Each district is stamped once and mirrored
  * by the prop placer, so both players always face the same city.
  */
-function planDistricts(map, rng) {
+function planDistricts(map, rng, estate = null, arch = null) {
   const { width, height } = map;
   const wanted = Math.max(2, Math.round((width * height) / 1500));
   const chosen = [];
+  // The estate is already on the ground by the time this runs, and it is much
+  // bigger than a district anchor's usual clearance — a suburb stamped onto the
+  // hillside would be houses standing on a cliff.
+  const estateClear = Math.ceil(HILL.outer) + 6;
 
   // A bounded number of attempts, not a loop until success: on a small or
   // cliff-heavy map there may be nowhere left, and spinning forever waiting
@@ -220,6 +583,8 @@ function planDistricts(map, rng) {
     const y = 8 + rng.int(Math.max(1, height - 16));
     if (nearAny(map.starts, x, y, 16)) continue;
     if (nearAny(chosen, x, y, 15)) continue;
+    if (estate && nearAny(estateCentres(map, estate), x, y, estateClear)) continue;
+    if (arch && nearAny(estateCentres(map, arch), x, y, ARCH_SPAN)) continue;
     chosen.push({ x, y, kind: DISTRICT_KINDS[rng.int(DISTRICT_KINDS.length)] });
   }
   return chosen;
@@ -388,6 +753,7 @@ function paveLine(map, x0, y0, x1, y1, lanes = 2) {
       if (map.terrain[i] === TERRAIN.WATER) continue;
       if (map.resource[i] > 0) continue;
       if (map.propCells[i]) continue;
+      if (map.sealed[i]) continue;
       if (nearAny(map.starts, x, y, 9)) continue;
       paintMirrored(map, x, y, TERRAIN.ROAD);
     }

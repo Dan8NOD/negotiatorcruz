@@ -850,7 +850,19 @@ export const BUILDINGS = {
     buildTime: secs(28),
     hp: 1150,
     armor: ARMOR.STRUCTURE,
-    size: [3, 3],
+    /**
+     * The largest footprint in the game, and the only structure bigger than the
+     * Command Rig.
+     *
+     * It was 3×3 — the same square as the Foundry it is supposed to outrank and
+     * the Rig it is supposed to dwarf — which read as small for the most
+     * expensive production building on the list, and read as wrong for the one
+     * that assembles aircraft. Aircraft need floor.
+     *
+     * The cost is placement: a 4×4 needs genuinely clear ground, so siting one
+     * inside a built-up base is now a decision rather than an afterthought.
+     */
+    size: [4, 4],
     power: -30,
     sight: 5,
     builds: 'units',
@@ -1151,6 +1163,96 @@ export const PROPS = {
     canopy: true,
     low: true,
     hint: 'Waist-high. Blocks a walker, hides nothing from the air.',
+  },
+
+  /* ---- Hillcrest, the castle estate ------------------------------------ */
+
+  /*
+   * These three are placed as a set by `addEstate` in grid.js, on the hill
+   * whose geometry lives in `estate.js`. Their `size` and `height` are written
+   * here rather than imported because this table is the balance surface and
+   * hand-editing it is the point — but they have to agree with the layout spec
+   * or the castle stops matching its own footprint, so `test/estate.test.js`
+   * asserts the two tables match.
+   */
+  keep: {
+    id: 'keep',
+    name: 'The Keep',
+    size: [5, 5],
+    /**
+     * The toughest thing on any map, by a wide margin, and deliberately not
+     * worth killing: nothing garrisons it and nothing spawns from it. It is
+     * cover and a landmark, so the hp exists to stop a stray artillery volley
+     * quietly deleting the skyline mid-match.
+     */
+    hp: 5200,
+    armor: ARMOR.STRUCTURE,
+    /** Two Jump Jet leaps. See ESTATE.md for why that is the reading. */
+    height: 13,
+    storeys: 30,
+    shape: 'keep',
+    hint: 'Somebody built a castle here, recently, out of money.',
+  },
+  castletower: {
+    id: 'castletower',
+    name: 'Corner Tower',
+    size: [2, 2],
+    hp: 1800,
+    armor: ARMOR.STRUCTURE,
+    height: 9,
+    storeys: 20,
+    shape: 'keep',
+    hint: 'One of four. They are not for archers.',
+  },
+  gatehouse: {
+    id: 'gatehouse',
+    name: 'Gatehouse',
+    size: [3, 2],
+    hp: 1100,
+    armor: ARMOR.STRUCTURE,
+    height: 4,
+    storeys: 2,
+    shape: 'keep',
+    /**
+     * The soft point in the whole arrangement, and the reason the hill is worth
+     * attacking rather than going around: the cliffs mean the road is the only
+     * way up, and this stands across the road.
+     */
+    hint: 'The only way up the hill runs through here.',
+  },
+
+  /* ---- The Arch -------------------------------------------------------- */
+
+  archleg: {
+    id: 'archleg',
+    name: 'Arch Footing',
+    size: [4, 4],
+    /**
+     * The toughest thing on the map, above even the keep.
+     *
+     * Not because anyone should want to kill it — nothing is gained by doing so
+     * — but because two footings are all that hold up 240m of catenary, and an
+     * arch that a stray artillery volley can quietly fell is an arch the map
+     * stops having. Expensive to remove is the point.
+     */
+    hp: 6000,
+    armor: ARMOR.STRUCTURE,
+    /**
+     * The full crown height, not the footing's own.
+     *
+     * The renderer draws the arch as one continuous silhouette in its own pass
+     * — see `drawArches` — so this exists for everything that reasons about
+     * height without drawing it, the collapse sound being the obvious one.
+     */
+    height: 30,
+    storeys: 60,
+    shape: 'archleg',
+    /**
+     * Solid, while the span overhead is not: `map.arches` is presentation data
+     * and claims no cells. An army marches under the arch and only has to walk
+     * around the two footings, which is the whole reason to build one.
+     */
+    hint: 'One of two. Everything between them is 240 metres of air.',
   },
 };
 
