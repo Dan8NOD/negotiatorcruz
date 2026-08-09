@@ -63,6 +63,13 @@ import {
 import { createVision, updateVision, VISION_INTERVAL, isVisible } from './vision.js';
 import { resolveDefs } from './progression.js';
 import { prepareObjectives, evaluateObjectives, OBJECTIVE_INTERVAL } from './objectives.js';
+import {
+  prepareGateways,
+  initGateways,
+  updateGateways,
+  gatewayLandmarks,
+  GATEWAY_INTERVAL,
+} from './gateways.js';
 import { len, ringOffset, facingTo } from './numeric.js';
 
 export { TICKS_PER_SECOND };
@@ -81,9 +88,25 @@ export { TICKS_PER_SECOND };
  * @param {number} options.seed
  * @param {Array<object>} options.players
  * @param {object} [options.mission] Objectives and mission metadata.
+ * @param {string} [options.biome] Which world this is; see BIOMES.
+ * @param {Array<string>} [options.landmarks] Unique props to place. Defaults
+ *   to whatever the mission's gateways are anchored to, so the two can never
+ *   disagree about whether this map has a castle on it.
  */
-export function createWorld({ seed = 1, players: playerConfigs, mapSize = DEFAULT_MAP_SIZE, mission = null } = {}) {
-  const map = createMap(seed, { width: mapSize, height: mapSize });
+export function createWorld({
+  seed = 1,
+  players: playerConfigs,
+  mapSize = DEFAULT_MAP_SIZE,
+  mission = null,
+  biome = undefined,
+  landmarks = undefined,
+} = {}) {
+  const map = createMap(seed, {
+    width: mapSize,
+    height: mapSize,
+    biome: biome || (mission && mission.biome) || undefined,
+    landmarks: landmarks || gatewayLandmarks(mission),
+  });
 
   const world = {
     tick: 0,
@@ -106,6 +129,13 @@ export function createWorld({ seed = 1, players: playerConfigs, mapSize = DEFAUL
     objectives: mission ? prepareObjectives(mission) : [],
     /** 'won' | 'lost' once decided. */
     result: null,
+    /**
+     * Ways off this map, and where the crew went if they took one. `exit` is
+     * pure bookkeeping for the debrief — the mission ends because an `enter`
+     * objective completed, not because this was set.
+     */
+    gateways: prepareGateways(mission),
+    exit: null,
     /** Per-pilot kill tallies, for XP at the debrief. */
     pilotKills: {},
     /** Pilots who did not walk away from this one. */
@@ -158,6 +188,11 @@ export function createWorld({ seed = 1, players: playerConfigs, mapSize = DEFAUL
   // after the players so their opening forces win any contested cell — a
   // Collector welded inside a tower block is a worse bug than a missing tree.
   for (const p of map.props) spawnProp(world, p.defId, p.cx, p.cy);
+
+  // Gateways bind after the scenery, because a gateway anchored to a landmark
+  // cannot find that landmark until the landmark is an entity. This is also
+  // what stands the Robot Marine in the castle doorway.
+  if (world.gateways.length) initGateways(world);
 
   world.players.forEach((p) => recomputePower(world, p));
   world.players.forEach((p) => updateVision(world, p));
@@ -621,6 +656,9 @@ export function tick(world, commands = []) {
     for (const player of world.players) updateVision(world, player);
   }
 
+  // Gateways before objectives, so the tick a shaft is walked into is the tick
+  // the mission that asked for it is won.
+  if (world.gateways.length && world.tick % GATEWAY_INTERVAL === 0) updateGateways(world);
   if (world.mission && world.tick % OBJECTIVE_INTERVAL === 0) checkObjectives(world);
   if (world.tick % 20 === 0) checkVictory(world);
 

@@ -372,6 +372,30 @@
         border-left: 3px solid var(--good);
       }
 
+      /* Challenges: the same card, warmed up. They are optional, and the list
+         should say so at a glance without saying it in words. */
+      .challengeHead {
+        margin-top: 4px;
+      }
+
+      .challengeHead h3 {
+        margin: 0;
+        font-size: 18px;
+        letter-spacing: 0.02em;
+      }
+
+      .mission.challenge {
+        background: linear-gradient(90deg, rgba(255, 210, 122, 0.07), var(--panel) 55%);
+      }
+
+      .mission.challenge .no {
+        color: #ffd27a;
+      }
+
+      .mission.challenge:not(.locked):hover {
+        border-color: #ffd27a;
+      }
+
       .mission .no {
         font: 600 18px/1 ui-monospace, SFMono-Regular, Menlo, monospace;
         color: var(--muted);
@@ -501,6 +525,88 @@
       .briefCrew,
       .debriefObjectives {
         margin: 18px 0;
+      }
+
+      /* A run's debrief keeps each plate's objectives under that plate's
+         name. One flat list of six ticks says nothing about which fight. */
+      .debriefObjectives .plateName {
+        margin: 16px 0 3px;
+        color: var(--accent);
+      }
+
+      .debriefObjectives .plateName:first-child {
+        margin-top: 0;
+      }
+
+      /* --------------------------------------------------- between plates -- */
+
+      /*
+       * The card a gateway shows on the way to the next plate.
+       *
+       * Centred, dark, and nearly empty, because it is a held beat rather than
+       * a screen to read — the player pressed nothing to get here and will
+       * press nothing to leave. The whole surface is the target: the card
+       * advances on a tap anywhere, so a phone needs no button and a desktop
+       * needs no aim.
+       */
+      #transition {
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        background:
+          radial-gradient(900px 520px at 50% 45%, #16283a 0%, transparent 65%),
+          var(--bg);
+      }
+
+      .transitionCard {
+        max-width: 620px;
+        text-align: center;
+        animation: plateIn 900ms ease-out both;
+      }
+
+      .transitionCard .no {
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.22em;
+        color: var(--accent);
+      }
+
+      .transitionCard h2 {
+        font-size: clamp(30px, 6vw, 52px);
+        margin: 10px 0 6px;
+      }
+
+      .transitionCard > em {
+        display: block;
+        font-style: normal;
+        color: var(--muted);
+      }
+
+      .transitionCard .flavour {
+        margin: 28px 0 0;
+        font-size: 17px;
+        color: var(--text);
+      }
+
+      .transitionCard .goHint {
+        display: block;
+        margin-top: 42px;
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+        opacity: 0.7;
+      }
+
+      @keyframes plateIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
       }
 
       .crewRow {
@@ -1496,6 +1602,10 @@
 
     <!-- Upgrades and crew -->
     <main id="hangar" class="screen" hidden></main>
+
+    <!-- The card between two plates of a run. Advances on any key, on a tap,
+         or on its own after a few seconds; see openTransition in main.js. -->
+    <main id="transition" class="screen" hidden></main>
 
     <!-- Mission debrief -->
     <main id="debrief" class="screen" hidden></main>

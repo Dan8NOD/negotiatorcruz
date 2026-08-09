@@ -396,9 +396,23 @@ describe('harvesting', () => {
     run(world, 400);
     const cell = collector.harvest.cell;
     if (cell) {
+      // "Has this cell got anything in it", not "is it far from the old one".
+      //
+      // The distance form of this assertion was measuring regrowth rather than
+      // abandonment, and it passed by three tenths of a cell. Scrap regrows
+      // toward what it started with as long as a neighbour survived to seed
+      // it, and the strip above only empties a three-cell disc — so twenty
+      // seconds later the collector may perfectly correctly be back on that
+      // disc, working scrap that has since come back. Whether it is depends on
+      // the exact ragged edge the seed gave the home field, which makes the
+      // old form a coin flip that any change to the generator can land on.
+      //
+      // What must never happen — the bug this test was written for — is a
+      // collector grinding away at a cell with nothing left in it. That is
+      // what this asks.
       assert.ok(
-        Math.hypot(cell.x - firstCell.x, cell.y - firstCell.y) >= 3,
-        'still working a mined-out patch'
+        resourceAt(world.map, cell.x, cell.y) > 0,
+        'still working a cell with nothing left in it'
       );
     }
   });

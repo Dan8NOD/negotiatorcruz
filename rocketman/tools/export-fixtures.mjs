@@ -101,13 +101,56 @@ function rngFixture() {
 
 /* ---------------------------------------------------------------- maps -- */
 
+/**
+ * The seeds, chosen for what they *reach* rather than for being round numbers.
+ *
+ * Since the generator rolls a map character once and lets every later pass read
+ * it, one seed no longer samples the generator — it samples one fifth of it. So
+ * between them these cover all five characters and all seven district kinds:
+ *
+ *   1      sprawl    downtown, suburb
+ *   7      delta     — (a seed whose anchors all landed badly; worth keeping,
+ *                      because "the district plan came back nearly empty" is a
+ *                      path too)
+ *   8      broken    quarry, industrial, suburb
+ *   11     pastoral  farm, suburb
+ *   1234   broken    railyard
+ *   90210  delta     the busiest 72×72 in the set
+ *   404    works     at the game's real 144×144, so the expansion-field loop,
+ *                    the four relay masts and a forty-rectangle rail yard are
+ *                    exercised at all — every one of those is dead code at 72.
+ *
+ * `noteRiverBreaches` is the one new pass no seed here reaches the interesting
+ * half of: eight hundred swept maps produced no causeway, because the dry-anchor
+ * spiral moves every field off the channel first. The pass still runs on all of
+ * them — that is how it establishes there is nothing to record.
+ *
+ * Seven is what gets committed, not what the port was checked against. Widening
+ * this list to 141 maps — seeds 1..120 at 72×72, twelve at 144×144, and six
+ * non-square (96×64 and 64×96, which is the only way to exercise a channel whose
+ * two axes differ) — regenerates a 6 MB fixture that the Swift suite passes
+ * cell-for-cell and record-for-record. That is worth repeating after any change
+ * to the generator, and not worth carrying in the repository: the seven below
+ * reach every character and every district kind, and a divergence that survives
+ * all seven is unlikely to be a divergence at all.
+ */
+const MAP_SEEDS = [
+  { seed: 1, width: 72, height: 72 },
+  { seed: 7, width: 72, height: 72 },
+  { seed: 8, width: 72, height: 72 },
+  { seed: 11, width: 72, height: 72 },
+  { seed: 1234, width: 72, height: 72 },
+  { seed: 90210, width: 72, height: 72 },
+  { seed: 404, width: 144, height: 144 },
+];
+
 function mapFixture() {
   // Map generation is the heaviest single consumer of the RNG in the whole
   // engine, so agreeing on a generated map is a much stronger statement than
   // agreeing on a raw stream: it means every draw happened in the same order.
   const maps = [];
-  for (const seed of [1, 7, 1234, 90210]) {
-    const map = createMap(seed, { width: 72, height: 72 });
+  for (const { seed, width, height } of MAP_SEEDS) {
+    const map = createMap(seed, { width, height });
     maps.push({
       seed,
       width: map.width,
@@ -122,6 +165,51 @@ function mapFixture() {
       // map differently would otherwise pass every check and still be playing
       // a different game.
       props: (map.props || []).map((p) => ({ defId: p.defId, cx: p.cx, cy: p.cy })),
+
+      // The generator's *records*, as opposed to what it painted.
+      //
+      // These have to be in the fixture in their own right, because none of
+      // them is derivable from the grid. A port could agree on every terrain
+      // cell — the deck of a bridge is road, the ford is rough — and still
+      // record no crossings at all, at which point the road network never
+      // routes to a bank, the scenery placer garrisons nothing, and a renderer
+      // draws tarmac over water. Terrain alone cannot tell you which run of
+      // road was meant to be a bridge.
+      //
+      // The character is the seed's single most consequential draw: it biases
+      // district count and mix, ridge and blob counts, tree and hedge density,
+      // ponds and the channel's width. Two ports that disagree here are not
+      // generating the same world even if this one seed happens to land on the
+      // same cells.
+      character: map.character,
+      river: map.river
+        ? {
+            horizontal: map.river.horizontal,
+            span: map.river.span,
+            cross: map.river.cross,
+            margin: map.river.margin,
+            centres: Array.from(map.river.centres),
+            widths: Array.from(map.river.widths),
+          }
+        : null,
+      crossings: (map.crossings || []).map((c) => ({
+        kind: c.kind,
+        x: c.x,
+        y: c.y,
+        horizontal: c.horizontal,
+        x0: c.x0,
+        x1: c.x1,
+        y0: c.y0,
+        y1: c.y1,
+      })),
+      chokepoints: (map.chokepoints || []).map((c) => ({
+        kind: c.kind,
+        x: c.x,
+        y: c.y,
+        primary: c.primary,
+        cache: c.cache,
+      })),
+      rails: (map.rails || []).map((r) => ({ x0: r.x0, y0: r.y0, x1: r.x1, y1: r.y1 })),
     });
   }
   return { maps };

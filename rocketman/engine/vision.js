@@ -9,9 +9,20 @@
  * Vision is circular rather than line-of-sight traced. Shadow-casting looks
  * better on a cliff map but costs more than it earns at this scale, and "my
  * mech can see over that rock" has never lost anyone a game.
+ *
+ * That stays true now that *shooting* traces a line (see `traceShot`), and the
+ * split is deliberate rather than an omission. Seeing something you cannot
+ * shoot is ordinary and readable — every RTS does it — whereas fog that
+ * flickers as units shuffle round a rock is the expensive half and the one
+ * nobody enjoys. The two answer different questions and only one of them has
+ * to be exact.
+ *
+ * The one thing terrain does buy here is height: a machine on the lip of a
+ * cliff sees further, which is the other half of what makes taking the high
+ * ground worth the walk.
  */
 
-import { isCombatant } from './entities.js';
+import { isCombatant, isElevated, ELEVATION } from './entities.js';
 
 /** Recompute cadence. Four ticks is 200ms — imperceptible, and 4× cheaper. */
 export const VISION_INTERVAL = 4;
@@ -54,7 +65,11 @@ export function updateVision(world, player) {
 
   for (const e of world.entities.values()) {
     if (e.dead || e.player !== player.id) continue;
-    const sight = e.def.sight || 4;
+    // High ground, for everyone equally — the AI reads its enemies through
+    // this same function and its own fog, so a ridge is worth exactly as much
+    // to it as it is to the player, and no more.
+    const sight =
+      (e.def.sight || 4) + (e.layer !== 'air' && isElevated(map, e.x, e.y) ? ELEVATION.SIGHT : 0);
     const offsets = discOffsets(sight);
     const ox = Math.floor(e.x);
     const oy = Math.floor(e.y);

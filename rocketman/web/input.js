@@ -133,6 +133,11 @@ export function createInput(canvas, world, viewerId, renderer, hooks = {}) {
     let bestD = Infinity;
     for (const e of world.entities.values()) {
       if (e.dead || !renderer.seenBy(e)) continue;
+      // A gateway is somewhere to walk, not something to click. Picking one up
+      // here would make right-clicking the shaft an order to shoot a hole in
+      // the ground; letting the click through makes it an order to go in,
+      // which is what the player meant and the only thing that works.
+      if (e.kind === 'gateway') continue;
 
       if (e.kind === 'building') {
         if (wx >= e.cx && wy >= e.cy && wx < e.cx + e.size[0] && wy < e.cy + e.size[1]) {

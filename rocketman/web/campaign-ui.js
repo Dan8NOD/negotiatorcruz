@@ -8,6 +8,7 @@
  */
 
 import { MISSIONS, CAMPAIGN_TITLE, CAMPAIGN_INTRO } from '../engine/campaign.js';
+import { GATEWAY_KINDS } from '../engine/content.js';
 import {
   UPGRADES,
   BRANCHES,
@@ -17,7 +18,13 @@ import {
   MAX_PILOT_LEVEL,
   PERK_LEVEL,
 } from '../engine/progression.js';
-import { missionUnlocked, canBuy, campaignComplete } from '../engine/profile.js';
+import {
+  missionUnlocked,
+  canBuy,
+  campaignComplete,
+  challengeUnlocked,
+  visibleChallenges,
+} from '../engine/profile.js';
 import { TICKS_PER_SECOND } from '../engine/content.js';
 
 const $ = (id) => document.getElementById(id);
@@ -64,32 +71,38 @@ export function renderCampaign(profile, handlers) {
     );
   }
 
-  const list = el('div', 'missionList');
+  const list = el('div', 'missionList storyList');
   for (const mission of MISSIONS) {
-    const unlocked = missionUnlocked(profile, mission);
-    const cleared = profile.completed.includes(mission.id);
-    const record = profile.records[mission.id];
-
-    const card = el('button', `mission${cleared ? ' cleared' : ''}${unlocked ? '' : ' locked'}`);
-    card.type = 'button';
-    card.disabled = !unlocked;
-    card.innerHTML = `
-      <span class="no">${String(mission.index).padStart(2, '0')}</span>
-      <span class="body">
-        <strong>${mission.name}</strong>
-        <em>${mission.subtitle}</em>
-        ${mission.teaches ? `<span class="teaches">${mission.teaches}</span>` : ''}
-        ${
-          record
-            ? `<span class="record">Best ${formatTime(record.ticks)} · ${record.killed} kills</span>`
-            : ''
-        }
-      </span>
-      <span class="badge">${cleared ? 'Cleared' : unlocked ? 'Available' : 'Locked'}</span>`;
-    if (unlocked) card.addEventListener('click', () => handlers.onBrief(mission));
-    list.appendChild(card);
+    list.appendChild(missionCard(mission, profile, missionUnlocked(profile, mission), handlers));
   }
   root.appendChild(list);
+
+  /* --- challenges ------------------------------------------------------
+   *
+   * A separate list under the story rather than seven-plus-four in one,
+   * because they are a different promise: the campaign is a sequence you
+   * finish and these are two locked doors and whatever is behind them. Hidden
+   * worlds only appear in it once somebody has been through the door — the
+   * screen should not be able to tell you the Undercroft exists before you
+   * have stood in the hole.
+   */
+  const challenges = visibleChallenges(profile);
+  if (challenges.length) {
+    const head = el('div', 'campaignHead challengeHead');
+    head.appendChild(el('h3', null, 'Challenges'));
+    head.appendChild(
+      el('p', 'hint', 'Landmarks with something behind them. Optional, and not easy.')
+    );
+    root.appendChild(head);
+
+    const bonus = el('div', 'missionList challengeList');
+    for (const mission of challenges) {
+      bonus.appendChild(
+        missionCard(mission, profile, challengeUnlocked(profile, mission), handlers)
+      );
+    }
+    root.appendChild(bonus);
+  }
 
   const actions = el('div', 'campaignActions');
   const hangar = el('button', 'ghost', 'Hangar');
@@ -112,6 +125,43 @@ export function renderCampaign(profile, handlers) {
   root.appendChild(actions);
 }
 
+/**
+ * One row in a mission list.
+ *
+ * Story missions and challenges share it deliberately: they are the same
+ * object with the same record, and giving the optional ones their own card
+ * design would say they are a different kind of thing to play.
+ */
+function missionCard(mission, profile, unlocked, handlers) {
+  const cleared = profile.completed.includes(mission.id);
+  const record = profile.records[mission.id];
+
+  const card = el(
+    'button',
+    `mission${cleared ? ' cleared' : ''}${unlocked ? '' : ' locked'}${
+      mission.challenge ? ' challenge' : ''
+    }`
+  );
+  card.type = 'button';
+  card.disabled = !unlocked;
+  card.dataset.mission = mission.id;
+  card.innerHTML = `
+      <span class="no">${mission.challenge ? '★' : String(mission.index).padStart(2, '0')}</span>
+      <span class="body">
+        <strong>${mission.name}</strong>
+        <em>${mission.subtitle}</em>
+        ${mission.teaches ? `<span class="teaches">${mission.teaches}</span>` : ''}
+        ${
+          record
+            ? `<span class="record">Best ${formatTime(record.ticks)} · ${record.killed} kills</span>`
+            : ''
+        }
+      </span>
+      <span class="badge">${cleared ? 'Cleared' : unlocked ? 'Available' : 'Locked'}</span>`;
+  if (unlocked) card.addEventListener('click', () => handlers.onBrief(mission));
+  return card;
+}
+
 /* -------------------------------------------------------------- briefing -- */
 
 export function renderBriefing(mission, profile, handlers) {
@@ -119,8 +169,13 @@ export function renderBriefing(mission, profile, handlers) {
   root.innerHTML = '';
 
   const card = el('div', 'brief');
+  // Challenges number themselves, so a briefing cannot say "Mission 01" over
+  // Ironhold while the campaign's own mission 01 is a different fight.
+  const label = mission.challenge
+    ? `Challenge ${String(mission.index).padStart(2, '0')}`
+    : `Mission ${String(mission.index).padStart(2, '0')}`;
   card.innerHTML = `
-    <span class="no">Mission ${String(mission.index).padStart(2, '0')}</span>
+    <span class="no">${label}</span>
     <h2>${mission.name}</h2>
     <em>${mission.subtitle}</em>
     <pre>${mission.briefing}</pre>`;
@@ -174,29 +229,88 @@ export function renderBriefing(mission, profile, handlers) {
   root.appendChild(card);
 }
 
+/* ------------------------------------------------------------ transition -- */
+
+/**
+ * The card between two plates of a run.
+ *
+ * Deliberately almost empty, and that is the feature. This is the one screen
+ * in the game whose job is to *not* interrupt: the crew walked into a hole and
+ * the next thing the player should see is what is at the bottom of it. So the
+ * card names the place, says one line about it, and gets out of the way. A
+ * payout table, an objective list or a button to hunt for would each turn it
+ * back into the debrief this replaced — and the debrief is at the end of the
+ * run, where the numbers actually mean something.
+ *
+ * Drawing only. main.js owns *when* this advances — the dwell, the keypress —
+ * because that is screen flow and screen flow lives there.
+ */
+export function renderTransition(exit, destination, handlers) {
+  const root = $('transition');
+  root.innerHTML = '';
+
+  const kind = GATEWAY_KINDS[exit.kind] || GATEWAY_KINDS.shaft;
+  const card = el('div', 'transitionCard');
+  card.innerHTML = `
+    <span class="no">${kind.verb}</span>
+    <h2>${exit.name}</h2>
+    <em>${destination ? destination.subtitle : ''}</em>
+    <p class="flavour">${exit.flavour || kind.opened}</p>
+    <span class="goHint" id="transitionHint">Press any key, or tap, to go on</span>`;
+  root.appendChild(card);
+
+  // The whole screen is the button. Hunting for a target on a card that is
+  // about to advance by itself is worse than having no target at all, and a
+  // phone has no key to press.
+  root.onclick = handlers.onAdvance;
+}
+
 /* --------------------------------------------------------------- debrief -- */
 
+/**
+ * The end of a run.
+ *
+ * `outcome` is a *run* outcome — usually one plate, which is every story
+ * mission in the game and reads exactly as it did before chains existed, and
+ * occasionally several, when the crew went through a door. `mission` is the
+ * plate it ended on: the one whose story text closes the run and the one
+ * "Replay" means.
+ */
 export function renderDebrief(mission, outcome, before, after, handlers) {
   const root = $('debrief');
   root.innerHTML = '';
 
+  // A chain is only worth naming when there was one. One plate is the common
+  // case and must not grow a heading, a run summary, or any other furniture
+  // announcing a feature it did not use.
+  const plates = outcome.plates && outcome.plates.length > 1 ? outcome.plates : null;
+
   const card = el('div', `debriefCard ${outcome.won ? 'won' : 'lost'}`);
   card.innerHTML = `
-    <h2>${outcome.won ? 'Mission complete' : 'Mission failed'}</h2>
-    <em>${mission.name}</em>`;
+    <h2>${outcome.won ? (plates ? 'Run complete' : 'Mission complete') : 'Mission failed'}</h2>
+    <em>${plates ? plates.map((p) => p.name).join(' → ') : mission.name}</em>`;
 
   const objectives = el('div', 'debriefObjectives');
-  for (const o of outcome.objectives) {
+  const objectiveRow = (o) => {
     const state = o.failed ? 'failed' : o.complete || (o.standing && !o.failed) ? 'done' : 'missed';
-    objectives.appendChild(
-      el(
-        'div',
-        `obj ${state}${o.optional ? ' bonus' : ''}`,
-        `<i></i>${o.text || o.key}<span>${
-          state === 'done' ? '✓' : state === 'failed' ? '✕' : '—'
-        }</span>`
-      )
+    return el(
+      'div',
+      `obj ${state}${o.optional ? ' bonus' : ''}`,
+      `<i></i>${o.text || o.key}<span>${
+        state === 'done' ? '✓' : state === 'failed' ? '✕' : '—'
+      }</span>`
     );
+  };
+  if (plates) {
+    // Objectives stay under the plate that set them. "Level the headquarters"
+    // and "clear the lower chambers" answer different questions, and one
+    // merged tick-list of six lines answers neither.
+    for (const plate of plates) {
+      objectives.appendChild(el('h5', 'plateName', plate.name));
+      for (const o of plate.objectives) objectives.appendChild(objectiveRow(o));
+    }
+  } else {
+    for (const o of outcome.objectives) objectives.appendChild(objectiveRow(o));
   }
   card.appendChild(objectives);
 
@@ -251,21 +365,31 @@ export function renderDebrief(mission, outcome, before, after, handlers) {
   }
 
   const actions = el('div', 'briefActions');
+
+  // There is no "the way on" button here any more, and its absence is the
+  // feature. A gateway loads the next plate directly, so by the time this
+  // screen is up the crew has already been everywhere the run was going —
+  // where the player used to answer a debrief, a briefing and a Deploy button
+  // between two halves of one descent.
   const cont = el('button', 'primary', outcome.won ? 'Continue' : 'Back to missions');
   cont.type = 'button';
   cont.id = 'debriefContinue';
   cont.addEventListener('click', handlers.onContinue);
   actions.appendChild(cont);
 
-  const retry = el('button', 'ghost', 'Replay mission');
+  // Replay means the plate the run ended on — the one that was just lost, or
+  // the last one won. "Replay mission" over a three-plate run would be a lie
+  // about which mission, so it says which.
+  const retry = el('button', 'ghost', plates ? `Replay ${mission.name}` : 'Replay mission');
   retry.type = 'button';
   retry.addEventListener('click', () => handlers.onRetry(mission));
   actions.appendChild(retry);
 
   // Watch the match back. Only offered when main.js actually has a recording
-  // in hand, so the button never leads nowhere.
+  // in hand, so the button never leads nowhere — and a recording is one plate,
+  // never a whole chain, so on a run it says which plate it will show.
   if (handlers.onWatch) {
-    const watch = el('button', 'ghost', 'Watch replay');
+    const watch = el('button', 'ghost', plates ? 'Watch the last plate' : 'Watch replay');
     watch.type = 'button';
     watch.id = 'debriefWatch';
     watch.addEventListener('click', handlers.onWatch);

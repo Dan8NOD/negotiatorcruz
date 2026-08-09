@@ -502,8 +502,344 @@ It is enough. It was always going to be.
   },
 ];
 
+/* ---------------------------------------------------------- challenges -- */
+
+/**
+ * The challenges, and the two worlds they open onto.
+ *
+ * The story is seven missions of the same war. These are the four that are
+ * not: a landmark you can see from the minimap, one thing standing between
+ * you and the way past it, and — if you get past it — somewhere the campaign
+ * never goes.
+ *
+ * Both challenges are the same shape deliberately, because that is the shape
+ * being taught:
+ *
+ *   **Ironhold** — the Bulwark headquarters is the map. Knock it down and the
+ *   shaft it was built over is uncovered. Walk a machine into the shaft and
+ *   you are in **The Undercroft**.
+ *
+ *   **The Bastion** — a castle with one door, and a Robot Marine standing in
+ *   front of it. The wall does not come down; the Marine does. Kill it and
+ *   the great door opens onto **The Iron Keep**.
+ *
+ * The destination worlds are ordinary missions with a `biome` — the map
+ * generator makes chambers out of rock instead of districts out of open
+ * ground, and everything else about them is the game you already know. That
+ * is the point of doing it as a biome rather than as a mode: an underground
+ * mission is a *place*, not a second set of rules.
+ *
+ * `requires` names whatever has to be cleared first, from either list, which
+ * is how a challenge sits at the right point in the story and how a world
+ * stays hidden until somebody finds the door to it.
+ *
+ * A gateway's `to` is read as a **chain**, not as a suggestion: taking the
+ * shaft loads the Undercroft straight into the game screen as the next plate
+ * of the same run. See "runs" at the foot of this file for what that means for
+ * the debrief. `requires` still governs launching a hidden world on its own
+ * from the mission list, which is how it stays replayable afterwards.
+ */
+export const CHALLENGES = [
+  {
+    id: 'ironhold',
+    index: 1,
+    challenge: true,
+    name: 'Ironhold',
+    subtitle: 'Bulwark regional headquarters',
+    seed: 80211,
+    mapSize: 128,
+    reward: 900,
+    parTime: mins(13),
+    requires: 'brownout',
+    teaches: 'Bring the headquarters down and find what it was built over.',
+    briefing: `
+Box has been staring at the Kesh survey for two days and he is right about
+this, so listen to him twice.
+
+The Bulwark headquarters is eight years old. The foundation under it is not. It
+is cut, it is deeper than anything they have built on this rock, and there is a
+shaft in the middle of it that the headquarters was very deliberately put on
+top of.
+
+You cannot get at it while the building is standing. So do not leave it
+standing.
+
+When it comes down, walk somebody into the hole. Any of us. We will find out
+what is down there the way we have found out everything else.
+`.trim(),
+    debrief: `
+It came down in one piece and then in a great many, and underneath it was
+exactly what Box said would be underneath it: a shaft, cut square, going down
+further than a lamp reaches.
+
+Ash went first, because of course she did.
+
+The air coming up is warm.
+`.trim(),
+    gateways: [
+      {
+        id: 'undercroft',
+        name: 'The Undercroft',
+        kind: 'shaft',
+        /** Placed by the map generator; the shaft opens where it stood. */
+        landmark: 'headquarters',
+        to: 'undercroft',
+        /**
+         * The whole of what the player is told on the way down.
+         *
+         * A transition card is not a briefing: the crew went into a hole
+         * nobody has a survey of, and a paragraph explaining what is at the
+         * bottom would be the one thing they do not have. One line, and it is
+         * the same line Ironhold's debrief ends on.
+         */
+        flavour: 'The air coming up is warm.',
+      },
+    ],
+    player: {
+      faction: 'ascendancy',
+      start: {
+        scrap: 7000,
+        collectors: 4,
+        units: ['kestrel', 'vireo'],
+        heroes: ['ash', 'nim', 'box', 'halcyon', 'roan'],
+        buildings: ['refinery', 'foundry', 'reactor'],
+      },
+    },
+    enemy: {
+      faction: 'bulwark',
+      isAI: true,
+      difficulty: 'normal',
+      start: { scrap: 8000, buildings: ['reactor', 'refinery', 'foundry', 'turret', 'turret'] },
+    },
+    objectives: [
+      {
+        kind: 'enter',
+        gateway: 'undercroft',
+        text: 'Level the headquarters, then take the shaft',
+      },
+    ],
+    bonusObjectives: [
+      { kind: 'destroyStructures', player: 1, text: 'Clear the garrison first', reward: 350 },
+    ],
+  },
+
+  {
+    id: 'undercroft',
+    index: 2,
+    challenge: true,
+    hidden: true,
+    name: 'The Undercroft',
+    subtitle: 'Below Ironhold',
+    seed: 80347,
+    mapSize: 128,
+    /** Chambers cut out of rock. See BIOMES in content.js. */
+    biome: 'cavern',
+    reward: 1400,
+    parTime: mins(15),
+    requires: 'ironhold',
+    teaches: null,
+    briefing: `
+It is not a mine.
+
+Somebody cut these chambers, and somebody has been keeping the lower ones
+clear. There is Bulwark hardware down here that never came off a manifest, and
+a firestone seam running through the walls that goes up like a fuel dump if you
+put a rocket near it — which, in a room with one way out, is a thing worth
+knowing before it happens rather than afterwards.
+
+No sky, no jump-jet line of sight, and every fight is in a room or in the
+corridor between two rooms.
+
+Take it.
+`.trim(),
+    debrief: `
+Whatever the Bulwark were doing under their own headquarters, they were doing
+it quietly, and they were doing it with machines they never fielded on the
+surface.
+
+Nim wants to know why. Box says he already knows and does not want to say it in
+front of the recorder.
+
+We are keeping the shaft.
+`.trim(),
+    player: {
+      faction: 'ascendancy',
+      start: {
+        scrap: 8000,
+        collectors: 5,
+        units: ['kestrel', 'ember'],
+        heroes: ['ash', 'nim', 'box', 'sable', 'halcyon', 'roan'],
+        buildings: ['refinery', 'foundry', 'reactor', 'techlab'],
+        // No sky down here. The mission that teaches "the map is the shape of
+        // the fight" cannot also hand the player the machine that ignores it.
+        locked: ['harrier', 'vulture', 'hangar'],
+      },
+    },
+    enemy: {
+      faction: 'bulwark',
+      isAI: true,
+      difficulty: 'hard',
+      start: {
+        scrap: 13000,
+        units: ['anvil', 'anvil', 'ward'],
+        buildings: ['reactor', 'reactor', 'refinery', 'foundry', 'techlab', 'turret'],
+        /** Both sides, or "no sky down here" is a rule only the player obeys. */
+        locked: ['harrier', 'vulture', 'hangar'],
+      },
+    },
+    objectives: [{ kind: 'destroyStructures', player: 1, text: 'Clear the lower chambers' }],
+    bonusObjectives: [
+      { kind: 'protect', pilot: 'ash', text: 'Everyone comes back up', reward: 400 },
+    ],
+  },
+
+  {
+    id: 'bastion',
+    index: 3,
+    challenge: true,
+    name: 'The Bastion',
+    subtitle: 'The old castle on the shelf road',
+    seed: 80559,
+    mapSize: 128,
+    reward: 1100,
+    parTime: mins(15),
+    requires: 'cold_open',
+    teaches: 'Kill the door guard. The wall is not the way in.',
+    briefing: `
+The castle predates the Bulwark by a very long time and they have not put a
+scratch on it, which should tell you how much good our rockets are going to do.
+
+Do not waste them on the wall. There is one door, it is barred from the inside,
+and there is a Robot Marine standing in front of it.
+
+Four thousand hull and a shield that comes back faster than we can chip it, so
+chipping is not the plan. Everything on it at once, and stay off its front arc
+— the cannon cycles about every two and a half seconds and you want to be
+somewhere else for one of those.
+
+Kill it and the door opens. That is not a guess; that is what the door is for.
+`.trim(),
+    debrief: `
+It went down on the fourth pass and the door started moving before it had
+finished falling, which none of us liked.
+
+Sable held it open with the Gale while the rest of us formed up.
+
+There is a courtyard on the other side and it is lit.
+`.trim(),
+    gateways: [
+      {
+        id: 'ironkeep',
+        name: 'The Iron Keep',
+        kind: 'gate',
+        landmark: 'castle',
+        /**
+         * The Marine. It is spawned in the doorway rather than listed in the
+         * enemy's opening forces, because a guard that started at the enemy's
+         * landing zone would walk off to fight the war and the door would be
+         * unguarded by minute two.
+         */
+        guard: { defId: 'marine', player: 1 },
+        to: 'ironkeep',
+        flavour: 'There is a courtyard on the other side, and it is lit.',
+      },
+    ],
+    player: {
+      faction: 'ascendancy',
+      start: {
+        scrap: 8000,
+        collectors: 5,
+        units: ['kestrel', 'kestrel', 'vireo'],
+        heroes: ['ash', 'nim', 'box', 'sable', 'wren', 'halcyon', 'roan', 'ghost'],
+        buildings: ['refinery', 'foundry', 'reactor', 'techlab'],
+      },
+    },
+    enemy: {
+      faction: 'bulwark',
+      isAI: true,
+      difficulty: 'normal',
+      start: { scrap: 9000, buildings: ['reactor', 'refinery', 'foundry', 'turret'] },
+    },
+    objectives: [
+      { kind: 'enter', gateway: 'ironkeep', text: 'Kill the Robot Marine, then take the gate' },
+    ],
+    bonusObjectives: [
+      {
+        kind: 'protect',
+        player: 0,
+        defId: 'command',
+        atLeast: 1,
+        text: 'Do not lose the rig doing it',
+        reward: 300,
+      },
+    ],
+  },
+
+  {
+    id: 'ironkeep',
+    index: 4,
+    challenge: true,
+    hidden: true,
+    name: 'The Iron Keep',
+    subtitle: 'Beyond the great door',
+    seed: 80712,
+    mapSize: 128,
+    biome: 'keep',
+    reward: 1800,
+    parTime: mins(18),
+    requires: 'bastion',
+    teaches: null,
+    briefing: `
+Courtyards, and corridors between courtyards, and braziers somebody lit this
+morning.
+
+The Bulwark did not build this and they are not the only thing garrisoning it.
+Whatever the arrangement is, it ends today.
+
+One door in, and it is behind you. Hold what you take.
+`.trim(),
+    debrief: `
+Eight years they have been telling this rock there was nothing left of the
+Ascendancy on it.
+
+We are standing in the keep.
+
+It is just us and our rocket crew. It was always going to be.
+`.trim(),
+    player: {
+      faction: 'ascendancy',
+      start: {
+        scrap: 9000,
+        collectors: 5,
+        units: ['kestrel', 'kestrel', 'ember', 'vireo'],
+        heroes: ['ash', 'nim', 'box', 'sable', 'wren', 'halcyon', 'roan', 'ghost'],
+        buildings: ['refinery', 'foundry', 'reactor', 'reactor', 'techlab'],
+        locked: ['harrier', 'vulture', 'hangar'],
+      },
+    },
+    enemy: {
+      faction: 'bulwark',
+      isAI: true,
+      difficulty: 'hard',
+      start: {
+        scrap: 15000,
+        units: ['anvil', 'anvil', 'longbow', 'ward'],
+        buildings: ['reactor', 'reactor', 'reactor', 'refinery', 'foundry', 'techlab', 'turret'],
+        locked: ['harrier', 'vulture', 'hangar'],
+      },
+    },
+    objectives: [{ kind: 'destroyStructures', player: 1, text: 'Take the keep' }],
+    bonusObjectives: [
+      { kind: 'protect', pilot: 'ash', text: 'Every pilot walks back out', reward: 600 },
+    ],
+  },
+];
+
+/** Everything playable, story and challenges alike. */
+export const ALL_MISSIONS = [...MISSIONS, ...CHALLENGES];
+
 export function missionById(id) {
-  return MISSIONS.find((m) => m.id === id) || null;
+  return ALL_MISSIONS.find((m) => m.id === id) || null;
 }
 
 export function missionByIndex(index) {
@@ -580,6 +916,12 @@ export function missionOutcome(world, mission) {
 
   return {
     won,
+    /**
+     * The way off the map, if the crew took one. Null in every mission that
+     * has no gateway, and null in a challenge whose gateway was never opened —
+     * so the debrief can offer "descend" without asking the world twice.
+     */
+    exit: world.exit,
     rewards,
     bonusSalvage,
     bonusesCleared: cleared.length,
@@ -595,6 +937,120 @@ export function missionOutcome(world, mission) {
       failed: o.failed,
       standing: o.standing,
     })),
+  };
+}
+
+/* --------------------------------------------------------------- runs -- */
+
+/**
+ * A run: every plate a single deployment covers.
+ *
+ * A gateway's destination is the next plate of the run, not a separate mission
+ * to relaunch — walking into the shaft under Ironhold loads the Undercroft
+ * directly. The debrief therefore waits until the crew stops finding doors:
+ * one screen at the end of the chain, summarising every plate, instead of a
+ * full scoreboard wedged into the one moment in the game that is pure
+ * momentum.
+ *
+ * Most runs are one plate long. That is the case that has to stay exactly as
+ * it was, because it is every story mission in the game, which is why
+ * `runOutcome` is shaped like `missionOutcome` rather than like something new.
+ *
+ * A run is plain data and everything derived from it is derived here rather
+ * than in the screen that draws it, so the accumulation is testable without a
+ * browser. `recordPlate` spreads whatever else the caller is carrying on the
+ * run object — main.js keeps the profile as it stood before the first plate
+ * there, to show pilot XP across the whole chain — so this file never has to
+ * know what that is.
+ */
+export function createRun() {
+  return { plates: [] };
+}
+
+/** Append a finished plate. Returns a new run; the argument is untouched. */
+export function recordPlate(run, mission, outcome) {
+  const base = run || createRun();
+  return {
+    ...base,
+    plates: [
+      ...base.plates,
+      { id: mission.id, name: mission.name, subtitle: mission.subtitle || '', outcome },
+    ],
+  };
+}
+
+/**
+ * The mission on the other side of the door this plate ended on, or null.
+ *
+ * Null covers three different endings and deliberately does not tell them
+ * apart, because the caller does the same thing in all three: a mission with
+ * no gateway, a challenge whose gateway was never taken, and a gateway leading
+ * to content that has since been deleted all mean "the run stops here".
+ */
+export function plateAfter(outcome) {
+  if (!outcome || !outcome.exit || !outcome.exit.to) return null;
+  return missionById(outcome.exit.to);
+}
+
+/**
+ * Fold a run into the one outcome its debrief renders.
+ *
+ * Salvage, statistics and pilot XP are summed across the chain because that is
+ * what the player earned for the deployment; each plate's objectives are kept
+ * *apart*, under that plate's name, because "clear the lower chambers" and
+ * "level the headquarters" are answers to two different questions and a single
+ * merged tick-list says neither.
+ *
+ * The run's result is the last plate's. Every earlier plate was won by
+ * definition — a plate that was lost has no door on the far side of it.
+ */
+export function runOutcome(run) {
+  const plates = (run && run.plates) || [];
+  const last = plates.length ? plates[plates.length - 1].outcome : null;
+
+  const rewards = { salvage: 0, xp: 0, base: 0, killBonus: 0, speedBonus: 0 };
+  const stats = { ticks: 0, killed: 0, lost: 0, mined: 0 };
+  const pilotXp = {};
+  const pilotsLost = [];
+  let bonusSalvage = 0;
+  let bonusesCleared = 0;
+  let bonusTotal = 0;
+
+  for (const plate of plates) {
+    const o = plate.outcome;
+    for (const key of Object.keys(rewards)) rewards[key] += (o.rewards && o.rewards[key]) || 0;
+    for (const key of Object.keys(stats)) stats[key] += (o.stats && o.stats[key]) || 0;
+    bonusSalvage += o.bonusSalvage || 0;
+    bonusesCleared += o.bonusesCleared || 0;
+    bonusTotal += o.bonusTotal || 0;
+    for (const [id, xp] of Object.entries(o.pilotXp || {})) pilotXp[id] = (pilotXp[id] || 0) + xp;
+    // A pilot shot down on plate one is one loss, not one per plate.
+    for (const id of o.pilotsLost || []) if (!pilotsLost.includes(id)) pilotsLost.push(id);
+  }
+
+  return {
+    won: last ? last.won : false,
+    exit: last ? last.exit : null,
+    rewards,
+    bonusSalvage,
+    bonusesCleared,
+    bonusTotal,
+    pilotXp,
+    pilotsLost,
+    stats,
+    /** Each plate's objectives, under the plate's own name. */
+    plates: plates.map((p) => ({
+      id: p.id,
+      name: p.name,
+      subtitle: p.subtitle,
+      won: p.outcome.won,
+      objectives: p.outcome.objectives || [],
+    })),
+    /**
+     * The same objectives flattened, so anything that only wants "how did the
+     * objectives go" reads a run exactly the way it read a mission.
+     */
+    objectives: plates.flatMap((p) => p.outcome.objectives || []),
   };
 }
 

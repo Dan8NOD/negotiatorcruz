@@ -214,6 +214,47 @@ export const WEAPON_VOICES = {
     }
     s.tone({ freq: 62, to: 50, type: 'sine', dur: 0.4, gain: 0.5 * at.vol, pan: at.pan });
   },
+
+  /* ---- the Robot Marine ------------------------------------------------ */
+
+  /**
+   * The gate gun. A single enormous shell every two and a half seconds, and
+   * the fight is built around hearing it: the player's counterplay is to be
+   * somewhere else for one cycle, which only works if the cycle is audible
+   * from across the map. Longest, lowest, slowest thing in the table.
+   */
+  bastioncannon(s, at) {
+    s.noise({ dur: 0.34, freq: 620, gain: 1.0 * at.vol, pan: at.pan });
+    s.tone({ freq: 72, to: 30, type: 'sine', dur: 0.42, gain: 0.9 * at.vol, pan: at.pan });
+    // The breech, a beat behind the muzzle. It is what makes it a machine.
+    s.tone({
+      freq: 200,
+      to: 120,
+      type: 'square',
+      dur: 0.1,
+      gain: 0.3 * at.vol,
+      pan: at.pan,
+      delay: 0.3,
+    });
+  },
+
+  /**
+   * The close-range answer to being rushed, and the sound that tells a player
+   * they have got too near.
+   *
+   * The first pass was an autocannon an octave down, and the suite was right
+   * to reject it: at three and a half rounds a second against the
+   * autocannon's six, "the same gun, slightly lower" is not something anyone
+   * identifies mid-fight. So it is a *double knock* instead — two deep bursts
+   * twenty-five milliseconds apart, which no other weapon in the table does
+   * and which reads as a much heavier action even at a distance.
+   */
+  wardrepeater(s, at) {
+    for (let i = 0; i < 2; i++) {
+      s.noise({ dur: 0.06, freq: 800, gain: 0.5 * at.vol, pan: at.pan, delay: i * 0.025 });
+    }
+    s.tone({ freq: 104, to: 44, type: 'sawtooth', dur: 0.1, gain: 0.52 * at.vol, pan: at.pan });
+  },
 };
 
 /**
@@ -461,6 +502,12 @@ export const UNMISSABLE_EVENTS = new Set([
   'placed',
   'promoted',
   'repairStalled',
+  // A shaft opening under the headquarters happens wherever the headquarters
+  // was, which is routinely nowhere near the camera. It is also the single
+  // biggest thing that happens in a challenge, so it comes back centred
+  // rather than not at all — the same argument as a mid-mission arrival.
+  'gatewayOpened',
+  'gatewayEntered',
 ]);
 
 /** Beyond this many pixels outside the viewport, a world sound is not heard. */
@@ -1093,6 +1140,33 @@ export function createSound({ audioBase = AUDIO_BASE } = {}) {
               });
             }
           });
+          break;
+        /**
+         * A way off the map opening.
+         *
+         * Positional rather than an interface chime: it happens *there*, at
+         * whatever the crew just brought down, and the camera cuts to it. The
+         * long sub-bass under the rubble is the whole point — something large
+         * moved, and it moved somewhere else on the map.
+         */
+        case 'gatewayOpened':
+          noise({ dur: 1.3, freq: 260, gain: 0.9 * vol, pan });
+          tone({ freq: 60, to: 28, type: 'sine', dur: 1.6, gain: 1.0 * vol, pan });
+          tone({
+            freq: 180,
+            to: 420,
+            type: 'triangle',
+            dur: 1.1,
+            gain: 0.4 * vol,
+            pan,
+            delay: 0.35,
+          });
+          break;
+        case 'gatewayEntered':
+          // Going through. Rising, and it stops rather than resolving — the
+          // debrief is the resolution.
+          tone({ freq: 300, to: 900, type: 'sine', dur: 0.7, gain: 0.5, pan: 0, bus: uiBus });
+          tone({ freq: 150, to: 450, type: 'triangle', dur: 0.9, gain: 0.4, pan: 0, bus: uiBus });
           break;
         case 'objectiveComplete':
           if (ev.optional) play('ui.objectiveBonus', at, () => chime(660, 2, 0));
