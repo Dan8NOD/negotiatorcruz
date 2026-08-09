@@ -1362,6 +1362,13 @@
         margin: 4px 0 0;
       }
 
+      /* Full width, so it wraps under the controls instead of between them. */
+      .setupNote {
+        flex-basis: 100%;
+        margin: 0;
+        min-height: 1.5em;
+      }
+
       .detail h4 {
         font-size: 16px;
         margin-bottom: 6px;
@@ -1621,11 +1628,21 @@
             <select id="difficulty"></select>
           </div>
           <div class="field">
+            <label for="mapCharacter">Battlefield</label>
+            <select id="mapCharacter"></select>
+          </div>
+          <div class="field">
             <label for="seed">Map seed</label>
             <input id="seed" type="number" min="1" max="999999" />
           </div>
           <button type="button" id="start" class="primary">Deploy</button>
           <button type="button" id="skirmishBack" class="ghost">Back</button>
+          <!--
+            Its own row rather than inside the field: `.setup` aligns its
+            children on their bottom edge, so a hint tucked under the select
+            would lift that one control out of line with everything beside it.
+          -->
+          <p id="mapCharacterHint" class="hint setupNote"></p>
         </div>
       </div>
     </main>

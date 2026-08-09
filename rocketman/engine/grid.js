@@ -50,7 +50,23 @@ export const DEFAULT_MAP_SIZE = 144;
 
 export function createMap(
   seed,
-  { width = DEFAULT_MAP_SIZE, height = DEFAULT_MAP_SIZE, biome = DEFAULT_BIOME, landmarks = [] } = {}
+  {
+    width = DEFAULT_MAP_SIZE,
+    height = DEFAULT_MAP_SIZE,
+    biome = DEFAULT_BIOME,
+    landmarks = [],
+    /**
+     * Which kind of place to build, or null to let the seed decide.
+     *
+     * A chosen character is a *request*, not a separate generator: it replaces
+     * the rolled answer and every pass reads it exactly as before, so a chosen
+     * map is one the seed could have produced anyway. Unknown ids fall back to
+     * the roll, the same tolerance `biome` and `characterOf` already show —
+     * a config from a newer build naming a character this one has never heard
+     * of should still open.
+     */
+    character = null,
+  } = {}
 ) {
   const rng = createRng(seed ^ 0x9e3779b9);
   const biomeDef = BIOMES[biome] || BIOMES[DEFAULT_BIOME];
@@ -136,7 +152,14 @@ export function createMap(
     // itself the same way. One roll, one map: an agricultural map has fewer
     // ridges *and* fewer tower blocks *and* more hedgerow, and that coherence
     // is the difference between a different map and the same map reshuffled.
-    map.character = MAP_CHARACTERS[rng.int(MAP_CHARACTERS.length)].id;
+    // The draw happens whether or not its answer is used. Grid.swift mirrors
+    // this table and its own comment calls the single `rng.int` load-bearing:
+    // skipping it when the player has chosen would shift every draw after it,
+    // so an unchosen map would stop matching the conformance fixtures — a
+    // menu option would have silently changed every existing seed.
+    const rolled = MAP_CHARACTERS[rng.int(MAP_CHARACTERS.length)].id;
+    const asked = MAP_CHARACTERS.find((c) => c.id === character);
+    map.character = asked ? asked.id : rolled;
     passes = carveTerrain(map, rng, characterOf(map), landmarks.length > 0);
   }
 
@@ -450,6 +473,16 @@ function characterOf(map) {
 
 /** Every character, for tests and for anything that wants to name one. */
 export const MAP_CHARACTER_IDS = MAP_CHARACTERS.map((c) => c.id);
+
+/**
+ * Every character as `{ id, name }`, in table order, for a menu to list.
+ *
+ * A projection rather than the table itself, and no blurb field added
+ * upstream: `MapCharacter` in Grid.swift mirrors this record field for field,
+ * and menu copy is not something the Swift port should have to carry. What a
+ * character *plays* like belongs next to the menu that says it.
+ */
+export const MAP_CHARACTER_MENU = MAP_CHARACTERS.map(({ id, name }) => ({ id, name }));
 
 /** Which district kinds a character can roll, weight included. For tests. */
 export const characterMix = (id) => {

@@ -15,6 +15,7 @@
  */
 
 import { createWorld } from '../engine/sim.js';
+import { MAP_CHARACTER_MENU } from '../engine/grid.js';
 import { DIFFICULTIES } from '../engine/ai.js';
 import {
   FACTIONS,
@@ -482,6 +483,8 @@ function buildSkirmishMenu() {
     difficulty.appendChild(option);
   }
 
+  buildMapPicker();
+
   $('seed').value = String(Math.floor(Math.random() * 100000));
 
   $('start').addEventListener('click', () => {
@@ -490,6 +493,9 @@ function buildSkirmishMenu() {
     startMatch(
       {
         seed,
+        // '' is the Surprise me option: no character, so the seed decides,
+        // which is what every map did before this menu existed.
+        character: $('mapCharacter').value || null,
         players: [
           { faction: chosen, name: 'You' },
           { faction: enemy, isAI: true, difficulty: difficulty.value },
@@ -498,6 +504,50 @@ function buildSkirmishMenu() {
       { mission: null }
     );
   });
+}
+
+/**
+ * What each battlefield plays like, in the terms a player picks on.
+ *
+ * Deliberately about the fight rather than the scenery: "more cover than open
+ * ground" is a reason to choose a map, "has tower blocks" is trivia. The
+ * copy lives here rather than in `MAP_CHARACTERS` because the Swift port
+ * mirrors that table field for field and has no menu to write copy for.
+ */
+const MAP_CHARACTER_HINTS = {
+  sprawl: 'Dense blocks and a canal. Short sightlines, and cover almost everywhere.',
+  pastoral: 'Fields, hedgerow and old growth. Open ground broken up by what grows on it.',
+  broken: 'Ridges and rock. The high ground is real here, and so is the long way round.',
+  works: 'Rail yards and industry. Hard cover in lines, and lanes that funnel armour.',
+  delta: 'A wide river and standing water. Less ground to fight on, so it is fought over harder.',
+};
+
+function buildMapPicker() {
+  const select = $('mapCharacter');
+  const hint = $('mapCharacterHint');
+
+  // First and default: the behaviour every existing seed already has. A menu
+  // that silently changed what a shared seed builds would make every seed
+  // anyone has written down mean something else.
+  const surprise = document.createElement('option');
+  surprise.value = '';
+  surprise.textContent = 'Surprise me';
+  select.appendChild(surprise);
+
+  for (const { id, name } of MAP_CHARACTER_MENU) {
+    const option = document.createElement('option');
+    option.value = id;
+    option.textContent = name;
+    select.appendChild(option);
+  }
+
+  const showHint = () => {
+    hint.textContent = select.value
+      ? MAP_CHARACTER_HINTS[select.value] || ''
+      : 'The seed picks the battlefield.';
+  };
+  select.addEventListener('change', showHint);
+  showHint();
 }
 
 /* ------------------------------------------------------------------ game -- */
@@ -833,7 +883,14 @@ function startMatch(config, { mission, resume = null, watch = null }) {
       return e ? { id: e.id, defId: e.defId, x: e.x, y: e.y, pilot: e.pilotName || null } : null;
     })(),
     camera: { x: renderer.camera.x, y: renderer.camera.y, zoom: renderer.camera.zoom },
-    map: { width: world.map.width, height: world.map.height },
+    // `character` is here so the browser suite can assert the battlefield the
+    // player picked is the one that got built. Without it the only evidence a
+    // menu choice survived into the world is the map looking about right.
+    map: {
+      width: world.map.width,
+      height: world.map.height,
+      character: world.map.character,
+    },
     /**
      * Your standing structures, by id.
      *
