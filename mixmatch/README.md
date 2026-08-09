@@ -1,8 +1,9 @@
 # Mix & Match — the token arcade
 
-**Foundation only.** This directory currently contains one config module and its
-tests. No feature here is built. It exists so that when each one *is* built, it
-is a config entry rather than a new pricing scheme.
+**Foundation only.** This directory contains one config module, its tests, and a
+Swift port of it held to the same numbers by CI. No *feature* here is built. It
+exists so that when each one *is* built, it is a config entry rather than a new
+pricing scheme.
 
 Staged in `negotiatorcruz` for the same reason `practice-lab/` is: Mix & Match
 belongs to `negotiatorsondemand.com` (the `NOD-ify` repo), which this session
@@ -146,6 +147,55 @@ Confirm the real per-minute rate, flip `costsVerified`, unblock the meter.
 step, and per-jurisdiction handling. A legitimate decision here is *never*.
 
 Phases 1 and 2 need nothing that does not already exist.
+
+---
+
+## The iOS port — `swift/`
+
+`swift/` is a Swift package, `MixMatchKit`, holding the same token meter in
+Swift. It exists because the iPad app has to price a feature *before* spending,
+and a Swift package cannot import an ESM module — so the numbers exist twice.
+
+**A second copy of a price is exactly what produced the $3/$5/$10/$15 chat-token
+drift.** So the copy is not trusted. `mixmatch/tools/export-token-fixtures.mjs`
+dumps `config/tokens.js` to
+`swift/Tests/MixMatchKitTests/Fixtures/tokens.json`, and the XCTest suite
+asserts every Swift constant against it — the unit, both grants, all four
+meters, the flooring behaviour, and the guards (nothing priced below cost,
+nothing live on an unverified cost basis, nothing chargeable unless live).
+
+When you change a price:
+
+```sh
+# edit mixmatch/config/tokens.js, then
+npm test                    # the JavaScript guards
+npm run mixmatch:fixtures   # regenerate the fixture
+git add mixmatch/swift/Tests/MixMatchKitTests/Fixtures
+```
+
+CI regenerates the fixture and fails on a diff, so a price edited in JavaScript
+without a matching Swift change shows up as a red build rather than as an iPad
+charging a number the web app no longer honours. **Never regenerate a fixture to
+make a red test green** — red there means the two rails disagree about money.
+
+Two CI jobs cover this: the `unit` job checks the fixture is current, and
+`Mix & Match (Swift)` runs `swift test` in the official `swift:6.0` container.
+`MixMatchKit` is deliberately free of UIKit and SwiftUI so that second job needs
+no Mac — the numbers deciding what a customer is charged are verified on every
+push rather than only when someone opens Xcode.
+
+**What it does not do:** hold or spend a balance. Balances live in
+`ai_credit_accounts` and only ever move through `reserve_ai_credit` /
+`refund_ai_credit` / `grant_ai_credit` on the server. A client-side balance that
+can diverge from the ledger is a money bug waiting to happen; `MixMatchKit` does
+arithmetic and nothing else.
+
+`GrantRail` carries an `apple_iap` case with no grant using it yet. Apple's
+commission is materially larger than Stripe's fee, so a pack bought on iPad is
+worth less to the business than the same pack bought on the web even though the
+buyer pays the same and gets the same tokens — the rail has to be recorded at
+grant time for that to ever be visible. See `05 iOS Port` in the handover docs
+for the App Store rules that decide which purchases *must* go through IAP.
 
 ---
 
