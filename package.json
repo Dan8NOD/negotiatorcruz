@@ -19,7 +19,8 @@
     "rocketman:android:release": "cd rocketman/android && ./gradlew assembleRelease",
     "rocketman:store-assets": "node rocketman/android/tools/store-assets.mjs",
     "mixmatch:fixtures": "node mixmatch/tools/export-token-fixtures.mjs",
-    "mixmatch:timer": "node mixmatch/tools/build-timer-tab.mjs"
+    "mixmatch:timer": "node mixmatch/tools/build-timer-tab.mjs",
+    "test:mixmatch:e2e": "playwright test -c mixmatch/playwright.config.cjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0"

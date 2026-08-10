@@ -178,6 +178,7 @@ import {
     sound: $('mmt-sound'), foot: $('mmt-foot'),
   };
   const ctx = el.canvas.getContext('2d');
+  const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
   const prefs = load();
   let mode = prefs.mode === 'arcade' ? 'arcade' : 'timer';
@@ -258,8 +259,15 @@ import {
     el.go.disabled = false;
   }
 
+  // Best score, per round length. A single global best would let a 12-minute
+  // score swamp every 1-minute drill forever, and "beat your best" only means
+  // something against the same clock.
   function best() {
-    return Number(load().best || 0);
+    return Number((load().bests || {})[presetId] || 0);
+  }
+  function recordBest(score) {
+    if (score <= best()) return;
+    save({ bests: { ...(load().bests || {}), [presetId]: score } });
   }
 
   // ── controls ─────────────────────────────────────────────────────────────
@@ -363,12 +371,36 @@ import {
   }
   window.addEventListener('resize', () => { resize(); draw(); });
 
-  function draw() {
+  // Transient feedback: every scoring event becomes a short-lived floating
+  // number. The engine stays pure — it reports events, and remembering them
+  // long enough to animate is the renderer's job, not the simulation's.
+  const fx = [];
+  const FX_MS = 700;
+
+  function harvest(view, now) {
+    view.events.forEach((e) => {
+      const at = e.type === 'landedOffer' || e.type === 'landedTactic' ? 0.92 : (e.y ?? 0.5);
+      // Clamped into the readable band. Blocks under sustained fire die in
+      // their first seconds, high on the field — which put the popup at ~13px,
+      // under the HUD scrim, where the first visual check couldn't see it.
+      const y = Math.min(Math.max(at, 0.18), 0.86);
+      fx.push({
+        text: e.points > 0 ? '+' + e.points : e.points < 0 ? String(e.points) : '',
+        color: e.points > 0 ? (e.type === 'landedOffer' ? '#6fcf7c' : '#e9c46a')
+             : '#e07a76',
+        x: e.x, y, bornAt: now,
+      });
+    });
+    while (fx.length && now - fx[0].bornAt > FX_MS) fx.shift();
+  }
+
+  function draw(now = performance.now()) {
     if (el.field.hidden) return;
     const w = el.canvas.clientWidth;
     const h = el.canvas.clientHeight;
     if (!w || !h) return;
     const view = snapshot(session);
+    harvest(view, now);
 
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = '#1B1712';
@@ -410,6 +442,21 @@ import {
     round(tx - tw * 0.22, ty - tw * 0.20, tw * 0.44, tw * 0.24, 2); ctx.fill();
     ctx.fillRect(tx - 2, ty - tw * 0.46, 4, tw * 0.28);
 
+    // Floating score numbers: rise and fade over FX_MS. Skipped entirely for
+    // reduced-motion users — the HUD score is the accessible channel.
+    if (!reducedMotion.matches) {
+      ctx.font = '800 13px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif';
+      fx.forEach((p) => {
+        if (!p.text) return;
+        const age = (now - p.bornAt) / FX_MS;
+        if (age >= 1) return;
+        ctx.globalAlpha = 1 - age;
+        ctx.fillStyle = p.color;
+        ctx.fillText(p.text, p.x * w, (p.y - age * 0.06) * h);
+      });
+      ctx.globalAlpha = 1;
+    }
+
     if (view.state === 'idle') {
       ctx.fillStyle = 'rgba(246,239,226,.72)';
       ctx.font = '700 13px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif';
@@ -417,6 +464,14 @@ import {
       ctx.font = '600 11.5px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif';
       ctx.fillStyle = 'rgba(246,239,226,.5)';
       ctx.fillText('Lift to hold fire. Green offers are meant to land.', w / 2, h * 0.42 + 19);
+    }
+
+    if (view.state === 'paused') {
+      ctx.fillStyle = 'rgba(27,23,18,.55)';
+      ctx.fillRect(0, 0, w, h);
+      ctx.fillStyle = 'rgba(246,239,226,.9)';
+      ctx.font = '800 16px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif';
+      ctx.fillText('Paused', w / 2, h * 0.45);
     }
   }
 
@@ -459,7 +514,7 @@ import {
     if (mode !== 'arcade') return;
 
     const score = session.score;
-    if (score > best()) save({ best: score });
+    recordBest(score);
     el.overHead.textContent = 'Round over';
     el.overBody.textContent =
       'Score ' + score + '. ' + session.missed + ' got through. Best ' + best() + '.';

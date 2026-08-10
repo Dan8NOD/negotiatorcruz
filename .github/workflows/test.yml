@@ -189,6 +189,33 @@ jobs:
       - name: Conformance tests
         run: swift test --package-path rocketman/swift
 
+  # The Timer tab in a real browser. The engine's unit tests cannot see the
+  # page, and the first bug this tab shipped was pure CSS — `display:flex`
+  # beating the `hidden` attribute, "Round over" over a live game, every unit
+  # test green. This job tests both the module source and the generated page
+  # the iPad app ships, at iPad viewport, including one full played round.
+  mixmatch-browser:
+    name: Mix & Match (browser)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser tests
+        run: npm run test:mixmatch:e2e
+
   # The Swift token meter (mixmatch/swift). Runs in the official Swift
   # container so it needs no Mac: MixMatchKit is deliberately free of UIKit and
   # SwiftUI, which is what lets the numbers deciding what a customer is charged
