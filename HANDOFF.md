@@ -51,8 +51,10 @@ stacking on merged history.
    Run `python3 book/tools/voicepass.py <files>` on anything you write. It
    also handles British spellings and formal hedges.
 
-3. **Chicago plain-speech.** Short declaratives. No semicolons. No
-   "much", "exactly", "often", "to", "so", "so".
+3. **Chicago plain-speech.** Short declaratives. No semicolons. Avoid the
+   formal register: the words `voicepass.py` strips are listed in its `VOICE`
+   table, so read that rather than trusting a list here (this file was itself
+   run through the pass, which rewrote an earlier attempt at listing them).
    If a sentence runs past about 40 words, split it.
 
 4. **Scripts come from Dan's shipped copy, not from you.** 544 reviewed
@@ -66,10 +68,14 @@ stacking on merged history.
 
 ## Build commands
 
-    python3 book/tools/build.py # narration scripts + GAP-INDEX.md
-    python3 book/tools/makebook.py # The Cruz Protocol -> build/*.html
-    python3 guide/tools/makeguide.py # Six Before Yes -> build/*.html
-    python3 book/tools/voicepass.py <files> # dash + voice pass
+    python3 book/tools/build.py               # narration + GAP-INDEX.md
+    python3 book/tools/makebook.py            # Cruz Protocol -> build/
+    python3 guide/tools/makeguide.py          # Six Before Yes -> build/
+    python3 book/tools/voicepass.py <files>   # dash + voice pass
+
+Note: `voicepass.py` rewrites prose outside fenced blocks. If you are writing
+*about* the banned words rather than using them, put them in a code fence or
+the pass will helpfully replace them.
 
 PDFs render with the preinstalled chromium:
 
