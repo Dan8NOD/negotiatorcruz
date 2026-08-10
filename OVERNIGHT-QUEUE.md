@@ -35,7 +35,7 @@ commits, ticks the box, and stops.
       how to use them (print, laminate, one per desk). The cards already exist
       at the end of each `chNNb` file; this collects them.
       → `book/back-matter-cards.md`
-- [ ] **M3. Back matter, part 2: reference.** The emotion vocabulary reference
+- [x] **M3. Back matter, part 2: reference.** The emotion vocabulary reference
       (from the 1st Edition, expanded with the Torn/Ready/Not Yet triage), a
       blank manager's scorecard sized for a real floor, and one clean page on
       bringing the install in-house that names the ladder without pitching.
@@ -47,11 +47,11 @@ commits, ticks the box, and stops.
 
 ### Guide: Six Before Yes
 
-- [ ] **G1. Front matter.** Cover, title and copyright with the IP notice,
+- [x] **G1. Front matter.** Cover, title and copyright with the IP notice,
       the introduction stating five theses flatly (the blueprint's model), and
       "how to use this guide" carrying the State Check instruction on page
       four. → `guide/front-matter.md`
-- [ ] **G2. Back matter.** Glossary of every marked term, the About
+- [x] **G2. Back matter.** Glossary of every marked term, the About
       Negotiators on Demand page, and the CTA page. One offer only: first
       Saturday session free. The one-page method summary already exists and
       slots in ahead of these. → `guide/back-matter.md`
@@ -100,3 +100,6 @@ Each block appends one line: date, item, what changed.
 |---|---|---|
 | Sat 23:5x CT (manual first block) | M1 | `book/front-matter.md`. Five pages: title with the positioning note, copyright carrying the honest attribution split, the who-this-is-for page naming eight job titles, the standard, and the author page on the settled seven-years-five-hosting line. |
 | Sun 20:0x CT | M2 | `book/back-matter-cards.md`, all 33 cards collected by part. Found only 30 existed: Ch 14 had none, Ch 31 and 33 used a different format from the other thirty. Wrote card 14 (the Attack Decoder) and reformatted 31 and 33 to the standard 56-column box. All 33 now consistent and verified square. |
+| Sun 20:1x CT | M3 | `book/back-matter-reference.md`. Emotion vocabulary grouped by six pressure categories with the four banned defaults called out, the state triage table, the blank twelve-row scorecard marked free to photocopy, and the honest in-house page that names the ladder once and stops. |
+| Sun 20:2x CT | G1 | `guide/front-matter.md`. Cover, copyright with the Protocol cross-reference and IP split, the five theses stated flatly, how-to-use carrying the State Check on page four, and the standard. |
+| Sun 20:2x CT | G2 | `guide/back-matter.md`. Twenty-term glossary with each term tagged to its step, the About page, and a CTA page that ends by pointing out it would be strange to close a book arguing you cannot learn this from a book by selling another one. |
