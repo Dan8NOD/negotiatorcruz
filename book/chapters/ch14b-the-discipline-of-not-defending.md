@@ -112,3 +112,48 @@ NEVER       defend first · change the subject ·
 SCORED      label-before-defense Y/N · ≥3s silence ·
             type correct >60% · 0 subject changes
 ```
+
+---
+
+## FIELD CARD 14: THE ATTACK DECODER
+
+```
+┌────────────────────────────────────────────────────────┐
+│  THE ATTACK DECODER                  Part II · DISARM  │
+├────────────────────────────────────────────────────────┤
+│  An attack is one of three things. Decode before       │
+│  you respond. Never defend first.                      │
+│                                                        │
+│  3 TYPES     DEFENSIVE  they feel exposed              │
+│              UNHEARD    volume is their last lever     │
+│              TACTICAL   they're doing it on purpose    │
+│                                                        │
+│  DECODE      "Seems like something's going on here."   │
+│              Safe on all three. Commits to no theory.  │
+│              Aim slightly wrong. The correction is the │
+│              diagnosis. Then STOP TALKING.             │
+│                                                        │
+│  DEFENSIVE   "That reaction makes complete sense       │
+│               given what's on the line."               │
+│              Give the exit. Don't take the ground.     │
+│                                                        │
+│  UNHEARD     "You're doing more processing here than   │
+│               you're getting credit for."              │
+│              Hand back the floor, visibly.             │
+│                                                        │
+│  TACTICAL    "It looks like there's nothing I can say  │
+│               to change your mind."                    │
+│              Name it, decline the fight, hold.         │
+│                                                        │
+│  SCORED      Label before any defense (binary) ·       │
+│              type called correctly · one decode per    │
+│              conversation, never two                   │
+│                                                        │
+│  FAILS WHEN  You decode, get the correction, then      │
+│              argue with it. Attack two is always worse.│
+│                                                        │
+│  RECOVER     Take the loss on the factual point.       │
+│              "Three weeks is three weeks." Being right │
+│              is worth less than the deal.              │
+└────────────────────────────────────────────────────────┘
+```

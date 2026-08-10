@@ -30,7 +30,7 @@ commits, ticks the box, and stops.
       estate principals, L&D), and the credentials page. Use the settled line:
       seven years of practice since Covid, five hosting, 1,000+ live sessions.
       Never "since 2024." → `book/front-matter.md`
-- [ ] **M2. Back matter, part 1: the Field Card appendix.** All 33 cards
+- [x] **M2. Back matter, part 1: the Field Card appendix.** All 33 cards
       collected in order as a printable section, with a one-paragraph note on
       how to use them (print, laminate, one per desk). The cards already exist
       at the end of each `chNNb` file; this collects them.
@@ -99,3 +99,4 @@ Each block appends one line: date, item, what changed.
 | When | Item | Result |
 |---|---|---|
 | Sat 23:5x CT (manual first block) | M1 | `book/front-matter.md`. Five pages: title with the positioning note, copyright carrying the honest attribution split, the who-this-is-for page naming eight job titles, the standard, and the author page on the settled seven-years-five-hosting line. |
+| Sun 20:0x CT | M2 | `book/back-matter-cards.md`, all 33 cards collected by part. Found only 30 existed: Ch 14 had none, Ch 31 and 33 used a different format from the other thirty. Wrote card 14 (the Attack Decoder) and reformatted 31 and 33 to the standard 56-column box. All 33 now consistent and verified square. |

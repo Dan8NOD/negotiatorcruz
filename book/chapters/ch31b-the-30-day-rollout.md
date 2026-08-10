@@ -97,24 +97,40 @@ kills more rollouts than the week-3 dip does.
 
 ---
 
-## Field Card. The 30-Day Rollout
+## FIELD CARD 31: THE 30-DAY ROLLOUT
 
 ```
-COMMITMENT   15 min Mon · 2 recorded calls Wed/Thu · 15 min Fri · × 4 weeks
-
-WEEK 1  READ    labels, silence          → talk-time ratio
-WEEK 2  DISARM  audit, negative labels   → objections pre-surfaced
-WEEK 3  STEER   calibrated questions     → questions before numbers
-WEEK 4  CLOSE   no-oriented Qs, the hold → concessions after silence
-
-MONDAY 15   2 min standard · 3 min demo (bad, then good)
-            7 min pairs, 3 rounds, rotate · 3 min observers report NUMBERS
-
-EXPECT      wk 1-2 awkward (good) · wk 3 dip (on schedule) ·
-            wk 4 unprompted use
-
-AUDIT       talk-time <40% · 4/4 drills · ≥70% tape ·
-            0 concessions-after-silence
-
-DON'T       skip wk 3 · score people instead of calls · let reps pick the tape
+┌────────────────────────────────────────────────────────┐
+│  THE 30-DAY ROLLOUT                 Part VI · INSTALL  │
+├────────────────────────────────────────────────────────┤
+│  A behavior not recorded and scored within a week      │
+│  of being taught will not survive the month.           │
+│                                                        │
+│  COMMIT      15 min Mon · 2 tapes Wed/Thu · 15 min Fri │
+│              Four weeks. No substitutions.             │
+│                                                        │
+│  WK1 READ    labels, silence → talk-time ratio         │
+│                                                        │
+│  WK2 DISARM  audit, negatives → objections surfaced    │
+│                                                        │
+│  WK3 STEER   calibrated Qs → questions before numbers  │
+│                                                        │
+│  WK4 CLOSE   no-oriented Qs → concessions after silence│
+│                                                        │
+│  MONDAY 15   2 min standard · 3 min demo, bad then good│
+│              7 min pairs, 3 rounds, rotate             │
+│              3 min observers report NUMBERS            │
+│                                                        │
+│  EXPECT      wk 1-2 awkward. That is correct.          │
+│              wk 3 the dip. On schedule, not feedback.  │
+│              wk 4 unprompted use. Name it out loud.    │
+│                                                        │
+│  AUDIT       talk-time <40% · 4/4 drills run ·         │
+│              ≥70% tape submitted · zero concessions    │
+│              after silence                             │
+│                                                        │
+│  DON'T       Skip week 3.                              │
+│              Score people instead of calls.            │
+│              Let reps choose which tape you hear.      │
+└────────────────────────────────────────────────────────┘
 ```
