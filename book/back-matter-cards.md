@@ -45,10 +45,10 @@ the other thirty-two.
 │                                                        │
 │  EARLY JOB     Locate. Not persuade. Not present.      │
 │                                                        │
-│  ASK           "When did this first come up?"          │
-│                "Who else has been part of this?"       │
-│                "What's the feeling internally?"        │
-│                "If this stalled, what happens instead?"│
+│  ASK           "Who else has to sign off on this?"     │
+│                "What are you trying to protect here?"  │
+│                "What haven't you told me yet?"         │
+│                "If nothing changes, then what?"        │
 │                                                        │
 │  LISTEN FOR    A date        → work backwards from it  │
 │                A new name    → most important person   │
@@ -62,8 +62,8 @@ the other thirty-two.
 │  FAILS WHEN    You treat the early phase as neutral.   │
 │                It is never neutral.                    │
 │  RECOVER       "I threw a number at you earlier I      │
-│                hadn't thought through. Where did       │
-│                that land on your end?"                 │
+│                hadn't thought through. Is my number    │
+│                completely off base?"                   │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -95,8 +95,8 @@ the other thirty-two.
 │  FAILS WHEN  You jump to Steer because it's the stage  │
 │              that feels like negotiating.              │
 │  RECOVER     "I've been throwing solutions at this and │
-│              I haven't understood where you're sitting.│
-│              What's the hardest part of this for you?" │
+│              I haven't understood it. What's making    │
+│              this harder than it needs to be?"         │
 └────────────────────────────────────────────────────────┘
 ```
 
@@ -226,7 +226,7 @@ the other thirty-two.
 │  Name their emotion out loud. Then stop.               │
 │                                                        │
 │  OPENERS      "It seems like…"  "It sounds like…"      │
-│               "It looks like…"                         │
+│               "It looks like…"  "It feels like…"       │
 │                                                        │
 │  RULES        Points at them. Never starts with "I."   │
 │               No question mark. Nothing follows it.    │
@@ -240,8 +240,9 @@ the other thirty-two.
 │               Before the first ask · Clean delivery    │
 │                                                        │
 │  FAILS WHEN   You solve before you diagnose.           │
-│  RECOVER      "I jumped to fixing that before I under- │
-│               stood it. What's the hardest part here?" │
+│  RECOVER      "I jumped to fixing that before I        │
+│               understood it. What's making this        │
+│               harder than it needs to be?"             │
 └────────────────────────────────────────────────────────┘
 ```
 

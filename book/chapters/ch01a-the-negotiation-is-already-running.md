@@ -73,28 +73,35 @@ They are not pricing questions and should never sound like they are.
 ```
 LOCATING THE DEAL
 
-  Finding the timeline
-  "When did this first come up on your end?"
-  "What was happening that made this a priority now?"
-
   Finding the room
-  "Who else has been part of this conversation so far?"
-  "Whose week gets harder if this doesn't happen?"
+  "Who else has to sign off before any of this is real?"
+  "What are you actually trying to protect in this?"
 
   Finding the position already taken
-  "What's the general feeling internally at this point?"
-  "Has anyone raised a concern I should know about
-   before it becomes a problem?"
+  "What haven't you told me yet that you think I should know?"
+  "Is something being left unsaid?"
 
   Finding the alternative
-  "What were you doing about this before we talked?"
-  "If this stalled out, what happens instead?"
+  "If nothing changes in six months, what does that look like?"
+  "What's higher priority than this right now, and why?"
 ```
 
-That last pair does more work than the rest combined. The answer to "what
-happens instead" is their alternative, and their alternative is the ceiling on
-what you can ask for. Chapter 4 covers what to do with that answer. This chapter
-is about getting it early enough to matter.
+All six are shipped lines. They come from the listening family (Chapter 4),
+the no-oriented family (Chapters 12 and 21), and the not-yet family (Chapter
+5). Locating is not a new tool. It is the Read families deployed early, before anyone has said the
+word "negotiate."
+
+There is a fourth job, finding the timeline, and it has no scripted lines yet.
+
+`[NEEDS: two locating questions for the timeline. Nothing in the 544 shipped
+lines asks when this first came up, what made it a priority now, or what they
+were doing about it before we talked. The drafted versions read fine but have
+never been shipped or drilled. Bless them or replace them.]`
+
+The alternative pair does more work than the rest combined. The answer to "if
+nothing changes, what does that look like" is their alternative, and their
+alternative is the ceiling on what you can ask for. Chapter 4 covers what to do
+with that answer. This chapter is about getting it early enough to matter.
 
 Note the register. Every one of these is a question a helpful colleague would
 ask. None of them signals that a negotiation is underway, which is the point:

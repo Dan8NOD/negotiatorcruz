@@ -137,23 +137,30 @@ move you between stages without announcing it.
 STAGE TRANSITIONS
 
   READ → DISARM
-  After the label lands. You have the diagnosis; now name
+  After the label lands. You have the diagnosis. Now name
   the objection before they do.
-  "Before we go further, let me say the part you're
-   probably already thinking."
+  "It probably seems like you've heard this exact
+   pitch before."
 
   DISARM → STEER
   After the objection has been named and you have NOT
   defended it. Hand them the problem.
-  "So given all of that, how would you want to
-   approach this?"
+  "How would you want this to go if there were no
+   constraints at all?"
 
   STEER → CLOSE
   After they've done the work and you can summarize their
   position better than they stated it.
-  "Let me make sure I have this right."
+  "Let me run the whole thing back to you before we
+   go any further."
   [summary]  →  wait for "that's right"  →  stop.
 ```
+
+All three are shipped lines, and each one is the leading edge of a family you
+will meet in full later: the accusation audit (Chapter 10), the calibrated
+question (Chapter 15), and the summary (Chapter 17). A transition is not a
+special sentence. It is the first line of the next stage's tool, delivered the
+moment the current stage has produced its output.
 
 Notice what is absent. There is no transition sentence that contains your
 offer, your price, or your case. Those exist. They just don't live in the

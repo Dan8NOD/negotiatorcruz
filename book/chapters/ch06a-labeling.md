@@ -61,36 +61,57 @@ them at the center and asks for nothing. The first invites an argument about
 whether you really do understand. The second invites information.
 
 ```
-STARTERS, use these, in this order of safety
+STARTERS, the four stems the catalog ships on
 
   "It seems like…"
   "It sounds like…"
   "It looks like…"
-  "You seem…"          (more direct, use once trust exists)
+  "It feels like…"
+
+  Softer, for a cold room:
+  "It probably seems like…"
 ```
 
+The catalog ships twelve labels for this tool, and every one of them carries
+a blank. The blank is the point. The template supplies the delivery, and
+Chapter 5's vocabulary supplies the word that goes in it. Use their word
+whenever they have given you one.
+
 ```
-WORKING EXAMPLES
+THE TWELVE, the blank takes a Chapter 5 word
 
-  Pressure from their own organization
-  "It seems like this timeline has put you in a rough spot with
-   your own team."
-
-  The buyer who has been burned before
-  "It sounds like you've had a vendor go quiet on you after
-   signing, and you're not eager to repeat it."
-
-  Stalled with no stated reason
-  "It looks like something about this has stopped feeling
-   straightforward."
-
-  A committee they can't control
-  "It seems like the decision isn't really sitting with you, and
-   that's frustrating in its own way."
-
-  Price resistance, source unknown
-  "It sounds like the number isn't the whole problem here."
+  "It seems like ______ is running the show right now."
+  "It seems like ______ is doing a lot of the negotiating
+   for you right now."
+  "It seems like ______ showed up right when the number did."
+  "It seems like ______ walked into the room before you did."
+  "It sounds like there's ______ underneath this."
+  "It sounds like ______ has been building for a while,
+   not just today."
+  "It sounds like ______ has been the real subject this
+   whole time."
+  "It looks like ______ is the real issue here."
+  "It looks like ______ is doing the deciding here, not
+   the details."
+  "It looks like ______ showed up the second the number
+   came up."
+  "It feels like there's ______ sitting just under the
+   surface of this."
+  "It probably seems like ______ got here before the
+   facts did."
 ```
+
+Filled, with the vocabulary doing its half of the work:
+
+```
+  "It sounds like there's some real wariness underneath this."
+  "It seems like the fatigue is doing a lot of the negotiating
+   for you right now."
+```
+
+Note what a specific word buys you. "Wariness" and "fatigue" pass the Chapter
+5 rubric. "Frustration" would not, and a generic word in a shipped template
+produces a generic label, which is to say a wasted one.
 
 Then **stop talking.** The label ends. Nothing follows it. No "…is that
 right?", no "…but let me explain," no nervous addendum. A label with a

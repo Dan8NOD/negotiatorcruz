@@ -73,12 +73,14 @@ instability. What you can do is find out what it cost you.
 
 ```
   "I threw a number at you earlier that I hadn't thought
-   carefully about. Where did that land on your end?"
+   carefully about. Is my number completely off base?"
 ```
 
-That question does two things. It surfaces whether the concession registered, often it didn't, and you've spent a week worrying about nothing. And when it
-did register, you get to hear the position it created, in their words, while
-there's still time to work on it.
+The second sentence is a shipped line from the no-oriented family, and it is
+built so that "no" is the comfortable answer (Chapter 21 covers why). That
+construction does two things. It surfaces whether the concession registered, often it didn't, and you've spent a week worrying about nothing. And when it
+did register, the correction they offer tells you the position it created, in
+their words, while there's still time to work on it.
 
 **The second failure mode, more common at senior level:** assuming that because
 *you* have been doing this for fifteen years, the negotiation starts when you
@@ -109,10 +111,10 @@ invisible internal positions are usually the most confident ones in the room.
 │                                                        │
 │  EARLY JOB     Locate. Not persuade. Not present.      │
 │                                                        │
-│  ASK           "When did this first come up?"          │
-│                "Who else has been part of this?"       │
-│                "What's the feeling internally?"        │
-│                "If this stalled, what happens instead?"│
+│  ASK           "Who else has to sign off on this?"     │
+│                "What are you trying to protect here?"  │
+│                "What haven't you told me yet?"         │
+│                "If nothing changes, then what?"        │
 │                                                        │
 │  LISTEN FOR    A date        → work backwards from it  │
 │                A new name    → most important person   │
@@ -126,7 +128,7 @@ invisible internal positions are usually the most confident ones in the room.
 │  FAILS WHEN    You treat the early phase as neutral.   │
 │                It is never neutral.                    │
 │  RECOVER       "I threw a number at you earlier I      │
-│                hadn't thought through. Where did       │
-│                that land on your end?"                 │
+│                hadn't thought through. Is my number    │
+│                completely off base?"                   │
 └────────────────────────────────────────────────────────┘
 ```

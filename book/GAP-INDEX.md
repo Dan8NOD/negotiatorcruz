@@ -16,16 +16,16 @@ weight**, where weight is how much that chapter does before anyone pays:
 | Rank | Ch | Title | Gaps | Weight | Priority |
 |---|---|---|---|---|---|
 | 1 | 29 | Negotiating Internally: Up, Down, and Sideways | 2 | 4 | 8 |
-| 2 | 2 | The Four Stages | 1 | 5 | 5 |
-| 3 | 30 | When the Protocol Fails | 1 | 5 | 5 |
-| 4 | 33 | The Manager's Scorecard | 1 | 5 | 5 |
-| 5 | 14 | The Discipline of Not Defending | 2 | 2 | 4 |
-| 6 | 26 | The Renewal and the Price Increase | 1 | 4 | 4 |
-| 7 | 27 | Procurement and the Committee You Can't See | 1 | 4 | 4 |
-| 8 | 28 | Claims, Disputes, and Escalation | 1 | 4 | 4 |
-| 9 | 31 | The 30-Day Rollout | 1 | 4 | 4 |
-| 10 | 32 | Coaching the Floor | 1 | 4 | 4 |
-| 11 | 1 | The Negotiation Is Already Running | 1 | 3 | 3 |
+| 2 | 1 | The Negotiation Is Already Running | 2 | 3 | 6 |
+| 3 | 2 | The Four Stages | 1 | 5 | 5 |
+| 4 | 30 | When the Protocol Fails | 1 | 5 | 5 |
+| 5 | 33 | The Manager's Scorecard | 1 | 5 | 5 |
+| 6 | 14 | The Discipline of Not Defending | 2 | 2 | 4 |
+| 7 | 26 | The Renewal and the Price Increase | 1 | 4 | 4 |
+| 8 | 27 | Procurement and the Committee You Can't See | 1 | 4 | 4 |
+| 9 | 28 | Claims, Disputes, and Escalation | 1 | 4 | 4 |
+| 10 | 31 | The 30-Day Rollout | 1 | 4 | 4 |
+| 11 | 32 | Coaching the Floor | 1 | 4 | 4 |
 | 12 | 4 | Diagnose Before You Ask | 1 | 2 | 2 |
 | 13 | 5 | The Emotion Vocabulary | 1 | 2 | 2 |
 | 14 | 6 | Labeling | 1 | 2 | 2 |
@@ -49,7 +49,7 @@ weight**, where weight is how much that chapter does before anyone pays:
 | 32 | 25 | One More Thing | 1 | 2 | 2 |
 | 33 | 3 | How to Use This Manual | 0 | 3 | 0 |
 
-**Total open gaps:** 34 across 33 drafted chapters.
+**Total open gaps:** 35 across 33 drafted chapters.
 
 Undrafted chapters are not listed. Their gaps do not exist yet. Ch 26-30
 (Part V) will dominate this table once drafted, which is the argument for

@@ -40,7 +40,7 @@ commits, ticks the box, and stops.
       blank manager's scorecard sized for a real floor, and one clean page on
       bringing the install in-house that names the ladder without pitching.
       → `book/back-matter-reference.md`
-- [ ] **M4. Consistency pass on Ch 1-3 and Ch 6.** These were drafted before
+- [x] **M4. Consistency pass on Ch 1-3 and Ch 6.** These were drafted before
       the 544 shipped lines were available, so their script boxes are written
       rather than assembled. Reconcile against `book/02-LABEL-INVENTORY.md`.
       Flag rather than invent where no shipped line covers a slot.
@@ -103,3 +103,4 @@ Each block appends one line: date, item, what changed.
 | Sun 20:1x CT | M3 | `book/back-matter-reference.md`. Emotion vocabulary grouped by six pressure categories with the four banned defaults called out, the state triage table, the blank twelve-row scorecard marked free to photocopy, and the honest in-house page that names the ladder once and stops. |
 | Sun 20:2x CT | G1 | `guide/front-matter.md`. Cover, copyright with the Protocol cross-reference and IP split, the five theses stated flatly, how-to-use carrying the State Check on page four, and the standard. |
 | Sun 20:2x CT | G2 | `guide/back-matter.md`. Twenty-term glossary with each term tagged to its step, the About page, and a CTA page that ends by pointing out it would be strange to close a book arguing you cannot learn this from a book by selling another one. |
+| Mon (M4 block) | M4 | Ch 1, 2 and 6 script boxes reassembled from shipped lines. Ch 6 now carries all twelve labeling templates with the Chapter 5 blank, Ch 2's transitions quote the audit, calibrated and summary families, Ch 1's locating box uses listen, noq and notyet lines. The timeline slot has no shipped coverage and is flagged, gap count 34 to 35. Ch 3 has no script boxes, verified, nothing to reconcile. Cards 01, 02, 06 updated in chapters and appendix, all boxes verified square. |

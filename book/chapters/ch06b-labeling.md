@@ -77,8 +77,8 @@ a number, a date, or the word "we can."
 
 ```
   "I jumped straight to fixing that, and I don't think I actually
-   understood the problem yet. What's the part of this that's
-   hardest for you?"
+   understood the problem yet. What's making this harder than it
+   needs to be?"
 ```
 
 This works better than it has any right to. You have modeled the exact
@@ -111,7 +111,7 @@ because they are unremarkable. Say them flatly, the way you'd say the weather.
 │  Name their emotion out loud. Then stop.               │
 │                                                        │
 │  OPENERS      "It seems like…"  "It sounds like…"      │
-│               "It looks like…"                         │
+│               "It looks like…"  "It feels like…"       │
 │                                                        │
 │  RULES        Points at them. Never starts with "I."   │
 │               No question mark. Nothing follows it.    │
@@ -125,7 +125,8 @@ because they are unremarkable. Say them flatly, the way you'd say the weather.
 │               Before the first ask · Clean delivery    │
 │                                                        │
 │  FAILS WHEN   You solve before you diagnose.           │
-│  RECOVER      "I jumped to fixing that before I under- │
-│               stood it. What's the hardest part here?" │
+│  RECOVER      "I jumped to fixing that before I        │
+│               understood it. What's making this        │
+│               harder than it needs to be?"             │
 └────────────────────────────────────────────────────────┘
 ```

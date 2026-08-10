@@ -71,8 +71,12 @@ thirty seconds and it works from anywhere in the call.
 ```
   "I've been throwing solutions at this and I don't think
    I've actually understood where you're sitting yet.
-   What's the part of this that's hardest for you?"
+   What's making this harder than it needs to be?"
 ```
+
+The closing question is a shipped calibrated line (Chapter 15), which is the
+point: the recovery is not an apology followed by more steering. It is Stage 1
+run again, out loud, with the family built for it.
 
 **The second failure mode:** treating the stages as time blocks rather than
 gates. Four stages does not mean four equal quarters. A renewal with a hostile
@@ -117,7 +121,7 @@ gates are the outputs listed above, not the clock.
 │  FAILS WHEN  You jump to Steer because it's the stage  │
 │              that feels like negotiating.              │
 │  RECOVER     "I've been throwing solutions at this and │
-│              I haven't understood where you're sitting.│
-│              What's the hardest part of this for you?" │
+│              I haven't understood it. What's making    │
+│              this harder than it needs to be?"         │
 └────────────────────────────────────────────────────────┘
 ```
