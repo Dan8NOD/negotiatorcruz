@@ -83,6 +83,53 @@ web app, which is the whole thing this pipeline exists to prevent.
 
 ## Before this can be a real App Store app
 
+### Apple Pay and in-app purchase are not the same thing
+
+Worth being precise about, because the difference is 15%.
+
+**Apple Pay** is a card wallet. It is a payment method inside Stripe checkout,
+Apple takes **nothing**, and it is already available on the web — a one-line
+change to the Stripe session. **In-app purchase** is Apple's own billing, and
+that is where the 15% lives.
+
+Apple's rules do not let an iOS app sell digital content through Apple Pay or
+any other outside processor (Guideline 3.1.1). So:
+
+| Where | How | Apple's cut |
+|---|---|---|
+| Browser | Stripe, with Apple Pay as a wallet option | **0%** |
+| iOS app | StoreKit in-app purchase | 15% |
+
+Which means "turn on Apple Pay only" is exactly right **for the web**, and
+cannot be the mechanism inside the app. The entitlement is the same either way
+— see below — so someone who subscribes in the browser with Apple Pay gets the
+app, and someone who subscribes through StoreKit gets the browser.
+
+There is a third route: since the 2025 US anti-steering injunction, apps on the
+US storefront may link out to an external purchase page without commission.
+That is genuinely useful here and it is also the most volatile thing on this
+page — it is jurisdiction-specific and has been litigated repeatedly. **Check
+the current App Review Guidelines before building a flow that depends on it**,
+and do not take this paragraph as current.
+
+### One entitlement, either store
+
+Already built and verified in Supabase — see
+`../supabase/migrations/README.md`:
+
+- `purchases` is the receipt log: what a store told us happened, unique on
+  `(store, store_txn_id)` so replaying a webhook is a no-op.
+- `subscriptions` is the entitlement: PK `(user_id, product)`, so a person has
+  one `nod_pro` row whether Apple, Stripe or Google sold it.
+- `has_entitlement('nod_pro')` is the only thing a feature gate should call.
+  It handles per-store billing grace, so a customer whose Apple renewal is
+  mid-retry is not locked out of the browser.
+
+**StoreKit gives you a transaction, not a person.** There is no email in a
+receipt. The user must be signed in to Supabase *before* they buy, or the
+purchase arrives with no `user_id` to attach it to — which is why
+`purchases.user_id` is nullable and `store_original_txn_id` is indexed.
+
 ### Purchases must go through StoreKit
 
 Apple requires in-app purchase for digital content (Guideline 3.1.1). The $15
