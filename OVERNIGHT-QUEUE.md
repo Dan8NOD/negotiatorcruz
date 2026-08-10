@@ -63,7 +63,7 @@ commits, ticks the box, and stops.
 
 ### Cross-book
 
-- [ ] **X1. Shared glossary audit.** Both books use Read/Disarm/Steer/Close,
+- [x] **X1. Shared glossary audit.** Both books use Read/Disarm/Steer/Close,
       the three states, and the leverage trio. Verify the definitions match
       word for word across the two manuscripts. A reader who owns both and
       finds them disagreeing is the worst outcome available.
@@ -105,3 +105,4 @@ Each block appends one line: date, item, what changed.
 | Sun 20:2x CT | G2 | `guide/back-matter.md`. Twenty-term glossary with each term tagged to its step, the About page, and a CTA page that ends by pointing out it would be strange to close a book arguing you cannot learn this from a book by selling another one. |
 | Mon (M4 block) | M4 | Ch 1, 2 and 6 script boxes reassembled from shipped lines. Ch 6 now carries all twelve labeling templates with the Chapter 5 blank, Ch 2's transitions quote the audit, calibrated and summary families, Ch 1's locating box uses listen, noq and notyet lines. The timeline slot has no shipped coverage and is flagged, gap count 34 to 35. Ch 3 has no script boxes, verified, nothing to reconcile. Cards 01, 02, 06 updated in chapters and appendix, all boxes verified square. |
 | Sun (G3 block) | G3 | All seven guide figures drawn as inline SVG in `makeguide.py`, same system as the manual's two diagrams: master six-step line with brackets and the return arrow, authority map, positions and stakes waterline, influence map, balance of power grid, movement loop, and the closed ring. Each replaces its chapter's prose placeholder at build time, and a missing placeholder now fails the build. The placeholder text stays in the chapter sources as each figure's spec. The one-pager no longer prints the master figure spec, since the figure exists. All seven verified visually in a rendered build, zero dashes in the built book. |
+| Sun (X1 block) | X1 | Shared vocabulary audited across both manuscripts. The four stages, the three states, and the leverage trio agree: stage produces and skip costs, the Torn and Ready and Not Yet reads, the Time and Silence formula lines, the leverage table with its predictability example, the that's right versus you're right rule, anchors, and the thirty-three card count all check. One defect found and fixed: the parallel grid said Torn asks for information they don't read, while the guide's own Chapter 4 prose and the manual's triage table both say don't use. The grid now says use. |
