@@ -214,6 +214,7 @@ broken. The two rules disagree only in the case where nobody was watching.
 | `web/timer-tab.html` | the drawing, the input, and a standalone page you can just open |
 | `web/timer-tab.inline.html` | **generated.** The same block with the engine inlined — this is what goes into `MixMatch.html` |
 | `test/timer-engine.test.js` | 48 tests, including a heuristic player that proves the balance holds |
+| `e2e/timer.spec.js` | the browser suite: real clicks and real pixels, at iPad viewport, against both the source page and the generated iPad page. Run with `npm run test:mixmatch:e2e` |
 
 `MixMatch.html` is a single file and cannot `import` anything, but developing
 against a hand-inlined copy would mean editing the game in two places forever.

@@ -141,3 +141,30 @@ Nine scenarios against the live project. Tables were empty before and after.
   *before* purchasing or there is no `user_id` to attach it to.
   `purchases.user_id` is nullable precisely because orphans happen, and
   `store_original_txn_id` is what reconciles them later.
+
+
+---
+
+# Advisor pass (2026-08-10)
+
+Ran Supabase's security and performance linters after the resolver landed.
+
+**Confirmed safe by omission:** `apply_store_purchase` and
+`revoke_store_purchase` do not appear in the "signed-in users can execute"
+warnings — the linter sees only `service_role` can reach them, which is the
+whole point.
+
+**Flagged and intentional:** `entitlement()` / `has_entitlement()` are
+SECURITY DEFINER and callable by `authenticated`. That is their job — a
+signed-in user asking about *themselves* is the main caller — and the
+`may_read_entitlements()` guard inside is what stops them asking about anyone
+else. The guard has its own probes (anon, other-user, no-JWT, all blocked).
+
+**Fixed:** the `user reads own purchases` policy called `auth.uid()` per row
+instead of once per statement (`auth_rls_initplan`). Rewritten to the
+`(select auth.uid())` form the rest of the project already uses.
+
+**Left alone, deliberately:** `pg_net` living in `public` (moving an extension
+mid-flight risks the broker's email path — do it in a supervised window), the
+empty-table "unused index" notices, and pre-existing warnings on scorecard
+share-token functions, which are share links working as designed.

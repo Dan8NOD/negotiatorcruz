@@ -153,3 +153,15 @@ grant execute on function public.entitlement(text, uuid)      to authenticated, 
 grant execute on function public.has_entitlement(text, uuid)  to authenticated, service_role;
 
 grant select on public.my_entitlements to authenticated;
+
+-- ── follow-up: purchases policy initplan (migration purchases_policy_initplan)
+--
+-- The performance linter flagged `user reads own purchases` for calling
+-- auth.uid() per row instead of once per statement. Every other owner-read
+-- policy already uses the (select auth.uid()) form; this one predated the
+-- convention, and a receipt log only grows.
+drop policy "user reads own purchases" on public.purchases;
+create policy "user reads own purchases"
+  on public.purchases for select
+  to authenticated
+  using ((select auth.uid()) = user_id);
