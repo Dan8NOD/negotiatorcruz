@@ -10,23 +10,34 @@
 
 ## The drill
 
-**"Three Emotions, Three Minutes."** Fifteen minutes, no preparation, run by
-a manager with a laptop.
+**"The Label Round."** Fifteen minutes, no preparation, run by a manager with
+a laptop.
 
-1. Play three minutes of a recorded call. The team's own, not a demo.
-2. Everyone stays silent and writes down **three emotions** they believe the
-   counterpart is experiencing.
-3. Next to each, they write the **evidence**: the exact phrase, pause, or
-   shift in pace that produced the read.
-4. Around the table. Anyone who wrote "frustrated" with no evidence line
-   doesn't get to count it.
-5. Each person then converts their strongest read into a label and says it
-   out loud, in full, to the room. The room's job is to catch anything that
-   starts with "I" or ends with a question mark.
+Chapter 5's drill trains the *read*: what emotion is in the room, and what is
+your evidence. This one trains the *delivery*, which is a separate skill and
+the one that fails in front of a live counterpart. Plenty of people can name
+an emotion accurately on paper and cannot say it out loud to a person without
+softening it into nothing.
 
-Run it weekly. The point is not the recording, it's the evidence column.
-Reps who can't cite evidence are pattern-matching on tone, and tone is the
-first thing that misleads you on a hard call.
+1. Play ninety seconds of a real recorded call. The team's own, not a demo.
+2. Everyone writes **one label**, in full, word for word. Not a description of
+   the emotion. The sentence they would actually say.
+3. Around the table, each person **delivers theirs out loud** to the room, at
+   the pace and volume they would use on the call.
+4. The room scores three things on each delivery, and only these three:
+   - Did it start with "I"? Fail.
+   - Did it end with a question mark, spoken or implied by rising tone? Fail.
+   - Did anything follow it? Fail.
+5. Anyone who fails delivers again immediately, corrected, before the next
+   person goes.
+
+The immediate re-delivery in step 5 is the whole drill. A note in a margin
+teaches nothing. Saying the sentence again, cleanly, ten seconds after getting
+it wrong, is what installs it.
+
+**The variation worth running once the room is competent:** deliver to a
+person instructed to look mildly unimpressed and say nothing back. Most people
+can label into a friendly face. The field supplies the other kind.
 
 ---
 
