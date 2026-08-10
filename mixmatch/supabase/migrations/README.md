@@ -86,15 +86,58 @@ rolled back. `subscriptions` was empty before and after.
 | Anonymous via `has_entitlement` | blocked |
 | No JWT at all | blocked |
 
+---
+
+# `apply_store_purchase` — the single door
+
+`20260810_apply_store_purchase.sql`. Granting access from a receipt used to
+mean three separate writes from an edge function — `purchases`, then
+`subscriptions`, then maybe `grant_ai_credit` — with no transaction guarantee
+between them and every rule living in TypeScript, where the next endpoint can
+forget it. Now it is one call, and the rules are in the database.
+
+It does **not** verify the receipt signature. That happens first, against
+Apple's servers or Apple's root certificate. This function is the transaction
+and the policy, not the cryptography.
+
+## What it refuses, and why each is a real attack
+
+| Refusal | The attack |
+|---|---|
+| **Replay** | Apple retries a notification until it is acknowledged. A retry must not grant a second month. The unique index on `(store, store_txn_id)` is the idempotency key. |
+| **Receipt sharing** | That same index means one transaction attaches to one account, and the unique index on `subscriptions.store_original_txn_id` means one Apple subscription entitles one user. Handing a friend your receipt does nothing. |
+| **Sandbox against production** | The classic one. Apple's sandbox issues receipts for subscriptions nobody paid for, and a server that ignores `environment` honours them. Here a sandbox purchase is always *logged* and only ever *grants* when the target user is an operator — so you can test on your own account and nobody else can pay with a sandbox receipt. |
+| **Client-side calls** | `service_role` or operator only, and every check coalesced so an anonymous caller gets false rather than null. |
+
+`revoke_store_purchase()` is the other half: a refund that leaves the
+entitlement standing is money given away twice. Apple's REFUND and REVOKE
+notifications should land there.
+
+## Verified
+
+Nine scenarios against the live project. Tables were empty before and after.
+
+| Scenario | Result |
+|---|---|
+| Apple monthly subscription | `applied=true, active=true` |
+| Same notification retried | `applied=false, already_applied` |
+| Entitlement afterwards | `true`, one subscription row |
+| Receipt handed to a second account | refused — *already belongs to another account* |
+| Sandbox receipt, ordinary user | logged in `purchases`, `has_entitlement=false` |
+| $15 pack via Apple, then retried | `0 → 3,000,000 → 3,000,000` micros |
+| Refund | access revoked, `has_entitlement=false` |
+| Signed-in user granting themselves Pro | refused — *server-side only* |
+
 ## Still to build
 
-- **StoreKit receipt verification in the broker.** The client must never be
-  taken at its word that a purchase happened. Verify with Apple, then write
-  `purchases` (idempotent on `(store, store_txn_id)`) and upsert `subscriptions`.
-- **App Store Server Notifications V2** for renewals, refunds, and revocations.
-  A refunded purchase that keeps its entitlement is a real loss.
-- **Account linking.** StoreKit gives a transaction, not a person — there is no
-  email in it. The user must be signed in to Supabase *before* purchasing, or
-  the receipt has no `user_id` to attach to. `purchases.user_id` is nullable
-  precisely because orphans happen; `store_original_txn_id` is what reconciles
-  them later.
+- **Receipt verification itself.** Verify the JWS against Apple's root
+  certificate, or call the App Store Server API, *before* calling
+  `apply_store_purchase`. Everything above assumes the receipt is already
+  proven real.
+- **App Store Server Notifications V2** as the transport: subscribe, verify,
+  then call `apply_store_purchase` / `revoke_store_purchase`.
+- **Sign-in before the paywall.** StoreKit gives a transaction, not a person —
+  there is no email in a receipt. The user must be signed in to Supabase
+  *before* purchasing or there is no `user_id` to attach it to.
+  `purchases.user_id` is nullable precisely because orphans happen, and
+  `store_original_txn_id` is what reconciles them later.
