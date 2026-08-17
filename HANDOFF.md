@@ -38,6 +38,12 @@ stacking on merged history.
 3. **`drillbook/`, The Drill Book.** Just scaffolded. Decisions doc and the
    facilitator method are written. The 40 drills themselves are not.
 
+4. **`everyday/`, Same Words, Bigger Rooms.** The fourth book, scaffolded
+   Sun Aug 17 on Dan's live directive: interpersonal relationships, personal
+   finance, everyday situations, scaling to multi-million dollar deals, near
+   100 pages. Decisions doc and chapter map exist. The twelve chapters do
+   not. A Routine fires this session every two hours to work the queue.
+
 ## The rules, in priority order
 
 1. **Never fill a `[NEEDS:]` slot.** There are ~34 of them across the two
@@ -68,10 +74,10 @@ stacking on merged history.
 
 ## Build commands
 
-    python3 book/tools/build.py               # narration + GAP-INDEX.md
-    python3 book/tools/makebook.py            # Cruz Protocol -> build/
-    python3 guide/tools/makeguide.py          # Six Before Yes -> build/
-    python3 book/tools/voicepass.py <files>   # dash + voice pass
+    python3 book/tools/build.py # narration + GAP-INDEX.md
+    python3 book/tools/makebook.py # Cruz Protocol -> build/
+    python3 guide/tools/makeguide.py # Six Before Yes -> build/
+    python3 book/tools/voicepass.py <files> # dash + voice pass
 
 Note: `voicepass.py` rewrites prose outside fenced blocks. If you are writing
 *about* the banned words rather than using them, put them in a code fence or
@@ -87,29 +93,13 @@ PDFs render with the preinstalled chromium:
 
 ## What is left, in order
 
-From `OVERNIGHT-QUEUE.md`, five done and these remaining:
-
-- **M4.** Consistency pass on manual Ch 1, 2, 3 and 6. Those were drafted
-  before the 544 shipped lines were available, so their script boxes are
-  written rather than assembled. Reconcile against `book/02-LABEL-INVENTORY.md`
-  and the Supabase table. Flag rather than invent where no shipped line covers
-  a slot.
-- **G3.** Seven guide figures are prose placeholders. Draw them as inline SVG
-  in the same system as the manual's two diagrams (see `DIAGRAMS` in
-  `book/tools/makebook.py`) so all three books share one visual hand.
-- **X1.** Cross-book glossary audit. Both books define Read/Disarm/Steer/Close,
-  the three states, and the three leverages. Verify the definitions match. A
-  reader who owns both and finds them disagreeing is the worst outcome
-  available.
-- **N1.** The Drill Book, 40 drills. Format is fixed in
-  `drillbook/00-DECISIONS.md`. Source drills already exist: 32 in the manual
-  (one per chapter, Ch 3 has none deliberately) and 6 in the guide. Each needs
-  expanding from ~150 words to ~500 with setup, timing, group size, what to
-  say to open it, scoring, and a WHAT GOES WRONG section. Build the two
-  indexes: by what is broken, and by time and people available.
-- **N2.** The Field Card Deck. Print-ready cards at a real card size with cut
-  marks. All 33 already exist as ASCII in `book/back-matter-cards.md`.
-- **N3.** Listed but not justified. Do not start without Dan.
+M1 through M4, G1 and G2 are done. Everything remaining lives in the
+ordered list in `OVERNIGHT-QUEUE.md` under **The mandate, Sun Aug 17**:
+finish the Drill Book (blocks D1 to D10), write the everyday book (blocks
+B4-1 to B4-15), then G3, X1, N2. Dan's directive is at least four finished
+books inside one to two weeks, so the drill and everyday blocks alternate
+and take priority over polish. Take the top unticked item, do that item
+only, commit, push, tick, log, stop. N3 stays parked without Dan.
 
 ## Open questions for Dan, do not decide these alone
 
