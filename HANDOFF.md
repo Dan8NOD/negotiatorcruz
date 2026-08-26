@@ -68,7 +68,9 @@ stacking on merged history.
    `negotiation_labels` (columns: `section`, `type_name`, `tier`, `template`,
    `trigger_text`). Tool write-ups are in `negotiation_knowledge`. Every
    "THE WORDS" box is assembled from these. Invented scripts read plausible
-   and drill soft.
+   and drill soft. A read-only export of both tables is checked in at
+   `book/data/`, refreshed Aug 26, for when the connector is absent. The
+   table stays canonical. Do not edit the export.
 
 5. **Commit and push every unit of work.** The container gets reclaimed.
 

@@ -1,0 +1,136 @@
+{
+ "_source": "Supabase project iubxycckgrplbpdbncfk, table negotiation_knowledge",
+ "_note": "Read-only export for manuscript assembly when the connector is absent. The table and js/knowledge.js remain canonical. Do not edit here.",
+ "_exported": "2026-08-26",
+ "tool_count": 16,
+ "tools": [
+  {
+   "concept": "three-leverage",
+   "section": "prep",
+   "title": "3 Types of Leverage",
+   "chunk_index": 0,
+   "content": "Leverage isn’t one thing — it’s three, and most people only ever reach for the first. Positive leverage is having something they want. Negative leverage is being able to cost them something they’re afraid to lose — usually the stronger of the two, since people work harder to avoid a loss than to chase a gain. Normative leverage is quieter: using their own stated values or standards against an inconsistency in their position, rather than anything you’re offering or threatening. Before you sit down, ask which of the three you actually have — most negotiators only ever hunt for the first.",
+   "updated_at": "2026-07-30T21:50:34.973+00:00"
+  },
+  {
+   "concept": "7-38-55",
+   "section": "reading",
+   "title": "7-38-55",
+   "chunk_index": 0,
+   "content": "Words are the smallest part of what actually lands. Tone and body carry the rest — by a lot. Only about 7% of what someone takes from a conversation comes from your literal words. Roughly 38% comes from tone of voice, and the remaining 55% from body language and facial expression. In practice: a calibrated question delivered in a flat, accusatory tone lands as an interrogation no matter how carefully it’s worded, and a warm, curious tone softens even a blunt one. If a response feels off, the mismatch is more likely in how something was said than what was said.",
+   "updated_at": "2026-07-30T21:50:37.151+00:00"
+  },
+  {
+   "concept": "attack-decoder",
+   "section": "hostile",
+   "title": "Attack Decoder",
+   "chunk_index": 0,
+   "content": "Every attack is exactly one of three things — and you can’t respond well until you know which. An attack in a negotiation is always one of three things: they’re protecting themselves and lashing out defensively, they don’t feel heard and raising their voice is the only lever they have left, or they’re using the attack deliberately as a tactic to knock you off balance. Guessing wrong makes it worse, so stay in the moment instead of changing the subject, and let a label do the diagnostic work: “It seems like this feels unfair” surfaces the defensive kind, “It seems like I’m missing something” surfaces the unheard kind — and either response makes a purely tactical attack much harder to sustain.",
+   "updated_at": "2026-07-30T21:50:39.479+00:00"
+  },
+  {
+   "concept": "deflect-punch",
+   "section": "hostile",
+   "title": "Deflect the Punch",
+   "chunk_index": 0,
+   "content": "An aggressive opening number is a test, not a final offer — don’t answer it with a number of your own yet. When someone opens with an extreme anchor or an ultimatum, the instinct is to counter immediately with your own number — that’s exactly the fight they set up, and it skips past everything you haven’t learned yet. Redirect to process instead: ask what they’re actually trying to accomplish, or float a non-monetary term to slow things down before any number gets re-anchored. Only come back with your own number once you understand what’s actually driving theirs.",
+   "updated_at": "2026-07-30T21:50:39.815+00:00"
+  },
+  {
+   "concept": "email-magic",
+   "section": "closing",
+   "title": "Email Magic",
+   "chunk_index": 0,
+   "content": "A negotiation gone quiet over text doesn’t need a follow-up demanding an answer — it needs an exit ramp. When a conversation stalls over email or text, chasing harder rarely gets a reply — it just adds pressure to something that’s already gone quiet. A short, low-stakes question that sounds like you’re releasing them rather than pursuing them — something close to “Have you given up on this?” — gets replies that a direct “following up on my last email” usually doesn’t, because it removes the obligation instead of adding to it.",
+   "updated_at": "2026-07-30T21:50:42.558+00:00"
+  },
+  {
+   "concept": "extreme-anchor",
+   "section": "prep",
+   "title": "Extreme Anchor",
+   "chunk_index": 0,
+   "content": "Whoever names a number first shapes every number that follows — so prepare them for the sting before you say it. The first number spoken sets the emotional gravity for the rest of the conversation, even for the side that didn’t say it. Before you name yours, soften the ground: say out loud that the number is going to feel aggressive, so the reaction is expected instead of a surprise you have to recover from. Then anchor further from your target than feels comfortable — an odd, non-round number reads as calculated rather than padded, which is exactly the impression you want.",
+   "updated_at": "2026-07-30T21:50:35.221+00:00"
+  },
+  {
+   "concept": "i-statements",
+   "section": "hostile",
+   "title": "I-Statements",
+   "chunk_index": 0,
+   "content": "Report your own experience instead of accusing theirs, and there’s nothing left for them to defend against. “You’re being unreasonable” invites a counterattack. “I feel [emotion] when [specific behavior] because [impact]” doesn’t — it’s a report of your own experience, not a verdict on theirs, so there’s no accusation to push back on. It’s a small structural change with an outsized effect on whether the next thing they say is defensive or curious.",
+   "updated_at": "2026-07-30T21:50:41.436+00:00"
+  },
+  {
+   "concept": "hopes-dreams",
+   "section": "closing",
+   "title": "Power of Hopes & Dreams",
+   "chunk_index": 0,
+   "content": "People move on what they’re afraid of losing or hoping to become — more than on the terms in front of them. The mechanics of a deal rarely move someone as much as the future it protects or threatens. Naming that future directly — what they’ve always wanted out of this, not just today’s number — taps a stronger motivator than any single term on the table. This is close to what Vision Labels already do in the Label Maker: labeling the future someone is protecting, not just the present moment.",
+   "updated_at": "2026-07-30T21:50:42.318+00:00"
+  },
+  {
+   "concept": "rule-of-three",
+   "section": "prep",
+   "title": "Rule of Three",
+   "chunk_index": 0,
+   "content": "One agreement is a data point. The same agreement confirmed three separate ways is a pattern you can trust. Getting a yes once tells you almost nothing — people agree to things they don’t mean just to avoid friction in the moment. Before you treat a commitment as real, get it restated three different ways: once as a plain commitment, once summarized back until they say “that’s right,” and once as an answer to a how or what question about actually doing it. If the story holds up across all three, it’s real. If it wobbles on the third pass, you just found the actual objection before it cost you the deal.",
+   "updated_at": "2026-07-30T21:50:33.707+00:00"
+  },
+  {
+   "concept": "no-four-times",
+   "section": "closing",
+   "title": "Saying No 4 Times",
+   "chunk_index": 0,
+   "content": "One flat no closes a door. Four soft ones, said differently, keep the conversation open while you still hold the line. When you genuinely can’t meet a demand, a single blunt “no” tends to end the conversation right there. A sequence works better: reflect their ask back as too generous rather than rejecting it outright (“How am I supposed to do that?”), name the gap honestly (“That’s very generous — I’m sorry, it just doesn’t work for me”), decline once more plainly but warmly, then use their name while thanking them for the conversation. Each one is still a no — but stacked this way, the door stays open instead of slamming.",
+   "updated_at": "2026-07-30T21:50:41.925+00:00"
+  },
+  {
+   "concept": "similarity",
+   "section": "reading",
+   "title": "Similarity Principle",
+   "chunk_index": 0,
+   "content": "Trust gets extended to people who feel like “one of us” before it gets extended to a good argument. People say yes faster to someone who reads as similar to them — shared background, mirrored language, overlapping values — than to someone making a technically better case. This sits close enough to the Liking principle already covered under Persuasion that it’s worth reading as the same lever from a different angle, not a separate idea to learn twice: find the genuine overlap early, and the rest of the conversation gets easier.",
+   "updated_at": "2026-07-30T21:50:39.061+00:00"
+  },
+  {
+   "concept": "spot-decision-makers",
+   "section": "reading",
+   "title": "Spot Decision Makers",
+   "chunk_index": 0,
+   "content": "Pronouns tell you who’s actually holding the pen — if you know which direction to read them. Someone who keeps saying “I,” “me,” and “my” is speaking from their own authority — a strong signal they can actually say yes. Heavy “we,” “they,” and “them” language can mean the real decision lives elsewhere, or it can be a deliberate move to keep options open and a scapegoat in reserve. Either way, it’s worth surfacing directly rather than assuming: ask who else needs to be comfortable with this before it’s final.",
+   "updated_at": "2026-07-30T21:50:38.001+00:00"
+  },
+  {
+   "concept": "spotting-liars",
+   "section": "reading",
+   "title": "Spotting Liars",
+   "chunk_index": 0,
+   "content": "People stretching the truth tend to over-explain — more words, more distance, more detours. Someone padding the truth usually says more than someone stating a fact plainly — the extra detail is an unconscious attempt to sound convincing. Watch for distancing language too: a sudden shift from “I” to “he,” “she,” “they,” or “it” puts psychological space between the speaker and the claim. Complex, roundabout sentence structure is another tell — the truth is usually said plainly, because there’s nothing to route around.",
+   "updated_at": "2026-07-30T21:50:37.617+00:00"
+  },
+  {
+   "concept": "strategic-umbrage",
+   "section": "hostile",
+   "title": "Strategic Umbrage",
+   "chunk_index": 0,
+   "content": "Calculated offense, taken once and dropped — not real anger, a signal that a line got crossed. This isn’t losing your temper — it’s a deliberate, visible reaction that says a specific line was crossed, stated cleanly once and then set down rather than carried through the rest of the conversation. A flat, matter-of-fact line like “I don’t see how that would ever work” does the job: it registers as a real boundary without escalating into a fight, and resets an unreasonable opening without you having to raise your voice to do it.",
+   "updated_at": "2026-07-30T21:50:40.29+00:00"
+  },
+  {
+   "concept": "strike-zone",
+   "section": "prep",
+   "title": "Strike Zone",
+   "chunk_index": 0,
+   "content": "Walking in with one number in your head is how you either overpay or panic. Walk in with three. Before any real number gets said out loud, decide three of your own: the aspirational number if everything goes your way, the realistic target you’d genuinely be glad to land on, and the walk-away point where no deal beats a bad deal. Write all three down before you sit down — deciding your walk-away point in the room, under pressure, after they’ve already anchored, is exactly when you’re least equipped to decide it clearly. The middle number is what most people plan around; the aspirational and walk-away numbers are what keep that middle number from drifting once the conversation starts.",
+   "updated_at": "2026-07-30T21:50:35.487+00:00"
+  },
+  {
+   "concept": "columbo-effect",
+   "section": "prep",
+   "title": "The Columbo Effect",
+   "chunk_index": 0,
+   "content": "The most disarming person in the room is the one who doesn’t look like they have anything to prove. Named for the rumpled TV detective who always seemed one step behind: walking in slightly less polished than you could be, and treating the conversation like you’re gathering information rather than pushing for an outcome, makes people relax their guard in a way a sharp, obviously-prepared pitch never does. The tell that gives the opposite away is neediness — visibly needing the deal invites the other side to press their advantage, while someone who’s genuinely fine walking away tends to get treated with more respect. It’s a mindset more than a line, which is exactly what makes the moment it does become a line so effective: once they think the real conversation is over and they’ve relaxed, that same unassuming persona gets to ask for one more thing.",
+   "updated_at": "2026-07-30T21:50:36.676+00:00"
+  }
+ ]
+}

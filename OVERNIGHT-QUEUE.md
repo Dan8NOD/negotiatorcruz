@@ -15,6 +15,9 @@ commits, ticks the box, and stops.
 4. Rebuild derived output when chapters change:
    `python3 book/tools/build.py && python3 book/tools/makebook.py && python3 guide/tools/makeguide.py`
 5. No dashes. Run `python3 book/tools/voicepass.py <files>` on anything new.
+7. Script lines come from the 544 shipped lines. If the Supabase connector
+   is down, use the checked-in export at `book/data/negotiation_labels.json`
+   (and `negotiation_knowledge.json`). Read-only. The table is canonical.
 6. If every item is done, go to **New books** at the bottom and take the top
    one there. If that list is also done, stop the cron and say so.
 

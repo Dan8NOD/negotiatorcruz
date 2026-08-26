@@ -1,0 +1,3817 @@
+{
+ "_source": "Supabase project iubxycckgrplbpdbncfk, table negotiation_labels",
+ "_note": "Read-only export for manuscript assembly when the connector is absent. The table and js/labels.js remain canonical. Do not edit here. Dash and slot conventions get applied at assembly time, not in this file.",
+ "_exported": "2026-08-26",
+ "line_count": 544,
+ "family_count": 39,
+ "lines": [
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "It looks like there's nothing I can say to change your mind.",
+   "trigger_text": null
+  },
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "It looks like there's real pressure on you to end this one way or another.",
+   "trigger_text": null
+  },
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "It seems like continuing this isn't worth your time anymore.",
+   "trigger_text": null
+  },
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "It seems like you don't have any other questions.",
+   "trigger_text": null
+  },
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "It seems like you're done negotiating and just want an answer.",
+   "trigger_text": null
+  },
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "It seems like you've given up on working with us.",
+   "trigger_text": null
+  },
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "It seems like your team is coming down hard on you to make this deal.",
+   "trigger_text": null
+  },
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "It sounds like there's nothing more you can do.",
+   "trigger_text": null
+  },
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "It sounds like this conversation has run its course for you.",
+   "trigger_text": null
+  },
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "It sounds like you're waiting for me to just accept where this landed.",
+   "trigger_text": null
+  },
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "It sounds like you've said everything you're going to say on this.",
+   "trigger_text": null
+  },
+  {
+   "section": "acknowledge",
+   "type_name": "Acknowledgement",
+   "tier": "core",
+   "template": "Sounds like that's a no.",
+   "trigger_text": null
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "Compared to what, exactly?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "If you'd never heard that number, what would you have guessed instead?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "Is that number based on this deal, or the last one that went badly?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "Is that the number, or just the first one anyone said out loud?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "That figure sounds borrowed. Whose is it?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "That number's doing a lot of work. What's actually behind it?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "This number feels pre-loaded. What are you really measuring against?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "What number were you anchored to before you walked in here?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "What would have to change for that number to move?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "What's the reference point you're using to call this unfair?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "What's the story behind that specific figure?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "anchor",
+   "type_name": "Anchor Probe",
+   "tier": "advanced",
+   "template": "Where did that number actually come from?",
+   "trigger_text": "They threw out a number. Test what it's built on."
+  },
+  {
+   "section": "asking",
+   "type_name": "Asking Label",
+   "tier": "core",
+   "template": "It seems like there's a number in mind, even if it hasn't been said yet.",
+   "trigger_text": "You need an answer but a direct question would put them on guard."
+  },
+  {
+   "section": "asking",
+   "type_name": "Asking Label",
+   "tier": "core",
+   "template": "It seems like this needs a yes from someone else in the room first.",
+   "trigger_text": "You need an answer but a direct question would put them on guard."
+  },
+  {
+   "section": "asking",
+   "type_name": "Asking Label",
+   "tier": "core",
+   "template": "It seems like you already know what you'd do if this fell through.",
+   "trigger_text": "You need an answer but a direct question would put them on guard."
+  },
+  {
+   "section": "asking",
+   "type_name": "Asking Label",
+   "tier": "core",
+   "template": "It seems like you'd rather keep this simple than get everything perfect.",
+   "trigger_text": "You need an answer but a direct question would put them on guard."
+  },
+  {
+   "section": "asking",
+   "type_name": "Asking Label",
+   "tier": "core",
+   "template": "It seems like you'd say yes today if the one thing holding you back got solved.",
+   "trigger_text": "You need an answer but a direct question would put them on guard."
+  },
+  {
+   "section": "asking",
+   "type_name": "Asking Label",
+   "tier": "core",
+   "template": "It sounds like the real sticking point isn't the one we're talking about.",
+   "trigger_text": "You need an answer but a direct question would put them on guard."
+  },
+  {
+   "section": "asking",
+   "type_name": "Asking Label",
+   "tier": "core",
+   "template": "It sounds like the timeline matters more to you than the price does.",
+   "trigger_text": "You need an answer but a direct question would put them on guard."
+  },
+  {
+   "section": "asking",
+   "type_name": "Asking Label",
+   "tier": "core",
+   "template": "It sounds like there's a reason this can't wait much longer.",
+   "trigger_text": "You need an answer but a direct question would put them on guard."
+  },
+  {
+   "section": "asking",
+   "type_name": "Asking Label",
+   "tier": "core",
+   "template": "It sounds like you're comparing this against something else you're weighing.",
+   "trigger_text": "You need an answer but a direct question would put them on guard."
+  },
+  {
+   "section": "asking",
+   "type_name": "Asking Label",
+   "tier": "core",
+   "template": "It sounds like you've already decided which way you're leaning.",
+   "trigger_text": "You need an answer but a direct question would put them on guard."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "It might look like I'm hiding something — I'm not. Ask me anything.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "It might look like I'm rushing you into something you're not ready for.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "It might seem like I don't care how this affects you.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "It might seem like I'm overstepping something that isn't mine to touch.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "It probably feels like this conversation was scripted before I even sat down.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "It probably looks like I'm more interested in closing this than getting it right.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "It probably looks like I'm only here for what I can get out of this.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "It probably seems like you've heard this exact pitch before.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "You might be thinking I don't actually know what I'm talking about.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "You might be thinking I'll disappear the second this is signed.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "You might think I'm reading off a script right now.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "You might think this is going to cost more than I'm letting on.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "You probably think I'm just trying to squeeze you here.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "You probably think the friendly tone is just a setup for the ask.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "audit",
+   "type_name": "Accusation Audit",
+   "tier": "advanced",
+   "template": "You probably think the last person who said this to you was lying too.",
+   "trigger_text": "You sense resistance building before you've asked."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It seems like 'not worth it' isn't about the terms. It's about you.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It seems like somewhere along the way, you started believing you don't get to ask for what you actually want.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It seems like the belief that you'll be disappointed got here before any actual evidence did.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It seems like the real blocker isn't the number — it's the belief that asking for more is pointless.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It seems like you believe nothing you do here will change the outcome.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It seems like you've already written the ending before we got to the middle.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It sounds like somewhere you decided wanting more makes you difficult, not reasonable.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It sounds like this isn't the first time you've talked yourself out of something you wanted.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It sounds like uselessness isn't a feeling here — it's a conclusion you reached a long time ago.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It sounds like you're not just losing this deal — you're questioning whether you deserve it.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It sounds like you're protecting a story about yourself that this deal threatens.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It sounds like you've already decided this is hopeless, and now you're just confirming it.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "belief",
+   "type_name": "Belief Label",
+   "tier": "advanced",
+   "template": "It sounds like you've decided this won't work before we've even tried.",
+   "trigger_text": "They're filtering through a core belief — uselessness, hopelessness, worthlessness — not the facts."
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "Before we talk exact numbers, what range are you even considering?",
+   "trigger_text": null
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "If we could wave a magic wand, what range would feel fair?",
+   "trigger_text": null
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "If we're both guessing right now, what's your honest range?",
+   "trigger_text": null
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "If you had to guess a range blind, what would you say?",
+   "trigger_text": null
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "Let's bracket it — too low, too high, and somewhere in between.",
+   "trigger_text": null
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "Let's set a range first — what's the highest you'd go?",
+   "trigger_text": null
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "Most deals like this land between two numbers. Where do you see it?",
+   "trigger_text": null
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "What range would make this an easy conversation instead of a hard one?",
+   "trigger_text": null
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "What would the top of your range need to include to make sense?",
+   "trigger_text": null
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "What's the low end you'd still feel good about?",
+   "trigger_text": null
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "What's the number where you'd stop and think twice?",
+   "trigger_text": null
+  },
+  {
+   "section": "bracket",
+   "type_name": "Bracket",
+   "tier": "core",
+   "template": "Where does this stop feeling worth it for you?",
+   "trigger_text": null
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "How am I supposed to do that?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "How did you land on that number?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "How do you want to handle it if we hit a snag halfway through?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "How should we split this up so nothing falls through the cracks?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "How would you want this to go if there were no constraints at all?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "What about this is most important to you?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "What am I not seeing here?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "What would need to be true for this to work?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "What would need to happen for this to be an easy yes?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "What's driving the timeline on this?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "What's making this harder than it needs to be?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "calibrated",
+   "type_name": "Calibrated Question",
+   "tier": "core",
+   "template": "What's the one piece of this you're least willing to bend on?",
+   "trigger_text": "They pushed back or said \"I can't do that.\""
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "If I move on price, what moves on your side?",
+   "trigger_text": null
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "If not the price, what else is actually on the table?",
+   "trigger_text": null
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "If we can't move the number, what else could move?",
+   "trigger_text": null
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "Is there a non-cash way to make this work for both of us?",
+   "trigger_text": null
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "There's flexibility somewhere in this — where is it on your side?",
+   "trigger_text": null
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "There's something here I can flex on. It isn't the number.",
+   "trigger_text": null
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "What could I give you that wouldn't cost you anything to accept?",
+   "trigger_text": null
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "What do you have more of than you need, that I could use?",
+   "trigger_text": null
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "What would you trade timeline for?",
+   "trigger_text": null
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "What's cheap for you that would be valuable to me?",
+   "trigger_text": null
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "What's something small I could offer that would matter more than it costs?",
+   "trigger_text": null
+  },
+  {
+   "section": "chip",
+   "type_name": "Bargaining Chip",
+   "tier": "core",
+   "template": "What's something you have that's easy to give but hard to get elsewhere?",
+   "trigger_text": null
+  },
+  {
+   "section": "clean",
+   "type_name": "Clean Language",
+   "tier": "advanced",
+   "template": "\"Busy\" — busy with what, exactly?",
+   "trigger_text": null
+  },
+  {
+   "section": "clean",
+   "type_name": "Clean Language",
+   "tier": "advanced",
+   "template": "\"Complicated\" — complicated how?",
+   "trigger_text": null
+  },
+  {
+   "section": "clean",
+   "type_name": "Clean Language",
+   "tier": "advanced",
+   "template": "\"Difficult\" — difficult in what way?",
+   "trigger_text": null
+  },
+  {
+   "section": "clean",
+   "type_name": "Clean Language",
+   "tier": "advanced",
+   "template": "\"Expensive\" — expensive compared to what?",
+   "trigger_text": null
+  },
+  {
+   "section": "clean",
+   "type_name": "Clean Language",
+   "tier": "advanced",
+   "template": "\"Fine\" — what does fine actually mean here?",
+   "trigger_text": null
+  },
+  {
+   "section": "clean",
+   "type_name": "Clean Language",
+   "tier": "advanced",
+   "template": "\"Later\" — later meaning when, specifically?",
+   "trigger_text": null
+  },
+  {
+   "section": "clean",
+   "type_name": "Clean Language",
+   "tier": "advanced",
+   "template": "\"Maybe\" — what would move that to a yes?",
+   "trigger_text": null
+  },
+  {
+   "section": "clean",
+   "type_name": "Clean Language",
+   "tier": "advanced",
+   "template": "\"Overwhelmed\" — overwhelmed by what, exactly?",
+   "trigger_text": null
+  },
+  {
+   "section": "clean",
+   "type_name": "Clean Language",
+   "tier": "advanced",
+   "template": "\"Risky\" — risky how, specifically?",
+   "trigger_text": null
+  },
+  {
+   "section": "clean",
+   "type_name": "Clean Language",
+   "tier": "advanced",
+   "template": "\"Stuck\" — what kind of stuck is that?",
+   "trigger_text": null
+  },
+  {
+   "section": "clean",
+   "type_name": "Clean Language",
+   "tier": "advanced",
+   "template": "And when it's unfair, what happens next?",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "It looks like I need help with this.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "It looks like there's no movement on any of these points.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "It looks like your priorities have changed.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "It seems like I've missed something.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "It seems like there's a detail here nobody's said out loud yet.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "It seems like there's something I'm not seeing.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "It seems like you have a reason for asking.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "It seems like you haven't given this much thought.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "Looks like no one is going to undermine this deal.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "Looks like this decision depends on something we haven't talked about.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "Seems like there's a piece of context I'm missing.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "Seems like there's more here than meets the eye.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "Seems like you have an idea as to how to proceed.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "Seems like you have an idea as to what stands in the way.",
+   "trigger_text": null
+  },
+  {
+   "section": "digging",
+   "type_name": "Information Label",
+   "tier": "core",
+   "template": "Seems like you have some steps in mind already.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "It looks like you already knew where this was headed before I said it.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "It looks like you were three moves ahead before we started.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "It looks like you've earned the right to be particular about who you work with.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "It seems like you've built something most people only talk about building.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "It seems like you've done this a hundred times before.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "It seems like you've watched every version of this play out already.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "It sounds like people come to you when they actually want it done right.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "It sounds like you know this market better than anyone I've spoken to.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "It sounds like your instincts on this are better than most people's research.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "You seem like someone who doesn't get rattled by a hard number.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "You seem like someone who doesn't need this explained twice.",
+   "trigger_text": null
+  },
+  {
+   "section": "elevation",
+   "type_name": "Elevation Label",
+   "tier": "advanced",
+   "template": "You seem like the person in the room everyone else defers to.",
+   "trigger_text": null
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "Anyone in your position would be asking the same questions right now.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "It makes sense that {em} is here — this actually matters to you.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "It makes sense you'd want more than my word on this.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "It seems like there's a good reason {em} showed up here.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "It seems like this feels personal, not just practical.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "It's fair to be careful here — the last version of this didn't go well.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "Nobody sits with {em} like this over nothing. Something real is behind it.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "That reaction makes complete sense given what's on the line.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "That's not an overreaction. That's what this situation calls for.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "You're allowed to still be deciding. This isn't a small thing.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "You're doing more processing here than you're getting credit for.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "empathy",
+   "type_name": "Empathy Statement",
+   "tier": "core",
+   "template": "You've clearly been carrying this longer than just today's conversation.",
+   "trigger_text": "Their logic won't move them — their feelings will."
+  },
+  {
+   "section": "encourager",
+   "type_name": "Minimal Encourager",
+   "tier": "core",
+   "template": "\"And then what?\" Keep them walking through it.",
+   "trigger_text": null
+  },
+  {
+   "section": "encourager",
+   "type_name": "Minimal Encourager",
+   "tier": "core",
+   "template": "\"Go on.\" Nothing more. Let the sentence stay theirs.",
+   "trigger_text": null
+  },
+  {
+   "section": "encourager",
+   "type_name": "Minimal Encourager",
+   "tier": "core",
+   "template": "\"I see.\" Two syllables, then hand the floor straight back.",
+   "trigger_text": null
+  },
+  {
+   "section": "encourager",
+   "type_name": "Minimal Encourager",
+   "tier": "core",
+   "template": "\"Mm-hmm.\" Then nothing. Let them keep going.",
+   "trigger_text": null
+  },
+  {
+   "section": "encourager",
+   "type_name": "Minimal Encourager",
+   "tier": "core",
+   "template": "\"No rush.\" Say it once, then let the pause do the rest.",
+   "trigger_text": null
+  },
+  {
+   "section": "encourager",
+   "type_name": "Minimal Encourager",
+   "tier": "core",
+   "template": "\"Okay — say more about that.\" Then close your mouth.",
+   "trigger_text": null
+  },
+  {
+   "section": "encourager",
+   "type_name": "Minimal Encourager",
+   "tier": "core",
+   "template": "\"Right.\" One word, then stop.",
+   "trigger_text": null
+  },
+  {
+   "section": "encourager",
+   "type_name": "Minimal Encourager",
+   "tier": "core",
+   "template": "\"Sure.\" One syllable, then wait.",
+   "trigger_text": null
+  },
+  {
+   "section": "encourager",
+   "type_name": "Minimal Encourager",
+   "tier": "core",
+   "template": "\"Take your time.\" Then actually give them the silence to use it.",
+   "trigger_text": null
+  },
+  {
+   "section": "encourager",
+   "type_name": "Minimal Encourager",
+   "tier": "core",
+   "template": "\"Uh-huh.\" Nothing else. Keep your face open.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "Fair doesn't mean equal — tell me what fair looks like to you.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "If anything here feels unfair, say so and we'll fix it.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "If I'm asking for more than I'm offering, call it out.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "If something about this feels off, I'd rather hear it now than after.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "If this deal only works for one of us, it doesn't actually work.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "If this ever starts to feel one-sided, that's on me to fix, not you to absorb.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "Say the word and we'll rebalance this on the spot.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "Stop me the moment this stops feeling fair to you.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "Tell me the moment this tips out of balance for you.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "You don't have to accept something just because I proposed it.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "You get a say in what fair means here, not just me.",
+   "trigger_text": null
+  },
+  {
+   "section": "fairness",
+   "type_name": "Fairness Framing",
+   "tier": "core",
+   "template": "You should feel fairly treated at every step — hold me to that.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "It seems like there's a specific outcome you're protecting here.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "It seems like you have a specific reason for saying that.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "It seems like you keep circling back to the same point.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "It seems like you're focused on one clause more than the rest.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "It seems like you've already narrowed this down to one real issue.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "It sounds like everything else is fine except this one piece.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "It sounds like the rest of this is settled except one detail.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "It sounds like there's one specific thing driving all of this.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "It sounds like this whole conversation actually hinges on one condition.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "It sounds like you have a range in mind.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "It sounds like you have a specific number in mind.",
+   "trigger_text": null
+  },
+  {
+   "section": "focus",
+   "type_name": "Focusing Label",
+   "tier": "core",
+   "template": "Sounds like you think I'm being unfair here.",
+   "trigger_text": null
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It feels like there's {em} sitting just under the surface of this.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It looks like {em} is doing the deciding here, not the details.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It looks like {em} is the real issue here.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It looks like {em} showed up the second the number came up.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It probably seems like {em} got here before the facts did.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It seems like {em} is doing a lot of the negotiating for you right now.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It seems like {em} is running the show right now.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It seems like {em} showed up right when the number did.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It seems like {em} walked into the room before you did.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It sounds like {em} has been building for a while, not just today.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It sounds like {em} has been the real subject this whole time.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "labeling",
+   "type_name": "Label",
+   "tier": "core",
+   "template": "It sounds like there's {em} underneath this.",
+   "trigger_text": "You hear an emotion they haven't named yet."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "It looks like this keeps coming back to something nobody's named.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "It looks like we've been circling the real issue instead of naming it.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "It seems like the real ask hasn't been said out loud yet.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "It seems like there's something underneath this that hasn't been said yet.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "It seems like what's on the table isn't actually what's at stake.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "It sounds like the objection is covering for something else.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "It sounds like the thing you haven't said is the thing that matters most.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "It sounds like there's history here I'm not seeing.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "Looks like there's a reason behind the reason you're giving me.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "Seems like whatever's really driving this hasn't made it into the room yet.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "Sounds like the number is standing in for something that isn't about money.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "latent",
+   "type_name": "Latent Label",
+   "tier": "advanced",
+   "template": "Sounds like the surface story and the real one aren't quite the same story.",
+   "trigger_text": "They keep circling the topic without landing on it — something real is behind the smokescreen."
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "Before we go further — walk me through what actually happened.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "Has that always been true, or is it just true here?",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "If I only understood one thing about this, what should it be?",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "If this worked exactly right, what would it actually get you?",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "Is this a won't, or is it a can't?",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It seems like emotion is driving this more than the facts are.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It seems like fairness matters more here than the dollars do.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It seems like this is about more than the number on the page.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It seems like we're pricing two completely different things.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It sounds like money isn't the only thing being traded here.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It sounds like something here hit a nerve before we got to terms.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It sounds like the real value here never shows up on the invoice.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It sounds like the surface ask isn't the real ask.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It sounds like this crosses a line for you, not just a budget.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It sounds like we're working off two different timelines.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It sounds like you want to say yes and something's stopping you.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "It sounds like you'd decided how this ends before we started.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "Let's split what happened from what it meant to you.",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "What are you actually trying to protect in this?",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "What haven't you told me yet that you think I should know?",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "What led you to believe that's how this works?",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "What makes this worth it to you specifically?",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "What would make this feel like a win, even if the number never moves?",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "What's the one principle you're not willing to trade on?",
+   "trigger_text": null
+  },
+  {
+   "section": "listen",
+   "type_name": "Listen For",
+   "tier": "core",
+   "template": "Who else has to sign off before any of this is real?",
+   "trigger_text": null
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "Every day this sits unresolved, what's it costing the relationship?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "If nothing changes, what do you actually lose here?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "If someone else gets this instead of you, what does that cost you beyond the deal itself?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "If the worst case plays out, what's the first thing you lose that you can't get back?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "If you look back on this in a year having done nothing, what does that feel like?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "If you walk away with nothing, what does next month look like?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "What are you already losing by not deciding right now?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "What does it cost you if this falls apart?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "What does the version of you who didn't take this deal look like in six months?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "What happens to the relationship if this just quietly falls apart?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "What would be the outcome if that doesn't happen?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "What's already slipping away while this sits unresolved?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "loss",
+   "type_name": "Loss Aversion",
+   "tier": "core",
+   "template": "What's the cost of staying exactly where you are right now?",
+   "trigger_text": "They're stalling or hedging. Show them what inaction costs."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "Catch the word that carried the most weight in that sentence and echo it — nothing else.",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "Echo the last word of their sentence like a question, and let it sit.",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "If they use a loaded word — \"impossible,\" \"ridiculous,\" \"unfair\" — hand it straight back.",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "Mirror the number, not your reaction to the number.",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "Pick the word they leaned on hardest and give it right back to them.",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "Repeat \"not interested\" back exactly, then say nothing else.",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "Repeat \"that price\" back and wait for them to fill the silence.",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "Repeat the number back exactly as they said it, then wait.",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "Repeat their last 3 words, then stop talking.",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "Repeat their word back: \"{Em}?\"",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "Take the last thing they said and turn it into a question with your tone alone.",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mirror",
+   "type_name": "Mirror",
+   "tier": "core",
+   "template": "Take their strongest word and hand it right back to them.",
+   "trigger_text": "They just said something with weight — repeat the last 1-3 words."
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It looks like everyone on your side agrees on everything.",
+   "trigger_text": null
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It looks like there's nothing left to negotiate here.",
+   "trigger_text": null
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It looks like this decision is entirely yours to make.",
+   "trigger_text": null
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It seems like price is the only thing standing in the way here.",
+   "trigger_text": null
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It seems like timing isn't really an issue on your end.",
+   "trigger_text": null
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It seems like you trust this completely already.",
+   "trigger_text": null
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It seems like you'd sign this without reading it.",
+   "trigger_text": null
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It seems like your team is fully on board with all of this.",
+   "trigger_text": null
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It sounds like none of this actually matters to you.",
+   "trigger_text": null
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It sounds like the deadline was never actually real.",
+   "trigger_text": null
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It sounds like you're completely happy with how this is going.",
+   "trigger_text": null
+  },
+  {
+   "section": "mislabel",
+   "type_name": "Mislabel",
+   "tier": "advanced",
+   "template": "It sounds like you've already decided to walk away from this.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It feels like there's an obstacle here.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It looks like I don't have much of a say.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It looks like there are some issues here.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It probably seems like we don't care about you.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It probably seems like we're being selfish.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It seems like something is holding you back.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It seems like there's some hesitation.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It seems like there's something else here that I'm not addressing.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It seems like there's something here that bothers you.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It seems like you have a reason for hesitating.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It sounds like there's a version of this you're not saying out loud.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It sounds like this is out of your hands.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It sounds like you have a reason to say that.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "It sounds like you're in a tough spot.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "Seems like something's going on here.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "Seems like there's a reason you keep hesitating on this specific point.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "Seems like you think I'm being unreasonable.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "Seems like you'd prefer not to make this deal.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "Seems like you're under some pressure.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "Seems like you've got something on your mind.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "Sounds like I've offended you.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "Sounds like my business isn't worth it to you.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "Sounds like the value just isn't there for you.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "Sounds like this bothers you.",
+   "trigger_text": null
+  },
+  {
+   "section": "negatives",
+   "type_name": "Negative Label",
+   "tier": "core",
+   "template": "Sounds like you don't trust me.",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Am I missing something obvious here?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Am I out of line asking what changed?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Am I talking to the wrong person?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Am I totally wrong about where you stand?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Are you against hearing my side?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Are you against putting everything on the table?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Did I catch you at a bad time?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Did I lose you on this?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Do you disagree that we both want this done?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Do you want this project to fail?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Do you want to stop here?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Does any of this not make sense?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Does this feel like a dead end?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Has this stopped being a priority?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Have I lost your confidence here?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Have I made this harder than necessary?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Have I misunderstood what you need?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Have we exhausted every option?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Have you already made up your mind?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Have you given up on this?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Have you moved on from this?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Have you ruled out other options?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Have you written this off already?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is it a bad idea to start over?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is it too late to turn this around?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is it too much to ask you directly?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is it too soon to talk next steps?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is it unreasonable to ask for a decision?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is it unreasonable to need more time?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is it wrong to assume you need approval?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is my number completely off base?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is my read on this wrong?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is now a bad time to talk numbers?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is something being left unsaid?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is the damage here permanent?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is there any reason we can't proceed?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is there more to this than that?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is there no room left on price?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is there no way to make this work?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is there nothing you can move on?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is there something I'm not addressing?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is this a bad fit for you?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is this a bad time?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is this decision out of your hands?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is this hopeless, or am I missing something?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Is waiting the better option here?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Should I close your file?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Should I just give up, then?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Should I just stop trying?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be crazy to talk budget today?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be crazy to walk away?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be difficult to answer by Friday?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be horrible to revisit the price?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be impossible to move the date?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be out of the question to extend?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be premature to put this in writing?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be ridiculous to shake on it?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be ridiculous to slow down?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be unfair to ask what's blocking this?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be unfair to ask you why?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would it be wrong to include your team?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would you be against being honest here?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would you be against telling me what's wrong?",
+   "trigger_text": null
+  },
+  {
+   "section": "noq",
+   "type_name": "No-Oriented Question",
+   "tier": "advanced",
+   "template": "Would you be opposed to a shorter term?",
+   "trigger_text": null
+  },
+  {
+   "section": "notyet",
+   "type_name": "No Problem Yet",
+   "tier": "advanced",
+   "template": "How far off does this feel from something you'd actually act on?",
+   "trigger_text": null
+  },
+  {
+   "section": "notyet",
+   "type_name": "No Problem Yet",
+   "tier": "advanced",
+   "template": "How would things need to change for you to even consider this?",
+   "trigger_text": null
+  },
+  {
+   "section": "notyet",
+   "type_name": "No Problem Yet",
+   "tier": "advanced",
+   "template": "If nothing changes in six months, what does that look like?",
+   "trigger_text": null
+  },
+  {
+   "section": "notyet",
+   "type_name": "No Problem Yet",
+   "tier": "advanced",
+   "template": "If this became urgent tomorrow, what would have caused that?",
+   "trigger_text": null
+  },
+  {
+   "section": "notyet",
+   "type_name": "No Problem Yet",
+   "tier": "advanced",
+   "template": "Is this a someday thing, or a never-really thing?",
+   "trigger_text": null
+  },
+  {
+   "section": "notyet",
+   "type_name": "No Problem Yet",
+   "tier": "advanced",
+   "template": "Right now, where does this rank against everything else you're dealing with?",
+   "trigger_text": null
+  },
+  {
+   "section": "notyet",
+   "type_name": "No Problem Yet",
+   "tier": "advanced",
+   "template": "What would have to be true for this to become a priority?",
+   "trigger_text": null
+  },
+  {
+   "section": "notyet",
+   "type_name": "No Problem Yet",
+   "tier": "advanced",
+   "template": "What would it take for this to actually be on your radar?",
+   "trigger_text": null
+  },
+  {
+   "section": "notyet",
+   "type_name": "No Problem Yet",
+   "tier": "advanced",
+   "template": "What would need to break first before this became worth fixing?",
+   "trigger_text": null
+  },
+  {
+   "section": "notyet",
+   "type_name": "No Problem Yet",
+   "tier": "advanced",
+   "template": "What's higher priority than this right now, and why?",
+   "trigger_text": null
+  },
+  {
+   "section": "notyet",
+   "type_name": "No Problem Yet",
+   "tier": "advanced",
+   "template": "What's missing that would make this feel necessary instead of nice-to-have?",
+   "trigger_text": null
+  },
+  {
+   "section": "onemore",
+   "type_name": "One More Thing",
+   "tier": "advanced",
+   "template": "Anything you're quietly hoping gets added before we finalize?",
+   "trigger_text": null
+  },
+  {
+   "section": "onemore",
+   "type_name": "One More Thing",
+   "tier": "advanced",
+   "template": "Before we call it done, is there a loose end we haven't tied off?",
+   "trigger_text": null
+  },
+  {
+   "section": "onemore",
+   "type_name": "One More Thing",
+   "tier": "advanced",
+   "template": "Before we sign — what did I miss that would make this better?",
+   "trigger_text": null
+  },
+  {
+   "section": "onemore",
+   "type_name": "One More Thing",
+   "tier": "advanced",
+   "template": "If this deal could include one more thing at no extra cost, what would you ask for?",
+   "trigger_text": null
+  },
+  {
+   "section": "onemore",
+   "type_name": "One More Thing",
+   "tier": "advanced",
+   "template": "If you could add one thing to this agreement, what would it be?",
+   "trigger_text": null
+  },
+  {
+   "section": "onemore",
+   "type_name": "One More Thing",
+   "tier": "advanced",
+   "template": "Is there anything you'd want in this that we haven't covered?",
+   "trigger_text": null
+  },
+  {
+   "section": "onemore",
+   "type_name": "One More Thing",
+   "tier": "advanced",
+   "template": "Is there something small that would make this feel like a win, not just a deal?",
+   "trigger_text": null
+  },
+  {
+   "section": "onemore",
+   "type_name": "One More Thing",
+   "tier": "advanced",
+   "template": "Last chance before we lock it in — what's on your mind?",
+   "trigger_text": null
+  },
+  {
+   "section": "onemore",
+   "type_name": "One More Thing",
+   "tier": "advanced",
+   "template": "Now that we're basically there, what's the one thing that would make this feel complete?",
+   "trigger_text": null
+  },
+  {
+   "section": "onemore",
+   "type_name": "One More Thing",
+   "tier": "advanced",
+   "template": "What would take this from good to actually great for you?",
+   "trigger_text": null
+  },
+  {
+   "section": "onemore",
+   "type_name": "One More Thing",
+   "tier": "advanced",
+   "template": "What's the thing you almost brought up but didn't?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "Anything good happen today?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "How did you end up doing this kind of work?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "How long have you been doing this?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "If you had an extra hour today, what would you do with it?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "What got you into this line of work in the first place?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "What made today different from a normal day?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "What's been the best part of your week so far?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "What's kept you busy this week?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "What's something people don't usually ask you about your work?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "What's something you're looking forward to outside of all this?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "What's the best part of your job that most people never see?",
+   "trigger_text": null
+  },
+  {
+   "section": "opener",
+   "type_name": "Opener",
+   "tier": "core",
+   "template": "What's your story?",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "Boiling it down: you'd need a guarantee, not just a promise.",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "If I'm tracking right, this comes down to trust, not terms.",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "In your words then: this only works if the risk moves off you.",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "Let me reflect that back: you need certainty more than you need speed.",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "Let me say that back, and you tell me where I'm wrong.",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "Playing it back simply — you're closer to yes than this conversation sounds.",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "Putting that in my own words — you're fine with the plan, just not the pace.",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "Restating it plainly: the concept's fine, the exposure isn't.",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "So the short version is, you're willing but not on this timeline.",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "So what I'm hearing is, the timing matters more than the number.",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "Sounds like the real issue was never the price, it was being surprised by it.",
+   "trigger_text": null
+  },
+  {
+   "section": "paraphrase",
+   "type_name": "Paraphrase",
+   "tier": "core",
+   "template": "What I'm taking from that is, it's not the idea you're against.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "Feels like you're being really generous with your time here.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "It looks like you came prepared — that's not nothing.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "It looks like you've done this before — that helps.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "It seems like you actually care how this turns out for both of us.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "It seems like you actually want this to work.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "It seems like you'd like to make this work, but there are things in the way.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "It seems like you're genuinely trying to get this right.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "It sounds like you're someone who follows through on what you say.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "It sounds like you're the kind of person who makes this easy.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "It sounds like you've given this a lot of thought.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "Sounds like we're in good hands here.",
+   "trigger_text": null
+  },
+  {
+   "section": "positive",
+   "type_name": "Positive Label",
+   "tier": "core",
+   "template": "You seem like the type of person who prides themselves on how they do business.",
+   "trigger_text": null
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It feels like someone else is making this decision for you.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It feels like the real decision-maker is somewhere else entirely.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It feels like this was decided before we ever sat down.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It feels like you're powerless here.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It seems like you don't have any real room to move on this.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It seems like you'd need permission just to say yes to this.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It seems like your hands are completely tied here.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It sounds like control matters more right now than the actual terms.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It sounds like nothing here actually depends on what you think.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It sounds like whoever's really in charge isn't even in this room.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It sounds like you don't actually have a say in any of this.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "power",
+   "type_name": "Power Label",
+   "tier": "advanced",
+   "template": "It sounds like you're just here to deliver someone else's answer.",
+   "trigger_text": "Control matters more to them than the terms."
+  },
+  {
+   "section": "ready",
+   "type_name": "They're Ready",
+   "tier": "advanced",
+   "template": "It seems like you're ready to move — let's not let momentum slip.",
+   "trigger_text": null
+  },
+  {
+   "section": "ready",
+   "type_name": "They're Ready",
+   "tier": "advanced",
+   "template": "It sounds like the thinking's done. Now it's just logistics.",
+   "trigger_text": null
+  },
+  {
+   "section": "ready",
+   "type_name": "They're Ready",
+   "tier": "advanced",
+   "template": "It sounds like you're past convincing and into planning.",
+   "trigger_text": null
+  },
+  {
+   "section": "ready",
+   "type_name": "They're Ready",
+   "tier": "advanced",
+   "template": "It sounds like you've already decided — let's make it easy to finish.",
+   "trigger_text": null
+  },
+  {
+   "section": "ready",
+   "type_name": "They're Ready",
+   "tier": "advanced",
+   "template": "Let's lock in the details now, while you're this clear on it.",
+   "trigger_text": null
+  },
+  {
+   "section": "ready",
+   "type_name": "They're Ready",
+   "tier": "advanced",
+   "template": "Let's put a real date on it. Not soon, not this week — a date.",
+   "trigger_text": null
+  },
+  {
+   "section": "ready",
+   "type_name": "They're Ready",
+   "tier": "advanced",
+   "template": "Let's turn 'yes' into a next step before this conversation ends.",
+   "trigger_text": null
+  },
+  {
+   "section": "ready",
+   "type_name": "They're Ready",
+   "tier": "advanced",
+   "template": "You're not asking if — you're asking how. Let's answer that.",
+   "trigger_text": null
+  },
+  {
+   "section": "ready",
+   "type_name": "They're Ready",
+   "tier": "advanced",
+   "template": "You've clearly already run the numbers in your head. Let's make it official.",
+   "trigger_text": null
+  },
+  {
+   "section": "ready",
+   "type_name": "They're Ready",
+   "tier": "advanced",
+   "template": "You've done the hard part already. This part's easy.",
+   "trigger_text": null
+  },
+  {
+   "section": "ready",
+   "type_name": "They're Ready",
+   "tier": "advanced",
+   "template": "You've thought about this more carefully than most people I work with.",
+   "trigger_text": null
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "[Breathe out slowly and let the pause run longer than feels natural.]",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "[Count to five in your head before you say anything else.]",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "[Hold eye contact, close your mouth, and wait them out.]",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "[Hold the silence until they speak first.]",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "[Resist the urge to summarize what you just said. It already landed.]",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "[Say nothing. Let the {em} sit in the room.]",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "[Say the number, then let the room go quiet. Don't soften it after.]",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "[The {em} needs room. Don't fill it for them.]",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "Don't rush past the discomfort. That's where the truth lives.",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "Let the quiet do the negotiating for a few seconds.",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "Silence isn't empty. It's still your turn — you just haven't used it yet.",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "silence",
+   "type_name": "Dynamic Silence",
+   "tier": "core",
+   "template": "Whoever speaks next usually gives up ground. Let it be them.",
+   "trigger_text": "You just landed a label. Stop talking."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "That half-smile didn't reach the rest of your face.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "That pause before you answered was longer than the last one.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "That quick exhale told me more than the last five sentences.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "You crossed your arms right after I finished that sentence.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "You leaned back the second I said that number.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "You went quiet right when it got real. Let's go back there.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "Your breathing changed before your words did.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "Your hands stopped moving. That's worth noticing.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "Your jaw just tightened. That's not agreement.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "Your shoulders just dropped. That wasn't relief.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "Your tone shifted right when {em} walked in.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "somatic",
+   "type_name": "Somatic Read",
+   "tier": "advanced",
+   "template": "Your voice just changed — {em} showed up right there.",
+   "trigger_text": "Their body just changed. Read it, name it."
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "Everything on the table right now: the price, the timeline, and who signs first.",
+   "trigger_text": null
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "Here's everything you've told me — correct anything I get wrong.",
+   "trigger_text": null
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "Here's the shape of where we landed: aligned on most of it, stuck on one point.",
+   "trigger_text": null
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "Here's where we are: two things agreed, one thing still open. Let's look at that one.",
+   "trigger_text": null
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "Let me lay out the whole picture so nothing gets lost before we move on.",
+   "trigger_text": null
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "Let me pull it together: the money, the timing, and the trust.",
+   "trigger_text": null
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "Let me run the whole thing back to you before we go any further.",
+   "trigger_text": null
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "Pulling the whole thread together — this was never really about the number.",
+   "trigger_text": null
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "Quick recap before we go further: two yeses, one open question.",
+   "trigger_text": null
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "So far: you're open to it, you're worried about timing, and you want it in writing.",
+   "trigger_text": null
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "So: you want speed, you need cover, and you've been burned before.",
+   "trigger_text": null
+  },
+  {
+   "section": "summary",
+   "type_name": "Summary",
+   "tier": "core",
+   "template": "Tying it together — you're ready, you just need it in writing.",
+   "trigger_text": null
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "Correct me if I'm off, but this comes down to how {em} you are, not what's on the page.",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "Correct me if I'm wrong — this isn't really about the money, it's about how {em} you are.",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "Correct me if I'm wrong, but how {em} you are about this says more than the terms do.",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "If I'm reading this right, the plan's fine. It's how {em} you are about who's accountable that's the real question.",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "So if I'm hearing you right, this is really about trust.",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "So if I've got this right, this isn't really about the plan — it's about how {em} you are underneath it.",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "So really, this isn't a no — it's how {em} you are about saying yes too soon.",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "So what you're really saying is, how {em} you are matters more right now than what we actually agree on.",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "So what you're saying is, this comes down to how {em} you are. Is that fair?",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "Tell me if I'm off — the issue isn't the deadline, it's being blindsided.",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "Tell me if I'm off base — this was never about the number, it's how {em} you are about being pushed.",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "thatright",
+   "type_name": "That's Right",
+   "tier": "advanced",
+   "template": "Tell me where I'm wrong: the real issue isn't the deadline, it's how {em} you are about being last to know.",
+   "trigger_text": "They're opening up. Confirm, don't redirect."
+  },
+  {
+   "section": "torn",
+   "type_name": "They're Torn",
+   "tier": "advanced",
+   "template": "It looks like you're not stuck — you're just holding two good reasons at once.",
+   "trigger_text": null
+  },
+  {
+   "section": "torn",
+   "type_name": "They're Torn",
+   "tier": "advanced",
+   "template": "It looks like you're weighing the cost of acting against the cost of staying.",
+   "trigger_text": null
+  },
+  {
+   "section": "torn",
+   "type_name": "They're Torn",
+   "tier": "advanced",
+   "template": "It looks like you're weighing who this affects beyond just you.",
+   "trigger_text": null
+  },
+  {
+   "section": "torn",
+   "type_name": "They're Torn",
+   "tier": "advanced",
+   "template": "It seems like part of you wants to move and part wants to wait.",
+   "trigger_text": null
+  },
+  {
+   "section": "torn",
+   "type_name": "They're Torn",
+   "tier": "advanced",
+   "template": "It seems like the hesitation isn't about the decision, it's about the timing.",
+   "trigger_text": null
+  },
+  {
+   "section": "torn",
+   "type_name": "They're Torn",
+   "tier": "advanced",
+   "template": "It seems like there's no wrong answer here, just two different risks.",
+   "trigger_text": null
+  },
+  {
+   "section": "torn",
+   "type_name": "They're Torn",
+   "tier": "advanced",
+   "template": "It seems like you're not indecisive — you're just being honest about the tradeoffs.",
+   "trigger_text": null
+  },
+  {
+   "section": "torn",
+   "type_name": "They're Torn",
+   "tier": "advanced",
+   "template": "It sounds like both options cost you something, just in different currencies.",
+   "trigger_text": null
+  },
+  {
+   "section": "torn",
+   "type_name": "They're Torn",
+   "tier": "advanced",
+   "template": "It sounds like one part of you already knows, and the other part isn't ready to say it.",
+   "trigger_text": null
+  },
+  {
+   "section": "torn",
+   "type_name": "They're Torn",
+   "tier": "advanced",
+   "template": "It sounds like you can see both sides clearly, which is exactly why this is hard.",
+   "trigger_text": null
+  },
+  {
+   "section": "torn",
+   "type_name": "They're Torn",
+   "tier": "advanced",
+   "template": "It sounds like you're torn between staying put and making a change.",
+   "trigger_text": null
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "At what point did trust break down here?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "How do we rebuild trust from where we are?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "How many times has this promise been made before and not kept?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "If this goes the way you're afraid it will, what happened right before that?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "What would it take to actually trust this, not just agree to it?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "What would need to be different this time for it to actually be different?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "What would proof look like here, if my word alone isn't enough?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "What's the fastest way I could lose whatever trust we've built so far?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "What's the smallest thing I could do right now that would mean something?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "What's the story you're not telling me about why this feels risky?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "Who let you down the last time something like this came up?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "trust",
+   "type_name": "Trust Repair",
+   "tier": "core",
+   "template": "Who's the one person whose word you'd actually take on this?",
+   "trigger_text": "They've been burned before. Proof, not promises."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "If the deadline moved tomorrow, would anything about this decision actually change?",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "Is there a real consequence to missing this date, or just discomfort?",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "Is this timeline driven by real stakes or by someone's anxiety?",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "It seems like the deadline is doing more negotiating than either of us.",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "It seems like urgency is standing in for a decision nobody's made yet.",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "It sounds like the clock is louder than the reasons behind it.",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "It sounds like the rush is manufactured, not real.",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "What actually breaks if this takes one more week?",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "What happens the day after the deadline that's so different from the day before?",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "What would you do differently if there were no deadline at all?",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "Who benefits from rushing this decision right now?",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "urgency",
+   "type_name": "Urgency Check",
+   "tier": "core",
+   "template": "Whose deadline is this really — yours, or someone you're trying not to disappoint?",
+   "trigger_text": "The deadline is doing the negotiating, not either of you."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "If this goes exactly right, what's different about how you operate six months from now?",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "If this works perfectly, what changes for you beyond the money?",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "It seems like you're solving for a future problem, not just today's.",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "It sounds like the outcome you really want isn't on the table yet.",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "It sounds like you're already picturing the version of this that works.",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "It sounds like you're not just negotiating the deal — you're negotiating the future.",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "It sounds like you're protecting a future version of this, not just today.",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "What does 'better' actually look like once this is behind you?",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "What does the day after this deal closes actually look like for you?",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "What does this look like once it's actually working?",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "What needs to be true a year from now for this to feel like a win?",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "What would you regret not asking for once this is done?",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "vision",
+   "type_name": "Vision Label",
+   "tier": "advanced",
+   "template": "What's the version of this that you're afraid to say out loud?",
+   "trigger_text": "They're stuck in the problem. Pull them to the outcome."
+  },
+  {
+   "section": "voice",
+   "type_name": "FM DJ Voice",
+   "tier": "advanced",
+   "template": "[Breathe from your stomach, not your chest — it steadies everything else.]",
+   "trigger_text": null
+  },
+  {
+   "section": "voice",
+   "type_name": "FM DJ Voice",
+   "tier": "advanced",
+   "template": "[Calm, downward inflection — the room takes its temperature from you.]",
+   "trigger_text": null
+  },
+  {
+   "section": "voice",
+   "type_name": "FM DJ Voice",
+   "tier": "advanced",
+   "template": "[Drop your pitch. Slow down. Say the next line half as fast.]",
+   "trigger_text": null
+  },
+  {
+   "section": "voice",
+   "type_name": "FM DJ Voice",
+   "tier": "advanced",
+   "template": "[Keep your volume steady even if theirs rises. Match energy, not volume.]",
+   "trigger_text": null
+  },
+  {
+   "section": "voice",
+   "type_name": "FM DJ Voice",
+   "tier": "advanced",
+   "template": "[Let a beat of silence sit before you answer — speed reads as desperation.]",
+   "trigger_text": null
+  },
+  {
+   "section": "voice",
+   "type_name": "FM DJ Voice",
+   "tier": "advanced",
+   "template": "[Say the hard part in the same tone as the easy part.]",
+   "trigger_text": null
+  },
+  {
+   "section": "voice",
+   "type_name": "FM DJ Voice",
+   "tier": "advanced",
+   "template": "[Slow down on the number. Rushing it makes it sound negotiable.]",
+   "trigger_text": null
+  },
+  {
+   "section": "voice",
+   "type_name": "FM DJ Voice",
+   "tier": "advanced",
+   "template": "[Smile before you speak — it changes the shape of your voice even on a call.]",
+   "trigger_text": null
+  },
+  {
+   "section": "voice",
+   "type_name": "FM DJ Voice",
+   "tier": "advanced",
+   "template": "[Trail the end of your sentence down, not up. Confidence doesn't ask a question.]",
+   "trigger_text": null
+  },
+  {
+   "section": "voice",
+   "type_name": "FM DJ Voice",
+   "tier": "advanced",
+   "template": "[Warm it up. Cold and correct still loses the room.]",
+   "trigger_text": null
+  }
+ ]
+}
