@@ -108,7 +108,8 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **B4-1. Everyday specimen chapter.** Chapter 1 written to full length
       to lock the voice, plus `everyday/tools/` build script cloned from the
       guide's.
-- [ ] **D2. Drills 06 to 10.**
+- [x] **D2. Drills 06 to 10** (as numbered: 07 to 11, since 06 shipped in
+      D1 and there is no 03).
 - [ ] **B4-2. Everyday Ch 2.**
 - [ ] **D3. Drills 11 to 15.**
 - [ ] **B4-3. Everyday Ch 3.**
@@ -165,3 +166,4 @@ Each block appends one line: date, item, what changed.
 | Sun eve (mandate) | B4-0 | `everyday/00-DECISIONS.md`. Fourth book scaffolded to Dan's live directive. Working title Same Words, Bigger Rooms. Twelve-chapter map across four parts, kitchen table to six zeros, every chapter sourced to shipped families, the belief family proposed as Ch 12 behind a sign-off flag, three open flags for Dan. Queue reordered into the mandate list and the two-hour Routine created. |
 | Wed 18:0x UTC | D1 | First five drills to full format in `drillbook/drills/`, one file each: 01 Backdate the Deal, 02 Call the Stage, 04 Shut Up and Score, 05 Three Emotions Three Minutes, 06 The Label Round. Numbering settled and recorded in the decisions doc: a drill carries its source chapter's number, no Drill 03, guide drills are 34 to 39, final count settled at collection per the no-padding rule. Also fixed two table cells the voice pass had mangled in the decisions doc. |
 | Wed 20:1x UTC | B4-1 | Specimen chapter `everyday/ch1-the-argument-you-are-actually-having.md`, 1,443 words, voice locked: second person, home register, the seven-section spine from the decisions doc plus a when-not-to section the home setting demands. Script boxes assembled from the labeling, latent and listen families, blanks per the manual's convention, one story slot flagged. Build script `everyday/tools/makeeveryday.py` cloned from the guide's, reusing the manual renderer, skips unwritten chapters, builds clean at 13 KB. |
+| Wed 22:2x UTC | D2 | Drills 07 to 11 to full format: The Last Three Words, Six Seconds On Camera, Map the Room, The Five Worst Things, Name the Thing. Scripted lines inside them quoted verbatim from the digging, power, mislabel, audit and negatives families. Eleven of the manual's thirty-two drills now done. |
