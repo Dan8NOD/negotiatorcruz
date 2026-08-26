@@ -105,7 +105,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
       family sources per chapter, and what stays flagged for Dan.
 - [x] **D1. Drills 01 to 05** to full format in `drillbook/`, per the
       decisions doc order.
-- [ ] **B4-1. Everyday specimen chapter.** Chapter 1 written to full length
+- [x] **B4-1. Everyday specimen chapter.** Chapter 1 written to full length
       to lock the voice, plus `everyday/tools/` build script cloned from the
       guide's.
 - [ ] **D2. Drills 06 to 10.**
@@ -164,3 +164,4 @@ Each block appends one line: date, item, what changed.
 | Sun (X1 block) | X1 | Shared vocabulary audited across both manuscripts. The four stages, the three states, and the leverage trio agree: stage produces and skip costs, the Torn and Ready and Not Yet reads, the Time and Silence formula lines, the leverage table with its predictability example, the that's right versus you're right rule, anchors, and the thirty-three card count all check. One defect found and fixed: the parallel grid said Torn asks for information they don't read, while the guide's own Chapter 4 prose and the manual's triage table both say don't use. The grid now says use. |
 | Sun eve (mandate) | B4-0 | `everyday/00-DECISIONS.md`. Fourth book scaffolded to Dan's live directive. Working title Same Words, Bigger Rooms. Twelve-chapter map across four parts, kitchen table to six zeros, every chapter sourced to shipped families, the belief family proposed as Ch 12 behind a sign-off flag, three open flags for Dan. Queue reordered into the mandate list and the two-hour Routine created. |
 | Wed 18:0x UTC | D1 | First five drills to full format in `drillbook/drills/`, one file each: 01 Backdate the Deal, 02 Call the Stage, 04 Shut Up and Score, 05 Three Emotions Three Minutes, 06 The Label Round. Numbering settled and recorded in the decisions doc: a drill carries its source chapter's number, no Drill 03, guide drills are 34 to 39, final count settled at collection per the no-padding rule. Also fixed two table cells the voice pass had mangled in the decisions doc. |
+| Wed 20:1x UTC | B4-1 | Specimen chapter `everyday/ch1-the-argument-you-are-actually-having.md`, 1,443 words, voice locked: second person, home register, the seven-section spine from the decisions doc plus a when-not-to section the home setting demands. Script boxes assembled from the labeling, latent and listen families, blanks per the manual's convention, one story slot flagged. Build script `everyday/tools/makeeveryday.py` cloned from the guide's, reusing the manual renderer, skips unwritten chapters, builds clean at 13 KB. |
