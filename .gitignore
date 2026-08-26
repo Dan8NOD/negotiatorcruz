@@ -18,3 +18,5 @@ rocketman/dist/
 
 # generated book builds (regenerate: python3 book/tools/makebook.py)
 build/
+__pycache__/
+*.pyc
