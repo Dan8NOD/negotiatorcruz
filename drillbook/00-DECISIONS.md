@@ -140,16 +140,33 @@ That index maps symptoms to drills:
 
 | Part | Contents | Drills |
 |---|---|---|
-| **How to run a drill** | The facilitator method. Six pages, and the most reused part of the book. | — |
+| **How to run a drill** | The facilitator method. Six pages, and the most reused part of the book. | none |
 | **Part I: Solo** | Drills that need one person and their own recordings. | ~6 |
 | **Part II: Pairs** | Two people, fifteen minutes, no observer. | ~12 |
 | **Part III: The room** | Three or more, with an observer scoring. | ~16 |
 | **Part IV: Live fire** | Run against real calls and real pipeline. | ~6 |
-| **Part V: The programs** | The four-week rollout, the Saturday session format, and a twelve-week curriculum that sequences all forty. | — |
+| **Part V: The programs** | The four-week rollout, the Saturday session format, and a twelve-week curriculum that sequences all forty. | none |
 
 Part V is the commercial centre. A single drill is useful. A **sequence** of
 drills with a calendar is a curriculum, and a curriculum is a thing an
 organization licenses.
+
+---
+
+## The order and the numbers
+
+Settled at the first writing block, because the index examples above
+already assume it: **a drill carries the number of its source chapter.**
+Drill 08 trains Chapter 8's tool, Drill 30 trains Chapter 30's. There is
+no Drill 03, deliberately, same as the manual. The guide's six drills are
+34 to 39, one per step. Whether the final count lands at 38 or 40 gets
+settled when everything is collected, and decision 2 below already covers
+it: the number is what exists, do not pad.
+
+Files live one drill per file in `drills/`, named
+`drill-NN-kebab-name.md`, in the fixed format above. The printed book
+orders by Part (solo, pairs, room, live fire), not by number, and the
+build step does that sorting from each drill's PART field.
 
 ---
 
