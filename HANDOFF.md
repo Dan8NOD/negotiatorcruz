@@ -95,13 +95,20 @@ PDFs render with the preinstalled chromium:
 
 ## What is left, in order
 
-M1 through M4, G1 and G2 are done. Everything remaining lives in the
-ordered list in `OVERNIGHT-QUEUE.md` under **The mandate, Sun Aug 17**:
-finish the Drill Book (blocks D1 to D10), write the everyday book (blocks
-B4-1 to B4-15), then G3, X1, N2. Dan's directive is at least four finished
-books inside one to two weeks, so the drill and everyday blocks alternate
-and take priority over polish. Take the top unticked item, do that item
-only, commit, push, tick, log, stop. N3 stays parked without Dan.
+**The mandate's ordered list is complete** as of Fri Aug 28. All four
+books are draft-complete and render to PDF proofs: the manual (226pp),
+the guide with its seven figures, the Drill Book (38 drills, 95pp), and
+Same Words, Bigger Rooms (12 chapters, 49pp). The card deck renders
+print-ready. The two-hour Routine is paused, since its list is done.
+
+What remains is Dan's, and only Dan's: the `[NEEDS:]` slots across all
+four books (real stories, the six questions in `book/GAP-INTAKE.md`
+work for all of them), the belief-family sign-off on everyday Ch 12,
+title confirmations and trademark searches (Six Before Yes, Same Words
+Bigger Rooms, the Drill Book's count-vs-title question), the current
+Saturday session format, and the seven guide expert voices. N3 stays
+parked without Dan. When Dan supplies material, restart the Routine or
+run blocks by hand: one item, commit, push, tick, log, stop.
 
 ## Open questions for Dan, do not decide these alone
 
