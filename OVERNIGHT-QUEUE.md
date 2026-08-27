@@ -116,7 +116,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **D4. Drills 16 to 20** (as numbered: 17 to 21).
 - [x] **B4-4. Everyday Ch 4.**
 - [x] **D5. Drills 21 to 25** (as numbered: 22 to 26).
-- [ ] **B4-5. Everyday Ch 5.**
+- [x] **B4-5. Everyday Ch 5.**
 - [ ] **D6. Drills 26 to 30.**
 - [ ] **B4-6. Everyday Ch 6.**
 - [ ] **D7. Drills 31 to 35.**
@@ -173,3 +173,4 @@ Each block appends one line: date, item, what changed.
 | Thu 06:3x UTC | D4 | Drills 17 to 21 to full format: Three In Their Words, Currency Map, Where's It From, Real or Atmosphere, Ask and Absorb. Shipped lines quoted from the summary, chip, anchor, bracket, urgency, noq and calibrated families. Twenty of forty drills done, the whole Steer run plus the first Close drill. |
 | Thu 08:1x UTC | B4-4 | `everyday/ch4-the-raise.md`, 1,107 words, Part II opener. The power ask: no-oriented meeting asks, the audit on the awkwardness, asking labels to locate the real decision-maker, calibrated conversions for the vague answer. When-not-to holds the leverage rule and bans the bluffed outside offer. Bigger room is the twelve percent price increase, pointing at manual Part V. Story slot flagged. Build at 34 KB. |
 | Thu 10:2x UTC | D5 | Drills 22 to 26 to full format: Hunt the Phrase, Honor It Once, Two Frames, The Sweep, Write Their Review. Shipped lines quoted from the thatright, focus, fairness, vision, elevation, onemore and listen families. Twenty-five of forty drills done, into the Part V application chapters. |
+| Thu 12:5x UTC | B4-5 | `everyday/ch5-the-big-purchase.md`, 1,167 words. The dealership chapter: anchor probes, brackets, the chip currencies kept separate, the silence stage directions for your own number, and the loss family taught as defense, recognizing the pressure lines when they run at you. When-not-to holds the walkaway rule and the fairness standard on private sellers. Bigger room is a nine-figure acquisition anchor. Build at 41 KB. |
