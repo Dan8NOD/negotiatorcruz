@@ -115,7 +115,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **B4-3. Everyday Ch 3.**
 - [x] **D4. Drills 16 to 20** (as numbered: 17 to 21).
 - [x] **B4-4. Everyday Ch 4.**
-- [ ] **D5. Drills 21 to 25.**
+- [x] **D5. Drills 21 to 25** (as numbered: 22 to 26).
 - [ ] **B4-5. Everyday Ch 5.**
 - [ ] **D6. Drills 26 to 30.**
 - [ ] **B4-6. Everyday Ch 6.**
@@ -172,3 +172,4 @@ Each block appends one line: date, item, what changed.
 | Thu 04:1x UTC | B4-3 | `everyday/ch3-the-repair.md`, 1,177 words. Going first after a rupture: audit lines pointed at yourself, empathy lines that concede nothing, the trust questions, and the acknowledge family's stuck line as the door reopener. When-not-to covers the real apology owed first and repair used to skip accountability. Bigger room runs the same sequence on a blown rollout renewal. Part I of the book is now complete in draft. |
 | Thu 06:3x UTC | D4 | Drills 17 to 21 to full format: Three In Their Words, Currency Map, Where's It From, Real or Atmosphere, Ask and Absorb. Shipped lines quoted from the summary, chip, anchor, bracket, urgency, noq and calibrated families. Twenty of forty drills done, the whole Steer run plus the first Close drill. |
 | Thu 08:1x UTC | B4-4 | `everyday/ch4-the-raise.md`, 1,107 words, Part II opener. The power ask: no-oriented meeting asks, the audit on the awkwardness, asking labels to locate the real decision-maker, calibrated conversions for the vague answer. When-not-to holds the leverage rule and bans the bluffed outside offer. Bigger room is the twelve percent price increase, pointing at manual Part V. Story slot flagged. Build at 34 KB. |
+| Thu 10:2x UTC | D5 | Drills 22 to 26 to full format: Hunt the Phrase, Honor It Once, Two Frames, The Sweep, Write Their Review. Shipped lines quoted from the thatright, focus, fairness, vision, elevation, onemore and listen families. Twenty-five of forty drills done, into the Part V application chapters. |
