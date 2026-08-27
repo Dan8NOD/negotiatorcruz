@@ -113,7 +113,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **B4-2. Everyday Ch 2.**
 - [x] **D3. Drills 11 to 15** (as numbered: 12 to 16).
 - [x] **B4-3. Everyday Ch 3.**
-- [ ] **D4. Drills 16 to 20.**
+- [x] **D4. Drills 16 to 20** (as numbered: 17 to 21).
 - [ ] **B4-4. Everyday Ch 4.**
 - [ ] **D5. Drills 21 to 25.**
 - [ ] **B4-5. Everyday Ch 5.**
@@ -170,3 +170,4 @@ Each block appends one line: date, item, what changed.
 | Thu 00:2x UTC | B4-2 | `everyday/ch2-listening-is-not-waiting.md`, 1,194 words. Encourager, mirror, silence and voice families in three boxes with the bracket stage-direction convention kept from the catalog. The bigger-room page runs the mirror against procurement. Story slot flagged. Book builds at 20 KB with two chapters. |
 | Thu 02:1x UTC | D3 | Drills 12 to 16 to full format: Invert the Ask, Validate Don't Concede, The Three-Type Sort, Rewrite Ten Demands, Kill the Question. Shipped lines quoted from the noq, empathy, positive, trust, calibrated and asking families. The Three-Type Sort carries Ch 14's standing flag for Dan's three real attack lines. Fifteen of forty drills done. |
 | Thu 04:1x UTC | B4-3 | `everyday/ch3-the-repair.md`, 1,177 words. Going first after a rupture: audit lines pointed at yourself, empathy lines that concede nothing, the trust questions, and the acknowledge family's stuck line as the door reopener. When-not-to covers the real apology owed first and repair used to skip accountability. Bigger room runs the same sequence on a blown rollout renewal. Part I of the book is now complete in draft. |
+| Thu 06:3x UTC | D4 | Drills 17 to 21 to full format: Three In Their Words, Currency Map, Where's It From, Real or Atmosphere, Ask and Absorb. Shipped lines quoted from the summary, chip, anchor, bracket, urgency, noq and calibrated families. Twenty of forty drills done, the whole Steer run plus the first Close drill. |
