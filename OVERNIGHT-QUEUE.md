@@ -128,7 +128,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **D9. The two drill indexes** (by what is broken, by time and people)
       plus Part V program pages assembled from Ch 31 and the flagged
       Saturday format.
-- [ ] **B4-9. Everyday Ch 9.**
+- [x] **B4-9. Everyday Ch 9.**
 - [ ] **B4-10. Everyday Ch 10.**
 - [ ] **B4-11. Everyday Ch 11.**
 - [ ] **B4-12. Everyday Ch 12,** the belief-family chapter, written only as
@@ -183,3 +183,4 @@ Each block appends one line: date, item, what changed.
 | Thu 20:4x UTC | D8 | The last three guide drills to full format: Two Defensible Paths, The Hardened Position With the Room Watching, The Clause That Breaks in a Month. All thirty-eight drills now written. The count is settled in the decisions doc: 38 drills plus 2 Part V programs, with a new flag for Dan on the working title's 40, including the best fix, two real Saturday-session drills the books never captured. |
 | Thu 20:5x UTC | B4-8 | `everyday/ch8-the-job-offer.md`, 1,032 words, opens Part III. Peak leverage between offer and acceptance: noq lines to slow it down, brackets to find the band, vision lines aimed at the one-year win, urgency tests for exploding deadlines, the comp messenger armed. When-not-to bans theater counters and sets the gracious-yes standard. Build at 62 KB. Dan said keep working, so this block ran in the same session as D8. |
 | Thu 21:0x UTC | D9 | `drillbook/02-the-two-indexes.md` and `03-the-programs.md`. Symptom index covering all 38 drills, the time-and-bodies index built from each drill's actual header fields, the four-week install mapped to Ch 31's rollout, and the twelve-week curriculum sequencing every drill plus the manager track. The Saturday session page holds its flag and assembles nothing. Drill Book content is now complete except front and back matter, pending D10's proof. |
+| Thu 21:2x UTC | B4-9 | `everyday/ch9-no-without-the-burn.md`, 1,112 words. The clean no: warmth that is true, the unpadded no taught as form rather than script, the non-cash currency, labels for the push, and Sounds like that's a no for taking one. When-not-to covers the fake clean no, warmth as anesthetic, and the repeat offender as a Ch 30 problem. Build at 68 KB. |
