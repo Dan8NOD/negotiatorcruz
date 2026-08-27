@@ -124,7 +124,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **B4-7. Everyday Ch 7.**
 - [x] **D8. Drills 36 to 40** (as numbered: 37 to 39, and the count is
       now settled at 38, see the decisions doc and its new title flag).
-- [ ] **B4-8. Everyday Ch 8.**
+- [x] **B4-8. Everyday Ch 8.**
 - [ ] **D9. The two drill indexes** (by what is broken, by time and people)
       plus Part V program pages assembled from Ch 31 and the flagged
       Saturday format.
@@ -181,3 +181,4 @@ Each block appends one line: date, item, what changed.
 | Thu 18:1x UTC | D7 | Drills 32 to 36 to full format: Coach the Coach, Score Twelve Rows, then the guide's first three converted from scenario format to facilitator format: The Eleven-Word Brief, The False Number and the False Clock, The Messenger With No Mandate. The manual's thirty-two are all done. Thirty-five of forty. |
 | Thu 20:1x UTC | B4-7 | `everyday/ch7-the-landlord-and-the-contractor.md`, 1,098 words, closes Part II. Negotiation inside a continuing relationship: focus labels to narrow, calibrated unpacking with the snag question flagged as the ask-it-early tool, positive labels as relationship deposits, summaries locked in writing. When-not-to bans hostage leverage and points bad relationships at the Ch 30 test. Build at 55 KB. |
 | Thu 20:4x UTC | D8 | The last three guide drills to full format: Two Defensible Paths, The Hardened Position With the Room Watching, The Clause That Breaks in a Month. All thirty-eight drills now written. The count is settled in the decisions doc: 38 drills plus 2 Part V programs, with a new flag for Dan on the working title's 40, including the best fix, two real Saturday-session drills the books never captured. |
+| Thu 20:5x UTC | B4-8 | `everyday/ch8-the-job-offer.md`, 1,032 words, opens Part III. Peak leverage between offer and acceptance: noq lines to slow it down, brackets to find the band, vision lines aimed at the one-year win, urgency tests for exploding deadlines, the comp messenger armed. When-not-to bans theater counters and sets the gracious-yes standard. Build at 62 KB. Dan said keep working, so this block ran in the same session as D8. |
