@@ -121,7 +121,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **B4-6. Everyday Ch 6.**
 - [x] **D7. Drills 31 to 35** (as numbered: 32, 33, then guide drills 34
       to 36).
-- [ ] **B4-7. Everyday Ch 7.**
+- [x] **B4-7. Everyday Ch 7.**
 - [ ] **D8. Drills 36 to 40.**
 - [ ] **B4-8. Everyday Ch 8.**
 - [ ] **D9. The two drill indexes** (by what is broken, by time and people)
@@ -178,3 +178,4 @@ Each block appends one line: date, item, what changed.
 | Thu 14:2x UTC | D6 | Drills 27 to 31 to full format: Argue Against Yourself, Hold the Line at Volume, No Exit, Kill the Deal, The Monday Fifteen. Kill the Deal names Ch 30's four questions and quotes the acknowledge family. The Monday Fifteen is the facilitator's own drill, the fixed weekly session the rest run inside. Thirty of forty drills done. |
 | Thu 16:1x UTC | B4-6 | `everyday/ch6-the-bill-you-should-not-pay.md`, 1,121 words. Negotiating a system through a person: ally lines for the agent with the noq escalation, the clean family pinning vague words, How am I supposed to do that as the workhorse, urgency checks on collections clocks, and the log discipline. When-not-to holds the pledge line: pay the fair bill. Build at 48 KB, half the book drafted. |
 | Thu 18:1x UTC | D7 | Drills 32 to 36 to full format: Coach the Coach, Score Twelve Rows, then the guide's first three converted from scenario format to facilitator format: The Eleven-Word Brief, The False Number and the False Clock, The Messenger With No Mandate. The manual's thirty-two are all done. Thirty-five of forty. |
+| Thu 20:1x UTC | B4-7 | `everyday/ch7-the-landlord-and-the-contractor.md`, 1,098 words, closes Part II. Negotiation inside a continuing relationship: focus labels to narrow, calibrated unpacking with the snag question flagged as the ask-it-early tool, positive labels as relationship deposits, summaries locked in writing. When-not-to bans hostage leverage and points bad relationships at the Ch 30 test. Build at 55 KB. |
