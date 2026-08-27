@@ -168,6 +168,18 @@ Files live one drill per file in `drills/`, named
 orders by Part (solo, pairs, room, live fire), not by number, and the
 build step does that sorting from each drill's PART field.
 
+**The count, settled at collection.** Thirty-two manual drills plus six
+guide drills is **thirty-eight.** The 30-day rollout and the Saturday
+session format are Part V programs, not drills, and counting them as
+drills to reach forty would violate decision 2. The number is what
+exists.
+
+`[NEEDS: a title decision. The working title says 40 Ways and the
+honest count is 38 drills plus 2 programs. Either the title drops the
+number, or it owns 38, or Dan supplies two real drills from the
+Saturday sessions that the books never captured, which would be the
+best outcome by far.]`
+
 ---
 
 ## Decisions taken
