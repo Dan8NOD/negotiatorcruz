@@ -145,9 +145,14 @@ A block remains one item, committed and pushed, box ticked, one log line.
       rendered PDF proof. Note for a later block: the drill book still
       wants formal front and back matter pages, the build script's title
       page stands in for now.
-- [ ] **N2. The Field Card Deck.** A physical product rather than a book: 33
+- [x] **N2. The Field Card Deck.** A physical product rather than a book: 33
       cards, print-ready at a real card size, with cut marks. The site
       already promises these as the training-day leave-behind.
+- [ ] **D11. Drill Book front and back matter.** Discovered at D10: title
+      and copyright pages on the series pattern with the count flag
+      carried, and a short back matter pointing at the manual, the guide
+      and the Saturday session. The build script's generated title page
+      stands in until then.
 - [ ] **N3. Objections: The Counter-Manual.** Not yet justified. Do not
       start without Dan. Listed only so the queue has a visible end.
 
@@ -194,3 +199,4 @@ Each block appends one line: date, item, what changed.
 | Thu 23:2x UTC | X2 | Glossary and doctrine audited across all four manuscripts. Shared glossary entries diffed programmatically: two drifts found, both in the day-old everyday glossary, Protocol and State, fixed to the audited wording. Stage order, state names, leverage trio, and the that's right rule checked across every file in all four books: consistent, no contradictions. |
 | Thu 23:4x UTC | B4-15 | Everyday proof pass. Voice pass across all fifteen files changed nothing, zero dashes, zero semicolons in prose. PDF proof rendered at 49 pages against the 100-page cap, with headroom for Dan's twelve stories. Structure verified in the render: twelve chapters, four parts, front and back matter, fifteen flagged slots visible. Book four is draft-complete. |
 | Fri 00:0x UTC | D10 | `drillbook/tools/makedrillbook.py` written on the shared renderer, sorting the 38 drills into the four parts from each drill's own PART field, with the two indexes ahead and the programs behind. Voice pass across all 42 files changed nothing, zero dashes. PDF proof at 91 pages, under the cap. All 38 drills verified in the render with the four flags visible. Book three is draft-complete except formal front and back matter, noted on D10's box. |
+| Fri 00:2x UTC | N2 | `book/tools/makecards.py`. The 33 cards parsed from the appendix, verified at 33 or the build fails, rendered two-up on letter at 6 by 4 inches with corner cut marks and a cover sheet. PDF proof at 18 pages. The deck the site promises now exists as a printable file. D11 added to the list for the drill book's formal front and back matter. |
