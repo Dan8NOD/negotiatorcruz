@@ -129,7 +129,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
       plus Part V program pages assembled from Ch 31 and the flagged
       Saturday format.
 - [x] **B4-9. Everyday Ch 9.**
-- [ ] **B4-10. Everyday Ch 10.**
+- [x] **B4-10. Everyday Ch 10.**
 - [ ] **B4-11. Everyday Ch 11.**
 - [ ] **B4-12. Everyday Ch 12,** the belief-family chapter, written only as
       far as the shipped lines allow and held behind Dan's sign-off note.
@@ -184,3 +184,4 @@ Each block appends one line: date, item, what changed.
 | Thu 20:5x UTC | B4-8 | `everyday/ch8-the-job-offer.md`, 1,032 words, opens Part III. Peak leverage between offer and acceptance: noq lines to slow it down, brackets to find the band, vision lines aimed at the one-year win, urgency tests for exploding deadlines, the comp messenger armed. When-not-to bans theater counters and sets the gracious-yes standard. Build at 62 KB. Dan said keep working, so this block ran in the same session as D8. |
 | Thu 21:0x UTC | D9 | `drillbook/02-the-two-indexes.md` and `03-the-programs.md`. Symptom index covering all 38 drills, the time-and-bodies index built from each drill's actual header fields, the four-week install mapped to Ch 31's rollout, and the twelve-week curriculum sequencing every drill plus the manager track. The Saturday session page holds its flag and assembles nothing. Drill Book content is now complete except front and back matter, pending D10's proof. |
 | Thu 21:2x UTC | B4-9 | `everyday/ch9-no-without-the-burn.md`, 1,112 words. The clean no: warmth that is true, the unpadded no taught as form rather than script, the non-cash currency, labels for the push, and Sounds like that's a no for taking one. When-not-to covers the fake clean no, warmth as anesthetic, and the repeat offender as a Ch 30 problem. Build at 68 KB. |
+| Thu 21:4x UTC | B4-10 | `everyday/ch10-torn-ready-not-yet.md`, 1,098 words, closes Part III. The state triage on three coffees: torn named without shame, ready scheduled instead of persuaded, not-yet asked the future questions with someday-or-never flagged as the brave line. When-not-to bans the clinician verdict and weaponized urgency, and turns the triage on the advisor. Definitions match manual Ch 5 word for word. Build at 75 KB. |
