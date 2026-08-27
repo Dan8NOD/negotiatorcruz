@@ -148,7 +148,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **N2. The Field Card Deck.** A physical product rather than a book: 33
       cards, print-ready at a real card size, with cut marks. The site
       already promises these as the training-day leave-behind.
-- [ ] **D11. Drill Book front and back matter.** Discovered at D10: title
+- [x] **D11. Drill Book front and back matter.** Discovered at D10: title
       and copyright pages on the series pattern with the count flag
       carried, and a short back matter pointing at the manual, the guide
       and the Saturday session. The build script's generated title page
@@ -200,3 +200,4 @@ Each block appends one line: date, item, what changed.
 | Thu 23:4x UTC | B4-15 | Everyday proof pass. Voice pass across all fifteen files changed nothing, zero dashes, zero semicolons in prose. PDF proof rendered at 49 pages against the 100-page cap, with headroom for Dan's twelve stories. Structure verified in the render: twelve chapters, four parts, front and back matter, fifteen flagged slots visible. Book four is draft-complete. |
 | Fri 00:0x UTC | D10 | `drillbook/tools/makedrillbook.py` written on the shared renderer, sorting the 38 drills into the four parts from each drill's own PART field, with the two indexes ahead and the programs behind. Voice pass across all 42 files changed nothing, zero dashes. PDF proof at 91 pages, under the cap. All 38 drills verified in the render with the four flags visible. Book three is draft-complete except formal front and back matter, noted on D10's box. |
 | Fri 00:2x UTC | N2 | `book/tools/makecards.py`. The 33 cards parsed from the appendix, verified at 33 or the build fails, rendered two-up on letter at 6 by 4 inches with corner cut marks and a cover sheet. PDF proof at 18 pages. The deck the site promises now exists as a printable file. D11 added to the list for the drill book's formal front and back matter. |
+| Fri 00:4x UTC | D11 | `drillbook/front-matter.md` and `back-matter.md` on the series pattern: cover, copyright with the no-new-doctrine note and photocopy permission, the this-book-assumes-a-room page, the standard with the score-the-behavior clause, the drill-to-chapter map, About, and the single Saturday offer. Build script includes both, proof now 95 pages, still under the cap. The ordered list is complete except N3, which stays parked without Dan. |

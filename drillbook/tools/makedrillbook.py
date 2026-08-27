@@ -39,6 +39,11 @@ def build():
         body.append(f'<section class="ch" id="{anchor}">' + mb.md(t) + "</section>")
         toc.append(f'<li><a href="#{anchor}"><span class="tn">·</span> {html.escape(label)}</a></li>')
 
+    fm = os.path.join(BOOK, "front-matter.md")
+    if os.path.exists(fm):
+        body.append('<section class="ch" id="front">'
+                    + mb.md(open(fm, encoding="utf-8").read()) + "</section>")
+
     add_file(os.path.join(BOOK, "01-how-to-run-a-drill.md"), "method", "How to Run a Drill")
     add_file(os.path.join(BOOK, "02-the-two-indexes.md"), "indexes", "The Two Indexes")
 
@@ -76,6 +81,12 @@ def build():
                 '<p class="pd">A sequence with a calendar is a curriculum.</p></section>')
     toc.append('<li class="toc-part">Part V · The Programs</li>')
     add_file(os.path.join(BOOK, "03-the-programs.md"), "programs", "The Programs")
+
+    bm = os.path.join(BOOK, "back-matter.md")
+    if os.path.exists(bm):
+        body.append('<section class="ch" id="back">'
+                    + mb.md(open(bm, encoding="utf-8").read()) + "</section>")
+        toc.append('<li><a href="#back"><span class="tn">·</span> Back matter</a></li>')
 
     doc = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
            '<title>The Drill Book</title><style>' + CSS + '</style></head><body>'
