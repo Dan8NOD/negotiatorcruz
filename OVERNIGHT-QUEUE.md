@@ -139,7 +139,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **X2. Glossary conformance across all four manuscripts.** X1 verified
       the two finished books. Rerun the same audit once the drill and
       everyday manuscripts exist, word for word, all four.
-- [ ] **B4-15. Everyday full voice pass and page-count check** against the
+- [x] **B4-15. Everyday full voice pass and page-count check** against the
       100-page cap, then a rendered PDF proof.
 - [ ] **D10. Drill Book full voice pass and page-count check,** then a
       rendered PDF proof.
@@ -190,3 +190,4 @@ Each block appends one line: date, item, what changed.
 | Thu 22:4x UTC | B4-13 | `everyday/front-matter.md`, five pages on the series pattern: cover, copyright with the honest attribution split and the standing title flag, the introduction on the thousand-session premise, how-to-use with the front-door map, and the standard with its home-table teeth. Build at 94 KB. |
 | Thu 23:0x UTC | B4-14 | `everyday/back-matter.md`. Eighteen-term glossary with every shared definition carried word for word from the X1-audited wording, chapter tags swapped for step tags, belief marked conditional. About page reuses the settled credential text verbatim, and the CTA holds the single Saturday offer. Build at 100 KB, the whole manuscript now assembled. |
 | Thu 23:2x UTC | X2 | Glossary and doctrine audited across all four manuscripts. Shared glossary entries diffed programmatically: two drifts found, both in the day-old everyday glossary, Protocol and State, fixed to the audited wording. Stage order, state names, leverage trio, and the that's right rule checked across every file in all four books: consistent, no contradictions. |
+| Thu 23:4x UTC | B4-15 | Everyday proof pass. Voice pass across all fifteen files changed nothing, zero dashes, zero semicolons in prose. PDF proof rendered at 49 pages against the 100-page cap, with headroom for Dan's twelve stories. Structure verified in the render: twelve chapters, four parts, front and back matter, fifteen flagged slots visible. Book four is draft-complete. |
