@@ -131,7 +131,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **B4-9. Everyday Ch 9.**
 - [x] **B4-10. Everyday Ch 10.**
 - [x] **B4-11. Everyday Ch 11.**
-- [ ] **B4-12. Everyday Ch 12,** the belief-family chapter, written only as
+- [x] **B4-12. Everyday Ch 12,** the belief-family chapter, written only as
       far as the shipped lines allow and held behind Dan's sign-off note.
 - [ ] **B4-13. Everyday front matter.**
 - [ ] **B4-14. Everyday back matter,** glossary aligned word for word
@@ -186,3 +186,4 @@ Each block appends one line: date, item, what changed.
 | Thu 21:2x UTC | B4-9 | `everyday/ch9-no-without-the-burn.md`, 1,112 words. The clean no: warmth that is true, the unpadded no taught as form rather than script, the non-cash currency, labels for the push, and Sounds like that's a no for taking one. When-not-to covers the fake clean no, warmth as anesthetic, and the repeat offender as a Ch 30 problem. Build at 68 KB. |
 | Thu 21:4x UTC | B4-10 | `everyday/ch10-torn-ready-not-yet.md`, 1,098 words, closes Part III. The state triage on three coffees: torn named without shame, ready scheduled instead of persuaded, not-yet asked the future questions with someday-or-never flagged as the brave line. When-not-to bans the clinician verdict and weaponized urgency, and turns the triage on the advisor. Definitions match manual Ch 5 word for word. Build at 75 KB. |
 | Thu 22:0x UTC | B4-11 | `everyday/ch11-the-same-words-with-six-zeros.md`, 1,041 words. The payoff chapter: a $4.2M committee room walked stage by stage, every move pointed back at the chapter that taught it in a small room, framed explicitly as a composite. What the zeros change, preparation, paper, time, team, and what they do not, the sentences. The evidence flag asks Dan for a real at-scale case to anchor or replace the composite. Build at 82 KB. |
+| Thu 22:2x UTC | B4-12 | `everyday/ch12-what-they-believe.md`, 1,087 words, behind the sign-off flag at the top. The belief family aimed inward first, seven of the thirteen lines quoted, the three gentlest offered for people you love, and the longest when-not-to in the book: never as leverage, never mid-argument, and the therapist boundary stated plainly. The bigger-room section closes the whole arc by refusing to scale. All twelve chapters now drafted, 13,677 words, build at 89 KB. |
