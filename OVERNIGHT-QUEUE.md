@@ -118,7 +118,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **D5. Drills 21 to 25** (as numbered: 22 to 26).
 - [x] **B4-5. Everyday Ch 5.**
 - [x] **D6. Drills 26 to 30** (as numbered: 27 to 31).
-- [ ] **B4-6. Everyday Ch 6.**
+- [x] **B4-6. Everyday Ch 6.**
 - [ ] **D7. Drills 31 to 35.**
 - [ ] **B4-7. Everyday Ch 7.**
 - [ ] **D8. Drills 36 to 40.**
@@ -175,3 +175,4 @@ Each block appends one line: date, item, what changed.
 | Thu 10:2x UTC | D5 | Drills 22 to 26 to full format: Hunt the Phrase, Honor It Once, Two Frames, The Sweep, Write Their Review. Shipped lines quoted from the thatright, focus, fairness, vision, elevation, onemore and listen families. Twenty-five of forty drills done, into the Part V application chapters. |
 | Thu 12:5x UTC | B4-5 | `everyday/ch5-the-big-purchase.md`, 1,167 words. The dealership chapter: anchor probes, brackets, the chip currencies kept separate, the silence stage directions for your own number, and the loss family taught as defense, recognizing the pressure lines when they run at you. When-not-to holds the walkaway rule and the fairness standard on private sellers. Bigger room is a nine-figure acquisition anchor. Build at 41 KB. |
 | Thu 14:2x UTC | D6 | Drills 27 to 31 to full format: Argue Against Yourself, Hold the Line at Volume, No Exit, Kill the Deal, The Monday Fifteen. Kill the Deal names Ch 30's four questions and quotes the acknowledge family. The Monday Fifteen is the facilitator's own drill, the fixed weekly session the rest run inside. Thirty of forty drills done. |
+| Thu 16:1x UTC | B4-6 | `everyday/ch6-the-bill-you-should-not-pay.md`, 1,121 words. Negotiating a system through a person: ally lines for the agent with the noq escalation, the clean family pinning vague words, How am I supposed to do that as the workhorse, urgency checks on collections clocks, and the log discipline. When-not-to holds the pledge line: pay the fair bill. Build at 48 KB, half the book drafted. |
