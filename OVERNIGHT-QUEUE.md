@@ -111,7 +111,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **D2. Drills 06 to 10** (as numbered: 07 to 11, since 06 shipped in
       D1 and there is no 03).
 - [x] **B4-2. Everyday Ch 2.**
-- [ ] **D3. Drills 11 to 15.**
+- [x] **D3. Drills 11 to 15** (as numbered: 12 to 16).
 - [ ] **B4-3. Everyday Ch 3.**
 - [ ] **D4. Drills 16 to 20.**
 - [ ] **B4-4. Everyday Ch 4.**
@@ -168,3 +168,4 @@ Each block appends one line: date, item, what changed.
 | Wed 20:1x UTC | B4-1 | Specimen chapter `everyday/ch1-the-argument-you-are-actually-having.md`, 1,443 words, voice locked: second person, home register, the seven-section spine from the decisions doc plus a when-not-to section the home setting demands. Script boxes assembled from the labeling, latent and listen families, blanks per the manual's convention, one story slot flagged. Build script `everyday/tools/makeeveryday.py` cloned from the guide's, reusing the manual renderer, skips unwritten chapters, builds clean at 13 KB. |
 | Wed 22:2x UTC | D2 | Drills 07 to 11 to full format: The Last Three Words, Six Seconds On Camera, Map the Room, The Five Worst Things, Name the Thing. Scripted lines inside them quoted verbatim from the digging, power, mislabel, audit and negatives families. Eleven of the manual's thirty-two drills now done. |
 | Thu 00:2x UTC | B4-2 | `everyday/ch2-listening-is-not-waiting.md`, 1,194 words. Encourager, mirror, silence and voice families in three boxes with the bracket stage-direction convention kept from the catalog. The bigger-room page runs the mirror against procurement. Story slot flagged. Book builds at 20 KB with two chapters. |
+| Thu 02:1x UTC | D3 | Drills 12 to 16 to full format: Invert the Ask, Validate Don't Concede, The Three-Type Sort, Rewrite Ten Demands, Kill the Question. Shipped lines quoted from the noq, empathy, positive, trust, calibrated and asking families. The Three-Type Sort carries Ch 14's standing flag for Dan's three real attack lines. Fifteen of forty drills done. |
