@@ -58,18 +58,18 @@ and 7.
 followed by nothing. Decompresses whatever was packed inside the
 word. Chapter 2.
 
-**Protocol, the.** Read, Disarm, Steer, Close. The four stages the
-professionals run inside a conversation, in that order, every time.
-This book teaches its tools in home clothes. The companion manual
-teaches the full sequence.
+**Protocol, the.** Read, Disarm, Steer, Close. The four stages you
+run inside a conversation, in that order, every time. This book
+teaches its tools in home clothes. The companion manual teaches the
+full sequence.
 
 **Silence, dynamic.** The deliberate quiet after a label, a number,
 or a question. Whoever speaks next usually gives up ground. Chapters
 2, 5, and 8.
 
 **State.** Torn, Ready, or Not Yet. What someone is right now rather
-than who they are permanently. States change inside a single
-conversation, and producing that change is the job. Chapter 10.
+than who they are permanently. States change inside a single meeting,
+and producing that change is the job. Chapter 10.
 
 **Sweep.** The pre-signature question that invites the ask they were
 holding. *"What's the thing you almost brought up but didn't?"*

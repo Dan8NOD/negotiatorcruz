@@ -136,7 +136,7 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [x] **B4-13. Everyday front matter.**
 - [x] **B4-14. Everyday back matter,** glossary aligned word for word
       with the audited definitions from X1.
-- [ ] **X2. Glossary conformance across all four manuscripts.** X1 verified
+- [x] **X2. Glossary conformance across all four manuscripts.** X1 verified
       the two finished books. Rerun the same audit once the drill and
       everyday manuscripts exist, word for word, all four.
 - [ ] **B4-15. Everyday full voice pass and page-count check** against the
@@ -189,3 +189,4 @@ Each block appends one line: date, item, what changed.
 | Thu 22:2x UTC | B4-12 | `everyday/ch12-what-they-believe.md`, 1,087 words, behind the sign-off flag at the top. The belief family aimed inward first, seven of the thirteen lines quoted, the three gentlest offered for people you love, and the longest when-not-to in the book: never as leverage, never mid-argument, and the therapist boundary stated plainly. The bigger-room section closes the whole arc by refusing to scale. All twelve chapters now drafted, 13,677 words, build at 89 KB. |
 | Thu 22:4x UTC | B4-13 | `everyday/front-matter.md`, five pages on the series pattern: cover, copyright with the honest attribution split and the standing title flag, the introduction on the thousand-session premise, how-to-use with the front-door map, and the standard with its home-table teeth. Build at 94 KB. |
 | Thu 23:0x UTC | B4-14 | `everyday/back-matter.md`. Eighteen-term glossary with every shared definition carried word for word from the X1-audited wording, chapter tags swapped for step tags, belief marked conditional. About page reuses the settled credential text verbatim, and the CTA holds the single Saturday offer. Build at 100 KB, the whole manuscript now assembled. |
+| Thu 23:2x UTC | X2 | Glossary and doctrine audited across all four manuscripts. Shared glossary entries diffed programmatically: two drifts found, both in the day-old everyday glossary, Protocol and State, fixed to the audited wording. Stage order, state names, leverage trio, and the that's right rule checked across every file in all four books: consistent, no contradictions. |
