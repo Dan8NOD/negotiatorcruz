@@ -137,9 +137,10 @@ holds: it works once and poisons the well.
 
 And if the relationship itself is the problem, a contractor who
 misses every date, a landlord who fixes nothing, stop negotiating
-terms and run Chapter 30's honest test instead. Some continuing
-relationships should not continue, and no tool in this book exists
-to keep a bad one comfortable.
+terms and ask the harder question the corporate manual saves for
+its failure chapter: is this a negotiation worth having at all?
+Some continuing relationships should not continue, and no tool in
+this book exists to keep a bad one comfortable.
 
 ## The bigger room
 

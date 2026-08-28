@@ -131,9 +131,10 @@ deployed as packaging, and it converts true warmth into technique
 retroactively, which poisons the whole account.
 
 And the repeat offender, the person for whom every no restarts
-the same siege, is not a phrasing problem. That is Chapter 30
-territory: some negotiations should not be had, and the
-discipline is distance, not better sentences.
+the same siege, is not a phrasing problem. That is the territory
+the corporate manual calls its failure chapter: some negotiations
+should not be had, and the discipline is distance, not better
+sentences.
 
 ## The bigger room
 
