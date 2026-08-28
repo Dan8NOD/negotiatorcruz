@@ -200,7 +200,7 @@ already tell out loud.
 ## Six Before Yes, the guide
 
 This book had no section on this page until now, which meant its
-twenty-five open slots were invisible unless you went looking in the
+twenty-eight open slots were invisible unless you went looking in the
 files. It is also the book with the longest lead time in the project,
 because seven of its asks are other people.
 
@@ -228,7 +228,7 @@ The ask is small and that is the point. One paragraph, their name on it,
 in a book that is not selling anything of theirs. Most people say yes to
 that and the ones who say no say it quickly.
 
-### Eleven cases, and three of them you are already telling
+### Fourteen cases, and three of them you are already telling
 
 The guide's cases are shorter than the manual's, 120 to 130 words, because
 the guide is a 60-page book. Three of them are the same deal a manual
@@ -243,7 +243,7 @@ the guide's is a trim, not a second interview:
   Close to manual Ch 1, where the position was set internally before first
   contact. It may be one story or two. Your call.
 
-That leaves eight genuinely new ones, all short:
+That leaves eleven genuinely new ones, all short:
 
 | Ch | The case | Words |
 |---|---|---|
@@ -255,10 +255,14 @@ That leaves eight genuinely new ones, all short:
 | 5 | A negotiation won from the weak side of the table on preparation density | 130 |
 | 6 | One observation named out loud that changed a conversation's temperature | 120 |
 | 7 | A closed deal that came apart in implementation, and the clause or conversation that would have held it | 120 |
+| 4 | A state called correctly before a meeting started, and what was run differently because of it | 120 |
+| 6 | A conversation that turned sharp, and what running the stages in order recovered that a better line would not have | 120 |
+| 7 | A habit the log caught across several negotiations that none of them revealed on its own | 120 |
 
 Ch 2 and Ch 3 want two apiece. Ch 1 and Ch 5 each have one more here on
-top of the shared story above. Saturday-session material works for all of
-them.
+top of the shared story above. The last three were added when an audit
+found Ch 4, 6 and 7 carrying one example where the blueprint's kit calls
+for two. Saturday-session material works for all of them.
 
 ### One review, not a story
 
