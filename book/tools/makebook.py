@@ -159,7 +159,7 @@ DIAGRAMS = {2: '''<figure class="dia"><svg viewBox="0 0 720 150" role="img" aria
  f'<text x="{85+178*i}" y="78" text-anchor="middle" font-size="10.5" fill="#5b5343">{d}</text>'
  f'<text x="{85+178*i}" y="94" text-anchor="middle" font-size="9" fill="#8a6a2f">Ch {c}</text></g>'
  + (f'<line x1="{162+178*i}" y1="68" x2="{182+178*i}" y2="68" stroke="#8a6a2f" stroke-width="1.4" marker-end="url(#a)"/>' if i<3 else '')
- for i,(n,d,c) in enumerate([("READ","diagnose","4–9"),("DISARM","defuse","10–14"),("STEER","redirect","15–20"),("CLOSE","resolve","21–25")])
+ for i,(n,d,c) in enumerate([("READ","diagnose","4-9"),("DISARM","defuse","10-14"),("STEER","redirect","15-20"),("CLOSE","resolve","21-25")])
 ) + '''<text x="360" y="132" text-anchor="middle" font-size="10" fill="#5b5343" font-style="italic">In order. Every time. Each stage produces the input the next one requires.</text>
 </svg><figcaption>The four stages.</figcaption></figure>''',
  19: '''<figure class="dia"><svg viewBox="0 0 620 220" role="img" aria-label="Ackerman ladder with decelerating steps">
@@ -172,7 +172,7 @@ DIAGRAMS = {2: '''<figure class="dia"><svg viewBox="0 0 720 150" role="img" aria
 ) + '''<text x="200" y="42" text-anchor="middle" font-size="11" font-weight="600" fill="#8a6a2f">+20</text>
 <text x="320" y="42" text-anchor="middle" font-size="11" font-weight="600" fill="#8a6a2f">+10</text>
 <text x="440" y="42" text-anchor="middle" font-size="11" font-weight="600" fill="#8a6a2f">+5</text>
-<text x="310" y="18" text-anchor="middle" font-size="10.5" fill="#5b5343" font-style="italic">Steps must decelerate — that shrinking gap is the signal there is a floor.</text>
+<text x="310" y="18" text-anchor="middle" font-size="10.5" fill="#5b5343" font-style="italic">Steps must decelerate. That shrinking gap is the signal there is a floor.</text>
 </svg><figcaption>The Ackerman ladder. End on a non-round number.</figcaption></figure>'''}
 
 def build():
@@ -259,13 +259,13 @@ figcaption{font-size:8.8pt;color:var(--dim);font-style:italic;margin-top:3pt}
 .toc-part{margin:11pt 0 5pt!important;font-family:Arial,sans-serif;font-size:8.6pt;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:700}
 """
     doc = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
-<title>The Cruz Protocol — A Field Manual for Commercial Negotiation</title><style>{css}</style></head><body>
+<title>The Cruz Protocol: A Field Manual for Commercial Negotiation</title><style>{css}</style></head><body>
 <section class="title-pg"><div class="kick">A Field Manual</div>
 <h1>The Cruz Protocol</h1>
 <p class="sub">Commercial Negotiation, Sequenced</p>
 <p class="by">Dan Cruz</p>
 <p class="cred">Seven years of practice · five hosting · 1,000+ live sessions · Chicago</p>
-<p class="draft">Working draft — all 33 chapters. Bracketed <code>[NEEDS:]</code> markers are<br>case slots awaiting real field material; nothing in them is invented.</p></section>
+<p class="draft">Working draft. All 33 chapters. Bracketed <code>[NEEDS:]</code> markers are<br>case slots awaiting real field material. Nothing in them is invented.</p></section>
 <section class="toc"><h1>Contents</h1><ul>{''.join(toc)}</ul></section>
 {''.join(body)}
 </body></html>"""

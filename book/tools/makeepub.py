@@ -352,18 +352,18 @@ def build():
             label, name, blurb = PARTS[p]
             pid = f"part{p}"
             with open(os.path.join(oebps, f"{pid}.xhtml"), "w", encoding="utf-8") as f:
-                f.write(page(f"{label} — {name}",
+                f.write(page(f"{label}: {name}",
                              f'<div class="partpage"><p class="pnum">{html.escape(label)}</p>'
                              f'<h1>{html.escape(name)}</h1>'
                              f'<p class="psub">{html.escape(blurb)}</p></div>'))
             files.append((pid, f"{pid}.xhtml", "application/xhtml+xml", True,
-                          f"{label} — {name}", 0))
+                          f"{label}: {name}", 0))
 
         cid = f"ch{c['num']:02d}"
         body = (f'<p class="chnum">Chapter {c["num"]}</p>'
                 f'<h1 class="ch">{html.escape(c["title"])}</h1>' + c["html"])
         with open(os.path.join(oebps, f"{cid}.xhtml"), "w", encoding="utf-8") as f:
-            f.write(page(f"Chapter {c['num']} — {c['title']}", body))
+            f.write(page(f"Chapter {c['num']}: {c['title']}", body))
         files.append((cid, f"{cid}.xhtml", "application/xhtml+xml", True,
                       f"{c['num']}. {c['title']}", 1))
 
@@ -374,7 +374,7 @@ def build():
         for c in chapters if c["gaps"])
     back = ('<h1>Open Evidence</h1>'
             f'<p>This draft carries <strong>{total_gaps}</strong> passages marked '
-            '<code>[NEEDS:]</code> — places where a real client situation, number, '
+            '<code>[NEEDS:]</code>, places where a real client situation, number, '
             'or outcome belongs. Nothing in the manual is invented, which is why '
             'these are blank rather than filled with plausible examples.</p>'
             '<div class="tw"><table><thead><tr><th>Ch</th><th>Chapter</th>'
@@ -451,7 +451,7 @@ def build():
            f'<dc:creator>{html.escape(AUTHOR)}</dc:creator>\n'
            '<dc:language>en</dc:language>\n'
            f'<dc:date>{today}</dc:date>\n'
-           f'<dc:description>{html.escape(SUBTITLE)}. Working draft — '
+           f'<dc:description>{html.escape(SUBTITLE)}. Working draft. '
            f'{total_gaps} passages awaiting real field material.</dc:description>\n'
            f'<meta property="dcterms:modified">{today}T00:00:00Z</meta>\n'
            + ('<meta name="cover" content="coverimg"/>\n' if has_cover else '') +
