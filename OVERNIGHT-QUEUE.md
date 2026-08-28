@@ -170,7 +170,7 @@ Dan said keep working, so the layer the fast drafting never had:
 - [x] **Q2. Cross-reference audit.** Every Chapter N and Drill NN mention
       in the two new books checked against its actual target,
       programmatically where possible, fixed where wrong.
-- [ ] **Q3. EPUBs for the new books.** The manual has `makeepub.py`.
+- [x] **Q3. EPUBs for the new books.** The manual has `makeepub.py`.
       Extend the pipeline so the Drill Book and the everyday book render
       to draft EPUBs the way the manual does.
 
@@ -221,3 +221,4 @@ Each block appends one line: date, item, what changed.
 | Fri 00:4x UTC | D11 | `drillbook/front-matter.md` and `back-matter.md` on the series pattern: cover, copyright with the no-new-doctrine note and photocopy permission, the this-book-assumes-a-room page, the standard with the score-the-behavior clause, the drill-to-chapter map, About, and the single Saturday offer. Build script includes both, proof now 95 pages, still under the cap. The ordered list is complete except N3, which stays parked without Dan. |
 | Fri 01:0x UTC | Q1 | `book/tools/verifylines.py`. Every logical line in the everyday book's script boxes now machine-checked against the catalog export under the allowed transforms, with a short documented allowlist for the deliberately authored teaching lines. Found and fixed one wrap indented like an entry in Ch 5, and codified the numeral-spelling convention the manual already used. Runs clean, exit 1 on any future drift. |
 | Fri 01:2x UTC | Q2 | Cross-reference audit of both new books. Everyday: every Chapter N mention checked, two real bugs found and fixed, Ch 7 and Ch 9 pointed readers at Chapter 30 which the everyday book does not have, both now name the corporate manual's failure chapter explicitly. Drill book: zero dangling Drill NN references, all 38 drills covered by the two indexes, no phantom numbers. |
+| Fri 01:4x UTC | Q3 | `book/tools/makeepub2.py`, the generic KDP pipeline on the manual's renderer and stylesheet. Both new books now render to draft EPUBs: the everyday book at 50 KB with its twelve chapters and four parts, the Drill Book at 87 KB with all 38 drills sorted by part. Mimetype ordering, nav, and NCX verified, no markdown leakage in the rendered pages, and each title page carries its open-slot count. The quality pass is complete. |
