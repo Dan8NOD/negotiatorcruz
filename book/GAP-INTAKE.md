@@ -144,6 +144,66 @@ reader can tell invented material from real. What's needed:
 
 ---
 
+## Added after the mandate: the new books' asks
+
+The Drill Book and *Same Words, Bigger Rooms* added their own flagged
+slots. Same six questions, same rules. These are listed cheapest first,
+because most of the everyday stories are Saturday-session material you
+already tell out loud.
+
+### The everyday book, twelve stories, one per chapter
+
+1. **Ch 1.** An argument at home or between friends where naming the
+   unsaid feeling changed the temperature in under a minute.
+2. **Ch 2.** A conversation where staying quiet and handing back one
+   word got to the real issue after advice had failed.
+3. **Ch 3.** A repair, family or client, where opening with their case
+   against you reopened a door explaining could not.
+4. **Ch 4.** A raise or comp conversation where naming the awkwardness
+   or locating the real decision-maker changed the outcome.
+5. **Ch 5.** A big purchase where probing the anchor or separating the
+   currencies moved the number materially.
+6. **Ch 6.** A bill, claim, or fee dispute where calm calibrated
+   questions surfaced an option the first answer hid.
+7. **Ch 7.** A contractor, landlord, or ongoing service story where
+   scoring the relationship separately, or the snag question asked
+   early, changed the engagement.
+8. **Ch 8.** A job offer where slowing down, finding the band, or
+   testing an exploding deadline changed the package.
+9. **Ch 9.** A clean no inside a family or friendship that preserved
+   what the soft yes was destroying.
+10. **Ch 10.** A misread state, torn pressured, ready oversold, or not
+    yet rushed, and what changed when the read was corrected.
+11. **Ch 11.** One real case at real scale, six figures up, where a
+    small-chapter tool visibly turned the room. This one replaces or
+    anchors the chapter's composite.
+12. **Ch 12.** Held to a higher bar, and only if the chapter ships at
+    all: a Saturday-session moment where the belief under a position
+    surfaced. Nothing composite, nothing approximate.
+
+### The Drill Book, three asks
+
+- **The Saturday session format as it runs now.** The Part V page is
+  waiting on it and assembles nothing until it arrives.
+- **Three real opening attack lines,** one per type, for the
+  Three-Type Sort. Invented attacks are too polite and the drill runs
+  soft.
+- **Which drills have genuinely failed in a live room, and how.** The
+  WHAT GOES WRONG sections are drafted from craft. Yours are from a
+  thousand sessions, and they are the sections that make the book
+  worth money. Bonus, and the best fix for the title: two real
+  Saturday-session drills the books never captured would take the
+  count from 38 to 40.
+
+### Decisions, not stories
+
+- The belief family's home (proposed: everyday Ch 12, behind its flag).
+- Title sign-offs and trademark searches: *Six Before Yes*, *Same
+  Words, Bigger Rooms*, and the Drill Book's subtitle number.
+- Whether N3, the objections counter-manual, should exist.
+
+---
+
 ## How to send them
 
 Whatever's easiest. Voice memo, bullet fragments, a dumped email thread with the
