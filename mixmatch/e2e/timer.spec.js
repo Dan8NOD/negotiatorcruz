@@ -148,6 +148,123 @@ for (const { name, url } of PAGES) {
   });
 }
 
+/*
+ * Pomodoro.
+ *
+ * Driven with Playwright's clock rather than by waiting out 25 real minutes,
+ * and with `fastForward` rather than `runFor`: fast-forwarding fires one
+ * animation frame with a jumped timestamp, which is both fast and the exact
+ * code path a backgrounded iPad takes. `runFor` would fire all 90,000
+ * intervening frames and time out.
+ *
+ * Run against the generated page only. The cycle logic has 29 unit tests; what
+ * needs a browser is that the page is *wired* to it — that the chip, the pips,
+ * the buttons and the clock say what the machine says.
+ */
+test.describe('pomodoro', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.clock.install();
+    await page.goto(PAGES[1].url);
+    await page.click('.mmt-mode[data-mode="pomodoro"]');
+  });
+
+  test('hides the round presets, which it does not use', async ({ page }) => {
+    // 25/5/15 is the technique, not a preference. Four buttons that silently
+    // do nothing would be worse than none.
+    await expect(page.locator('#mmt-presets')).toBeHidden();
+    await expect(page.locator('#mmt-pom')).toBeVisible();
+    await expect(page.locator('#mmt-phase')).toHaveText('Focus');
+    await expect(page.locator('#mmt-clock')).toHaveText('25:00');
+    await expect(page.locator('.mmt-pip')).toHaveCount(4);
+  });
+
+  test('runs a whole set: three short breaks, then a long one', async ({ page }) => {
+    await page.click('#mmt-go');
+    const phases = [];
+
+    for (let i = 0; i < 4; i++) {
+      await page.clock.fastForward('26:00');                     // focus completes
+      phases.push((await page.locator('#mmt-phase').textContent()).trim());
+      await expect(page.locator('.mmt-pip.done')).toHaveCount(i + 1);
+      // A break starts itself — rest is not something to forget to take.
+      await expect(page.locator('#mmt-go')).toHaveText('Pause');
+
+      await page.clock.fastForward(i === 3 ? '16:00' : '06:00'); // break completes
+      // The next focus never starts itself.
+      await expect(page.locator('#mmt-go')).toHaveText('Start next focus');
+      await expect(page.locator('#mmt-clock')).toHaveText('25:00');
+      if (i < 3) await page.click('#mmt-go');
+    }
+
+    expect(phases).toEqual(['Break', 'Break', 'Break', 'Long break']);
+    // The set starts over.
+    await expect(page.locator('.mmt-pip.done')).toHaveCount(0);
+  });
+
+  test('a break can be skipped; a focus can only be voided', async ({ page }) => {
+    await expect(page.locator('#mmt-skip')).toBeHidden();
+    await page.click('#mmt-go');
+    await expect(page.locator('#mmt-skip')).toBeHidden();
+    await expect(page.locator('#mmt-reset')).toHaveText('Void');
+
+    await page.clock.fastForward('26:00');
+    await expect(page.locator('#mmt-skip')).toBeVisible();
+    await page.click('#mmt-skip');
+
+    await expect(page.locator('#mmt-phase')).toHaveText('Focus');
+    await expect(page.locator('#mmt-go')).toHaveText('Start next focus');
+    await expect(page.locator('.mmt-pip.done')).toHaveCount(1);
+  });
+
+  test('voiding a focus does not bank it', async ({ page }) => {
+    // The rule that makes the count worth anything.
+    await page.click('#mmt-go');
+    await page.clock.fastForward('24:00');
+    await expect(page.locator('.mmt-pip.done')).toHaveCount(0);
+
+    await page.click('#mmt-reset');
+    await expect(page.locator('#mmt-clock')).toHaveText('25:00');
+    await expect(page.locator('#mmt-phase')).toHaveText('Focus');
+    await expect(page.locator('.mmt-pip.done')).toHaveCount(0);
+    await expect(page.locator('#mmt-go')).toHaveText('Start');
+  });
+
+  test('leaving the tab does not pause a pomodoro', async ({ page }) => {
+    // Deliberately unlike the round timer. A kitchen timer does not stop
+    // because you turned around, and the 25 minutes are the point.
+    await page.click('#mmt-go');
+    await page.clock.fastForward('05:00');
+    const before = await page.locator('#mmt-clock').textContent();
+
+    await page.evaluate(() => window.MMTimerTab.onHide());
+    await page.clock.fastForward('05:00');
+    await expect(page.locator('#mmt-clock')).not.toHaveText(before);
+    await expect(page.locator('#mmt-go')).toHaveText('Pause');
+  });
+
+  test('pausing holds the clock without voiding the pomodoro', async ({ page }) => {
+    await page.click('#mmt-go');
+    await page.clock.fastForward('05:00');
+    await page.click('#mmt-go');
+    await expect(page.locator('#mmt-go')).toHaveText('Resume');
+
+    const held = await page.locator('#mmt-clock').textContent();
+    await page.clock.fastForward('10:00');
+    await expect(page.locator('#mmt-clock')).toHaveText(held);
+
+    await page.click('#mmt-go');
+    await page.clock.fastForward('21:00');
+    await expect(page.locator('.mmt-pip.done')).toHaveCount(1);
+  });
+
+  test('the mode survives a reload', async ({ page }) => {
+    await page.reload();
+    await expect(page.locator('.mmt-mode[data-mode="pomodoro"]')).toHaveClass(/on/);
+    await expect(page.locator('#mmt-clock')).toHaveText('25:00');
+    await expect(page.locator('#mmt-presets')).toBeHidden();
+  });
+});
+
 // One full round, played to the buzzer, on the artifact the iPad ships. Run
 // once rather than per-page: it costs a real minute, and the round-end path is
 // identical generated code on both pages.

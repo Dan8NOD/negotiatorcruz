@@ -47,15 +47,21 @@
      ══════════════════════════════════════════════════════════════════════ -->
 <section class="mmt" id="mmt-root" aria-labelledby="mmt-title">
   <h2 class="mmt-title" id="mmt-title">⏱️ Timer</h2>
-  <p class="mmt-lede">Set the round. Run it straight, or run it with something to do while you wait.</p>
+  <p class="mmt-lede" id="mmt-lede">Set the round. Run it straight, or run it with something to do while you wait.</p>
 
   <div class="mmt-modes" role="radiogroup" aria-label="Timer mode">
     <button type="button" class="mmt-mode on" data-mode="timer" role="radio" aria-checked="true">Timer</button>
     <button type="button" class="mmt-mode" data-mode="arcade" role="radio" aria-checked="false">Arcade</button>
+    <button type="button" class="mmt-mode" data-mode="pomodoro" role="radio" aria-checked="false">Pomodoro</button>
   </div>
 
   <div class="mmt-presets" id="mmt-presets" role="radiogroup" aria-label="Round length"></div>
   <p class="mmt-blurb" id="mmt-blurb"></p>
+
+  <div class="mmt-pom" id="mmt-pom" hidden>
+    <span class="mmt-phase" id="mmt-phase">Focus</span>
+    <span class="mmt-pips" id="mmt-pips" aria-live="polite"></span>
+  </div>
 
   <div class="mmt-stage">
     <div class="mmt-clockwrap">
@@ -79,6 +85,7 @@
 
   <div class="mmt-controls">
     <button type="button" class="mmt-btn primary" id="mmt-go">Start</button>
+    <button type="button" class="mmt-btn" id="mmt-skip" hidden>Skip break</button>
     <button type="button" class="mmt-btn" id="mmt-reset">Reset</button>
     <button type="button" class="mmt-btn quiet" id="mmt-sound" aria-pressed="true" title="End-of-round chime">🔔</button>
   </div>
@@ -118,6 +125,8 @@
 .mmt-bar{height:5px;border-radius:999px;background:rgba(38,30,20,.12);overflow:hidden;margin:12px 0 0}
 .mmt-bar > i{display:block;height:100%;width:100%;border-radius:999px;background:var(--brand)}
 .mmt-bar.low > i{background:var(--red)}
+.mmt-bar.rest > i{background:var(--green)}
+.mmt-bar.long > i{background:#1F6F8B}
 
 .mmt-field{position:relative;margin:14px 0 0;border-radius:12px;overflow:hidden;
   background:#1B1712;border:1px solid rgba(38,30,20,.25)}
@@ -151,6 +160,21 @@
 .mmt-btn[aria-pressed="false"]{opacity:.45}
 .mmt-btn:disabled{opacity:.4;cursor:default}
 
+/* Pomodoro. The phase is the loudest thing on the card, because "am I meant
+   to be working right now?" is the only question this mode answers. */
+.mmt-pom{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:14px 0 0}
+.mmt-phase{font-size:12px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+  padding:5px 12px;border-radius:999px;background:var(--brand);color:#fff}
+.mmt-phase.rest{background:var(--green)}
+.mmt-phase.long{background:#1F6F8B}
+.mmt-pips{display:inline-flex;gap:6px;align-items:center}
+.mmt-pip{width:11px;height:11px;border-radius:50%;border:2px solid var(--brand);
+  display:inline-block}
+.mmt-pip.done{background:var(--brand)}
+/* The clock takes the phase's colour so a glance across the room is enough. */
+.mmt-clock.rest{color:var(--green)}
+.mmt-clock.long{color:#1F6F8B}
+
 .mmt-foot{margin:12px 0 0;font-size:11px;line-height:1.5;color:var(--dim);text-align:center}
 
 @media(prefers-reduced-motion:reduce){.mmt-bar > i{transition:none}}
@@ -162,6 +186,10 @@ import {
   presetById, createSession, start, pause, resume, reset, update, aimAt, setFiring,
   formatClock, snapshot,
 } from './timer-engine.js';
+import {
+  createPomodoro, pomodoroStart, pomodoroPause, pomodoroResume, pomodoroReset,
+  pomodoroSkipBreak, pomodoroUpdate, pomodoroSnapshot,
+} from './pomodoro-engine.js';
 
 (function () {
   const root = document.getElementById('mmt-root');
@@ -175,18 +203,30 @@ import {
     canvas: $('mmt-canvas'), score: $('mmt-score'), missed: $('mmt-missed'),
     over: $('mmt-over'), overHead: $('mmt-over-head'), overBody: $('mmt-over-body'),
     again: $('mmt-again'), go: $('mmt-go'), reset: $('mmt-reset'),
-    sound: $('mmt-sound'), foot: $('mmt-foot'),
+    sound: $('mmt-sound'), foot: $('mmt-foot'), lede: $('mmt-lede'),
+    pom: $('mmt-pom'), phase: $('mmt-phase'), pips: $('mmt-pips'), skip: $('mmt-skip'),
   };
   const ctx = el.canvas.getContext('2d');
   const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
+  const MODES = ['timer', 'arcade', 'pomodoro'];
   const prefs = load();
-  let mode = prefs.mode === 'arcade' ? 'arcade' : 'timer';
+  let mode = MODES.includes(prefs.mode) ? prefs.mode : 'timer';
   let presetId = ROUND_PRESETS.some((p) => p.id === prefs.presetId) ? prefs.presetId : DEFAULT_PRESET;
   let soundOn = prefs.soundOn !== false;
-  let session = createSession({ durationMs: presetById(presetId).ms, mode, seed: seed() });
+  let session = createSession({ durationMs: presetById(presetId).ms, mode: engineMode(), seed: seed() });
   let raf = 0;
   let chimed = false;
+
+  // The Pomodoro is its own machine with its own rules, running beside the
+  // round timer rather than pretending to be one: its phases are not user-set
+  // lengths, it advances itself, and it counts something. Sharing one session
+  // object would have meant a `mode` check in every branch of both.
+  let pom = createPomodoro();
+
+  /** timer-engine only knows two modes; Pomodoro borrows its plain clock. */
+  function engineMode() { return mode === 'arcade' ? 'arcade' : 'timer'; }
+  function isPom() { return mode === 'pomodoro'; }
 
   function seed() { return (Math.random() * 0xffffffff) >>> 0; }
 
@@ -225,7 +265,10 @@ import {
   }
 
   function rebuild() {
-    session = createSession({ durationMs: presetById(presetId).ms, mode, seed: seed() });
+    session = createSession({ durationMs: presetById(presetId).ms, mode: engineMode(), seed: seed() });
+    // A Pomodoro is voided by reset, never resumed: an interrupted pomodoro
+    // did not happen, so the count does not move and you do it again.
+    if (isPom()) pomodoroReset(pom);
     chimed = false;
     syncChrome();
     resize();
@@ -247,16 +290,74 @@ import {
     el.field.hidden = mode !== 'arcade';
     el.over.hidden = true;
     el.sound.setAttribute('aria-pressed', String(soundOn));
+
+    // The round presets are meaningless in Pomodoro: 25/5/15 is the technique,
+    // not a preference. Hiding them is the honest move — showing four buttons
+    // that silently do nothing is worse than showing none.
+    el.presets.hidden = isPom();
+    el.blurb.hidden = isPom();
+    el.pom.hidden = !isPom();
+    el.lede.textContent = isPom()
+      ? 'Work in whole pomodoros. The machine keeps the count honest.'
+      : 'Set the round. Run it straight, or run it with something to do while you wait.';
+
     el.foot.innerHTML = mode === 'arcade'
       ? 'Hold to fire. Shoot the pressure tactics — lift, and let the genuine offers land. Best: <b>' + best() + '</b>'
+      : isPom()
+      ? '25 minutes of work, 5 off, 15 after every fourth. Reset during a focus voids it.'
       : 'Free, no signup, no account. Nothing here spends tokens.';
+    if (isPom()) paintPomodoro();
     paintControls();
   }
 
+  // ── pomodoro ─────────────────────────────────────────────────────────────
+
+  const PHASE_LABEL = { focus: 'Focus', break: 'Break', long: 'Long break' };
+  const PHASE_CLASS = { focus: '', break: 'rest', long: 'long' };
+
+  function paintPomodoro() {
+    const v = pomodoroSnapshot(pom);
+    el.phase.textContent = PHASE_LABEL[v.phase];
+    el.phase.className = 'mmt-phase ' + PHASE_CLASS[v.phase];
+    el.clock.classList.remove('rest', 'long');
+    el.barWrap.classList.remove('rest', 'long', 'low');
+    if (PHASE_CLASS[v.phase]) {
+      el.clock.classList.add(PHASE_CLASS[v.phase]);
+      el.barWrap.classList.add(PHASE_CLASS[v.phase]);
+    }
+
+    // One pip per focus in the current set. Four filled means the long break
+    // is next, which is the only thing the count is for.
+    if (el.pips.childElementCount !== v.cyclesPerLong) {
+      el.pips.innerHTML = '';
+      for (let i = 0; i < v.cyclesPerLong; i++) {
+        const pip = document.createElement('i');
+        pip.className = 'mmt-pip';
+        el.pips.appendChild(pip);
+      }
+    }
+    const filled = v.phase === 'long' ? v.cyclesPerLong : v.cycle;
+    [...el.pips.children].forEach((pip, i) => pip.classList.toggle('done', i < filled));
+    el.pips.setAttribute('aria-label',
+      v.completed + ' pomodoro' + (v.completed === 1 ? '' : 's') + ' completed');
+
+    el.clock.textContent = formatClock(v.remainingMs);
+    el.bar.style.width = (v.fractionLeft * 100).toFixed(2) + '%';
+    // Only a break can be skipped. A focus can only be voided.
+    el.skip.hidden = v.phase === 'focus';
+  }
+
   function paintControls() {
-    const s = session.state;
-    el.go.textContent = s === 'running' ? 'Pause' : s === 'paused' ? 'Resume' : s === 'done' ? 'Start' : 'Start';
+    const st = isPom() ? pom.state : session.state;
+    el.go.textContent = st === 'running' ? 'Pause' : st === 'paused' ? 'Resume' : 'Start';
+    // In Pomodoro the button names the phase you are about to begin, because
+    // "Start" after a break is ambiguous about what is starting.
+    if (isPom() && st === 'idle' && pom.phase === 'focus' && pom.completed > 0) {
+      el.go.textContent = 'Start next focus';
+    }
     el.go.disabled = false;
+    el.reset.textContent = isPom() && pom.phase === 'focus' && pom.state !== 'idle'
+      ? 'Void' : 'Reset';
   }
 
   // Best score, per round length. A single global best would let a 12-minute
@@ -276,6 +377,14 @@ import {
     b.addEventListener('click', () => chooseMode(b.dataset.mode)));
 
   el.go.addEventListener('click', () => {
+    if (isPom()) {
+      if (pom.state === 'running') pomodoroPause(pom);
+      else if (pom.state === 'paused') pomodoroResume(pom, performance.now());
+      else { pomodoroStart(pom, performance.now()); armChime(); }
+      paintControls();
+      loop();
+      return;
+    }
     if (session.state === 'running') { pause(session); }
     else if (session.state === 'paused') { resume(session, performance.now()); }
     else {
@@ -285,6 +394,13 @@ import {
     }
     paintControls();
     loop();
+  });
+
+  el.skip.addEventListener('click', () => {
+    if (!isPom() || pom.phase === 'focus') return;
+    pomodoroSkipBreak(pom);
+    paintPomodoro();
+    paintControls();
   });
 
   el.reset.addEventListener('click', rebuild);
@@ -486,6 +602,18 @@ import {
   function loop() {
     cancelAnimationFrame(raf);
     const frame = (now) => {
+      if (isPom()) {
+        pomodoroUpdate(pom, now);
+        // Each crossed boundary rings once. Backgrounding the tab across two
+        // boundaries reports both, so the chime is honest about what happened.
+        pom.events.forEach(() => { chimed = false; chime(); });
+        paintPomodoro();
+        paintControls();
+        // A finished break leaves the machine idle at the next focus, and the
+        // loop stops there — deliberately. Beginning a pomodoro is a decision.
+        if (pom.state === 'running') raf = requestAnimationFrame(frame);
+        return;
+      }
       update(session, now);
       paint();
       if (session.state === 'running') raf = requestAnimationFrame(frame);
@@ -526,7 +654,15 @@ import {
 
   window.MMTimerTab = {
     onShow() { resize(); draw(); },
-    onHide() { if (session.state === 'running') { pause(session); paintControls(); } },
+    onHide() {
+      // A Pomodoro is deliberately NOT paused by leaving the tab. The whole
+      // premise is that the 25 minutes keep running whether or not you are
+      // looking at them; a kitchen timer does not stop because you turned
+      // around. Only the round timer, which is a stopwatch for a drill you
+      // are actively watching, pauses here.
+      if (isPom()) return;
+      if (session.state === 'running') { pause(session); paintControls(); }
+    },
   };
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) window.MMTimerTab.onHide();
@@ -534,7 +670,7 @@ import {
 
   syncChrome();
   resize();
-  paint();
+  if (isPom()) paintPomodoro(); else paint();
 })();
 </script>
 <!-- MM-TIMER-TAB:END -->

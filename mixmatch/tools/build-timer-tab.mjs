@@ -7,11 +7,11 @@
  * game in two places and diffing them forever, which is the same failure mode
  * the token fixtures exist to prevent.
  *
- * So timer-tab.html is the source (it imports timer-engine.js like a normal
- * module and can be opened directly in a browser), and this script produces
- * timer-tab.inline.html: the same block with the engine inlined and the import
- * removed. CI regenerates it and fails on a diff, so the pasteable artifact
- * can never quietly fall behind the tested engine.
+ * So timer-tab.html is the source (it imports its engines like a normal module
+ * and can be opened directly in a browser), and this script produces
+ * timer-tab.inline.html: the same block with every local engine inlined and the
+ * imports removed. CI regenerates it and fails on a diff, so the pasteable
+ * artifact can never quietly fall behind the tested engines.
  *
  * Same idea as rocketman/tools/build-single-file.mjs, one project over.
  */
@@ -23,7 +23,6 @@ import { dirname, join } from 'node:path';
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const web = join(root, 'web');
 const SOURCE = join(web, 'timer-tab.html');
-const ENGINE = join(web, 'timer-engine.js');
 const OUT = join(web, 'timer-tab.inline.html');
 /** The iPad app's bundled page. Same block, wrapped in a document sized for a
  *  full screen instead of a page — so the app can never drift from the web. */
@@ -31,14 +30,20 @@ const APP_OUT = join(root, 'ios', 'MixMatch.swiftpm', 'Resources', 'index.html')
 
 const BEGIN = 'MM-TIMER-TAB:BEGIN';
 const END = 'MM-TIMER-TAB:END';
-const IMPORT = /^import \{[\s\S]*?\} from '\.\/timer-engine\.js';\n/m;
+
+/** Every local ESM import in the block, whichever engine it names. Was once
+ *  hardcoded to timer-engine.js; adding pomodoro-engine.js then shipped an
+ *  artifact with a live `import` in it, which fails to load in the app bundle
+ *  where there is no such file to fetch. Generic now, and the output is
+ *  checked for leftovers below rather than trusted. */
+const IMPORT_RE = /^import \{[\s\S]*?\} from '\.\/([\w-]+\.js)';\n/gm;
 
 function fail(message) {
   console.error(`build-timer-tab: ${message}`);
   process.exit(1);
 }
 
-const [page, engine] = await Promise.all([readFile(SOURCE, 'utf8'), readFile(ENGINE, 'utf8')]);
+const page = await readFile(SOURCE, 'utf8');
 
 const from = page.indexOf(BEGIN);
 const to = page.indexOf(END);
@@ -52,30 +57,48 @@ const blockStart = page.lastIndexOf('<!--', from);
 const blockEnd = page.indexOf('-->', to) + 3;
 const block = page.slice(blockStart, blockEnd);
 
-if (!IMPORT.test(block)) {
-  fail("could not find the `import { ... } from './timer-engine.js';` statement");
+const imports = [...block.matchAll(IMPORT_RE)];
+if (imports.length === 0) {
+  fail("could not find any `import { ... } from './<engine>.js';` statement");
 }
 
-// `export` is the only module syntax the engine uses, and only ever at the
-// start of a line. Stripping it turns the module into a script body that runs
-// unchanged inside the block's existing IIFE-adjacent module scope.
-const inlined = engine.replace(/^export /gm, '');
-if (/\b(?:import|export)\b\s*[{*]/.test(inlined)) {
-  fail('the engine grew module syntax this script does not know how to inline');
+const sources = new Map(
+  await Promise.all(
+    imports.map(async (m) => [m[1], await readFile(join(web, m[1]), 'utf8')]),
+  ),
+);
+
+function inline(name) {
+  // `export` is the only module syntax the engines use, and only ever at the
+  // start of a line. Stripping it turns the module into a script body that
+  // runs unchanged in the block's existing module scope.
+  const body = sources.get(name).replace(/^export /gm, '');
+  if (/^\s*(?:import|export)\b/m.test(body)) {
+    fail(`${name} grew module syntax this script does not know how to inline`);
+  }
+  return [
+    '// ────────────────────────────────────────────────────────────────────────',
+    `// GENERATED — do not edit. Source: mixmatch/web/${name}`,
+    '// Regenerate with: npm run mixmatch:timer',
+    '// ────────────────────────────────────────────────────────────────────────',
+    '',
+    body,
+    '',
+  ].join('\n');
 }
 
-const banner = [
-  '// ────────────────────────────────────────────────────────────────────────',
-  '// GENERATED — do not edit. Source: mixmatch/web/timer-engine.js',
-  '// Regenerate with: npm run mixmatch:timer',
-  '// ────────────────────────────────────────────────────────────────────────',
-  '',
-].join('\n');
+const built = block.replace(IMPORT_RE, (_full, name) => inline(name));
 
-const built = block.replace(IMPORT, banner + inlined + '\n');
+// The check that matters. A generated page carrying a live `import` fails to
+// load in the app bundle, where there is no sibling file to fetch — and it
+// fails silently, as a blank screen. Never ship one again.
+const leftover = built.match(/^\s*import\b.*$|from\s+'\.\/[^']+'/m);
+if (leftover) {
+  fail(`the built block still references a module it cannot load: ${leftover[0].trim()}`);
+}
 
 const header = `<!-- GENERATED by mixmatch/tools/build-timer-tab.mjs — do not edit by hand.
-     Source: mixmatch/web/timer-tab.html + mixmatch/web/timer-engine.js
+     Source: mixmatch/web/timer-tab.html + the engines it imports
      Regenerate with: npm run mixmatch:timer
 
      Paste everything below into MixMatch.html where the Timer tab body goes.

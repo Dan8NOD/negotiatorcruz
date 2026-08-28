@@ -177,7 +177,42 @@ a `mode` flag.
 real-time strategy game with its own engine and 400 tests. This is a few
 hundred lines that fits in a tab.
 
-### The game, in one paragraph
+### Three modes, one card
+
+**Timer** is a plain round clock. **Arcade** runs the game on that same clock.
+**Pomodoro** is a separate machine with its own rules, described below.
+
+### The Pomodoro, done properly
+
+Not a 25-minute countdown with a tomato on it — the actual technique:
+
+- 25 minutes of focus, then 5 off. Every **fourth** completed focus earns 15.
+- **Breaks start themselves; the next focus never does.** Rest is not something
+  to forget to take, and sitting down to work again is a decision.
+- **A pomodoro is indivisible.** Reset during a focus *voids* it — the count
+  does not move and you do that one again. The Reset button even relabels
+  itself to **Void** while a focus is running, so nobody presses it by
+  accident. Twenty-four minutes of focus is worth nothing, and the count
+  staying honest is the only thing that makes the count worth having.
+- **A break may be skipped, a focus may not.** Getting back to work early is
+  allowed; claiming a pomodoro that never happened is not. Calling the skip
+  during a focus throws rather than quietly doing nothing.
+- **Leaving the tab does not pause it**, deliberately unlike the round timer. A
+  kitchen timer does not stop because you turned around. Come back after 40
+  minutes and the focus completed, its break ran, and the machine is waiting
+  for you to start the next one — with a full 25 on the clock, because the
+  next focus must not consume time nobody chose to give it.
+- The round-length presets are **hidden** in this mode. 25/5/15 is the
+  technique, not a preference, and four buttons that silently do nothing are
+  worse than none.
+
+Four pips show the current set. `pomodoro-engine.js` is pure in the same way
+`timer-engine.js` is, and its 29 tests assert the *technique* — the fourth
+break is long, an interrupted pomodoro does not count, a full set is exactly
+130 minutes of running clock — because those are the rules a plausible-looking
+refactor quietly breaks.
+
+### The arcade, in one paragraph
 
 Pressure tactics fall — Lowball, Nibble, Deadline, Exploding. Shoot them.
 Genuine offers also fall — Fair Offer, Good Faith, Real Ask. Let those land.
