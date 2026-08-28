@@ -142,7 +142,7 @@ seconds of your silence is information you didn't have to ask for.
 
 **They fill it with the thing they were holding.** The most common gift.
 Silence pulls out the sentence that was queued behind the polite one, *"look,
-I'll be honest with you.."* is a phrase that almost never survives an
+I'll be honest with you..."* is a phrase that almost never survives an
 interruption, which is why interrupters never hear it.
 
 **Nothing happens, and that's fine.** Sometimes you hold four seconds and they

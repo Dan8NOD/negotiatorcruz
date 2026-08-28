@@ -121,6 +121,11 @@ you catch yourself mid-leak, convert it to a trade after the fact: *"I said
 there's flexibility and I meant it, if the start date moves to the first."*
 Not as good as never leaking. Far better than the alternative.
 
+**EXAMPLE: The call that went hostile.** `[NEEDS: real case, a
+conversation that turned sharp, and what running the stages in order
+recovered that a better line would not have. The failure to avoid here is
+reaching for a phrase instead of a stage. 120 words.]`
+
 **OUR ADVICE.** Record yourself. One real call, with permission. You will
 hear two things within ten minutes: your actual talk-time (double your
 estimate) and your own tells before you concede. No book, this one included,

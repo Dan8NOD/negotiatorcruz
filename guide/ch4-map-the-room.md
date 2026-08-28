@@ -121,6 +121,11 @@ steamrolled. Read your own column as a counterpart would. That exercise is
 worth the price of the book, and it's why the assessment comes before this
 chapter.
 
+**EXAMPLE: The read made before the room.** `[NEEDS: real case, a state
+called correctly before a meeting started, and what was run differently
+because of it. The section 1 example is a room misread. This one is the
+read that worked. 120 words.]`
+
 **OUR ADVICE.** Say the state call out loud, literally, before your next
 sentence, silently in company: *"Torn."* Diagnosis before speech, every
 exchange. The habit takes two weeks and never leaves.

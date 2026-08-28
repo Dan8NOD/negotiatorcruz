@@ -111,6 +111,11 @@ belief in negotiation, which is that you win because of who you are rather
 than because of what you did. What you did can be repeated on a bad day.
 Who you are goes missing on one.
 
+**EXAMPLE: The pattern no single deal showed.** `[NEEDS: real case, a
+habit the log caught across several negotiations that none of them
+revealed on its own. Conceding after silence, anchoring late, whichever
+the record actually surfaced. 120 words.]`
+
 **OUR ADVICE.** Put the three sentences somewhere they accumulate. One
 notebook, one file, one thread. Thirty scattered debriefs are thirty
 notes. Thirty in one place are a pattern, and the pattern is the point.
