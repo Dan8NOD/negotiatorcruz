@@ -1,8 +1,6 @@
-# Chapter 5: The Big Purchase
+Chapter 5: The Big Purchase
 
----
-
-## The scene
+The scene
 
 Hour three at the dealership. You came in for the certified pre-owned
 you found online, and since then you have met the sticker price, the
@@ -21,7 +19,7 @@ one room in this book where the other side negotiates for a living
 and you do it every few years. You will not out-rep them. You do not
 need to. You need four tools, and you already have three of them.
 
-## What is actually happening
+What is actually happening
 
 The sticker is an anchor. Its job is not to be paid. Its job is to
 make the next number feel reasonable, and it works even when you know
@@ -37,60 +35,54 @@ these pressures are real some of the time. The whole game is finding
 out which, and the finding out is done with the same probes, ranges,
 trades, and silence the professionals use on each other.
 
-One rule above all of it. **Your number goes down once, flat, and
-then you are quiet.** You do not defend it. You do not explain it.
+One rule above all of it. Your number goes down once, flat, and
+then you are quiet. You do not defend it. You do not explain it.
 The moment you argue for your number, you have told them it is
 negotiable with you, and they only need one of you to negotiate it.
 
-## The words
+The words
 
 Their number explains itself, or it moves:
 
-```
-PROBING THEIR NUMBER
+Probing Their Number.
 
-  "Where did that number actually come from?"
-  "Compared to what, exactly?"
-  "Is that the number, or just the first one anyone
-   said out loud?"
-  "What would have to change for that number to move?"
-```
+Quote. Where did that number actually come from? End quote.
+
+Quote. Compared to what, exactly? End quote.
+
+Quote. Is that the number, or just the first one anyone said out loud? End quote.
+
+Quote. What would have to change for that number to move? End quote.
 
 Before any exact number, a range:
 
-```
-GETTING A RANGE
+Getting A Range.
 
-  "Before we talk exact numbers, what range are you
-   even considering?"
-  "Most deals like this land between two numbers.
-   Where do you see it?"
-  "What's the low end you'd still feel good about?"
-```
+Quote. Before we talk exact numbers, what range are you even considering? End quote.
+
+Quote. Most deals like this land between two numbers. Where do you see it? End quote.
+
+Quote. What's the low end you'd still feel good about? End quote.
 
 Money is one currency in the room, not the only one:
 
-```
-FINDING THE OTHER CURRENCIES
+Finding The Other Currencies.
 
-  "If not the price, what else is actually on the table?"
-  "If we can't move the number, what else could move?"
-  "Is there a non-cash way to make this work for both
-   of us?"
-```
+Quote. If not the price, what else is actually on the table? End quote.
+
+Quote. If we can't move the number, what else could move? End quote.
+
+Quote. Is there a non-cash way to make this work for both of us? End quote.
 
 And your own number, with its stage directions from the catalog:
 
-```
-YOUR NUMBER
+Your Number.
 
-  [Say the number, then let the room go quiet. Don't
-   soften it after.]
-  [Count to five in your head before you say anything
-   else.]
-  Whoever speaks next usually gives up ground. Let it
-   be them.
-```
+Say the number, then let the room go quiet. Don't soften it after.
+
+Count to five in your head before you say anything else.
+
+Whoever speaks next usually gives up ground. Let it be them.
 
 Keep the currencies separate on a big purchase. The car price, the
 trade-in, the financing, and the add-ons are four negotiations, and
@@ -98,30 +90,30 @@ the worksheet that shows you all four at once exists so a loss on
 one can hide inside a win on another. One at a time, in writing,
 starting with the price of the thing itself.
 
-## What good sounds like
+What good sounds like
 
-**The number moves without yours moving.** You probed, you went
+The number moves without yours moving. You probed, you went
 quiet, and a new figure appeared. Note what just happened: you paid
 nothing for that movement. Probe again.
 
-**A mechanism.** "End of quarter is real for us, the floor plan
+A mechanism. "End of quarter is real for us, the floor plan
 interest on that car started in March." Real information, offered to
 explain a number. Now you know their clock, which is worth more
 than a discount.
 
-**"Let me talk to my manager."** Chapter 4 again: you are talking to
+"Let me talk to my manager." Chapter 4 again: you are talking to
 a messenger. Send something worth carrying. "What would your manager
 need to see to say yes to my number?" hands the messenger a job
 instead of a stall.
 
-**The pressure lines, recognized.** "What are you already losing by
+The pressure lines, recognized. "What are you already losing by
 not deciding right now?" and its cousins are shipped loss moves, and
 now you can hear the shape of them coming. The counter is the
 deadline test you already own: "What actually breaks if this takes
 one more week?" If the answer is a shrug, the afternoon buyer is
 atmosphere.
 
-## When not to do this
+When not to do this
 
 Know your exit before you walk in, or none of this is negotiation.
 A buyer who cannot walk away is a buyer doing theater, and the
@@ -140,7 +132,7 @@ driveway. The fairness standard from this series applies to you
 too: if the deal only works for one of us, it does not actually
 work.
 
-## The bigger room
+The bigger room
 
 An acquisition team opens diligence on a company whose founder wants
 nine figures. The first number on the table is an anchor built by
@@ -155,19 +147,10 @@ remember.
 The corporate manual's anchoring chapter teaches her half of that
 table. You now hold the other half, and they are the same half.
 
-## Try it this week
+Try it this week
 
 You do not need a car. The next quote that crosses your kitchen
 table, the plumber, the insurance renewal, the gym's annual rate,
 gets one probe, one range question, and one five-second silence
 after your counter. Small rooms are where the reflexes get built,
 which is the entire argument of this book.
-
----
-
-> ### Evidence
->
-> `[NEEDS: one real story. A big purchase, car, home, or contractor,
-> where probing the anchor or separating the currencies changed the
-> number materially. Dan's own or a Saturday session participant's.
-> 150-200 words. End on the mechanism.]`

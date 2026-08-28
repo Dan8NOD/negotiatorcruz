@@ -156,6 +156,24 @@ A block remains one item, committed and pushed, box ticked, one log line.
 - [ ] **N3. Objections: The Counter-Manual.** Not yet justified. Do not
       start without Dan. Listed only so the queue has a visible end.
 
+### The quality pass, added Fri after the list closed
+
+Dan said keep working, so the layer the fast drafting never had:
+
+- [x] **Q1. Line verification tool.** `book/tools/verifylines.py`: extract
+      every quoted line from the everyday book's script boxes, match it
+      against the checked-in catalog export under the allowed transforms
+      (dash conversion, slot to blank), and report anything unmatched.
+      Judge each report honestly: whitelist the deliberately authored
+      teaching lines, fix any line that drifted from its shipped wording.
+      The tool stays in the repo as the standing enforcement of rule 4.
+- [x] **Q2. Cross-reference audit.** Every Chapter N and Drill NN mention
+      in the two new books checked against its actual target,
+      programmatically where possible, fixed where wrong.
+- [x] **Q3. EPUBs for the new books.** The manual has `makeepub.py`.
+      Extend the pipeline so the Drill Book and the everyday book render
+      to draft EPUBs the way the manual does.
+
 ---
 
 ## Log
@@ -201,3 +219,7 @@ Each block appends one line: date, item, what changed.
 | Fri 00:0x UTC | D10 | `drillbook/tools/makedrillbook.py` written on the shared renderer, sorting the 38 drills into the four parts from each drill's own PART field, with the two indexes ahead and the programs behind. Voice pass across all 42 files changed nothing, zero dashes. PDF proof at 91 pages, under the cap. All 38 drills verified in the render with the four flags visible. Book three is draft-complete except formal front and back matter, noted on D10's box. |
 | Fri 00:2x UTC | N2 | `book/tools/makecards.py`. The 33 cards parsed from the appendix, verified at 33 or the build fails, rendered two-up on letter at 6 by 4 inches with corner cut marks and a cover sheet. PDF proof at 18 pages. The deck the site promises now exists as a printable file. D11 added to the list for the drill book's formal front and back matter. |
 | Fri 00:4x UTC | D11 | `drillbook/front-matter.md` and `back-matter.md` on the series pattern: cover, copyright with the no-new-doctrine note and photocopy permission, the this-book-assumes-a-room page, the standard with the score-the-behavior clause, the drill-to-chapter map, About, and the single Saturday offer. Build script includes both, proof now 95 pages, still under the cap. The ordered list is complete except N3, which stays parked without Dan. |
+| Fri 01:0x UTC | Q1 | `book/tools/verifylines.py`. Every logical line in the everyday book's script boxes now machine-checked against the catalog export under the allowed transforms, with a short documented allowlist for the deliberately authored teaching lines. Found and fixed one wrap indented like an entry in Ch 5, and codified the numeral-spelling convention the manual already used. Runs clean, exit 1 on any future drift. |
+| Fri 01:2x UTC | Q2 | Cross-reference audit of both new books. Everyday: every Chapter N mention checked, two real bugs found and fixed, Ch 7 and Ch 9 pointed readers at Chapter 30 which the everyday book does not have, both now name the corporate manual's failure chapter explicitly. Drill book: zero dangling Drill NN references, all 38 drills covered by the two indexes, no phantom numbers. |
+| Fri 01:4x UTC | Q3 | `book/tools/makeepub2.py`, the generic KDP pipeline on the manual's renderer and stylesheet. Both new books now render to draft EPUBs: the everyday book at 50 KB with its twelve chapters and four parts, the Drill Book at 87 KB with all 38 drills sorted by part. Mimetype ordering, nav, and NCX verified, no markdown leakage in the rendered pages, and each title page carries its open-slot count. The quality pass is complete. |
+| Fri 02:0x UTC | Q4 | Two closing deliverables. `book/GAP-INTAKE.md` extended to cover all four books, the everyday twelve listed cheapest first and the Drill Book's two bonus drills named as the title fix, so Dan has one ranked list. And `everyday/tools/makenarration.py` reuses the manual's narrate pipeline to generate twelve audiobook scripts into `everyday/audio/`, flags stripped, boxes spoken. |

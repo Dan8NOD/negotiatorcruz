@@ -1,8 +1,6 @@
-# Chapter 7: The Landlord and the Contractor
+Chapter 7: The Landlord and the Contractor
 
----
-
-## The scene
+The scene
 
 Week six of the kitchen remodel. Your contractor calls from the
 driveway. "We opened up the wall and hit something. It's going to
@@ -20,7 +18,7 @@ continue, and they are the most common negotiations in your life.
 The dealership rules do not transfer. You cannot win this one and
 walk. You have to win it and stay.
 
-## What is actually happening
+What is actually happening
 
 A negotiation inside a continuing relationship is a repeated game,
 and repeated games score differently. Every move gets paid twice:
@@ -36,93 +34,84 @@ the number instead of fighting it, fund the relationship out loud,
 and lock every agreement in writing without making the writing feel
 like an accusation.
 
-## The words
+The words
 
 Most standoffs are one issue wearing five costumes. Narrow first:
 
-```
-NARROW IT
+Narrow It.
 
-  "It sounds like everything else is fine except this
-   one piece."
-  "It sounds like the rest of this is settled except
-   one detail."
-  "It seems like you're focused on one clause more than
-   the rest."
-```
+Quote. It sounds like everything else is fine except this one piece. End quote.
+
+Quote. It sounds like the rest of this is settled except one detail. End quote.
+
+Quote. It seems like you're focused on one clause more than the rest. End quote.
 
 Then unpack the number, the way you learned on the sticker:
 
-```
-UNPACK IT
+Unpack It.
 
-  "How did you land on that number?"
-  "What's making this harder than it needs to be?"
-  "How do you want to handle it if we hit a snag
-   halfway through?"
-  "How should we split this up so nothing falls through
-   the cracks?"
-```
+Quote. How did you land on that number? End quote.
+
+Quote. What's making this harder than it needs to be? End quote.
+
+Quote. How do you want to handle it if we hit a snag halfway through? End quote.
+
+Quote. How should we split this up so nothing falls through the cracks? End quote.
 
 Say the true good things out loud. In a continuing relationship,
 this is not flattery. It is deposits:
 
-```
-FUND THE RELATIONSHIP
+Fund The Relationship.
 
-  "It looks like you've done this before. That helps."
-  "It sounds like you're someone who follows through on
-   what you say."
-  "It seems like you're genuinely trying to get this
-   right."
-```
+Quote. It looks like you've done this before. That helps. End quote.
+
+Quote. It sounds like you're someone who follows through on what you say. End quote.
+
+Quote. It seems like you're genuinely trying to get this right. End quote.
 
 And lock what got agreed before the phone call ends:
 
-```
-LOCK IT
+Lock It.
 
-  "Let me run the whole thing back to you before we go
-   any further."
-  "Here's where we are: two things agreed, one thing
-   still open. Let's look at that one."
-```
+Quote. Let me run the whole thing back to you before we go any further. End quote.
 
-The third unpacking line is the one to say **before** any project
+Quote. Here's where we are: two things agreed, one thing still open. Let's look at that one. End quote.
+
+The third unpacking line is the one to say before any project
 starts. "How do you want to handle it if we hit a snag halfway
 through?" asked at the estimate stage converts the week-six phone
 call from an ambush into a procedure you both already agreed on.
 One shipped sentence, asked early, is worth more than every tool
 in this chapter deployed late.
 
-## What good sounds like
+What good sounds like
 
-**An itemization appears.** You asked how the number was built and
+An itemization appears. You asked how the number was built and
 the thirty-two hundred becomes eight hundred of materials, a
 subcontractor day, and a cushion. Numbers that explain themselves
 shrink, gently, without anyone losing. Now you are negotiating
 the cushion, not the wall.
 
-**A trade instead of a discount.** "If we're in there anyway, the
+A trade instead of a discount. "If we're in there anyway, the
 outlet you wanted moved happens for free." Continuing
 relationships are full of cheap-to-give currencies, and people
 offer them the moment the conversation feels fair. Take the trade.
 It funds the next one.
 
-**The summary comes back corrected.** "Well, two things agreed,
+The summary comes back corrected. "Well, two things agreed,
 but the timeline moves a week." Good. That correction, in a text
 message thread, is the paper trail from Chapter 6 doing domestic
 work. Follow the call with the recap in writing, framed by the
 shipped line about nothing falling through the cracks, and it
 reads as diligence instead of distrust.
 
-**The landlord separates the issues.** You narrowed: the renewal
+The landlord separates the issues. You narrowed: the renewal
 is fine except the rent number, and the rent number is sitting
 next to a broken fan. Fix-dates and dollars can now trade against
 each other, which they could not do while everything was one
 argument.
 
-## When not to do this
+When not to do this
 
 Do not nickel a fair overage from someone doing good work. The
 repeated game runs both directions, and a craftsman who ate a real
@@ -142,7 +131,7 @@ its failure chapter: is this a negotiation worth having at all?
 Some continuing relationships should not continue, and no tool in
 this book exists to keep a bad one comfortable.
 
-## The bigger room
+The bigger room
 
 An IT services firm is four months into a two-year contract when
 the scope starts creeping, in the client's favor, then in the
@@ -155,7 +144,7 @@ negotiation chapter are both built on the same two-column
 scorecard you just learned at your kitchen counter: the outcome,
 and the relationship, scored separately, every time.
 
-## Try it this week
+Try it this week
 
 One continuing relationship, one small negotiation inside it. Open
 with a true positive label, narrow to the one issue, unpack the
@@ -163,12 +152,3 @@ number if there is one, and end with a two-sentence summary sent in
 writing. Then notice, honestly, how the next interaction with that
 person starts. That start is the second score, and you just
 raised it.
-
----
-
-> ### Evidence
->
-> `[NEEDS: one real story. A contractor, landlord, or ongoing service
-> negotiation where separating the outcome from the relationship, or
-> the snag question asked early, changed how the whole engagement
-> ran. 150-200 words. End on the mechanism.]`
