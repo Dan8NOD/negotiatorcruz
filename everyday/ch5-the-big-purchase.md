@@ -89,7 +89,7 @@ YOUR NUMBER
   [Count to five in your head before you say anything
    else.]
   Whoever speaks next usually gives up ground. Let it
-  be them.
+   be them.
 ```
 
 Keep the currencies separate on a big purchase. The car price, the
