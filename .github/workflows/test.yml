@@ -43,6 +43,29 @@ jobs:
       - name: Coverage for api/lead.js
         run: npm run test:coverage
 
+      # The Swift token meter asserts against fixtures exported from
+      # mixmatch/config/tokens.js. Stale fixtures would let the iOS port agree
+      # with a price the web app no longer charges -- which is a money bug, not
+      # a test-hygiene one. Regenerating and diffing is what makes a deliberate
+      # price change show up as a decision about the app rather than silence.
+      - name: Token fixtures are current
+        run: |
+          npm run mixmatch:fixtures
+          git diff --exit-code --stat mixmatch/swift/Tests/MixMatchKitTests/Fixtures \
+            || { echo "::error::Token config changed. Commit the regenerated fixtures and re-check the Swift port."; exit 1; }
+
+      # timer-tab.inline.html is the block that actually gets pasted into
+      # MixMatch.html, with the engine inlined because a single-file app cannot
+      # import one. Regenerating and diffing is what stops the pasteable copy
+      # from quietly falling behind the engine the tests are run against.
+      - name: Timer tab drop-in is current
+        run: |
+          npm run mixmatch:timer
+          git diff --exit-code --stat \
+            mixmatch/web/timer-tab.inline.html \
+            mixmatch/ios/MixMatch.swiftpm/Resources/index.html \
+            || { echo "::error::The Timer tab changed. Commit the regenerated drop-in and app page."; exit 1; }
+
   e2e:
     name: End-to-end
     runs-on: ubuntu-latest
@@ -165,3 +188,44 @@ jobs:
 
       - name: Conformance tests
         run: swift test --package-path rocketman/swift
+
+  # The Timer tab in a real browser. The engine's unit tests cannot see the
+  # page, and the first bug this tab shipped was pure CSS — `display:flex`
+  # beating the `hidden` attribute, "Round over" over a live game, every unit
+  # test green. This job tests both the module source and the generated page
+  # the iPad app ships, at iPad viewport, including one full played round.
+  mixmatch-browser:
+    name: Mix & Match (browser)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install
+        run: npm ci
+        env:
+          PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Browser tests
+        run: npm run test:mixmatch:e2e
+
+  # The Swift token meter (mixmatch/swift). Runs in the official Swift
+  # container so it needs no Mac: MixMatchKit is deliberately free of UIKit and
+  # SwiftUI, which is what lets the numbers deciding what a customer is charged
+  # be verified on every push rather than only when someone opens Xcode.
+  mixmatch-swift:
+    name: Mix & Match (Swift)
+    runs-on: ubuntu-latest
+    container: swift:6.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Conformance tests
+        run: swift test --package-path mixmatch/swift

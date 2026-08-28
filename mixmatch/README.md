@@ -1,8 +1,11 @@
 # Mix & Match — the token arcade
 
-**Foundation only.** This directory currently contains one config module and its
-tests. No feature here is built. It exists so that when each one *is* built, it
-is a config entry rather than a new pricing scheme.
+**Mostly foundation.** This directory contains the token meter (one config
+module, its tests, and a Swift port held to the same numbers by CI) plus the
+first user-facing piece: the **Timer tab** in `web/`, a practice-round clock
+with a small arcade game on the same clock. Nothing here spends tokens yet —
+the meter exists so that when each feature *is* metered, it is a config entry
+rather than a new pricing scheme.
 
 Staged in `negotiatorcruz` for the same reason `practice-lab/` is: Mix & Match
 belongs to `negotiatorsondemand.com` (the `NOD-ify` repo), which this session
@@ -129,9 +132,12 @@ chargeable on a guessed cost basis.
 meter registry, and the guards. No user-visible change.
 
 **Phase 1 — meter the arcade.** Lowest risk in the whole plan: no new vendor, no
-legal surface, and the game already exists and is tested. Wire Rocketman to
-auth, spend one token per round, prove reserve → play → settle end to end. If
-the loop works for a game it works for everything else.
+legal surface, and the game already exists and is tested. The Timer tab in
+`web/` is now the obvious candidate — it lives inside Mix & Match rather than on
+a separate page, so it already has whatever session the app has. Spend one token
+per round, prove reserve → play → settle end to end. If the loop works for a
+game it works for everything else. (Rocketman remains the other option, but it
+is a standalone static page with no auth at all, so it is strictly more wiring.)
 
 **Phase 2 — self-debrief coaching.** Text only, no audio. The user types or
 pastes what happened; `debrief_analysis` runs one pass. Reuses the coach's
@@ -146,6 +152,225 @@ Confirm the real per-minute rate, flip `costsVerified`, unblock the meter.
 step, and per-jurisdiction handling. A legitimate decision here is *never*.
 
 Phases 1 and 2 need nothing that does not already exist.
+
+---
+
+## The Timer tab — `web/`
+
+The first piece of Mix & Match in this directory that a user can actually see:
+a practice-round clock, with a small arcade game that runs on the same clock.
+
+**Open `web/timer-tab.html` to play it.** On an iPad, Share → Add to Home
+Screen puts it on the home screen as a fullscreen app — no developer account,
+no Xcode, no App Store. For a real signed app, `ios/` wraps the same page in a
+Swift Playgrounds project that builds on the iPad itself; see `ios/README.md`.
+
+### Why the game is *inside* the timer
+
+A timer is the least interesting thing an app can offer, and Mix & Match's
+whole pitch is that practice should not feel like homework. So the arcade is
+not a separate tab competing with the timer; it is what the timer looks like
+when you want something to do while it runs. One `session` object, one clock,
+a `mode` flag.
+
+`rocketman/` is the other game in this repository and is unrelated — a full
+real-time strategy game with its own engine and 400 tests. This is a few
+hundred lines that fits in a tab.
+
+### Three modes, one card
+
+**Timer** is a plain round clock. **Arcade** runs the game on that same clock.
+**Pomodoro** is a separate machine with its own rules, described below.
+
+### The Pomodoro, done properly
+
+Not a 25-minute countdown with a tomato on it — the actual technique:
+
+- 25 minutes of focus, then 5 off. Every **fourth** completed focus earns 15.
+- **Breaks start themselves; the next focus never does.** Rest is not something
+  to forget to take, and sitting down to work again is a decision.
+- **A pomodoro is indivisible.** Reset during a focus *voids* it — the count
+  does not move and you do that one again. The Reset button even relabels
+  itself to **Void** while a focus is running, so nobody presses it by
+  accident. Twenty-four minutes of focus is worth nothing, and the count
+  staying honest is the only thing that makes the count worth having.
+- **A break may be skipped, a focus may not.** Getting back to work early is
+  allowed; claiming a pomodoro that never happened is not. Calling the skip
+  during a focus throws rather than quietly doing nothing.
+- **Leaving the tab does not pause it**, deliberately unlike the round timer. A
+  kitchen timer does not stop because you turned around. Come back after 40
+  minutes and the focus completed, its break ran, and the machine is waiting
+  for you to start the next one — with a full 25 on the clock, because the
+  next focus must not consume time nobody chose to give it.
+- The round-length presets are **hidden** in this mode. 25/5/15 is the
+  technique, not a preference, and four buttons that silently do nothing are
+  worse than none.
+
+Four pips show the current set. `pomodoro-engine.js` is pure in the same way
+`timer-engine.js` is, and its 29 tests assert the *technique* — the fourth
+break is long, an interrupted pomodoro does not count, a full set is exactly
+130 minutes of running clock — because those are the rules a plausible-looking
+refactor quietly breaks.
+
+### The arcade, in one paragraph
+
+Pressure tactics fall — Lowball, Nibble, Deadline, Exploding. Shoot them.
+Genuine offers also fall — Fair Offer, Good Faith, Real Ask. Let those land.
+Your finger both steers and fires, so *holding fire* is a move you have to
+choose to play. That is the entire mechanic, and it is a fair caricature of
+the actual skill: the hard part of a negotiation is rarely having a rebuttal
+ready, it is noticing that the thing in front of you does not need one.
+
+### Three decisions worth knowing about
+
+**The clock is the only thing that can end a round.** The first version had
+three lives, and the first time it was played they ran out at 0:47 of a
+1:00 round. A facilitator running a twelve-minute drill cannot have the arcade
+decide the drill is over. A tactic getting through now costs points and
+nothing else.
+
+**Shooting an offer and missing a tactic cost exactly the same.** Charging
+them differently would say one of those is the lesser error. It also has to be
+steep: offers are a quarter of what spawns, so at a small penalty *doing
+nothing* comes out positive and the game is a screensaver. A test pins the
+ordering — choosing beats spraying beats ignoring it.
+
+**The clock is wall-clock accurate; the game is not.** Background the tab and
+the timer keeps its real time, because a practice timer that loses a minute is
+broken. The simulation deliberately does *not* catch up, because coming back to
+thirty seconds of blocks that fell while you were in another app is also
+broken. The two rules disagree only in the case where nobody was watching.
+
+### Files, and which one you paste
+
+| | |
+|---|---|
+| `web/timer-engine.js` | the clock and the game. Pure: no DOM, no canvas, no `Date.now()`, seeded RNG, fixed step |
+| `web/timer-tab.html` | the drawing, the input, and a standalone page you can just open |
+| `web/timer-tab.inline.html` | **generated.** The same block with the engine inlined — this is what goes into `MixMatch.html` |
+| `test/timer-engine.test.js` | 48 tests, including a heuristic player that proves the balance holds |
+| `e2e/timer.spec.js` | the browser suite: real clicks and real pixels, at iPad viewport, against both the source page and the generated iPad page. Run with `npm run test:mixmatch:e2e` |
+
+`MixMatch.html` is a single file and cannot `import` anything, but developing
+against a hand-inlined copy would mean editing the game in two places forever.
+So the module is the source and the paste-ready file is built from it:
+
+```sh
+npm run mixmatch:timer   # regenerate web/timer-tab.inline.html
+```
+
+CI regenerates it and fails on a diff, the same discipline the token fixtures
+use. Do not hand-edit the generated file.
+
+To install: paste everything in `timer-tab.inline.html` into `MixMatch.html`
+where the tab body goes. It is scoped (`mmt-` classes), self-contained, and
+pulls nothing from the network. If the tab switcher can call
+`window.MMTimerTab.onShow()` / `.onHide()`, wire those up and a running round
+pauses when you leave the tab; skip them and everything still works.
+
+### It costs nothing, on purpose
+
+Nothing in the Timer tab spends tokens. `arcade_play` is still `planned` in
+`config/tokens.js`, and `meterCostMicros()` throws for a meter that is not
+live, so this cannot quietly start charging. Metering it is a later, separate
+decision — see Phase 1 below, and the open question at the end of this file
+about whether an arcade round should cost a token at all.
+
+### No assets, ever
+
+Every mark on screen is a rectangle or a text label, and the end-of-round chime
+is a two-note oscillator burst rather than an audio file. Nothing to upload,
+nothing to cache-bust, nothing to 404 — which is what lets the whole feature
+live on a static host and inside a single-file app at the same time.
+
+---
+
+## The iPad app — `ios/`
+
+`ios/MixMatch.swiftpm` is an App Playground: Swift Playgrounds on iPadOS
+builds, signs and runs it **on the iPad itself**, with no Mac in the loop. One
+screen, the Timer tab, in a `WKWebView` served from a custom URL scheme so the
+page gets a real origin and its `localStorage` survives a relaunch — the same
+problem `GameAssetServer.java` solves on Fire OS, with WebKit's own answer
+instead of a loopback socket.
+
+The bundled `Resources/index.html` is generated by `npm run mixmatch:timer`
+from the same block that gets pasted into `MixMatch.html`, and CI fails on a
+stale copy. The app cannot drift from the web app.
+
+`ios/README.md` covers getting it onto the device, and what App Review will
+want before it can be a real listing — including which purchases Apple requires
+to go through StoreKit and which ones (a $350 Practice Lab seat is a real-world
+service) can stay on Stripe.
+
+### What a sale nets, per rail
+
+Once an iPad build exists, the same SKU sells two ways for the same price and
+nets different amounts. `config/tokens.js` carries both rails and the
+arithmetic, and the Swift port asserts it to the cent:
+
+| | Stripe | Apple (15%) | given up |
+|---|---|---|---|
+| $15 pack | $14.26 | $12.75 | **$1.51** |
+| $5/mo | $4.55 | $4.25 | **$0.30** |
+
+Stripe's 30c flat fee is most of the fee on a $5 charge, so at subscription
+size the rails are within pennies and on the pack they are not — which is worth
+knowing before deciding which one to nudge people toward.
+
+15% is the **Small Business Program** rate, under $1M of proceeds a year.
+Enrollment is annual and can lapse. If it does, `RAILS.apple_iap.feeBps`
+becomes 3000 and every figure above moves; both test suites assert the current
+value so that change cannot pass unnoticed.
+
+---
+
+## The shared logic — `swift/`
+
+`swift/` is a Swift package, `MixMatchKit`, holding the same token meter in
+Swift. It exists because the iPad app has to price a feature *before* spending,
+and a Swift package cannot import an ESM module — so the numbers exist twice.
+
+**A second copy of a price is exactly what produced the $3/$5/$10/$15 chat-token
+drift.** So the copy is not trusted. `mixmatch/tools/export-token-fixtures.mjs`
+dumps `config/tokens.js` to
+`swift/Tests/MixMatchKitTests/Fixtures/tokens.json`, and the XCTest suite
+asserts every Swift constant against it — the unit, both grants, all four
+meters, the flooring behaviour, and the guards (nothing priced below cost,
+nothing live on an unverified cost basis, nothing chargeable unless live).
+
+When you change a price:
+
+```sh
+# edit mixmatch/config/tokens.js, then
+npm test                    # the JavaScript guards
+npm run mixmatch:fixtures   # regenerate the fixture
+git add mixmatch/swift/Tests/MixMatchKitTests/Fixtures
+```
+
+CI regenerates the fixture and fails on a diff, so a price edited in JavaScript
+without a matching Swift change shows up as a red build rather than as an iPad
+charging a number the web app no longer honours. **Never regenerate a fixture to
+make a red test green** — red there means the two rails disagree about money.
+
+Two CI jobs cover this: the `unit` job checks the fixture is current, and
+`Mix & Match (Swift)` runs `swift test` in the official `swift:6.0` container.
+`MixMatchKit` is deliberately free of UIKit and SwiftUI so that second job needs
+no Mac — the numbers deciding what a customer is charged are verified on every
+push rather than only when someone opens Xcode.
+
+**What it does not do:** hold or spend a balance. Balances live in
+`ai_credit_accounts` and only ever move through `reserve_ai_credit` /
+`refund_ai_credit` / `grant_ai_credit` on the server. A client-side balance that
+can diverge from the ledger is a money bug waiting to happen; `MixMatchKit` does
+arithmetic and nothing else.
+
+`GrantRail` carries an `apple_iap` case with no grant using it yet. Apple's
+commission is materially larger than Stripe's fee, so a pack bought on iPad is
+worth less to the business than the same pack bought on the web even though the
+buyer pays the same and gets the same tokens — the rail has to be recorded at
+grant time for that to ever be visible. See `05 iOS Port` in the handover docs
+for the App Store rules that decide which purchases *must* go through IAP.
 
 ---
 

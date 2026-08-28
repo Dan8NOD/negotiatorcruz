@@ -90,6 +90,53 @@ export function grantTokens(grantId) {
   return microsToTokens(grant.micros);
 }
 
+// ── what each rail actually nets ────────────────────────────────────────────
+
+/**
+ * The buyer pays the same and gets the same tokens on every rail. The business
+ * does not receive the same amount, and once an iPad build exists the same SKU
+ * is sold two ways — so the difference has to be a number somewhere rather than
+ * a thing everyone assumes they remember.
+ *
+ * Apple's cut is 15%, not 30%: the Small Business Program applies under $1M of
+ * proceeds a year. That enrollment is a yearly thing that can lapse, and it is
+ * not automatic — if it ever does lapse, `apple_iap.feeBps` becomes 3000 and
+ * every number below moves. This is the only place to change it.
+ *
+ * Stripe is 2.9% + 30c on US cards.
+ */
+export const RAILS = {
+  stripe: { id: 'stripe', feeBps: 290, fixedCents: 30, label: 'Card (Stripe)' },
+  apple_iap: { id: 'apple_iap', feeBps: 1500, fixedCents: 0, label: 'In-app purchase (Apple)' },
+};
+
+/**
+ * What lands in the bank from one sale of `grantId` on `rail`, in cents,
+ * rounded DOWN — an optimistic rounding on a fee estimate is how a margin
+ * quietly goes negative.
+ */
+export function netCents(grantId, railId) {
+  const grant = GRANTS[grantId];
+  if (!grant) throw new TypeError(`Unknown grant: ${grantId}`);
+  const rail = RAILS[railId];
+  if (!rail) throw new TypeError(`Unknown rail: ${railId}`);
+  const fee = (grant.priceCents * rail.feeBps) / 10_000 + rail.fixedCents;
+  return Math.floor(grant.priceCents - fee);
+}
+
+/**
+ * What one token of `grantId` nets on `railId`, in micros of real money.
+ *
+ * Worth comparing against a meter's `worstCaseCostMicros`: if a token nets less
+ * than the cheapest thing it can buy costs to serve, the pack loses money on
+ * that rail no matter how many people buy it. A test checks exactly that.
+ */
+export function netMicrosPerToken(grantId, railId) {
+  const tokens = grantTokens(grantId);
+  if (tokens === 0) return 0;
+  return Math.floor((netCents(grantId, railId) * 10_000) / tokens);
+}
+
 // ── what tokens are spent on ────────────────────────────────────────────────
 
 /**

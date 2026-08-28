@@ -2,7 +2,7 @@
   "name": "negotiatorcruz",
   "version": "1.0.0",
   "private": true,
-  "description": "negotiatorcruz.com — static site plus the /api/lead serverless function. No runtime dependencies by design; everything here is dev-only tooling. `rocketman/` is a separate side project staged here; see rocketman/README.md.",
+  "description": "negotiatorcruz.com \u2014 static site plus the /api/lead serverless function. No runtime dependencies by design; everything here is dev-only tooling. `rocketman/` is a separate side project staged here; see rocketman/README.md.",
   "scripts": {
     "test": "node --test \"test/**/*.test.js\" \"practice-lab/test/**/*.test.js\" \"mixmatch/test/**/*.test.js\"",
     "test:watch": "node --test --watch \"test/**/*.test.js\" \"practice-lab/test/**/*.test.js\" \"mixmatch/test/**/*.test.js\"",
@@ -17,7 +17,10 @@
     "rocketman:build": "node rocketman/tools/build-single-file.mjs",
     "rocketman:android": "cd rocketman/android && ./gradlew assembleDebug",
     "rocketman:android:release": "cd rocketman/android && ./gradlew assembleRelease",
-    "rocketman:store-assets": "node rocketman/android/tools/store-assets.mjs"
+    "rocketman:store-assets": "node rocketman/android/tools/store-assets.mjs",
+    "mixmatch:fixtures": "node mixmatch/tools/export-token-fixtures.mjs",
+    "mixmatch:timer": "node mixmatch/tools/build-timer-tab.mjs",
+    "test:mixmatch:e2e": "playwright test -c mixmatch/playwright.config.cjs"
   },
   "devDependencies": {
     "@playwright/test": "^1.56.0"
