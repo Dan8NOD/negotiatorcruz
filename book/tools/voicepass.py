@@ -126,7 +126,10 @@ def tidy(t):
                lambda m: m.group(1) + re.sub(r" {2,}", " ", m.group(2)), t)
     t = re.sub(r"\s+([,.;:!?])", r"\1", t)
     t = re.sub(r",\s*,", ",", t)
-    t = re.sub(r"\.\s*\.(?!\.)", ".", t)
+    # Collapse a doubled period, but never a chunk of an ellipsis. The
+    # lookahead alone only guards the first pair, so "..." lost a dot on
+    # the second pass. The lookbehind guards the rest.
+    t = re.sub(r"(?<!\.)\.\s*\.(?!\.)", ".", t)
     t = re.sub(r"(?m)[ \t]+$", "", t)
     return t
 

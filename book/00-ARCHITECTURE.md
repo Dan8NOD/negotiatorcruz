@@ -244,7 +244,7 @@ Chapter by chapter. For each one:
 4. Write the Field Card.
 5. Flag anything that needs Dan's real field material, actual client
    situations, actual numbers, actual objections. Those get marked
-   `[NEEDS:..]` rather than invented.
+   `[NEEDS: what is missing]` rather than invented.
 
 Nothing in this book gets fabricated. Where the manual needs a real case, a
 real metric, or a real client outcome, it gets flagged for Dan to fill.

@@ -139,7 +139,7 @@ them. **Both drafted.**
 - Anything where the existing book makes a claim we'd contradict.
 
 **Blocked on Dan, not on any document:**
-- Every `[NEEDS:..]` marker. Real client situations, real numbers, real
+- Every `[NEEDS: what is missing]` marker. Real client situations, real numbers, real
   objections, real outcomes. Per the architecture doc these get flagged, never
   invented. That rule holds without exception.
 - Part V (Ch 26-30), especially the failure chapter. "When the Protocol fails"

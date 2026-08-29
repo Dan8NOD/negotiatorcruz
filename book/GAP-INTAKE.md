@@ -118,15 +118,15 @@ failures.
 
 ---
 
-## Not yet gaps, but the biggest ones coming
+## Part V, the five that carry the most weight
 
-**Ch 26-30, Part V.** Not in `GAP-INDEX.md` because they aren't drafted. Once
-they are, they'll dominate it, five chapters at weight 4, every one needing
-real client material.
+**Ch 26-30 are drafted now.** They are in `GAP-INDEX.md` and they dominate the
+top of it, five chapters at weight 4, every one waiting on real client
+material. An earlier version of this page said they were not written yet.
+That stopped being true when the manual was finished.
 
-This is the argument for **collecting before drafting.** If I write Part V now
-it's five chapters of empty flags, and Part V is exactly where a corporate
-reader can tell invented material from real. What's needed:
+Part V is where a corporate reader can tell invented material from real, so
+these five are the ones to answer first among the manual's cases:
 
 - **Ch 26. The Renewal and the Price Increase.** A renewal where you raised
   price and kept the account. What did you say first?
@@ -207,6 +207,83 @@ The ask is a read, not a writing job: skim the forty, mark each one
 claims chapters are where your own language will beat the draft by the
 widest margin, and anything you reword is a candidate for the app's
 catalog as well as the book.
+---
+
+## Six Before Yes, the guide
+
+This book had no section on this page until now, which meant its
+twenty-eight open slots were invisible unless you went looking in the
+files. It is also the book with the longest lead time in the project,
+because seven of its asks are other people.
+
+### The seven practitioner voices, start these today
+
+Each chapter carries one outside voice, 150 to 250 words, named, with
+title and organization as they want it printed. They gate the
+acknowledgements page and therefore the print date. Nothing else in the
+project depends on somebody else's calendar, so these are the only asks
+where starting late cannot be recovered by working harder later.
+
+Seven profiles, one per chapter:
+
+| Ch | Who to ask | What to ask them about |
+|---|---|---|
+| 1 | Any practitioner with a name worth printing | Where negotiations are actually won |
+| 2 | An agent, broker, or counsel who negotiates for clients | The negotiation before the negotiation |
+| 3 | A mediator | Reading what is actually at stake. Mediators do this step for a living |
+| 4 | Someone who sells or negotiates daily | Misreading a state and what it cost. An admitted misread lands harder here than mastery |
+| 5 | Procurement or deal desk | Choosing strategy against your own temperament. The buyer's-side voice is what differentiates the chapter |
+| 6 | Crisis, law enforcement, or hostage-adjacent | Running a sequence under real pressure |
+| 7 | Aviation, medicine, military, or elite sport | Debrief culture. The outside-the-profession voice lands hardest here |
+
+The ask is small and that is the point. One paragraph, their name on it,
+in a book that is not selling anything of theirs. Most people say yes to
+that and the ones who say no say it quickly.
+
+### Fourteen cases, and three of them you are already telling
+
+The guide's cases are shorter than the manual's, 120 to 130 words, because
+the guide is a 60-page book. Three of them are the same deal a manual
+chapter already asks for, told shorter. Answer the manual's version and
+the guide's is a trim, not a second interview:
+
+- **Ch 5, a deal stuck on price unstuck by a non-cash trade.** Same ask as
+  manual Ch 18. Name the currency.
+- **Ch 4, a deal killed or nearly killed by someone who never came to a
+  meeting.** Same ask as manual Ch 27.
+- **Ch 1, someone who ran the conversation well and lost outside it.**
+  Close to manual Ch 1, where the position was set internally before first
+  contact. It may be one story or two. Your call.
+
+That leaves eleven genuinely new ones, all short:
+
+| Ch | The case | Words |
+|---|---|---|
+| 1 | The inverse. A weaker conversationalist who had done the outside work and won on it | 120 |
+| 2 | A vague mandate that produced a technically successful, actually resented outcome | 120 |
+| 2 | A walkaway that was nothing special but existed, and changed the outcome by existing | 120 |
+| 3 | A stated demand that turned out to be a proxy, and what it was protecting | 130 |
+| 3 | A shared objective named out loud that reframed a stuck negotiation | 120 |
+| 5 | A negotiation won from the weak side of the table on preparation density | 130 |
+| 6 | One observation named out loud that changed a conversation's temperature | 120 |
+| 7 | A closed deal that came apart in implementation, and the clause or conversation that would have held it | 120 |
+| 4 | A state called correctly before a meeting started, and what was run differently because of it | 120 |
+| 6 | A conversation that turned sharp, and what running the stages in order recovered that a better line would not have | 120 |
+| 7 | A habit the log caught across several negotiations that none of them revealed on its own | 120 |
+
+Ch 2 and Ch 3 want two apiece. Ch 1 and Ch 5 each have one more here on
+top of the shared story above. The last three were added when an audit
+found Ch 4, 6 and 7 carrying one example where the blueprint's kit calls
+for two. Saturday-session material works for all of them.
+
+### One review, not a story
+
+**The parallel grid, `guide/02-parallel-grid.md`.** Two rows, self-image
+and how others read them, were drafted from what the shipped lines imply
+rather than from shipped copy. They are the two rows most worth
+sharpening from a thousand sessions of watching people. This is a read
+and correct, not a write.
+
 
 ### Decisions, not stories
 
