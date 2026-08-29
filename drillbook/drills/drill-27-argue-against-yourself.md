@@ -69,7 +69,7 @@ point being scored against them.
 Swap papers. Another rep, playing the committee, reads only your
 documents and decides, out loud, with no rebuttal permitted. Watching
 a colleague lose your deal with your own paperwork is the most
-persuasive twenty minutes in Part V.
+persuasive twenty minutes in this book.
 
 ## Debrief
 

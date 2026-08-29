@@ -4,7 +4,7 @@
 in front of an audience.*
 
 ```
-TIME    20 min          PEOPLE    4 to 8, one lead counterpart plus audience
+TIME    20 min          PEOPLE    5 to 8, one lead plus a watching team
 NEEDS   a conference table, or chairs arranged like one
 STAGE   Steer           PART      The room
 SOURCE  Six Before Yes, Step 5

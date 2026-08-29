@@ -142,7 +142,7 @@ That index maps symptoms to drills:
 |---|---|---|
 | **How to run a drill** | The facilitator method. Six pages, and the most reused part of the book. | none |
 | **Part I: Solo** | Drills that need one person and their own recordings. | ~6 |
-| **Part II: Pairs** | Two people, fifteen minutes, no observer. | ~12 |
+| **Part II: Pairs** | Two people negotiating, sometimes a third holding a stopwatch or a tally. | ~12 |
 | **Part III: The room** | Three or more, with an observer scoring. | ~16 |
 | **Part IV: Live fire** | Run against real calls and real pipeline. | ~6 |
 | **Part V: The programs** | The four-week rollout, the Saturday session format, and a twelve-week curriculum that sequences all forty. | none |

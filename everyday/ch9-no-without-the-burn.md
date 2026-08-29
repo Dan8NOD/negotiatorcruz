@@ -144,10 +144,9 @@ The account lead who survives says the same shape you said at
 dinner: the true warmth first, the plain no landed on the request,
 one real reason, the currency they can give, "Is there a non-cash
 way to make this work for both of us?", and the label when the
-pressure comes. The manual gives the receiving side a whole
-chapter because buyers who feel free to say no say realer yeses.
-Sellers who can say no cleanly get the same upgrade. Both halves
-are this dinner table with a logo on it.
+pressure comes. Buyers who feel free to say no say realer yeses,
+and sellers who can say no cleanly get the same upgrade. Both
+halves are this dinner table with a logo on it.
 
 ## Try it this week
 

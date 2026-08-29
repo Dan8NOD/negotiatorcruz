@@ -6,7 +6,7 @@ anything and without "but."*
 ```
 TIME    20 min          PEOPLE    3 per group (operator, counterpart, listener)
 NEEDS   real objections from live pipeline
-STAGE   Disarm          PART     Pairs, with a listener
+STAGE   Disarm          PART      Pairs, with a listener
 SOURCE  The Cruz Protocol, Ch 13
 ```
 

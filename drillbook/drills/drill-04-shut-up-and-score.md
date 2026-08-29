@@ -3,7 +3,7 @@
 *Trains: listening without assembling a response, under a stopwatch.*
 
 ```
-TIME    20 min          PEOPLE    3 per group (operator, counterpart, timer)
+TIME    25 min          PEOPLE    3 per group (operator, counterpart, timer)
 NEEDS   a stopwatch per group, one real situation per counterpart
 STAGE   Read            PART      Pairs, with a timer
 SOURCE  The Cruz Protocol, Ch 4
@@ -11,7 +11,7 @@ SOURCE  The Cruz Protocol, Ch 4
 
 ## Open it
 
-> "Twenty minutes, groups of three. This trains the least popular skill in
+> "Twenty-five minutes, groups of three. This trains the least popular skill in
 > the building: listening without fixing. Operators, for six minutes you
 > may encourage, ask, and repeat. You may not solve. We're counting your
 > talk time. Counterparts, bring something real. Go."

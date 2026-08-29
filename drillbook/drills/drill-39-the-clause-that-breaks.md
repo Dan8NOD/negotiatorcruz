@@ -5,8 +5,8 @@ last negotiation before signature.*
 
 ```
 TIME    20 min          PEOPLE    2 to 8
-NEEDS   one real agreement, signed or nearly signed, per pair
-NEEDS   the actual wording, not a memory of it
+NEEDS   one real agreement per pair, signed or nearly, in its actual
+        wording rather than from memory
 STAGE   Close           PART      The room
 SOURCE  Six Before Yes, Step 6
 ```

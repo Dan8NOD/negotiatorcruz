@@ -4,7 +4,7 @@
 path not taken.*
 
 ```
-TIME    20 min          PEOPLE    2 to 8
+TIME    20 min          PEOPLE    4 to 8
 NEEDS   one real renewal or deal per pair, paper
 STAGE   Before contact  PART      The room
 SOURCE  Six Before Yes, Step 4

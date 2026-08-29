@@ -93,7 +93,8 @@ EVERY ATTACK IS ONE OF THREE.  Decode before you respond. Never defend first.
 DECODE (then stop talking, 3 seconds minimum)
   no read     "Seems like something's going on here."
   defensive?  "It probably seems like we're being selfish."
-  unheard?    "It seems like there's something else here I'm not addressing."
+  unheard?    "It seems like there's something else here that I'm
+              not addressing."
 
 RESPOND
   DEFENSIVE   "That reaction makes complete sense given what's on the line."

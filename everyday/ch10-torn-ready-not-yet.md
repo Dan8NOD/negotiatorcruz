@@ -144,11 +144,10 @@ A sales manager reads a forecast: eleven deals, eleven names,
 and underneath them, four torn buyers being pressured, five
 not-yets being chased with discounts they have no problem to
 spend on, and two ready buyers being actively talked back out of
-their decision with continued selling. The manual's emotion
-chapter carries these same three boxes, word for word, and its
-triage table is the single page sales floors photocopy most. The
-states are not a home technique scaled up or a work technique
-scaled down. They are how people decide, at every table, at
+their decision with continued selling. The same three boxes, word for
+word, sit in the professional version, on the page a manager pins
+up. The states are not a home technique scaled up or a work
+technique scaled down. They are how people decide, at every table, at
 every size.
 
 ## Try it this week

@@ -5,7 +5,7 @@ standing in for.*
 
 ```
 TIME    15 min          PEOPLE    2 per pair
-NEEDS   one real opening demand per counterpart
+NEEDS   one real opening demand per counterpart, a timer
 STAGE   Read            PART      Pairs
 SOURCE  Six Before Yes, Step 2
 ```

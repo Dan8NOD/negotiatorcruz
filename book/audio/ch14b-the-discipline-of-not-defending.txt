@@ -82,7 +82,7 @@ Quote. DECODE (then stop talking, 3 seconds minimum) no read "Seems like somethi
 
 Quote. defensive? "It probably seems like we're being selfish. End quote.
 
-Quote. unheard? "It seems like there's something else here I'm not addressing. End quote.
+Quote. unheard? "It seems like there's something else here that I'm not addressing. End quote.
 
 Respond.
 

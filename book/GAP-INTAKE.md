@@ -195,6 +195,19 @@ already tell out loud.
   Saturday-session drills the books never captured would take the
   count from 38 to 40.
 
+### The Part V script boxes, added Fri Aug 28
+
+Separate from the stories, and quicker. Chapters 26 to 29 carry **40
+counterpart-facing lines that were written rather than assembled**,
+because the catalog has no renewal, procurement, claims or internal
+family. Full accounting and three options in `book/AUTHORED-LINES.md`.
+
+The ask is a read, not a writing job: skim the forty, mark each one
+*keep*, *reword*, or *here is what I actually say*. The renewal and
+claims chapters are where your own language will beat the draft by the
+widest margin, and anything you reword is a candidate for the app's
+catalog as well as the book.
+
 ### Decisions, not stories
 
 - The belief family's home (proposed: everyday Ch 12, behind its flag).

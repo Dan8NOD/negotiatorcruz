@@ -35,10 +35,6 @@ ALLOW = {
     "later later meaning when specifically",
     "maybe what would move that to a yes",
     "stuck what kind of stuck is that",
-    # ch4/ch8: composite chapter's armed-messenger question, authored and
-    # presented in prose, not in a box, listed defensively
-    "what would your manager need to see to say yes to my number",
-    "what would comp need to see to get to the top of that range",
 }
 
 
@@ -133,9 +129,75 @@ def main(paths):
     return 1 if bad else 0
 
 
+def drift(paths, lo=0.82, hi=0.999):
+    """Near-miss mode, for books whose boxes carry more than scripts.
+
+    The manual and the drill book legitimately mix annotations, lowercase
+    sub-headers, worked dialogue (a mirror echoes invented counterpart
+    speech, so it can never match a fixed catalog), and composite recovery
+    lines that wrap a shipped line in authored framing. Strict mode is
+    therefore the wrong instrument for them.
+
+    What is still worth catching there is a line that is plainly trying to
+    be a catalog line and gets the wording slightly wrong. So: report only
+    candidates whose closest catalog match scores between lo and hi. Below
+    lo the line is not attempting to be a shipped line. At hi it is one.
+    A composite that fully contains a shipped line is correct by design and
+    is skipped.
+    """
+    from difflib import SequenceMatcher
+    data = json.load(open(CATALOG, encoding="utf-8"))
+    cat = []
+    for row in data["lines"]:
+        t = row["template"]
+        if "{em}" in t.lower():
+            continue  # slot lines are handled by strict mode
+        cat.append((norm(t), t))
+
+    def close(n):
+        best, bt = 0.0, ""
+        for cn, ct in cat:
+            r = SequenceMatcher(None, n, cn).ratio()
+            if r > best:
+                best, bt = r, ct
+        return best, bt
+
+    hits = 0
+    for path in paths:
+        for line in box_lines(path):
+            if is_header(line):
+                continue
+            # A line whose whole text matches a shipped line is correct even
+            # when it carries a leading quote and a trailing instruction, as
+            # the encourager and clean-language boxes do. Check it intact
+            # before splitting, or the split halves report as drift.
+            if close(norm(line))[0] >= hi:
+                continue
+            for q in parts(line):
+                n = norm(q)
+                if len(n) < 18:
+                    continue
+                best, bt = close(n)
+                if best >= hi:
+                    continue
+                # composite: authored framing that carries a shipped line whole
+                if any(cn in n for cn, _ in cat):
+                    continue
+                if lo <= best < hi:
+                    print(f"DRIFT? {os.path.relpath(path, ROOT)}")
+                    print(f"   book: {q}")
+                    print(f"   ship: {bt}   ({best:.2f})")
+                    hits += 1
+    print(f"{hits} near-miss line(s) to eyeball" if hits
+          else "OK: no near-misses, every close line matches exactly")
+    return 0
+
+
 if __name__ == "__main__":
     args = sys.argv[1:]
+    mode = drift if "--drift" in args else main
+    args = [a for a in args if a != "--drift"]
     if not args:
         import glob
         args = sorted(glob.glob(os.path.join(ROOT, "everyday", "ch*.md")))
-    sys.exit(main(args))
+    sys.exit(mode(args))

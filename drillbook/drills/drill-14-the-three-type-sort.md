@@ -6,7 +6,7 @@ defending on reflex.*
 ```
 TIME    15 min          PEOPLE    3 (attacker, negotiator, observer)
 NEEDS   three cards marked DEFENSIVE, UNHEARD, TACTICAL
-STAGE   Disarm          PART      The room
+STAGE   Disarm          PART      Pairs, with an observer
 SOURCE  The Cruz Protocol, Ch 14
 ```
 

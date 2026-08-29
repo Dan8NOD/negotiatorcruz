@@ -51,8 +51,10 @@ a defense. Chapter 1, and underneath every chapter after it.
 **Leverage, three kinds.** *Positive*, you have something they want.
 *Negative*, you can cost them something they fear losing, usually the
 strongest and best left unsaid. *Normative*, their own stated
-standards held against an inconsistency in their position. Chapters 5
-and 7.
+standards held against an inconsistency in their position. Chapter 7.
+Note what the pledge does to the second one at a kitchen table: a cost
+the other person works out for themselves is a fact, and the same cost
+spelled out by you is a threat.
 
 **Mirror.** Their last few words, repeated with your tone going up,
 followed by nothing. Decompresses whatever was packed inside the
@@ -69,7 +71,9 @@ or a question. Whoever speaks next usually gives up ground. Chapters
 
 **State.** Torn, Ready, or Not Yet. What someone is right now rather
 than who they are permanently. States change inside a single meeting,
-and producing that change is the job. Chapter 10.
+and producing that change is the job. Chapter 10, which is also where
+this book draws the line between producing a change and manufacturing
+one.
 
 **Sweep.** The pre-signature question that invites the ask they were
 holding. *"What's the thing you almost brought up but didn't?"*

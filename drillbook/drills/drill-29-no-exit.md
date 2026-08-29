@@ -68,8 +68,8 @@ reversal round usually recalibrates this on its own.
 The counterpart holds a genuine grievance about a previous
 interaction, stated at the start. Negotiating the current ask
 across an unrepaired past, without escalating, is the version
-managers face weekly, and it chains this drill to The Repair's
-toolkit.
+managers face weekly, and it chains this drill to the trust-repair
+questions in Drill 13.
 
 ## Debrief
 

@@ -4,7 +4,7 @@
 against polite evasion.*
 
 ```
-TIME    15 min          PEOPLE    2 per pair, plus index cards
+TIME    15 min          PEOPLE    2 per pair
 NEEDS   index cards with hidden objections, a recorder
 STAGE   Disarm          PART      Pairs
 SOURCE  The Cruz Protocol, Ch 11

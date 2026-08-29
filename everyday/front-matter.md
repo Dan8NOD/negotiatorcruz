@@ -71,7 +71,8 @@
 > the professional tools for it, word for word, from the same
 > catalog our commercial clients drill. Every chapter ends in the
 > bigger room, the same tool with more zeros attached, so you can
-> watch the claim in this book's title earn itself twelve times.
+> watch the claim in this book's title earn itself, chapter after
+> chapter, until the last one turns it inward.
 >
 > Two promises about what this book will not do. It will not teach
 > you to handle people. Every tool in here works in the open, says

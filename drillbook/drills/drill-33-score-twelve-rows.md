@@ -4,7 +4,7 @@
 no half points.*
 
 ```
-TIME    15 min          PEOPLE    3 to 8, Fridays
+TIME    15 min one call, 25 for two    PEOPLE    3 to 8, Fridays
 NEEDS   two recorded calls, the Appendix B scorecard, copies for all
 STAGE   All four        PART      The room
 SOURCE  The Cruz Protocol, Ch 33
@@ -34,8 +34,9 @@ SOURCE  The Cruz Protocol, Ch 33
    replay, not thirty seconds of debate. The tape settles it or
    the row scores zero.
 4. In week one, the first call scored belongs to the manager or a
-   volunteer. Never open this drill on the weakest rep's tape. You
-   will not get another volunteer for a month.
+   volunteer. Never open this drill on the weakest rep's tape. The
+   room decides in week one whether being scored is safe, and it
+   decides once.
 5. Score the second call faster. The speed is part of the training.
    A manager who needs an hour per call will audit four calls a
    quarter and coach from vibes the rest of the time.

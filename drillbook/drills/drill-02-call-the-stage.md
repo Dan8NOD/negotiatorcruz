@@ -5,7 +5,7 @@ intended.*
 
 ```
 TIME    20 min          PEOPLE    3 to 8
-NEEDS   a laptop, one ordinary recorded call from your own pipeline
+NEEDS   a laptop, five minutes from an ordinary recorded call
 STAGE   All four        PART      The room
 SOURCE  The Cruz Protocol, Ch 2
 ```
@@ -19,8 +19,9 @@ SOURCE  The Cruz Protocol, Ch 2
 
 ## Run it
 
-1. Play a recorded call from your own pipeline. Not a demo, not a best-of.
-   An ordinary Tuesday call. The ordinariness is the point.
+1. Play **five minutes** of a recorded call from your own pipeline. Not
+   a demo, not a best-of. An ordinary Tuesday call, and five minutes of
+   it is plenty. The ordinariness is the point.
 2. Pause every **thirty seconds.** Everyone writes the stage the rep is
    **actually in**: Read, Disarm, Steer, or Close. Not the stage the rep
    intended. Writing, not calling out, so nobody anchors the room.

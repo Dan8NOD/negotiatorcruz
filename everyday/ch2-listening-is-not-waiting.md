@@ -101,7 +101,7 @@ that…" That sentence is the tool working. Do not reward yourself by
 jumping in. Another encourager, and let the layer finish.
 
 **The pause, then more.** People test silence before they trust it. If
-you hold four seconds and they start again, they have decided to tell
+you hold five seconds and they start again, they have decided to tell
 you the real version. This is the single most reliable sign you are
 doing it right.
 
@@ -110,9 +110,9 @@ the way questions never do, because nobody feels interrogated by their
 own words coming back.
 
 **"You're not saying much."** Said warmly, this is a compliment. Said
-suspiciously, you have overrun the mirror ceiling from Chapter 1's
-cousin rule: two or three mirrors in a conversation is natural, six is
-a technique, and they noticed. Back off to plain listening.
+suspiciously, you have overrun the ceiling. Two mirrors in a
+conversation is natural, four is a technique, and they noticed. Back
+off to plain listening.
 
 ## When not to do this
 
@@ -143,7 +143,8 @@ That rep is running your Sunday phone call. Same three tools, same
 order, same discipline, with a committee across the table and six
 figures on it. The corporate manual in this series spends three full
 chapters on what you just read, and its scoring rule is one you can
-steal at home tonight: talk less than half the time, and count.
+steal at home tonight: stay under forty percent of the talking,
+and count it rather than feel it.
 
 ## Try it this week
 

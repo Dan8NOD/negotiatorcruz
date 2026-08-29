@@ -64,10 +64,10 @@ Vague words, pinned:
 ```
 PIN THE VAGUE WORDS
 
-  "Complicated" , complicated how?
-  "Later" , later meaning when, specifically?
-  "Maybe" , what would move that to a yes?
-  "Stuck" , what kind of stuck is that?
+  "Complicated." Complicated how?
+  "Later." Later meaning when, specifically?
+  "Maybe." What would move that to a yes?
+  "Stuck." What kind of stuck is that?
   And when it's unfair, what happens next?
 ```
 
@@ -130,8 +130,8 @@ correct invoice because the tools work has crossed the line the
 pledge draws, and the crossing costs more than the bill.
 
 Do not spend an hour of technique to save four dollars. Your time
-is a currency too, and the Currency Map logic works on your own
-side of the ledger.
+is a currency too, and the trading logic from Chapter 5 works on
+your own side of the ledger.
 
 And know when it has stopped being a phone call. A denied claim
 with real money attached has formal appeal processes with real
@@ -142,8 +142,8 @@ process, not the phone tree, is now the room.
 
 At the commercial scale this chapter is a claims desk, a disputed
 invoice between companies, a service-credit fight after an outage.
-The manual gives that work its own chapter, and its hardest drill
-is holding your tools while the other side is loud. Here is the
+The professionals train for it with one brutal exercise: hold
+your tools while the other side is loud. Here is the
 mirror image worth noticing: in the billing dispute, the loud
 party the professionals train to handle is you, on a bad day. The
 reader of this book calls the claims desk and runs labels, pinned

@@ -95,7 +95,7 @@ Peer negotiation has no authority to appeal to and no exit. Trading (Chapter
 PEER TRADES
 
   "If I take this on, what comes off my plate?"
-  "What's cheap for you that would be expensive for me?"
+  "What's cheap for you that would be valuable to me?"
   "What would you trade timeline for?"
   "If we can't both be first, how do you want to decide it?"
 ```

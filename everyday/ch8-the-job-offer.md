@@ -101,11 +101,11 @@ Everything from Chapter 5 now applies: their point was the
 band's bottom, your ask anchors near its top with your evidence
 attached, once, flat, then quiet.
 
-**"I'll have to check with comp."** The messenger again, third
+**"I'll have to check with comp."** The messenger again, fourth
 time in this book, and by now you know the move. Arm them: "What
-would comp need to see to get to the top of that range?" You have
-just turned the gatekeeper into your advocate, carrying your
-case to a room you cannot enter.
+would need to be true for this to work?" You have just turned the
+gatekeeper into your advocate, carrying your case to a room you
+cannot enter.
 
 **The deadline dissolves.** "Take the weekend, of course." Then
 it was atmosphere, and you learned something small and useful
@@ -113,8 +113,8 @@ about how this company applies pressure when it wants things.
 
 **A no with a currency attached.** "The base is capped, but the
 signing bonus and the review date are flexible." That is not a
-loss. That is the Currency Map arriving on schedule. Trade on
-what moves.
+loss. That is the non-cash currency from Chapter 5 arriving on
+schedule. Trade on what moves.
 
 ## When not to do this
 

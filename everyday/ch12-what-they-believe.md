@@ -138,6 +138,22 @@ unscheduled, ongoing one with the counterpart who reads over
 your shoulder. Same words. Same silence after. Biggest room you
 will ever work.
 
+## Try it this week
+
+Every chapter in this book has ended by sending you to another
+person. This one ends by sending you to the thirteen lines above,
+once, alone, slowly. Read them and mark the one that stings.
+
+Then, the next time you catch yourself deciding not to ask for
+something, say the marked line to yourself, in your own head, in
+the flat voice you would use on anyone else. Then hold the four
+seconds you have been giving other people for eleven chapters.
+
+Whatever answers is the counterpart you have negotiated against
+your whole life, and this is the first time you have named it out
+loud. That is the rep. It is small, it takes nine seconds, and it
+outlasts the book.
+
 ---
 
 > ### Evidence

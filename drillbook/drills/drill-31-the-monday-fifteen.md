@@ -82,5 +82,5 @@ certification argument in one room.
 
 One question, for the facilitator alone, after the room empties:
 "Which number moved since last Monday?" If no number moved, next
-week runs the same tool again. The same drill four weeks running is
-training. A different drill every week is entertainment.
+week runs the same tool again. Repetition is what the method asks
+for, and the calendar is where most floors quietly refuse it.

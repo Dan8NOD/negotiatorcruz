@@ -4,8 +4,8 @@
 space, and escalation, in ten minutes.*
 
 ```
-TIME    15 min          PEOPLE    2 per pair
-NEEDS   nothing
+TIME    15 min          PEOPLE    2 or 3 (client, negotiator, observer)
+NEEDS   a timer for the ten-minute clock
 STAGE   Before contact  PART      Pairs
 SOURCE  Six Before Yes, Step 1
 ```

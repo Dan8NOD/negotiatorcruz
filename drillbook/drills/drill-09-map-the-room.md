@@ -5,7 +5,7 @@ from what you assume.*
 
 ```
 TIME    25 min          PEOPLE    3 to 8, with live deals
-NEEDS   a whiteboard, two marker colours, a pipeline review on the calendar
+NEEDS   a whiteboard, three marker colours, a pipeline review booked
 STAGE   Read            PART      The room
 SOURCE  The Cruz Protocol, Ch 9
 ```

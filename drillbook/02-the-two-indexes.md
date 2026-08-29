@@ -50,9 +50,9 @@ placed by what it actually needs.
 | Fifteen to twenty minutes, solo at a desk | 12, 15, 16 |
 | Twenty minutes, two people | 17, 19, 22, 24, 28, 29, 36 |
 | Twenty minutes, three people | 04, 13 |
-| Twenty minutes, the room | 01, 02, 10, 37, 38, 39 |
+| Twenty minutes, the room | 01, 02, 10, 20, 37, 38, 39 |
 | Twenty-five to thirty, the room with live pipeline | 09, 18, 27, 30 |
-| Solo, on your own accounts, across days | 20, 26 |
+| Solo, on your own accounts, across days | 26 |
 | A week of field time | 23 |
 | Managers only | 32, and 33 to calibrate them |
 
