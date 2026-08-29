@@ -7,7 +7,7 @@ this rejoins each pair into one chapter and drops the "Part 1 of 2" scaffolding.
 
 Run:  python3 book/tools/makeepub.py  ->  build/cruz-protocol-DRAFT.epub
 """
-import glob, html, os, re, shutil, zipfile
+import glob, html, os, re, shutil, sys, zipfile
 from datetime import date
 
 ROOT  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -30,6 +30,37 @@ PARTS = {
     5: ("Part V",   "Applications",  "Where the buyer sees themselves."),
     6: ("Part VI",  "Installation",  "How it gets installed and audited."),
 }
+
+# The six drawn figures live in makebook.py, keyed by chapter. The EPUB
+# shipped without any of them: the print build injected them and this one
+# never looked. Inline SVG is legal in EPUB 3, but the pages are XHTML, so
+# the element needs an explicit namespace that HTML lets you omit.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+try:
+    import makebook as _mb
+    DIAGRAMS = _mb.DIAGRAMS
+except Exception:
+    DIAGRAMS = {}
+
+SVG_NS = ' xmlns="http://www.w3.org/2000/svg"'
+
+
+def with_ns(fig):
+    return fig.replace("<svg ", "<svg" + SVG_NS + " ", 1) if "xmlns" not in fig else fig
+
+
+def add_figure(num, body_html):
+    """Place the chapter's figure after its first section heading, which is
+    where the print build puts it."""
+    fig = DIAGRAMS.get(num)
+    if not fig:
+        return body_html, False
+    if "</h2>" in body_html:
+        return body_html.replace("</h2>", "</h2>" + with_ns(fig), 1), True
+    return with_ns(fig) + body_html, True
+
 
 def part_of(n):
     return 0 if n <= 3 else 1 if n <= 9 else 2 if n <= 14 else 3 if n <= 20 \
@@ -244,6 +275,10 @@ h1, h2, h3, h4 { font-family: Georgia, serif; line-height: 1.2; page-break-after
                  text-align: left; }
 h1 { font-size: 1.7em; margin: 1.2em 0 .2em; }
 h1.ch { margin-top: 0; }
+figure.dia { margin: 1.4em 0; text-align: center; page-break-inside: avoid; }
+figure.dia svg { width: 100%; height: auto; }
+figure.dia figcaption { font-size: .82em; font-style: italic; color: #6b6252;
+                        margin-top: .4em; text-align: center; }
 .chnum { font-size: .72em; letter-spacing: .18em; text-transform: uppercase;
          color: #7a6a45; margin: 0 0 .3em; font-family: sans-serif; }
 h2 { font-size: 1.2em; margin: 1.6em 0 .4em; border-bottom: 1px solid #d8d2c2;
@@ -327,6 +362,7 @@ def build():
         shutil.copy(cover_src, os.path.join(oebps, "cover.jpg"))
 
     files = []   # (id, href, media-type, in_spine, nav_label, nav_level)
+    svg_pages = set()   # pages carrying an inline figure, for the manifest
 
     if has_cover:
         with open(os.path.join(oebps, "cover.xhtml"), "w", encoding="utf-8") as f:
@@ -363,8 +399,11 @@ def build():
                           f"{label}: {name}", 0))
 
         cid = f"ch{c['num']:02d}"
+        chapter_html, has_svg = add_figure(c["num"], c["html"])
+        if has_svg:
+            svg_pages.add(cid)
         body = (f'<p class="chnum">Chapter {c["num"]}</p>'
-                f'<h1 class="ch">{html.escape(c["title"])}</h1>' + c["html"])
+                f'<h1 class="ch">{html.escape(c["title"])}</h1>' + chapter_html)
         with open(os.path.join(oebps, f"{cid}.xhtml"), "w", encoding="utf-8") as f:
             f.write(page(f"Chapter {c['num']}: {c['title']}", body))
         files.append((cid, f"{cid}.xhtml", "application/xhtml+xml", True,
@@ -441,7 +480,8 @@ def build():
                         'properties="cover-image"/>')
     spine = []
     for _id, href, mt, in_spine, _l, _lv in files:
-        manifest.append(f'<item id="{_id}" href="{href}" media-type="{mt}"/>')
+        props = ' properties="svg"' if _id in svg_pages else ''
+        manifest.append(f'<item id="{_id}" href="{href}" media-type="{mt}"{props}/>')
         if in_spine:
             spine.append(f'<itemref idref="{_id}"/>')
 
