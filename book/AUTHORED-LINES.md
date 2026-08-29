@@ -7,7 +7,7 @@ and ended up measuring how far the finished manual actually keeps it.
 **Read the number carefully before reacting to it.** A naive sweep says
 135 boxed lines are not in the catalog. Most of those are benign and
 explained below. The number that matters, and the only one that needs a
-decision from Dan, is **40 counterpart-facing lines in Part V.**
+decision from Dan, is **41 counterpart-facing lines in Part V.**
 
 ---
 
@@ -46,7 +46,7 @@ real floors and his versions would be better.
 
 ---
 
-## 5. The real finding: 40 authored lines in Part V
+## 5. The real finding: 41 authored lines in Part V
 
 Chapters 26 to 29 put counterpart-facing negotiation questions in script
 boxes, unmarked, exactly where a reader has been trained by the first
@@ -64,13 +64,22 @@ path.
 | 26. The Renewal and the Price Increase | 10 |
 | 27. Procurement and the Committee You Can't See | 10 |
 | 28. Claims, Disputes, and Escalation | 6 |
-| 29. Negotiating Internally | 14 |
+| 29. Negotiating Internally | 15 |
 
-The full list is reproducible at any time with:
+The list itself is in **`book/PART-V-LINES.md`**, one line per row with a
+column to mark K, R or S. That is the file to read. Regenerate it with:
 
-    python3 book/tools/verifylines.py --drift book/chapters/ch2[6-9]*.md
+    python3 book/tools/verifylines.py --sheet book/chapters/ch2[6-9]a*.md
 
-and by the survey in this file's git history.
+Two corrections to an earlier version of this page. The command printed
+here was `--drift`, which reports near-misses and prints none of these,
+so it produced an empty list. Strict mode is the one that finds them.
+And the tool was counting four numbered instruction labels in Chapter 28
+as authored lines, because a label arrives at the check as the remainder
+after its own quote is stripped and the header filter never saw it. With
+that fixed the tool now returns 6 for Chapter 28, agreeing exactly with
+the count made here by reading. Chapter 29 comes out at 15 rather than
+14, and all fifteen read as counterpart-facing.
 
 ### Three options, and a recommendation
 
