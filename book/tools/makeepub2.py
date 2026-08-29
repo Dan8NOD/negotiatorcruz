@@ -4,6 +4,7 @@
 Reuses makeepub.py's markdown pipeline, stylesheet, and page shell so all
 the series EPUBs share one hand. Book structure comes from the SPECS table.
 
+    python3 book/tools/makeepub2.py guide      -> build/six-before-yes-DRAFT.epub
     python3 book/tools/makeepub2.py everyday   -> build/same-words-bigger-rooms-DRAFT.epub
     python3 book/tools/makeepub2.py drillbook  -> build/the-drill-book-DRAFT.epub
     python3 book/tools/makeepub2.py            -> both
@@ -72,7 +73,66 @@ def drillbook_files():
     return out
 
 
+# The guide's seven figures live in makeguide.py, keyed by chapter, and its
+# chapters carry a prose placeholder the print build swaps out. Without the
+# swap the spec text ships as body copy, which is what an unfixed EPUB did.
+GUIDE_FIGS = {}
+try:
+    sys.path.insert(0, os.path.join(ROOT, "guide", "tools"))
+    import makeguide as _mg
+    GUIDE_FIGS = _mg.DIAGRAMS
+except Exception:
+    pass
+
+FIG_PLACEHOLDER = re.compile(r"(?s)\*\[(?:Master f|F)igure\b.*?\]\*")
+
+
+def swap_guide_figure(path, md):
+    """Return (markdown, figure_html_or_None) for a guide chapter."""
+    m = re.search(r"ch(\d+)", os.path.basename(path))
+    if not m or not GUIDE_FIGS:
+        return md, None
+    # Same opener scaffolding the print build consumes, from the same helper,
+    # so the two editions cannot drift on what a chapter opens with.
+    if hasattr(_mg, "strip_scaffolding"):
+        md = _mg.strip_scaffolding(md)
+    fig = GUIDE_FIGS.get(int(m.group(1)))
+    if not fig or not FIG_PLACEHOLDER.search(md):
+        return md, None
+    return FIG_PLACEHOLDER.sub("%%FIG%%", md, count=1), ep.with_ns(fig)
+
+
+def guide_files():
+    """Six Before Yes. The one-page method summary and the parallel grid are
+    reference spreads, so they bracket the chapters the way the print build
+    orders them."""
+    b = os.path.join(ROOT, "guide")
+    parts = {
+        2: ("Part 1", "Prepare"),
+        5: ("Part 2", "Engage"),
+        7: ("Part 3", "Consolidate"),
+    }
+    out = [(os.path.join(b, "front-matter.md"), None, "Front Matter", 0),
+           (os.path.join(b, "01-method-summary.md"), None, "The Method, on One Page", 0)]
+    for p in sorted(glob.glob(os.path.join(b, "ch*.md")),
+                    key=lambda x: int(re.search(r"ch(\d+)", x).group(1))):
+        m = re.search(r"^#\s*Chapter\s*(\d+):\s*(.+?)\s*$",
+                      open(p, encoding="utf-8").read(), re.M)
+        n, title = int(m.group(1)), m.group(2)
+        out.append((p, parts.get(n), f"{n}. {title}", 1))
+    out.append((os.path.join(b, "02-parallel-grid.md"), None, "The Parallel Grid", 0))
+    out.append((os.path.join(b, "back-matter.md"), None, "Back Matter", 0))
+    return out
+
+
 SPECS = {
+    "guide": dict(
+        title="Six Before Yes",
+        subtitle="The six moves that decide a negotiation before anyone says yes",
+        uuid="urn:uuid:8f3a1c92-5d47-4e0b-9a61-sixbeforeyes0002",
+        out="six-before-yes",
+        files=guide_files,
+    ),
     "everyday": dict(
         title="Same Words, Bigger Rooms",
         subtitle="Negotiation from the kitchen table to the closing room",
@@ -97,7 +157,15 @@ def render(path):
     title = m.group(1) if m else os.path.basename(path)
     md = re.sub(r"^#\s.+?\n", "", md, count=1)
     md = re.sub(r"^\*[^\n]*series pattern[^\n]*\*\n", "", md, flags=re.M)
+    # The method summary carries the master figure's written spec, which the
+    # print build drops because the figure itself exists. Same here.
+    md = md.split("### Master figure (spec)")[0].rstrip().rstrip("-").rstrip()
+    md, fig = swap_guide_figure(path, md)
     body = ep.blocks(md)
+    if fig:
+        body = body.replace("<p>%%FIG%%</p>", fig, 1)
+    if "%%FIG%%" in body:
+        raise SystemExit(f"{os.path.basename(path)}: figure marker survived the render")
     return title, body, gaps
 
 
@@ -130,19 +198,22 @@ def build(key):
                   "Title Page", 0))
 
     pn = 0
+    svg_pages = set()   # pages carrying an inline figure, for the manifest
     for i, (path, part, label, level) in enumerate(entries):
         if part:
             pn += 1
             plabel, pname = part
             pid = f"part{pn}"
             open(os.path.join(oebps, f"{pid}.xhtml"), "w", encoding="utf-8").write(
-                ep.page(f"{plabel} — {pname}",
+                ep.page(f"{plabel}: {pname}",
                         f'<div class="partpage"><p class="pnum">{html.escape(plabel)}</p>'
                         f'<h1>{html.escape(pname)}</h1></div>'))
             files.append((pid, f"{pid}.xhtml", "application/xhtml+xml", True,
-                          f"{plabel} — {pname}", 0))
+                          f"{plabel}: {pname}", 0))
         title, body, _g = render(path)
         fid = f"s{i:02d}"
+        if "<svg" in body:
+            svg_pages.add(fid)
         open(os.path.join(oebps, f"{fid}.xhtml"), "w", encoding="utf-8").write(
             ep.page(title, f'<h1 class="ch">{html.escape(title)}</h1>' + body))
         files.append((fid, f"{fid}.xhtml", "application/xhtml+xml", True,
@@ -185,7 +256,8 @@ def build(key):
                 '<item id="css" href="style.css" media-type="text/css"/>']
     spine = []
     for fid, href, mt, in_spine, _l, _lv in files:
-        manifest.append(f'<item id="{fid}" href="{href}" media-type="{mt}"/>')
+        props = ' properties="svg"' if fid in svg_pages else ''
+        manifest.append(f'<item id="{fid}" href="{href}" media-type="{mt}"{props}/>')
         if in_spine:
             spine.append(f'<itemref idref="{fid}"/>')
     open(os.path.join(oebps, "content.opf"), "w", encoding="utf-8").write(

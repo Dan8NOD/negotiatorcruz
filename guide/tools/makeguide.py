@@ -187,6 +187,26 @@ DIAGRAMS[7] = ('<figure class="dia"><svg viewBox="0 0 620 302" role="img" aria-l
  + '<text x="243" y="49" text-anchor="end" font-size="9" font-style="italic" fill="#8a6a2f">the log feeds the next mandate</text>'
  '</svg><figcaption>Chapter 1 drew a line. Run weekly, it is a circle. Step 6 is Step 1 of the next deal.</figcaption></figure>')
 
+# Every guide chapter opens with blueprint scaffolding: an art-direction note
+# for the opener image, then the chapter number and title repeated as a
+# designed spread. Both renderers already emit a title of their own from the
+# "# Chapter N:" line, so the repeat printed the title twice with a stage
+# direction wedged between the two. Consumed here, once, for print and EPUB.
+CH_SCAFFOLD = [
+    re.compile(r"(?m)^\*\[Chapter opener image[^\]]*\]\*\n+"),
+    re.compile(r"(?m)^\*\*Chapter \d+\*\*\n+"),
+    re.compile(r"(?m)^##\s+(?!§).+?\n+", ),
+]
+
+
+def strip_scaffolding(md):
+    """Drop the opener scaffolding from a guide chapter, first block only."""
+    head, sep, tail = md.partition("\n### ")
+    for i, pat in enumerate(CH_SCAFFOLD):
+        head = pat.sub("", head, count=1)
+    return head + sep + tail
+
+
 ORDER = [("ch1-the-problem.md",      None),
          ("ch2-know-your-exit.md",   ("Part 1", "Prepare", "Three of six steps. Everything here happens before contact.")),
          ("ch3-find-the-stakes.md",  None),
@@ -222,6 +242,7 @@ def build():
         # Swap the chapter's prose figure placeholder for the drawn figure.
         # The placeholder text stays in the markdown source as the figure's
         # spec; a chapter whose placeholder has gone missing fails the build.
+        t = strip_scaffolding(t)
         t, nsub = re.subn(r"(?s)\*\[(?:Master f|F)igure\b.*?\]\*", "%%FIG%%", t, count=1)
         if nsub != 1:
             raise SystemExit(f"{fn}: figure placeholder not found")
