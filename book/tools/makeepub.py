@@ -205,7 +205,10 @@ def load_chapters():
             if seg not in segs:
                 continue
             md = segs[seg]
-            t = re.search(r"^#\s+Chapter\s+\d+\s+[—-]\s+(.*)$", md, re.M)
+            # Headings are "# Chapter 8: Tactical Silence". This pattern
+            # still required a dash, so every title came back None and
+            # all 33 chapters shipped in the EPUB as bare "Chapter N".
+            t = re.search(r"^#\s*Chapter\s*\d+\s*[:\u2014-]\s*(.+?)\s*$", md, re.M)
             if t and not title:
                 title = t.group(1).strip()
             # strip the chapter h1, the "Part N of 2" subtitle, the part label,
