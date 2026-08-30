@@ -152,6 +152,58 @@ jobs:
           path: rocketman/android/app/build/outputs/apk/debug/app-debug.apk
           retention-days: 7
 
+  # The four books (book/, guide/, drillbook/, everyday/). Its own job for the
+  # same reason rocketman has one: the site's `npm test` must stay exactly
+  # what it is, so a manuscript can never turn negotiatorcruz.com's build red.
+  #
+  # Worth running at all because the failure mode here is silence. The manual
+  # shipped for weeks without its front matter or any of its three appendices
+  # and every build stayed green, since a renderer that never opens a file
+  # cannot complain about it. shipcheck asks the question the builds could not.
+  books:
+    name: Books
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      # Every book script is pure standard library on purpose, so there is
+      # nothing to install and this job cannot break on a dependency.
+      - name: Build all four books
+        run: |
+          python3 book/tools/build.py
+          python3 book/tools/makebook.py
+          python3 guide/tools/makeguide.py
+          python3 drillbook/tools/makedrillbook.py
+          python3 everyday/tools/makeeveryday.py
+          python3 book/tools/makecards.py
+          python3 book/tools/makeepub.py
+          python3 book/tools/makeepub2.py guide
+          python3 book/tools/makeepub2.py drillbook
+          python3 book/tools/makeepub2.py everyday
+
+      - name: Every source file reaches the finished book
+        run: python3 book/tools/shipcheck.py
+
+      # Dan's standing rule. The pass is not applied here, only asked whether
+      # it would change anything, so a manuscript cannot be rewritten by CI.
+      - name: No dashes, Chicago plain-speech
+        run: |
+          python3 book/tools/voicepass.py --dry \
+            $(git ls-files 'book/*.md' 'book/**/*.md' 'guide/*.md' \
+                           'drillbook/**/*.md' 'everyday/*.md')
+
+      # Scripted lines come from the 544 shipped lines. The manual is exempt
+      # for now: its Part V has 41 authored lines that are known, listed in
+      # book/PART-V-LINES.md, and waiting on Dan rather than on a fix.
+      - name: Scripted lines come from the catalog
+        run: |
+          python3 book/tools/verifylines.py guide/ch*.md
+          python3 book/tools/verifylines.py everyday/ch*.md
+
   # The Swift port of the engine (rocketman/swift). Runs in the official Swift
   # container so it needs no Mac: RocketmanKit is deliberately free of UIKit and
   # SpriteKit, which is what lets the conformance suite run on every push rather

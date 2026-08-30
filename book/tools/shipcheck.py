@@ -126,7 +126,18 @@ def check(key):
         if ebook is not None and probe not in ebook:
             miss_e.append(os.path.basename(f))
 
-    bad = bool(miss_p or miss_e)
+    # The dash rule applies to what a reader sees, not to the sources. Text
+    # the build scripts emit themselves once slipped through exactly here,
+    # so the check reads the finished editions rather than the markdown.
+    raw_html = open(spec["html"], encoding="utf-8").read()
+    dashes_p = len(re.findall(r"[\u2014\u2013]", raw_html))
+    dashes_e = 0
+    if os.path.isfile(spec["epub"]):
+        z = zipfile.ZipFile(spec["epub"])
+        dashes_e = sum(len(re.findall(r"[\u2014\u2013]", z.read(x).decode("utf-8", "replace")))
+                       for x in z.namelist() if x.endswith((".xhtml", ".opf")))
+
+    bad = bool(miss_p or miss_e or dashes_p or dashes_e)
     mark = "FAIL" if bad else "ok"
     print(f"[{mark}] {spec['name']}: {len(files)} source files"
           + (f", {len(skipped)} with no usable probe" if skipped else ""))
@@ -135,6 +146,9 @@ def check(key):
     for label, missing in (("print", miss_p), ("EPUB", miss_e)):
         if missing:
             print(f"       missing from {label}: {', '.join(missing)}")
+    for label, n in (("print", dashes_p), ("EPUB", dashes_e)):
+        if n:
+            print(f"       {n} dash(es) in the rendered {label}")
     return 1 if bad else 0
 
 

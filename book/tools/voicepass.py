@@ -201,15 +201,23 @@ def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     dry = "--dry" in sys.argv
     changed = 0
+    touched = []
     for path in args:
         src = open(path, encoding="utf-8").read()
         new = process(src)
         if new != src:
             changed += 1
+            touched.append(path)
             if not dry:
                 open(path, "w", encoding="utf-8").write(new)
     print(("would change " if dry else "changed ") + f"{changed}/{len(args)} files")
+    if dry and touched:
+        for t in touched:
+            print("   ", t)
+    # In --dry the exit code is the point: it lets the pass gate a build
+    # rather than only report. Applying changes is still a success.
+    return 1 if (dry and changed) else 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
