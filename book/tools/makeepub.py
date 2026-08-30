@@ -216,6 +216,30 @@ def blocks(md):
 
 # ───────────────────────── chapter assembly ─────────────────────────
 
+BACK_MATTER = [
+    ("back-matter-cards.md",     "appa", "Appendix A: The Field Cards"),
+    ("back-matter-reference.md", "appb", "Appendix B: Reference"),
+    ("back-matter-glossary.md",  "appc", "Appendix C: Glossary"),
+]
+
+
+def back_matter_pages():
+    """(id, title, html) for each appendix that exists.
+
+    Neither renderer read these files, so every edition of the manual ended at
+    Chapter 33 with none of its appendices."""
+    out = []
+    for fn, pid, title in BACK_MATTER:
+        path = os.path.join(ROOT, fn)
+        if not os.path.isfile(path):
+            continue
+        md = open(path, encoding="utf-8").read()
+        md = re.sub(r"^#\s+.+?\n", "", md, count=1)
+        md = re.sub(r"`(\[NEEDS:.*?\])`", r"\1", md, flags=re.S)
+        out.append((pid, title, blocks(md.strip())))
+    return out
+
+
 def load_chapters():
     """Rejoin chNNa + chNNb into one chapter, dropping the split scaffolding."""
     found = {}
@@ -408,6 +432,11 @@ def build():
             f.write(page(f"Chapter {c['num']}: {c['title']}", body))
         files.append((cid, f"{cid}.xhtml", "application/xhtml+xml", True,
                       f"{c['num']}. {c['title']}", 1))
+
+    for pid, ptitle, phtml in back_matter_pages():
+        with open(os.path.join(oebps, f"{pid}.xhtml"), "w", encoding="utf-8") as f:
+            f.write(page(ptitle, f'<h1 class="ch">{html.escape(ptitle)}</h1>' + phtml))
+        files.append((pid, f"{pid}.xhtml", "application/xhtml+xml", True, ptitle, 0))
 
     # back matter: the open evidence list, so the draft carries its own to-do
     rows = "".join(

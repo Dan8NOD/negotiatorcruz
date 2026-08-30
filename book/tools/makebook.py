@@ -319,6 +319,84 @@ DIAGRAMS[31] = ('<figure class="dia"><svg viewBox="0 0 720 300" role="img" '
  + '</svg><figcaption>A behavior not recorded and scored within a week of being taught '
  'will not survive the month.</figcaption></figure>')
 
+def front_matter(path, skip_cover=True):
+    """Turn a front-matter spec file into printable copy.
+
+    These files are written as specifications: "## Page N: Label" headings,
+    the actual copy inside blockquotes, and unquoted prose that is the note
+    explaining the choice, several of which say "not for print" outright.
+    Neither renderer read them, so no edition has ever carried its own front
+    matter. The rule is the one the files already follow: quoted lines are
+    the copy, everything else is editorial.
+
+    skip_cover drops the first page, because both renderers draw a title page
+    of their own and printing the spec's cover would double it.
+    """
+    if not os.path.isfile(path):
+        return []
+    t = open(path, encoding="utf-8").read()
+    t = re.sub(r"^#\s+.+?\n", "", t, count=1)
+    # Most sections are labelled "Page N: Something", but not all. The last
+    # one in the manual's file is a plain heading and carries the reader path
+    # a corporate evaluator uses, so split on any h2 rather than the numbered
+    # form and drop the cover by what it is called.
+    chunks = re.split(r"(?m)^##\s+(.+?)\s*$", t)[1:]
+    pages = []
+    for i, (label, block) in enumerate(zip(chunks[0::2], chunks[1::2])):
+        # Only ever the first chunk. Testing "no pages kept yet" instead ate
+        # the guide's copyright page too, because it is called "Title and
+        # copyright" and matched the same words one page later.
+        if skip_cover and i == 0 and re.search(r"\b(cover|title)\b", label, re.I):
+            continue
+        # "Page 3: Who this manual is for" is the page's heading with a
+        # position marker in front of it. Keep the heading, drop the marker.
+        pages.append((re.sub(r"^Page\s*\d+\s*[:.]\s*", "", label).strip(), block))
+    out = []
+    for heading, block in pages:
+        keep = []
+        for line in block.splitlines():
+            if line.startswith(">"):
+                keep.append(re.sub(r"^>\s?", "", line))
+            elif "[NEEDS:" in line:
+                keep.append(line)
+            elif not line.strip() and keep and keep[-1].strip():
+                keep.append("")
+        copy = "\n".join(keep).strip()
+        if copy:
+            h = f"<h1>{html.escape(heading)}</h1>" if heading else ""
+            out.append('<section class="ch frontm">' + h + md(copy) + "</section>")
+    return out
+
+
+BACK_MATTER = [
+    ("back-matter-cards.md",     "appA", "Appendix A · The Field Cards"),
+    ("back-matter-reference.md", "appB", "Appendix B · Reference"),
+    ("back-matter-glossary.md",  "appC", "Appendix C · Glossary"),
+]
+
+
+def back_matter():
+    """The three appendices, appended after Chapter 33.
+
+    They were written as separate files and neither renderer ever read them,
+    so every rendered edition of this manual ended at the last chapter. The
+    field card appendix is the training-day leave-behind the site promises,
+    which made it the most expensive of the three to be missing."""
+    out, toc = [], []
+    for fn, anchor, label in BACK_MATTER:
+        path = os.path.join(ROOT, fn)
+        if not os.path.isfile(path):
+            continue
+        t = open(path, encoding="utf-8").read()
+        title = re.search(r"^#\s+(.+?)\s*$", t, re.M)
+        title = title.group(1) if title else label
+        t = re.sub(r"^#\s+.+?\n", "", t, count=1)
+        out.append(f'<section class="ch appendix" id="{anchor}"><h1>{html.escape(title)}</h1>'
+                   + md(t) + "</section>")
+        toc.append(f'<li><a href="#{anchor}"><span class="tn">·</span> {html.escape(label)}</a></li>')
+    return out, toc
+
+
 def build():
     files = sorted(glob.glob(os.path.join(CH,"ch*.md")),
                    key=lambda f:(int(re.search(r"ch(\d+)",os.path.basename(f)).group(1)),
@@ -350,6 +428,9 @@ def build():
         body.append(f'<section class="ch" id="ch{n}">{h}</section>')
         toc.append(f'<li><a href="#ch{n}"><span class="tn">{n}</span> {html.escape(title)}</a></li>')
 
+    fm_body = front_matter(os.path.join(ROOT, "front-matter.md"))
+    bm_body, bm_toc = back_matter()
+    toc.extend(bm_toc)
     css = """
 @page { size: A4; margin: 20mm 18mm; }
 :root{--ink:#2a2317;--dim:#5b5343;--gold:#8a6a2f;--line:#ddd4c0;--bg:#fffdf8;}
@@ -410,8 +491,10 @@ figcaption{font-size:8.8pt;color:var(--dim);font-style:italic;margin-top:3pt}
 <p class="by">Dan Cruz</p>
 <p class="cred">Seven years of practice · five hosting · 1,000+ live sessions · Chicago</p>
 <p class="draft">Working draft. All 33 chapters. Bracketed <code>[NEEDS:]</code> markers are<br>case slots awaiting real field material. Nothing in them is invented.</p></section>
+{''.join(fm_body)}
 <section class="toc"><h1>Contents</h1><ul>{''.join(toc)}</ul></section>
 {''.join(body)}
+{''.join(bm_body)}
 </body></html>"""
     os.makedirs(BUILD, exist_ok=True)
     out = os.path.join(BUILD,"cruz-protocol.html")

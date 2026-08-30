@@ -219,6 +219,13 @@ ORDER = [("ch1-the-problem.md",      None),
 def build():
     body, toc = [], []
 
+    # The guide's own front matter never reached print either: the build went
+    # straight from the generated title page to the method summary, so the
+    # copyright, the introduction and the how-to-use page existed only as a
+    # file. Same spec-to-copy transform the manual uses.
+    for sec in mb.front_matter(os.path.join(GUIDE, "front-matter.md")):
+        body.append(sec)
+
     summary = open(os.path.join(GUIDE, "01-method-summary.md"), encoding="utf-8").read()
     summary = re.sub(r"(?s)^.*?(## SIX BEFORE YES)", r"\1", summary, count=1)
     # The master-figure spec is implemented as DIAGRAMS[1]; the spec itself
@@ -254,6 +261,16 @@ def build():
 
     grid = open(os.path.join(GUIDE, "02-parallel-grid.md"), encoding="utf-8").read()
     body.append('<section class="ch" id="grid">' + mb.md(grid) + "</section>")
+
+    # Back matter was missing too, which meant the glossary, the About page and
+    # the single call to action all existed only in the source file.
+    bmp = os.path.join(GUIDE, "back-matter.md")
+    if os.path.isfile(bmp):
+        bm = open(bmp, encoding="utf-8").read()
+        bm = re.sub(r"^#\s+.+?\n", "", bm, count=1)
+        bm = re.sub(r"(?m)^\*Seven pages\..*?\*\n", "", bm)
+        body.append('<section class="ch" id="back">' + mb.md(bm.strip()) + "</section>")
+        toc.append('<li><a href="#back"><span class="tn">·</span> Glossary and about</a></li>')
     toc.append('<li><a href="#grid"><span class="tn">·</span> The state grid (pull-out)</a></li>')
 
     doc = ('<!doctype html><html lang="en"><head><meta charset="utf-8">'
