@@ -216,6 +216,15 @@ def blocks(md):
 
 # ───────────────────────── chapter assembly ─────────────────────────
 
+def front_matter_pages():
+    """The front matter, using the print build's spec-to-copy transform so the
+    two editions cannot disagree about what the front of the book says."""
+    path = os.path.join(ROOT, "front-matter.md")
+    if not os.path.isfile(path) or not hasattr(_mb, "front_matter_blocks"):
+        return []
+    return _mb.front_matter_blocks(path)
+
+
 BACK_MATTER = [
     ("back-matter-cards.md",     "appa", "Appendix A: The Field Cards"),
     ("back-matter-reference.md", "appb", "Appendix B: Reference"),
@@ -406,6 +415,12 @@ def build():
     with open(os.path.join(oebps, "title.xhtml"), "w", encoding="utf-8") as f:
         f.write(page("Title Page", tp))
     files.append(("title", "title.xhtml", "application/xhtml+xml", True, "Title Page", 0))
+
+    for i, (heading, phtml) in enumerate(front_matter_pages(), 1):
+        fid = f"fm{i:02d}"
+        with open(os.path.join(oebps, f"{fid}.xhtml"), "w", encoding="utf-8") as f:
+            f.write(page(heading, f'<h1 class="ch">{html.escape(heading)}</h1>' + phtml))
+        files.append((fid, f"{fid}.xhtml", "application/xhtml+xml", True, heading, 0))
 
     seen_parts = set()
     for c in chapters:

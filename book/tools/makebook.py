@@ -319,7 +319,7 @@ DIAGRAMS[31] = ('<figure class="dia"><svg viewBox="0 0 720 300" role="img" '
  + '</svg><figcaption>A behavior not recorded and scored within a week of being taught '
  'will not survive the month.</figcaption></figure>')
 
-def front_matter(path, skip_cover=True):
+def front_matter_blocks(path, skip_cover=True):
     """Turn a front-matter spec file into printable copy.
 
     These files are written as specifications: "## Page N: Label" headings,
@@ -363,9 +363,16 @@ def front_matter(path, skip_cover=True):
                 keep.append("")
         copy = "\n".join(keep).strip()
         if copy:
-            h = f"<h1>{html.escape(heading)}</h1>" if heading else ""
-            out.append('<section class="ch frontm">' + h + md(copy) + "</section>")
+            out.append((heading, md(copy)))
     return out
+
+
+def front_matter(path, skip_cover=True):
+    """Print-build wrapper: the same pages, wrapped as sections."""
+    return ['<section class="ch frontm">'
+            + (f"<h1>{html.escape(heading)}</h1>" if heading else "")
+            + body + "</section>"
+            for heading, body in front_matter_blocks(path, skip_cover)]
 
 
 BACK_MATTER = [
