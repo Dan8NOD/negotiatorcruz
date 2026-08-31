@@ -149,8 +149,8 @@ right,"* which is appeasement and the sound of someone ending a conversation.
 Ch 22.
 
 **Trade.** A concession with something named in the same breath as coming
-back. Nothing leaves your side of the table for free, because an
-unreciprocated concession teaches the other side that pressure works. Ch 18.
+back. Nothing leaves your side of the table for free, because a free
+concession teaches them that pressure works. Ch 18.
 
 **Validation.** Telling the other side that their position makes sense given
 where they are standing. Concedes nothing, because understanding a position is

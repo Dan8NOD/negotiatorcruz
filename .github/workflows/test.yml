@@ -188,6 +188,11 @@ jobs:
       - name: Every source file reaches the finished book
         run: python3 book/tools/shipcheck.py
 
+      # X1 and X2 ran this audit by hand and both found real drift. A hand
+      # audit is true on the day it runs and not after.
+      - name: The four books still agree with each other
+        run: python3 book/tools/crosscheck.py
+
       # Dan's standing rule. The pass is not applied here, only asked whether
       # it would change anything, so a manuscript cannot be rewritten by CI.
       - name: No dashes, Chicago plain-speech
