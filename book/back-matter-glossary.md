@@ -189,3 +189,31 @@ said by the party who is winning.
 **Closing technique.** Nothing in Part IV is a technique for extracting a yes.
 Stage 4 is restraint, and the chapter that would carry the pressure moves is
 Ch 30, which tells you to stop.
+
+---
+
+## Also from Negotiators on Demand
+
+*One method, four doors, and a place to practice it live.*
+
+**The books.**
+
+- *The Cruz Protocol.* The corporate field manual. Thirty-three tools in
+  four stages, drilled and scored, for the person who negotiates for a
+  living.
+- *Six Before Yes.* The deal around the conversation. Six steps, three of
+  them before contact, for the person who owns the whole deal.
+- *The Drill Book.* The practice curriculum. Thirty-eight drills with
+  setup, scoring, and what goes wrong, for the person running the room.
+- *Same Words, Bigger Rooms.* The everyday book. The same tools at the
+  kitchen table, the dealership, and the job offer, for everyone else.
+
+**The software.** Mix & Match, the free practice app with the full tool
+catalog, on the App Store and at negotiatorsondemand.com.
+
+**The live work.** The Saturday session, every week out of Chicago, first
+one free. Personal training with Dan, one on one. Corporate installs for
+teams that need the method running when nobody is watching. All of it
+starts at negotiatorsondemand.com.
+
+---
