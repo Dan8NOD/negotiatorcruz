@@ -174,6 +174,31 @@ Dan said keep working, so the layer the fast drafting never had:
       Extend the pipeline so the Drill Book and the everyday book render
       to draft EPUBs the way the manual does.
 
+### The audio and funnel pass, added Sat Aug 30
+
+Dan's direction, given live: more of the books ready as audiobooks, simple
+reminders of the basic tools that keep people motivated, and readers always
+able to come to him for personal training or the other products, the
+Mix & Match practice software on the App Store and at
+negotiatorsondemand.com.
+
+- [x] **A1. Guide narration scripts.** The manual and the everyday book
+      have audiobook scripts. Six Before Yes has none. Clone the narration
+      tool onto the guide: the method summary as the opening track, seven
+      chapters, stage directions stripped, the parallel grid left to
+      Chapter 4's teaching. → `guide/tools/makenarration.py`, `guide/audio/`
+- [ ] **A2. The series page.** No book names the others, the sessions, the
+      training, or the software. One shared Also-from page in each book's
+      back matter: the four books by role, the Saturday session, personal
+      training, and Mix & Match on the App Store and the website. Same
+      text in all four, so it is checkable, and no invented claims about
+      the app beyond name, platform, and where it lives.
+- [ ] **A3. The cards, spoken.** The reminder product Dan described,
+      derived rather than written: the 33 field cards as short spoken
+      scripts, sixty to ninety seconds each, assembled from the card
+      fields and the chapter's shipped lines. The audio twin of the deck
+      N2 printed.
+
 ---
 
 ## Log
@@ -224,3 +249,4 @@ Each block appends one line: date, item, what changed.
 | Fri 01:4x UTC | Q3 | `book/tools/makeepub2.py`, the generic KDP pipeline on the manual's renderer and stylesheet. Both new books now render to draft EPUBs: the everyday book at 50 KB with its twelve chapters and four parts, the Drill Book at 87 KB with all 38 drills sorted by part. Mimetype ordering, nav, and NCX verified, no markdown leakage in the rendered pages, and each title page carries its open-slot count. The quality pass is complete. |
 | Fri 02:0x UTC | Q4 | Two closing deliverables. `book/GAP-INTAKE.md` extended to cover all four books, the everyday twelve listed cheapest first and the Drill Book's two bonus drills named as the title fix, so Dan has one ranked list. And `everyday/tools/makenarration.py` reuses the manual's narrate pipeline to generate twelve audiobook scripts into `everyday/audio/`, flags stripped, boxes spoken. |
 | Fri 03:0x UTC | Q5 | Cold quality reads of both new books, run as two Fable 5 subagents, then triaged and fixed. Drill book: nine header boxes that contradicted their own steps (times that could not fit the steps, people counts below what the steps require, a NEEDS list missing its timer), an index row filing a room drill under solo work, two wrong cross-references, two verbatim duplicated sentences, and the Part II definition that never matched the four three-seat drills. Everyday book: two invented script lines taught as moves, now replaced with shipped calibrated questions, plus five factual errors about the companion books, all five verified against source before fixing. Chapter 12 gained the Try it this week section the spine promised. Four of nine manual plugs trimmed. |
+| Sat 30 Aug | A1 | `guide/tools/makenarration.py` on the shared narrate pipeline. Eight scripts into `guide/audio/`: the one-page method summary as the opening track, then all seven chapters. Bracketed stage directions, figure specs and device counts stripped whole before narration, flags gone, drills and worked answers spoken. Verified zero leftover brackets and zero NEEDS text across all eight files, about 8,000 words of narration. |
