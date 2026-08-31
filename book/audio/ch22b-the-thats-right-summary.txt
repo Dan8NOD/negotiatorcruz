@@ -1,4 +1,4 @@
-Chapter 22 - The "That's Right" Summary
+Chapter 22: The "That's Right" Summary
 
 Part 2 of 2 · The Practice
 
@@ -11,7 +11,7 @@ The drill
 "Hunt the Phrase." Twenty minutes, pairs, recorded.
 The counterpart describes a real negotiation they're in, for three minutes.
 The operator may use encouragers, one focusing label, and then one
- summary - and the summary must aim at the emotional truth rather than the
+ summary, and the summary must aim at the emotional truth rather than the
  terms.
 The counterpart says only one of three things: "that's right," "you're
  right," or "no."
@@ -21,18 +21,18 @@ Swap. Track attempts-to-land across the room over a month.
 
 Rule four is the drill. Restricting the operator to re-summarizing forces them
 to work with what they already heard rather than gathering more, and that is
-the actual skill - most reps have the material and are naming the wrong layer
+the actual skill. Most reps have the material and are naming the wrong layer
 of it.
 
 Scored on
 
-Metric: "That's right" obtained. Target: Before any closing ask. Binary, per deal - the single most predictive gate in the method.
+Metric: "That's right" obtained. Target: Before any closing ask. Binary, per deal. The single most predictive gate in the method.
 
 Metric: Attempts to land. Target: Under two. Three or more means the rep is summarizing logistics.
 
 Metric: Emotional content. Target: Does the summary name something unstated, or only recap terms? Scored from tape.
 
-Metric: "You're right" logged separately. Target: Never counted as a pass. Track the ratio - a rep with lots of "you're right" is being managed.
+Metric: "You're right" logged separately. Target: Never counted as a pass. Track the ratio. A rep with lots of "you're right" is being managed.
 
 Metric: Clean ending. Target: Nothing follows the summary. No ask attached. Binary.
 
@@ -55,7 +55,6 @@ Quote. That felt like a polite yes rather than a real one, and I'd rather get it
 
 The second failure mode: summarizing the terms. The rep produces a clean,
 accurate recap of price, timeline, and scope and waits for "that's right." It
-doesn't come, because nothing in the summary required them to feel understood - 
-it required them to check arithmetic. Terms are what Chapter 17's working
+doesn't come, because nothing in the summary required them to feel understood. It required them to check arithmetic. Terms are what Chapter 17's working
 summary is for. This chapter is for the sentence underneath the terms, and if
 you can deliver that one accurately, the terms tend to stop being the argument.

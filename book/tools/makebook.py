@@ -159,7 +159,7 @@ DIAGRAMS = {2: '''<figure class="dia"><svg viewBox="0 0 720 150" role="img" aria
  f'<text x="{85+178*i}" y="78" text-anchor="middle" font-size="10.5" fill="#5b5343">{d}</text>'
  f'<text x="{85+178*i}" y="94" text-anchor="middle" font-size="9" fill="#8a6a2f">Ch {c}</text></g>'
  + (f'<line x1="{162+178*i}" y1="68" x2="{182+178*i}" y2="68" stroke="#8a6a2f" stroke-width="1.4" marker-end="url(#a)"/>' if i<3 else '')
- for i,(n,d,c) in enumerate([("READ","diagnose","4–9"),("DISARM","defuse","10–14"),("STEER","redirect","15–20"),("CLOSE","resolve","21–25")])
+ for i,(n,d,c) in enumerate([("READ","diagnose","4-9"),("DISARM","defuse","10-14"),("STEER","redirect","15-20"),("CLOSE","resolve","21-25")])
 ) + '''<text x="360" y="132" text-anchor="middle" font-size="10" fill="#5b5343" font-style="italic">In order. Every time. Each stage produces the input the next one requires.</text>
 </svg><figcaption>The four stages.</figcaption></figure>''',
  19: '''<figure class="dia"><svg viewBox="0 0 620 220" role="img" aria-label="Ackerman ladder with decelerating steps">
@@ -172,8 +172,237 @@ DIAGRAMS = {2: '''<figure class="dia"><svg viewBox="0 0 720 150" role="img" aria
 ) + '''<text x="200" y="42" text-anchor="middle" font-size="11" font-weight="600" fill="#8a6a2f">+20</text>
 <text x="320" y="42" text-anchor="middle" font-size="11" font-weight="600" fill="#8a6a2f">+10</text>
 <text x="440" y="42" text-anchor="middle" font-size="11" font-weight="600" fill="#8a6a2f">+5</text>
-<text x="310" y="18" text-anchor="middle" font-size="10.5" fill="#5b5343" font-style="italic">Steps must decelerate — that shrinking gap is the signal there is a floor.</text>
+<text x="310" y="18" text-anchor="middle" font-size="10.5" fill="#5b5343" font-style="italic">Steps must decelerate. That shrinking gap is the signal there is a floor.</text>
 </svg><figcaption>The Ackerman ladder. End on a non-round number.</figcaption></figure>'''}
+
+# Four more manual figures, drawn in the system the two existing diagrams
+# and the guide's seven share: #fdfbf6 faces, #8a6a2f gold strokes at 1.4,
+# #c9bfa8 light rules at 1.2, rx 7 corners. Each renders structure the
+# chapter already states in prose. None of them introduces doctrine.
+
+# Chapter 5. The state triage, word for word from the reference table in
+# the back matter, which X1 and X2 both audited.
+DIAGRAMS[5] = ('<figure class="dia"><svg viewBox="0 0 720 214" role="img" '
+ 'aria-label="The three states side by side: what each sounds like, what to do, and what never to do">'
+ + "".join(
+   f'<g><rect x="{12+238*i}" y="14" width="220" height="186" rx="7" fill="#fdfbf6" stroke="#8a6a2f" stroke-width="1.4"/>'
+   f'<text x="{122+238*i}" y="38" text-anchor="middle" font-size="15" font-weight="700" fill="#2a2317" letter-spacing=".06em">{s}</text>'
+   f'<line x1="{28+238*i}" y1="50" x2="{216+238*i}" y2="50" stroke="#c9bfa8" stroke-width="1.2"/>'
+   f'<text x="{28+238*i}" y="70" font-size="8.5" font-weight="700" fill="#8a6a2f" letter-spacing=".08em">SOUNDS LIKE</text>'
+   + "".join(f'<text x="{28+238*i}" y="{86+13*k}" font-size="9.5" fill="#5b5343">{ln}</text>' for k, ln in enumerate(tell))
+   + f'<text x="{28+238*i}" y="136" font-size="8.5" font-weight="700" fill="#8a6a2f" letter-spacing=".08em">DO</text>'
+   + "".join(f'<text x="{28+238*i}" y="{152+13*k}" font-size="9.5" fill="#2a2317">{ln}</text>' for k, ln in enumerate(do))
+   + f'<text x="{132+238*i}" y="136" font-size="8.5" font-weight="700" fill="#8a6a2f" letter-spacing=".08em">NEVER</text>'
+   + "".join(f'<text x="{132+238*i}" y="{152+13*k}" font-size="9.5" fill="#5b5343">{ln}</text>' for k, ln in enumerate(never))
+   + '</g>'
+   for i, (s, tell, do, never) in enumerate([
+     ("TORN",
+      ["repeats both sides", "unprompted, asks for", "information they", "don't use"],
+      ["name the tension,", "remove the shame"],
+      ["add options", "or pressure"]),
+     ("READY",
+      ["asks about start", "dates, corrects", "your caution"],
+      ["stop selling,", "start scheduling"],
+      ["re-argue the", "settled case"]),
+     ("NOT YET",
+      ["warm, agreeable,", "reschedules easily"],
+      ["find the future", "where the problem", "exists"],
+      ["manufacture", "urgency"]),
+   ]))
+ + '</svg><figcaption>States are weather, not climate. Read the state before you pick the move.</figcaption></figure>')
+
+# Chapter 9. Authority narrowing across the three pronouns, with the
+# mid-sentence switch the chapter calls the highest-value signal in it.
+DIAGRAMS[9] = ('<figure class="dia"><svg viewBox="0 0 720 226" role="img" '
+ 'aria-label="Authority narrowing from I to we to they, with a named person as the exception and the mid-sentence switch marked">'
+ '<defs><marker id="d9" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">'
+ '<path d="M0,0 L7,3 L0,6" fill="none" stroke="#8a6a2f" stroke-width="1.4"/></marker></defs>'
+ '<text x="24" y="24" font-size="8.5" font-weight="700" fill="#8a6a2f" letter-spacing=".08em">AUTHORITY</text>'
+ '<text x="696" y="24" text-anchor="end" font-size="8.5" font-weight="700" fill="#8a6a2f" letter-spacing=".08em">NONE</text>'
+ '<path d="M 24 34 L 696 34" stroke="#c9bfa8" stroke-width="1.2"/>'
+ + "".join(
+   f'<g><rect x="{24+230*i}" y="46" width="212" height="{h}" rx="7" fill="#fdfbf6" stroke="#8a6a2f" stroke-width="1.4"/>'
+   f'<text x="{130+230*i}" y="72" text-anchor="middle" font-size="17" font-weight="700" fill="#2a2317">{p}</text>'
+   f'<text x="{130+230*i}" y="92" text-anchor="middle" font-size="9.5" font-style="italic" fill="#5b5343">{q}</text>'
+   + "".join(f'<text x="{130+230*i}" y="{114+13*k}" text-anchor="middle" font-size="9.5" fill="#5b5343">{ln}</text>' for k, ln in enumerate(m))
+   + '</g>'
+   + (f'<line x1="{239+230*i}" y1="86" x2="{251+230*i}" y2="86" stroke="#8a6a2f" stroke-width="1.4" marker-end="url(#d9)"/>' if i < 2 else '')
+   for i, (p, q, m, h) in enumerate([
+     ("&#8220;I&#8221;", "&#8220;I&#8217;d want the security review.&#8221;",
+      ["Real authority, or at", "least real ownership."], 100),
+     ("&#8220;We&#8221;", "&#8220;We&#8217;d need to think about it.&#8221;",
+      ["A committee exists.", "Find out who is in it."], 100),
+     ("&#8220;They&#8221;", "&#8220;They&#8217;ll never approve that.&#8221;",
+      ["Authority is elsewhere.", "True, or a shield. Both matter."], 100),
+   ]))
+ + '<rect x="24" y="158" width="442" height="46" rx="7" fill="#fdfbf6" stroke="#8a6a2f" stroke-width="1.4" stroke-dasharray="4 3"/>'
+ '<text x="38" y="176" font-size="8.5" font-weight="700" fill="#8a6a2f" letter-spacing=".08em">THE SWITCH</text>'
+ '<text x="38" y="194" font-size="10" font-style="italic" fill="#2a2317">'
+ '&#8220;I think we could, well, they&#8217;d have to sign off.&#8221;</text>'
+ '<rect x="484" y="158" width="212" height="46" rx="7" fill="#fdfbf6" stroke="#8a6a2f" stroke-width="1.4"/>'
+ '<text x="498" y="176" font-size="8.5" font-weight="700" fill="#8a6a2f" letter-spacing=".08em">A NAME</text>'
+ '<text x="498" y="194" font-size="10" fill="#2a2317">A gift. Write it down.</text>'
+ '</svg><figcaption>People start sentences from the position they wish they occupied '
+ 'and finish them from the one they actually do.</figcaption></figure>')
+
+# Chapter 30. The three conditions, each with the test that separates it
+# from the other two and the move it calls for.
+DIAGRAMS[30] = ('<figure class="dia"><svg viewBox="0 0 720 250" role="img" '
+ 'aria-label="Three conditions under which the Protocol stops applying, each with its tell, its test, and the move">'
+ '<defs><marker id="d30" markerWidth="9" markerHeight="9" refX="7" refY="3" orient="auto">'
+ '<path d="M0,0 L7,3 L0,6" fill="none" stroke="#8a6a2f" stroke-width="1.4"/></marker></defs>'
+ + "".join(
+   f'<g><rect x="{12+238*i}" y="14" width="220" height="222" rx="7" fill="#fdfbf6" stroke="#8a6a2f" stroke-width="1.4"/>'
+   f'<text x="{122+238*i}" y="38" text-anchor="middle" font-size="13.5" font-weight="700" fill="#2a2317" letter-spacing=".05em">{name}</text>'
+   f'<text x="{122+238*i}" y="54" text-anchor="middle" font-size="9" font-style="italic" fill="#5b5343">{sub}</text>'
+   f'<line x1="{28+238*i}" y1="64" x2="{216+238*i}" y2="64" stroke="#c9bfa8" stroke-width="1.2"/>'
+   f'<text x="{28+238*i}" y="82" font-size="8.5" font-weight="700" fill="#8a6a2f" letter-spacing=".08em">TELL</text>'
+   + "".join(f'<text x="{28+238*i}" y="{98+13*k}" font-size="9.5" fill="#5b5343">{ln}</text>' for k, ln in enumerate(tell))
+   + f'<text x="{28+238*i}" y="{150}" font-size="8.5" font-weight="700" fill="#8a6a2f" letter-spacing=".08em">TEST</text>'
+   + "".join(f'<text x="{28+238*i}" y="{166+13*k}" font-size="9.5" fill="#5b5343">{ln}</text>' for k, ln in enumerate(test))
+   + f'<line x1="{28+238*i}" y1="{198}" x2="{216+238*i}" y2="{198}" stroke="#c9bfa8" stroke-width="1.2"/>'
+   + f'<text x="{28+238*i}" y="216" font-size="8.5" font-weight="700" fill="#8a6a2f" letter-spacing=".08em">DO</text>'
+   + "".join(f'<text x="{28+238*i}" y="{228+13*k}" font-size="9.5" font-weight="600" fill="#2a2317">{ln}</text>' for k, ln in enumerate(do))
+   + '</g>'
+   for i, (name, sub, tell, test, do) in enumerate([
+     ("BAD FAITH", "no intention of agreeing",
+      ["Enthusiasm with no", "process detail. Nothing", "you concede produces", "reciprocal movement."],
+      ["Ask for a small, cheap", "commitment."],
+      ["Name it once. Stop investing."]),
+     ("NO AUTHORITY", "they cannot agree",
+      ["Pronouns drift to", "&#8220;they.&#8221; Every agreement", "is provisional."],
+      ["Ask for a decision", "with a date."],
+      ["Change the room."]),
+     ("DEADLOCK", "both right, incompatible",
+      ["The constraint is specific,", "consistent, and from", "outside the room."],
+      ["Probe it. Bracket it.", "If it holds under both,", "it is real."],
+      ["Say so."]),
+   ]))
+ + '</svg><figcaption>Not every negotiation is winnable. Diagnosing which of the three '
+ 'you are in is what stops you spending a quarter on the first two.</figcaption></figure>')
+
+# Chapter 31. The adoption curve, the week three dip, and the two paths out
+# of it. The chapter states both in prose: the dip arrives on schedule, and
+# stopping at week two looks like success at day fourteen and is gone by day
+# thirty.
+DIAGRAMS[31] = ('<figure class="dia"><svg viewBox="0 0 720 300" role="img" '
+ 'aria-label="Adoption over four weeks: a dip in week three, then automatic use if the rollout continues, or decay to baseline if it stops at week two">'
+ '<line x1="70" y1="232" x2="672" y2="232" stroke="#c9bfa8" stroke-width="1.2"/>'
+ '<line x1="70" y1="34" x2="70" y2="232" stroke="#c9bfa8" stroke-width="1.2"/>'
+ '<text x="34" y="44" font-size="8.5" font-weight="700" fill="#8a6a2f" letter-spacing=".08em">USE</text>'
+ '<line x1="70" y1="214" x2="672" y2="214" stroke="#c9bfa8" stroke-width="1" stroke-dasharray="3 4"/>'
+ '<text x="676" y="217" font-size="8.5" fill="#5b5343">baseline</text>'
+ + "".join(
+   f'<g><text x="{145+150*i}" y="250" text-anchor="middle" font-size="10.5" font-weight="700" fill="#2a2317">WEEK {i+1}</text>'
+   f'<text x="{145+150*i}" y="266" text-anchor="middle" font-size="9.5" fill="#8a6a2f">{st}</text>'
+   f'<text x="{145+150*i}" y="281" text-anchor="middle" font-size="9" fill="#5b5343">{mt}</text></g>'
+   + (f'<line x1="{220+150*i}" y1="236" x2="{220+150*i}" y2="286" stroke="#c9bfa8" stroke-width="1"/>' if i < 3 else '')
+   for i, (st, mt) in enumerate([
+     ("READ", "talk-time ratio"),
+     ("DISARM", "objections surfaced"),
+     ("STEER", "questions before numbers"),
+     ("CLOSE", "concessions after silence"),
+   ]))
+ # The rollout that runs all four weeks: awkward rise, the week 3 dip, then automatic.
+ + '<path d="M 70 205 C 120 175, 178 140, 245 128 C 300 119, 342 124, 380 138 '
+   'C 405 148, 426 158, 445 160 C 470 162, 496 150, 520 132 C 570 98, 622 72, 668 58" '
+   'fill="none" stroke="#8a6a2f" stroke-width="2"/>'
+ # The rollout stopped after week 2, decaying to where it started.
+ + '<path d="M 380 138 C 410 162, 442 188, 492 202 C 546 212, 610 214, 668 214" '
+   'fill="none" stroke="#8a6a2f" stroke-width="1.4" stroke-dasharray="5 4"/>'
+ + '<circle cx="445" cy="160" r="4" fill="#fdfbf6" stroke="#8a6a2f" stroke-width="1.6"/>'
+ + '<path d="M 441 157 L 437 104" fill="none" stroke="#8a6a2f" stroke-width="1.2"/>'
+ + '<text x="429" y="90" text-anchor="end" font-size="9.5" font-weight="700" fill="#2a2317">THE WEEK 3 DIP</text>'
+ + '<text x="429" y="103" text-anchor="end" font-size="9" fill="#5b5343">Arrives on schedule. It is not feedback.</text>'
+ + '<text x="668" y="44" text-anchor="end" font-size="9.5" font-weight="700" fill="#2a2317">Unprompted use</text>'
+ + '<text x="662" y="206" text-anchor="end" font-size="9" font-style="italic" fill="#5b5343">Stopped at week 2. Gone by day 30.</text>'
+ + '</svg><figcaption>A behavior not recorded and scored within a week of being taught '
+ 'will not survive the month.</figcaption></figure>')
+
+def front_matter_blocks(path, skip_cover=True):
+    """Turn a front-matter spec file into printable copy.
+
+    These files are written as specifications: "## Page N: Label" headings,
+    the actual copy inside blockquotes, and unquoted prose that is the note
+    explaining the choice, several of which say "not for print" outright.
+    Neither renderer read them, so no edition has ever carried its own front
+    matter. The rule is the one the files already follow: quoted lines are
+    the copy, everything else is editorial.
+
+    skip_cover drops the first page, because both renderers draw a title page
+    of their own and printing the spec's cover would double it.
+    """
+    if not os.path.isfile(path):
+        return []
+    t = open(path, encoding="utf-8").read()
+    t = re.sub(r"^#\s+.+?\n", "", t, count=1)
+    # Most sections are labelled "Page N: Something", but not all. The last
+    # one in the manual's file is a plain heading and carries the reader path
+    # a corporate evaluator uses, so split on any h2 rather than the numbered
+    # form and drop the cover by what it is called.
+    chunks = re.split(r"(?m)^##\s+(.+?)\s*$", t)[1:]
+    pages = []
+    for i, (label, block) in enumerate(zip(chunks[0::2], chunks[1::2])):
+        # Only ever the first chunk. Testing "no pages kept yet" instead ate
+        # the guide's copyright page too, because it is called "Title and
+        # copyright" and matched the same words one page later.
+        if skip_cover and i == 0 and re.search(r"\b(cover|title)\b", label, re.I):
+            continue
+        # "Page 3: Who this manual is for" is the page's heading with a
+        # position marker in front of it. Keep the heading, drop the marker.
+        pages.append((re.sub(r"^Page\s*\d+\s*[:.]\s*", "", label).strip(), block))
+    out = []
+    for heading, block in pages:
+        keep = []
+        for line in block.splitlines():
+            if line.startswith(">"):
+                keep.append(re.sub(r"^>\s?", "", line))
+            elif "[NEEDS:" in line:
+                keep.append(line)
+            elif not line.strip() and keep and keep[-1].strip():
+                keep.append("")
+        copy = "\n".join(keep).strip()
+        if copy:
+            out.append((heading, md(copy)))
+    return out
+
+
+def front_matter(path, skip_cover=True):
+    """Print-build wrapper: the same pages, wrapped as sections."""
+    return ['<section class="ch frontm">'
+            + (f"<h1>{html.escape(heading)}</h1>" if heading else "")
+            + body + "</section>"
+            for heading, body in front_matter_blocks(path, skip_cover)]
+
+
+BACK_MATTER = [
+    ("back-matter-cards.md",     "appA", "Appendix A · The Field Cards"),
+    ("back-matter-reference.md", "appB", "Appendix B · Reference"),
+    ("back-matter-glossary.md",  "appC", "Appendix C · Glossary"),
+]
+
+
+def back_matter():
+    """The three appendices, appended after Chapter 33.
+
+    They were written as separate files and neither renderer ever read them,
+    so every rendered edition of this manual ended at the last chapter. The
+    field card appendix is the training-day leave-behind the site promises,
+    which made it the most expensive of the three to be missing."""
+    out, toc = [], []
+    for fn, anchor, label in BACK_MATTER:
+        path = os.path.join(ROOT, fn)
+        if not os.path.isfile(path):
+            continue
+        t = open(path, encoding="utf-8").read()
+        title = re.search(r"^#\s+(.+?)\s*$", t, re.M)
+        title = title.group(1) if title else label
+        t = re.sub(r"^#\s+.+?\n", "", t, count=1)
+        out.append(f'<section class="ch appendix" id="{anchor}"><h1>{html.escape(title)}</h1>'
+                   + md(t) + "</section>")
+        toc.append(f'<li><a href="#{anchor}"><span class="tn">·</span> {html.escape(label)}</a></li>')
+    return out, toc
+
 
 def build():
     files = sorted(glob.glob(os.path.join(CH,"ch*.md")),
@@ -199,13 +428,16 @@ def build():
         txt = re.sub(r"(?m)^### Part \d of 2 · .*$","",txt)
         txt = re.sub(r"(?m)^\*Continues in Part 2 of 2.*$","",txt)
         txt = re.sub(r"(?m)^\*Part 1 of 2 covers.*$","",txt)
-        title = re.search(r"^#\s*Chapter\s*\d+\s*[—-]\s*(.+?)\s*$",txt,re.M).group(1)
+        title = re.search(r"^#\s*Chapter\s*\d+\s*[:—-]\s*(.+?)\s*$",txt,re.M).group(1)
         h = md(txt)
         if n in DIAGRAMS:
             h = h.replace("</h2>","</h2>\n"+DIAGRAMS[n],1)
         body.append(f'<section class="ch" id="ch{n}">{h}</section>')
         toc.append(f'<li><a href="#ch{n}"><span class="tn">{n}</span> {html.escape(title)}</a></li>')
 
+    fm_body = front_matter(os.path.join(ROOT, "front-matter.md"))
+    bm_body, bm_toc = back_matter()
+    toc.extend(bm_toc)
     css = """
 @page { size: A4; margin: 20mm 18mm; }
 :root{--ink:#2a2317;--dim:#5b5343;--gold:#8a6a2f;--line:#ddd4c0;--bg:#fffdf8;}
@@ -259,15 +491,17 @@ figcaption{font-size:8.8pt;color:var(--dim);font-style:italic;margin-top:3pt}
 .toc-part{margin:11pt 0 5pt!important;font-family:Arial,sans-serif;font-size:8.6pt;letter-spacing:.13em;text-transform:uppercase;color:var(--gold);font-weight:700}
 """
     doc = f"""<!doctype html><html lang="en"><head><meta charset="utf-8">
-<title>The Cruz Protocol — A Field Manual for Commercial Negotiation</title><style>{css}</style></head><body>
+<title>The Cruz Protocol: A Field Manual for Commercial Negotiation</title><style>{css}</style></head><body>
 <section class="title-pg"><div class="kick">A Field Manual</div>
 <h1>The Cruz Protocol</h1>
 <p class="sub">Commercial Negotiation, Sequenced</p>
 <p class="by">Dan Cruz</p>
 <p class="cred">Seven years of practice · five hosting · 1,000+ live sessions · Chicago</p>
-<p class="draft">Working draft — all 33 chapters. Bracketed <code>[NEEDS:]</code> markers are<br>case slots awaiting real field material; nothing in them is invented.</p></section>
+<p class="draft">Working draft. All 33 chapters. Bracketed <code>[NEEDS:]</code> markers are<br>case slots awaiting real field material. Nothing in them is invented.</p></section>
+{''.join(fm_body)}
 <section class="toc"><h1>Contents</h1><ul>{''.join(toc)}</ul></section>
 {''.join(body)}
+{''.join(bm_body)}
 </body></html>"""
     os.makedirs(BUILD, exist_ok=True)
     out = os.path.join(BUILD,"cruz-protocol.html")

@@ -1,4 +1,4 @@
-Chapter 32 - Coaching the Floor
+Chapter 32: Coaching the Floor
 
 Part 2 of 2 · The Practice
 
@@ -13,7 +13,7 @@ Managers pair up. One brings a real rep recording and coaches the other
  manager as though they were the rep.
 The observer scores four things only:
 Did they ask for the rep's read first?
-Did they name one behaviour, not several?
+Did they name one behavior, not several?
 Did they make the rep rehearse in the room?
 Did they agree one measurable commitment?
 Swap.
@@ -21,25 +21,25 @@ Then the reversal: the observing manager plays a rep who politely resists.
  Score whether the coach named the resistance or pushed through it.
 
 Managers are coached far less than reps are, and it shows. This drill is the
-one that makes internal certification (Chapter 2's Level ladder) credible - a
+one that makes internal certification (Chapter 2's Level ladder) credible. A
 manager who can't pass it can't sign anyone off.
 
 Scored on
 
 Metric: Coaching cadence. Target: One 20-minute session per rep per week. Binary, tracked.
 
-Metric: One-thing discipline. Target: Exactly one behaviour per session. Two or more scores as a failure.
+Metric: One-thing discipline. Target: Exactly one behavior per session. Two or more scores as a failure.
 
-Metric: Rehearsal occurred. Target: The rep performed the behaviour in the room. Binary - this is the row that predicts change.
+Metric: Rehearsal occurred. Target: The rep performed the behavior in the room. Binary. This is the row that predicts change.
 
 Metric: Rep-first diagnosis. Target: The manager asked for the rep's read before giving theirs. Binary.
 
-Metric: Commitment measurable. Target: Named behaviour, named check, named day.
+Metric: Commitment measurable. Target: Named behavior, named check, named day.
 
-Metric: Follow-through. Target: The manager actually checked on the agreed day. Track it - this is where programmes die.
+Metric: Follow-through. Target: The manager actually checked on the agreed day. Track it. This is where programmes die.
 
 The last row is the quiet one. Rollouts rarely fail because the coaching was
-wrong; they fail because week three got busy and nobody checked, and the floor
+wrong. They fail because week three got busy and nobody checked, and the floor
 learned that the commitment was optional.
 
 Failure mode
@@ -49,17 +49,15 @@ fills it with their own competence. "What I'd have said there is…" The rep
 nods. Nothing changes, and both parties leave believing coaching happened.
 
 What it looks like: the manager talking more than the rep in a coaching
-session. Score talk time in coaching the same way you score it in negotiation - 
-under 40%, same target, same reason.
+session. Score talk time in coaching the same way you score it in negotiation, under 40%, same target, same reason.
 
 The recovery: stop and hand it back.
 
-Quote. I've been telling you what I'd do, which isn't useful. Run it again - I'll be the buyer, you find your own words. End quote.
+Quote. I've been telling you what I'd do, which isn't useful. Run it again. I'll be the buyer, you find your own words. End quote.
 
 The second failure mode: coaching everything. The manager, seeing four
 correctable behaviours, corrects four. The rep implements none, because
 attention is finite and four simultaneous changes to how you speak under
-pressure is not a thing a human does. Pick the one that costs the most money - 
-usually Disarm being absent, or concessions after silence - and coach only that
+pressure is not a thing a human does. Pick the one that costs the most money, usually Disarm being absent, or concessions after silence, and coach only that
 until it holds. The others will still be there in three weeks, and several will
 have fixed themselves.

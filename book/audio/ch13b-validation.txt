@@ -1,4 +1,4 @@
-Chapter 13 - Validation
+Chapter 13: Validation
 
 Part 2 of 2 · The Practice
 
@@ -12,7 +12,7 @@ The drill
 sounds.
 The counterpart states an objection the operator genuinely disagrees with.
  Real ones from real pipeline.
-The operator must validate it - empathy statement or positive label - and
+The operator must validate it, empathy statement or positive label, and
  concede nothing. No movement on terms, no "we could look at," no
  softening of the number.
 A third person listens for one thing only: the word "but." Any "but,"
@@ -43,7 +43,7 @@ Failure mode
 
 Validation as a preamble to the rebuttal. The rep says the right sentence,
 then attaches the argument they were always going to make. "That completely
-makes sense - but I do want to point out that our SLA is actually…"
+makes sense, but I do want to point out that our SLA is actually…"
 
 The counterpart hears one thing: a technique deployed to soften them up before
 the real message. And now the validation tool is dead for the rest of the
@@ -54,7 +54,7 @@ breath. No pause between them.
 
 The recovery: name it and separate them.
 
-Quote. I did that badly - I validated you and then immediately argued with you. Let me just leave the first part where it is. That does make sense. End quote.
+Quote. I did that badly. I validated you and then immediately argued with you. Let me just leave the first part where it is. That does make sense. End quote.
 
 Then stop. The repair works because it demonstrates that the validation was
 real enough to be worth rescuing.
@@ -64,5 +64,5 @@ over-empathetic rep validates the objection, validates the emotion, validates
 the history, and by minute six has verbally endorsed the buyer's position so
 completely that asking for anything would be inconsistent. Validation is a
 bridge, not a destination. If you've validated for more than about ninety
-seconds without moving toward Stage 3, you aren't disarming - you're agreeing
+seconds without moving toward Stage 3, you aren't disarming, you're agreeing
 slowly.

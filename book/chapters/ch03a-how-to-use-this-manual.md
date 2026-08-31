@@ -1,4 +1,4 @@
-# Chapter 3 — How to Use This Manual
+# Chapter 3: How to Use This Manual
 
 ### Part 1 of 2 · The Method
 
@@ -12,7 +12,7 @@ This is a reference document, not a book you finish.
 
 The distinction is operational. A book is read once, in order, and remembered
 imperfectly. A manual is opened to a specific page, on a specific Tuesday,
-because a specific thing is about to happen — and then closed. It is designed
+because a specific thing is about to happen, and then closed. It is designed
 to be used badly: skimmed, dog-eared, opened to one page for four minutes
 before a call, and put down again.
 
@@ -31,14 +31,14 @@ minutes to identify which one you are.
 
 ### If you are the operator
 
-You negotiate personally — deals, renewals, claims, disputes, contracts. You
+You negotiate personally, deals, renewals, claims, disputes, contracts. You
 want to be better at it by next quarter.
 
 **Read Part 0, then Part I in full.** Stop. Do not continue to Part II until
 you have run the Read drills on live conversations for two weeks. The
-temptation is to read all four stages and feel equipped; what happens next is
+temptation is to read all four stages and feel equipped. What happens next is
 that you execute none of them, because you have four stages of theory and zero
-reps. Read is the only stage that improves anything on its own — you can
+reps. Read is the only stage that improves anything on its own. You can
 diagnose better starting tomorrow without changing anything else you do.
 
 Then take the parts in order. Roughly one part per month is realistic for
@@ -47,16 +47,16 @@ someone with a job.
 ### If you are installing this on a team
 
 You run a floor, a region, or an enablement function. Your problem is not your
-own skill — it is getting thirty people to execute the same sequence when you
+own skill. It is getting thirty people to execute the same sequence when you
 aren't watching.
 
-**Read Part 0, then jump directly to Part VI (Chapters 31–33).** That is the
+**Read Part 0, then jump directly to Part VI (Chapters 31-33).** That is the
 installation section: the 30-day rollout, how to coach it, and the scorecard
 you audit against. Read it before you read a single tool chapter, because it
-tells you what to measure — and what you measure on day one determines what
+tells you what to measure, and what you measure on day one determines what
 you get on day ninety.
 
-Then work back through Parts I–IV alongside your team, one stage at a time, at
+Then work back through Parts I-IV alongside your team, one stage at a time, at
 the pace of the rollout calendar in Chapter 31. Do not get ahead of them. A
 manager who has read the whole book while the floor is on Stage 1 starts
 coaching Stage 3 corrections into people who cannot yet run Stage 1, and the
@@ -64,7 +64,7 @@ rollout dies quietly in week three.
 
 ### If you are evaluating this
 
-You are deciding whether to spend money — on training, on tooling, on a
+You are deciding whether to spend money, on training, on tooling, on a
 program. You want to know if the method is real before you commit a budget line
 to it.
 
@@ -72,14 +72,14 @@ to it.
 else.
 
 Chapter 2 is the entire method in one chapter. Chapter 30 is where the method
-fails — bad faith, no authority, genuine deadlock, and when to walk away
+fails: bad faith, no authority, genuine deadlock, and when to walk away
 instead. Chapter 33 is the audit instrument: how you would know, six weeks
 later, whether anything actually changed.
 
 Those three chapters are chosen deliberately. Any methodology can produce an
 impressive overview. Far fewer will publish their own failure conditions and
 hand you the rubric to grade them against. If Chapters 30 and 33 don't
-withstand your scrutiny, close the book — you've saved yourself a procurement
+withstand your scrutiny, close the book, you've saved yourself a procurement
 cycle, and that's a legitimate outcome of reading it.
 
 ---
@@ -92,14 +92,14 @@ navigate any chapter in the book in about ten seconds.
 | Section | What it's for |
 |---|---|
 | **The Standard** | What the tool is and what it does. One paragraph, no story. |
-| **When to reach for it** | Trigger conditions — and the honest inverse, when *not* to use it. |
+| **When to reach for it** | Trigger conditions, and the honest inverse, when *not* to use it. |
 | **The words** | Verbatim scripts, boxed. Word-for-word, because that's what gets used under pressure. |
 | **What good sounds like** | The response you're listening for, and how to read the ones that aren't it. |
 | **The drill** | A rehearsal a manager can run in under twenty minutes with no preparation. |
 | **Scored on** | The metric. Specific enough to audit from a recording. |
 | **Failure mode** | How it goes wrong in the field, what that looks like on tape, and the recovery language. |
 
-Then the **Field Card** — the chapter compressed to one page. The cards are
+Then the **Field Card**, the chapter compressed to one page. The cards are
 collected in the appendix and they are meant to be pulled out, printed, and
 kept somewhere physical. A rep with the right card on their desk executes
 better than a rep who read the chapter twice.
@@ -119,7 +119,7 @@ nothing.
 **It will not make you good at this by being read.** Negotiation is a physical
 skill. It lives in what you do in the four seconds after you ask a question,
 not in what you know about the question. You can read this entire manual and
-improve by almost nothing. That is not a marketing position — it is the reason
+improve by almost nothing. That is not a marketing position. It is the reason
 every chapter has a drill, and the reason the drills are built for two people
 rather than one.
 
@@ -146,7 +146,7 @@ That fact is the reason the standard exists rather than a reason to be coy
 about it:
 
 > **These tools are used to create clarity, not confusion. More dignity, not
-> less. To listen in order to understand, not in order to win. When the
+> less. To listen to understand, not to win. When the
 > conversation ends, the other side should not feel beaten. They should feel
 > heard. That is the standard.**
 
@@ -163,4 +163,4 @@ standard. If you find one in here, it is an error and it should be reported.
 
 ---
 
-*Continues in Part 2 of 2 — the first week, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The first week, the scoring, and the failure mode.*

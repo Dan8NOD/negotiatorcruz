@@ -7,7 +7,7 @@ this rejoins each pair into one chapter and drops the "Part 1 of 2" scaffolding.
 
 Run:  python3 book/tools/makeepub.py  ->  build/cruz-protocol-DRAFT.epub
 """
-import glob, html, os, re, shutil, zipfile
+import glob, html, os, re, shutil, sys, zipfile
 from datetime import date
 
 ROOT  = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -30,6 +30,37 @@ PARTS = {
     5: ("Part V",   "Applications",  "Where the buyer sees themselves."),
     6: ("Part VI",  "Installation",  "How it gets installed and audited."),
 }
+
+# The six drawn figures live in makebook.py, keyed by chapter. The EPUB
+# shipped without any of them: the print build injected them and this one
+# never looked. Inline SVG is legal in EPUB 3, but the pages are XHTML, so
+# the element needs an explicit namespace that HTML lets you omit.
+_HERE = os.path.dirname(os.path.abspath(__file__))
+if _HERE not in sys.path:
+    sys.path.insert(0, _HERE)
+try:
+    import makebook as _mb
+    DIAGRAMS = _mb.DIAGRAMS
+except Exception:
+    DIAGRAMS = {}
+
+SVG_NS = ' xmlns="http://www.w3.org/2000/svg"'
+
+
+def with_ns(fig):
+    return fig.replace("<svg ", "<svg" + SVG_NS + " ", 1) if "xmlns" not in fig else fig
+
+
+def add_figure(num, body_html):
+    """Place the chapter's figure after its first section heading, which is
+    where the print build puts it."""
+    fig = DIAGRAMS.get(num)
+    if not fig:
+        return body_html, False
+    if "</h2>" in body_html:
+        return body_html.replace("</h2>", "</h2>" + with_ns(fig), 1), True
+    return with_ns(fig) + body_html, True
+
 
 def part_of(n):
     return 0 if n <= 3 else 1 if n <= 9 else 2 if n <= 14 else 3 if n <= 20 \
@@ -185,6 +216,39 @@ def blocks(md):
 
 # ───────────────────────── chapter assembly ─────────────────────────
 
+def front_matter_pages():
+    """The front matter, using the print build's spec-to-copy transform so the
+    two editions cannot disagree about what the front of the book says."""
+    path = os.path.join(ROOT, "front-matter.md")
+    if not os.path.isfile(path) or not hasattr(_mb, "front_matter_blocks"):
+        return []
+    return _mb.front_matter_blocks(path)
+
+
+BACK_MATTER = [
+    ("back-matter-cards.md",     "appa", "Appendix A: The Field Cards"),
+    ("back-matter-reference.md", "appb", "Appendix B: Reference"),
+    ("back-matter-glossary.md",  "appc", "Appendix C: Glossary"),
+]
+
+
+def back_matter_pages():
+    """(id, title, html) for each appendix that exists.
+
+    Neither renderer read these files, so every edition of the manual ended at
+    Chapter 33 with none of its appendices."""
+    out = []
+    for fn, pid, title in BACK_MATTER:
+        path = os.path.join(ROOT, fn)
+        if not os.path.isfile(path):
+            continue
+        md = open(path, encoding="utf-8").read()
+        md = re.sub(r"^#\s+.+?\n", "", md, count=1)
+        md = re.sub(r"`(\[NEEDS:.*?\])`", r"\1", md, flags=re.S)
+        out.append((pid, title, blocks(md.strip())))
+    return out
+
+
 def load_chapters():
     """Rejoin chNNa + chNNb into one chapter, dropping the split scaffolding."""
     found = {}
@@ -205,7 +269,10 @@ def load_chapters():
             if seg not in segs:
                 continue
             md = segs[seg]
-            t = re.search(r"^#\s+Chapter\s+\d+\s+[—-]\s+(.*)$", md, re.M)
+            # Headings are "# Chapter 8: Tactical Silence". This pattern
+            # still required a dash, so every title came back None and
+            # all 33 chapters shipped in the EPUB as bare "Chapter N".
+            t = re.search(r"^#\s*Chapter\s*\d+\s*[:\u2014-]\s*(.+?)\s*$", md, re.M)
             if t and not title:
                 title = t.group(1).strip()
             # strip the chapter h1, the "Part N of 2" subtitle, the part label,
@@ -241,6 +308,10 @@ h1, h2, h3, h4 { font-family: Georgia, serif; line-height: 1.2; page-break-after
                  text-align: left; }
 h1 { font-size: 1.7em; margin: 1.2em 0 .2em; }
 h1.ch { margin-top: 0; }
+figure.dia { margin: 1.4em 0; text-align: center; page-break-inside: avoid; }
+figure.dia svg { width: 100%; height: auto; }
+figure.dia figcaption { font-size: .82em; font-style: italic; color: #6b6252;
+                        margin-top: .4em; text-align: center; }
 .chnum { font-size: .72em; letter-spacing: .18em; text-transform: uppercase;
          color: #7a6a45; margin: 0 0 .3em; font-family: sans-serif; }
 h2 { font-size: 1.2em; margin: 1.6em 0 .4em; border-bottom: 1px solid #d8d2c2;
@@ -324,6 +395,7 @@ def build():
         shutil.copy(cover_src, os.path.join(oebps, "cover.jpg"))
 
     files = []   # (id, href, media-type, in_spine, nav_label, nav_level)
+    svg_pages = set()   # pages carrying an inline figure, for the manifest
 
     if has_cover:
         with open(os.path.join(oebps, "cover.xhtml"), "w", encoding="utf-8") as f:
@@ -344,6 +416,12 @@ def build():
         f.write(page("Title Page", tp))
     files.append(("title", "title.xhtml", "application/xhtml+xml", True, "Title Page", 0))
 
+    for i, (heading, phtml) in enumerate(front_matter_pages(), 1):
+        fid = f"fm{i:02d}"
+        with open(os.path.join(oebps, f"{fid}.xhtml"), "w", encoding="utf-8") as f:
+            f.write(page(heading, f'<h1 class="ch">{html.escape(heading)}</h1>' + phtml))
+        files.append((fid, f"{fid}.xhtml", "application/xhtml+xml", True, heading, 0))
+
     seen_parts = set()
     for c in chapters:
         p = part_of(c["num"])
@@ -352,20 +430,28 @@ def build():
             label, name, blurb = PARTS[p]
             pid = f"part{p}"
             with open(os.path.join(oebps, f"{pid}.xhtml"), "w", encoding="utf-8") as f:
-                f.write(page(f"{label} — {name}",
+                f.write(page(f"{label}: {name}",
                              f'<div class="partpage"><p class="pnum">{html.escape(label)}</p>'
                              f'<h1>{html.escape(name)}</h1>'
                              f'<p class="psub">{html.escape(blurb)}</p></div>'))
             files.append((pid, f"{pid}.xhtml", "application/xhtml+xml", True,
-                          f"{label} — {name}", 0))
+                          f"{label}: {name}", 0))
 
         cid = f"ch{c['num']:02d}"
+        chapter_html, has_svg = add_figure(c["num"], c["html"])
+        if has_svg:
+            svg_pages.add(cid)
         body = (f'<p class="chnum">Chapter {c["num"]}</p>'
-                f'<h1 class="ch">{html.escape(c["title"])}</h1>' + c["html"])
+                f'<h1 class="ch">{html.escape(c["title"])}</h1>' + chapter_html)
         with open(os.path.join(oebps, f"{cid}.xhtml"), "w", encoding="utf-8") as f:
-            f.write(page(f"Chapter {c['num']} — {c['title']}", body))
+            f.write(page(f"Chapter {c['num']}: {c['title']}", body))
         files.append((cid, f"{cid}.xhtml", "application/xhtml+xml", True,
                       f"{c['num']}. {c['title']}", 1))
+
+    for pid, ptitle, phtml in back_matter_pages():
+        with open(os.path.join(oebps, f"{pid}.xhtml"), "w", encoding="utf-8") as f:
+            f.write(page(ptitle, f'<h1 class="ch">{html.escape(ptitle)}</h1>' + phtml))
+        files.append((pid, f"{pid}.xhtml", "application/xhtml+xml", True, ptitle, 0))
 
     # back matter: the open evidence list, so the draft carries its own to-do
     rows = "".join(
@@ -374,7 +460,7 @@ def build():
         for c in chapters if c["gaps"])
     back = ('<h1>Open Evidence</h1>'
             f'<p>This draft carries <strong>{total_gaps}</strong> passages marked '
-            '<code>[NEEDS:]</code> — places where a real client situation, number, '
+            '<code>[NEEDS:]</code>, places where a real client situation, number, '
             'or outcome belongs. Nothing in the manual is invented, which is why '
             'these are blank rather than filled with plausible examples.</p>'
             '<div class="tw"><table><thead><tr><th>Ch</th><th>Chapter</th>'
@@ -438,7 +524,8 @@ def build():
                         'properties="cover-image"/>')
     spine = []
     for _id, href, mt, in_spine, _l, _lv in files:
-        manifest.append(f'<item id="{_id}" href="{href}" media-type="{mt}"/>')
+        props = ' properties="svg"' if _id in svg_pages else ''
+        manifest.append(f'<item id="{_id}" href="{href}" media-type="{mt}"{props}/>')
         if in_spine:
             spine.append(f'<itemref idref="{_id}"/>')
 
@@ -451,7 +538,7 @@ def build():
            f'<dc:creator>{html.escape(AUTHOR)}</dc:creator>\n'
            '<dc:language>en</dc:language>\n'
            f'<dc:date>{today}</dc:date>\n'
-           f'<dc:description>{html.escape(SUBTITLE)}. Working draft — '
+           f'<dc:description>{html.escape(SUBTITLE)}. Working draft. '
            f'{total_gaps} passages awaiting real field material.</dc:description>\n'
            f'<meta property="dcterms:modified">{today}T00:00:00Z</meta>\n'
            + ('<meta name="cover" content="coverimg"/>\n' if has_cover else '') +

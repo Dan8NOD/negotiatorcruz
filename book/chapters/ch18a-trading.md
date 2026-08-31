@@ -1,4 +1,4 @@
-# Chapter 18 — Trading: Never Give, Always Swap
+# Chapter 18: Trading: Never Give, Always Swap
 
 ### Part 1 of 2 · The Method
 
@@ -10,15 +10,14 @@
 
 Nothing leaves your side of the table without something coming back.
 
-Not because generosity is weakness — because **an unreciprocated concession
-teaches the other side that pressure works.** You gave once under pressure;
-they now know the mechanism. Every subsequent ask is cheaper for them to make
+Not because generosity is weakness, because **an unreciprocated concession
+teaches the other side that pressure works.** You gave once under pressure. They now know the mechanism. Every subsequent ask is cheaper for them to make
 and more expensive for you to refuse, and by the fourth round you are
 negotiating against a version of yourself you created.
 
 The discipline is simple to state and hard to hold: every movement is a trade.
 "If I do X, you do Y." Not "I'll do X and hope you remember." The trade can be
-small, it can be non-cash, it can be almost symbolic — but it has to exist, and
+small, it can be non-cash, it can be almost symbolic, but it has to exist, and
 it has to be named out loud in the same breath as the concession.
 
 The second half of the chapter is the more profitable one: **most of what's
@@ -55,20 +54,20 @@ Do **not** reach for it when:
 ## The words
 
 ```
-TRADING — the basic swap
+TRADING, the basic swap
 
   "If I move on price, what moves on your side?"
   "If we can't move the number, what else could move?"
   "If not the price, what else is actually on the table?"
-  "There's flexibility somewhere in this — where is it on your side?"
+  "There's flexibility somewhere in this, where is it on your side?"
 
-TRADING — signal without conceding
+TRADING, signal without conceding
 
   "There's something here I can flex on. It isn't the number."
   "What would you trade timeline for?"
   "Is there a non-cash way to make this work for both of us?"
 
-TRADING — find the asymmetry
+TRADING, find the asymmetry
 
   "What could I give you that wouldn't cost you anything to accept?"
   "What's cheap for you that would be valuable to me?"
@@ -82,7 +81,7 @@ TRADING — find the asymmetry
 **"There's something here I can flex on. It isn't the number."** is the most
 efficient sentence in the family. It does three things at once: it keeps them
 at the table, it takes price off the board without a refusal, and it invites
-them to start hunting for the flexible thing — which means they're now working
+them to start hunting for the flexible thing, which means they're now working
 on your behalf.
 
 The four **asymmetry** questions are the ones worth memorizing, because they
@@ -96,8 +95,8 @@ A worked structure:
 
 | They want | Costs you | Ask for | Costs them |
 |---|---|---|---|
-| 10% off | Real margin | 24-month term instead of 12 | Nothing — they were staying anyway |
-| Faster start | Scheduling pain | Signature this week | Nothing — the decision is made |
+| 10% off | Real margin | 24-month term instead of 12 | Nothing. They were staying anyway |
+| Faster start | Scheduling pain | Signature this week | Nothing. The decision is made |
 | Extra seats | Marginal | A reference call | Twenty minutes |
 | Payment terms | Cash flow | Case study rights | Their marketing team's afternoon |
 
@@ -132,4 +131,4 @@ to them and you've been paid in confetti. Ask for something else.
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

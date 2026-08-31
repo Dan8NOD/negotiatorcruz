@@ -1,4 +1,4 @@
-# Chapter 13 — Validation
+# Chapter 13: Validation
 
 ### Part 2 of 2 · The Practice
 
@@ -15,7 +15,7 @@ sounds.
 
 1. The counterpart states an objection the operator genuinely disagrees with.
    Real ones from real pipeline.
-2. The operator must validate it — empathy statement or positive label — **and
+2. The operator must validate it, empathy statement or positive label, **and
    concede nothing.** No movement on terms, no "we could look at," no
    softening of the number.
 3. A third person listens for one thing only: **the word "but."** Any "but,"
@@ -48,7 +48,7 @@ quiet, and the quiet is where the work happens.
 
 **Validation as a preamble to the rebuttal.** The rep says the right sentence,
 then attaches the argument they were always going to make. *"That completely
-makes sense — but I do want to point out that our SLA is actually…"*
+makes sense, but I do want to point out that our SLA is actually…"*
 
 The counterpart hears one thing: a technique deployed to soften them up before
 the real message. And now the validation tool is dead for the rest of the
@@ -60,7 +60,7 @@ breath. No pause between them.
 **The recovery:** name it and separate them.
 
 ```
-  "I did that badly — I validated you and then immediately
+  "I did that badly. I validated you and then immediately
    argued with you. Let me just leave the first part where
    it is. That does make sense."
 ```
@@ -73,7 +73,7 @@ over-empathetic rep validates the objection, validates the emotion, validates
 the history, and by minute six has verbally endorsed the buyer's position so
 completely that asking for anything would be inconsistent. Validation is a
 bridge, not a destination. If you've validated for more than about ninety
-seconds without moving toward Stage 3, you aren't disarming — you're agreeing
+seconds without moving toward Stage 3, you aren't disarming, you're agreeing
 slowly.
 
 ---
@@ -81,12 +81,12 @@ slowly.
 > ### Evidence
 >
 > `[NEEDS: one real case where validation moved a position without conceding
-> anything — ideally where the distrust was inherited from a previous vendor
-> rather than earned. 150–200 words. End on the mechanism.]`
+> anything, ideally where the distrust was inherited from a previous vendor
+> rather than earned. 150-200 words. End on the mechanism.]`
 
 ---
 
-## FIELD CARD 13 — VALIDATION
+## FIELD CARD 13: VALIDATION
 
 ```
 ┌──────────────────────────────────────────────────────────┐
@@ -116,7 +116,7 @@ slowly.
 │                                                          │
 │  RULES       Never follow with "but."                    │
 │              Validate, then be QUIET.                    │
-│              Under 90 seconds — it's a bridge, not a     │
+│              Under 90 seconds, it's a bridge, not a      │
 │              destination.                                │
 │                                                          │
 │  SCORED      Validated + terms unmoved · zero "but" ·    │
@@ -125,7 +125,7 @@ slowly.
 │                                                          │
 │  FAILS WHEN  You validate, then argue in the same        │
 │              breath. Now they know what it precedes.     │
-│  RECOVER     "I did that badly — I validated you and     │
+│  RECOVER     "I did that badly. I validated you and      │
 │              then argued with you. Let me leave the      │
 │              first part where it is."                    │
 └──────────────────────────────────────────────────────────┘

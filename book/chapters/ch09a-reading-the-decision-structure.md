@@ -1,4 +1,4 @@
-# Chapter 9 — Reading the Decision Structure
+# Chapter 9: Reading the Decision Structure
 
 ### Part 1 of 2 · The Method
 
@@ -8,7 +8,7 @@
 
 ## The Standard
 
-The person in front of you is frequently not the person you are negotiating
+The person in front of you is often not the person you are negotiating
 with.
 
 They are the person who was sent. Behind them is a finance stakeholder with a
@@ -18,7 +18,7 @@ someone whose reputation is attached to having argued against it. You will
 likely meet none of them. All of them will vote.
 
 **Reading the decision structure means establishing, before you make any ask,
-who can actually say yes — and what has to be true for them to.** Chapter 1
+who can actually say yes, and what has to be true for them to.** Chapter 1
 established that the negotiation started without you. This chapter is the
 instrument for finding out who was in the room.
 
@@ -34,13 +34,13 @@ you weren't invited to, for reasons nobody will tell you.
 Reach for it:
 
 - **Before your first substantive ask.** Always. This is not an advanced move
-  saved for complex deals; it is the price of entry.
+  saved for complex deals. It is the price of entry.
 - **When the process slows down for no stated reason.** Unexplained delay is
   almost always structural, not attitudinal. Somebody upstream has a question
   nobody has passed to you.
 - **When your contact keeps agreeing with you.** A counterpart who agrees with
   everything and commits to nothing is usually a person with no authority being
-  polite about it. Enthusiasm is not a proxy for power and they are frequently
+  polite about it. Enthusiasm is not a proxy for power and they are often
   inversely correlated.
 - **When the pronouns change.** See below. This is the highest-value signal in
   the chapter and it costs nothing to monitor.
@@ -60,11 +60,11 @@ nobody thinks pronouns are load-bearing.
 
 | They say | It usually means |
 |---|---|
-| **"I"** — *"I'd want to see the security review."* | Real authority, or at least real ownership. Take it seriously. |
-| **"We"** — *"We'd need to think about the timeline."* | A committee exists. Find out who's in it. "We" is the most common word in the mouth of someone who cannot decide alone. |
-| **"They"** — *"They'll never approve that."* | Authority is elsewhere and your contact has already positioned themselves as a bystander. This is either true, or a shield. Both matter. |
-| **A name** — *"Rachel's going to ask about SLAs."* | A gift. Write it down. Rachel is now the most important person in your deal. |
-| **Pronoun switches mid-sentence** — *"I think we could — well, they'd have to sign off."* | You just watched someone's actual authority narrow in real time. That sentence is the truest thing they'll say all meeting. |
+| **"I"**, *"I'd want to see the security review."* | Real authority, or at least real ownership. Take it seriously. |
+| **"We"**, *"We'd need to think about the timeline."* | A committee exists. Find out who's in it. "We" is the most common word in the mouth of someone who cannot decide alone. |
+| **"They"**, *"They'll never approve that."* | Authority is elsewhere and your contact has already positioned themselves as a bystander. This is either true, or a shield. Both matter. |
+| **A name**, *"Rachel's going to ask about SLAs."* | A gift. Write it down. Rachel is now the most important person in your deal. |
+| **Pronoun switches mid-sentence**, *"I think we could, well, they'd have to sign off."* | You just watched someone's actual authority narrow in real time. That sentence is the truest thing they'll say all meeting. |
 
 That last row is worth sitting with. People start sentences from the position
 they wish they occupied and finish them from the one they actually do. The
@@ -76,7 +76,7 @@ switch is where the wish runs out.
 
 Three instruments, escalating in directness.
 
-### Information labels — name the gap
+### Information labels, name the gap
 
 Say out loud that something is missing. Do not ask what it is. The distinction
 matters: a question puts them in the position of deciding whether to tell you,
@@ -109,7 +109,7 @@ isn't. It converts you from an adversary into a person with a problem, and
 people who would never volunteer information to an adversary will happily
 assist someone who is stuck.
 
-### Power labels — name the constraint they can't admit
+### Power labels, name the constraint they can't admit
 
 The advanced instrument, and the counterintuitive one. You say out loud that
 they lack authority. It sounds insulting. It is, reliably, one of the fastest
@@ -134,20 +134,19 @@ POWER LABELS
 
 There are only two possible responses, and both are wins.
 
-They **confirm** — *"honestly, yeah, this is Rachel's call"* — and you now know
-the structure, plus you have a counterpart who feels understood rather than
+They **confirm**: *"honestly, yeah, this is Rachel's call."* Now you know the
+structure. You also have a counterpart who feels understood rather than
 interrogated, which tends to make them an ally in reaching Rachel.
 
-Or they **push back** — *"no, I've got the authority here, I just have to
-socialize it"* — and people defending their authority overstate it and then
+Or they **push back**, *"no, I've got the authority here, I just have to
+socialize it"*, and people defending their authority overstate it and then
 feel obliged to demonstrate it. You have just made it socially expensive for
 them to hide behind a committee later.
 
 **Handle with care.** Deliver these flat and warm, never sharp. "It sounds like
 you're just here to deliver someone else's answer" said with any edge at all is
 a straightforward insult and will end the relationship. Said neutrally, as an
-observation about their situation rather than about them, it lands as empathy —
-because that's what it is. Being the person sent to deliver someone else's
+observation about their situation rather than about them, it lands as empathy, because that's what it is. Being the person sent to deliver someone else's
 answer is genuinely unpleasant, and almost nobody acknowledges it.
 
 The strongest of the twelve is *"It sounds like control matters more right now
@@ -155,14 +154,14 @@ than the actual terms."* That one is worth deploying whenever a negotiation has
 become strangely rigid over something small. It is very often correct, and it
 is almost never said.
 
-### Mislabels — be deliberately wrong
+### Mislabels, be deliberately wrong
 
 The precision instrument. State something you believe to be false, calmly, as
 though you believe it. The urge to correct an inaccuracy is stronger than the
 urge to volunteer a truth, and this tool runs entirely on that asymmetry.
 
 ```
-MISLABELS — decision structure
+MISLABELS, decision structure
 
   "It looks like this decision is entirely yours to make."
   "It seems like your team is fully on board with all of this."
@@ -170,7 +169,7 @@ MISLABELS — decision structure
   "It seems like timing isn't really an issue on your end."
   "It looks like there's nothing left to negotiate here."
 
-MISLABELS — position
+MISLABELS, position
 
   "It seems like price is the only thing standing in the way here."
   "It sounds like you're completely happy with how this is going."
@@ -187,7 +186,7 @@ The correction arrives immediately and it usually arrives with names attached.
 
 One rule: **a mislabel must be plausible.** Absurdly wrong statements get read
 as sarcasm and cost you trust. The tool works when they think you genuinely
-misunderstood — the correction is generous, not defensive. Aim just slightly
+misunderstood. The correction is generous, not defensive. Aim just slightly
 past what you actually believe.
 
 ---
@@ -199,7 +198,7 @@ single most valuable output of this chapter. Write it down exactly, including
 whether they used a first name (peer or junior) or a title (senior, or feared).
 
 **A number of people.** *"It'd go to the steering group."* Now ask how many and
-who chairs it — those are logistics questions and people answer logistics
+who chairs it. Those are logistics questions and people answer logistics
 questions freely, having just declined to answer an authority question.
 
 **A confession of limits, with relief in it.** People generally dislike
@@ -211,12 +210,12 @@ room without asking to.
 
 **What good does not sound like:** "yeah, I can make that call." Delivered
 quickly and without detail, that is very often the sentence of someone who
-cannot. Real authority tends to come with conditions attached — *"I can approve
-up to fifty, above that it's Rachel"* — because people who genuinely hold
-authority know precisely where it stops.
+cannot. Real authority tends to come with conditions attached, *"I can approve
+up to fifty, above that it's Rachel"*, because people who genuinely hold
+authority know exactly where it stops.
 
 ---
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

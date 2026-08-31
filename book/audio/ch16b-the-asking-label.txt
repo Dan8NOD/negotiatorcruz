@@ -1,4 +1,4 @@
-Chapter 16 - The Asking Label
+Chapter 16: The Asking Label
 
 Part 2 of 2 · The Practice
 
@@ -10,12 +10,12 @@ The drill
 
 "Kill the Question." Fifteen minutes, no preparation.
 Each person lists the five questions they most want answered across
- their live pipeline. The real ones - budget, competition, authority,
+ their live pipeline. The real ones, budget, competition, authority,
  deadline, the actual obstacle.
 Next to each, write what asking it directly would reveal about you.
  This column is the uncomfortable one and it's the point of the drill.
 Convert each into an asking label. No question marks allowed.
-Say all five out loud, then hold six seconds after each - the silence is
+Say all five out loud, then hold six seconds after each. The silence is
  half the tool.
 Pick the deal where you've been avoiding a direct question for weeks and
  commit to the label version this week.
@@ -26,7 +26,7 @@ that way changes how they open calls permanently.
 
 Scored on
 
-Metric: Disclosure avoided. Target: Sensitive intelligence - budget, competition, authority, deadline - obtained without a direct question. Count per deal.
+Metric: Disclosure avoided. Target: Sensitive intelligence, budget, competition, authority, deadline, obtained without a direct question. Count per deal.
 
 Metric: Correction rate. Target: Percentage of asking labels that draw a correction or an extension rather than a bare yes. Above 60% means the reads are calibrated.
 
@@ -34,13 +34,13 @@ Metric: Silence held. Target: Six seconds after each. Binary.
 
 Metric: Density. Target: One per exchange. Two in a row scores as a failure.
 
-Metric: Accuracy band. Target: Was the read roughly 70% right? Too safe produces bare agreement; too wrong is a mislabel and belongs in Ch 9.
+Metric: Accuracy band. Target: Was the read roughly 70% right? Too safe produces bare agreement. Too wrong is a mislabel and belongs in Ch 9.
 
 Failure mode
 
 Turning it back into a question. The rep delivers the label correctly and
 then, in the silence, panics and appends the question they were avoiding:
-"...it seems like you're comparing this against something else - are you
+"...it seems like you're comparing this against something else, are you
 talking to anyone else?"
 
 Everything is undone in six words. The disclosure they were protecting is now
@@ -51,12 +51,12 @@ What it looks like on tape: an asking label followed within four seconds by
 a sentence ending in a question mark.
 
 The recovery: none available mid-call, which is why this one matters. Once
-the question is asked it is asked. The only fix is upstream - drill the six
+the question is asked it is asked. The only fix is upstream, drill the six
 seconds until the reflex holds.
 
 The second failure mode: stacking them. Three asking labels in ninety
 seconds stops being perceptive and starts feeling like being read. The
 counterpart goes quiet, gives shorter answers, and the rest of the meeting
 yields nothing. One asking label per exchange, and never immediately after a
-label from another family - the counterpart cannot distinguish between your
+label from another family. The counterpart cannot distinguish between your
 families, they only register that they are being narrated at.

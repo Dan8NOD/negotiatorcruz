@@ -1,4 +1,4 @@
-# Chapter 24 — Reframing
+# Chapter 24: Reframing
 
 ### Part 1 of 2 · The Method
 
@@ -12,7 +12,7 @@ A reframe changes what the negotiation is about without changing what's on the
 table.
 
 Two moves do it. **Vision labels** pull someone out of the problem and into the
-outcome — the shipped trigger is exact: *they're stuck in the problem. Pull
+outcome. The shipped trigger is exact: *they're stuck in the problem. Pull
 them to the outcome.* **Elevation labels** raise the other side's standing, so
 that agreeing becomes consistent with who they are rather than a concession
 they made.
@@ -42,7 +42,7 @@ negotiable, and largely up to you.
 - **They're behaving smaller than they are.** Deferring, hedging, hiding behind
   process.
 - **You need them to act with authority they do have.** An elevation label is
-  frequently the fastest route to someone using power they've been declining to
+  often the fastest route to someone using power they've been declining to
   use.
 - **Before a hard number.** *"You seem like someone who doesn't get rattled by
   a hard number"* costs nothing and changes how the next sentence lands.
@@ -59,10 +59,10 @@ Do **not** reach for either when:
 
 ## The words
 
-### Vision labels — pull them to the outcome
+### Vision labels, pull them to the outcome
 
 ```
-VISION — the future state
+VISION, the future state
 
   "What does this look like once it's actually working?"
   "What does the day after this deal closes actually look like for you?"
@@ -72,9 +72,9 @@ VISION — the future state
   "What does 'better' actually look like once this is behind you?"
   "If this works perfectly, what changes for you beyond the money?"
 
-VISION — name what they're really doing
+VISION, name what they're really doing
 
-  "It sounds like you're not just negotiating the deal — you're
+  "It sounds like you're not just negotiating the deal, you're
    negotiating the future."
   "It sounds like you're protecting a future version of this,
    not just today."
@@ -82,7 +82,7 @@ VISION — name what they're really doing
   "It sounds like you're already picturing the version of this
    that works."
 
-VISION — the unspoken want
+VISION, the unspoken want
 
   "What's the version of this that you're afraid to say out loud?"
   "It sounds like the outcome you really want isn't on the table yet."
@@ -91,16 +91,16 @@ VISION — the unspoken want
 
 **"What would you regret not asking for once this is done?"** is the most
 valuable line in the family and it belongs at the close. It gives them
-permission to raise the thing they've been holding — and the thing people hold
+permission to raise the thing they've been holding, and the thing people hold
 back is very often cheap for you and decisive for them. This is Chapter 25's
 territory arriving early, and it is worth asking twice in a long deal.
 
 **"What's the version of this that you're afraid to say out loud?"** is the
 sharpest and requires the most earned trust. Do not use it before Stage 2 is
 done. Used at the right moment it produces the actual objective, which is
-frequently not the one that's been on the agenda for three meetings.
+often not the one that's been on the agenda for three meetings.
 
-### Elevation labels — raise their standing
+### Elevation labels, raise their standing
 
 ```
 ELEVATION
@@ -126,7 +126,7 @@ ELEVATION
 ```
 
 The mechanism is consistency, not flattery. A person who has just been
-described — accurately — as someone who's done this a hundred times will not
+described, accurately, as someone who's done this a hundred times will not
 then behave like a novice, because people act in line with the identity that's
 currently active. That is why the truth requirement is absolute: an elevation
 label that isn't true doesn't activate an identity, it activates suspicion.
@@ -147,7 +147,7 @@ flinching would mean.
 ## What good sounds like
 
 **They describe the future in detail.** The longer the description, the more
-committed they are to it — and everything they name becomes something the deal
+committed they are to it, and everything they name becomes something the deal
 now has to deliver, which is your specification.
 
 **"Honestly, what I really want is…"** The vision label surfacing the actual
@@ -156,7 +156,7 @@ objective. Usually different from the stated one and usually more achievable.
 **They act bigger.** Observable within a minute of an elevation label. Shorter
 sentences, fewer qualifiers, decisions made rather than deferred.
 
-**They correct the elevation downward — and then act on it anyway.** *"I
+**They correct the elevation downward, and then act on it anyway.** *"I
 wouldn't say everyone defers to me…"* followed by a decision. The identity
 activated regardless of whether they accepted the compliment.
 
@@ -168,4 +168,4 @@ this person and go back to substance.
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

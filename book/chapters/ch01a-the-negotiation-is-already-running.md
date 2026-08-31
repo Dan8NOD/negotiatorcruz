@@ -1,4 +1,4 @@
-# Chapter 1 — The Negotiation Is Already Running
+# Chapter 1: The Negotiation Is Already Running
 
 ### Part 1 of 2 · The Method
 
@@ -34,14 +34,14 @@ Three things, and they compound.
 
 **The timeline starts earlier.** Most sales organizations date a negotiation
 from the pricing conversation. That's the last quarter of it. The positions
-that will govern the outcome were set weeks before — in a quarterly budget
+that will govern the outcome were set weeks before, in a quarterly budget
 review, in a hallway conversation after a bad support ticket, in a competitor's
 outreach email that landed on a Tuesday when your champion was already
 irritated with you. Every one of those was a move. You didn't get to respond to
 any of them.
 
 **The participant list is longer than the invite list.** The person on your
-call is rarely the person who decides, and is frequently not even the person
+call is rarely the person who decides, and is often not even the person
 with the strongest opinion. There is a finance stakeholder who has never met
 you and has a number in their head. There is someone in operations who used
 your product last quarter and had a bad week. There is a person whose reputation
@@ -51,7 +51,7 @@ the call.
 
 **Early contact stops being about persuasion.** This is the part that changes
 behavior on Monday. If the deal is already in motion, the purpose of every
-conversation before the pricing conversation is to find out where it is — who
+conversation before the pricing conversation is to find out where it is, who
 has spoken, what they said, what's already been decided, and what's still open.
 A rep who spends early contact presenting is spending it blind. A rep who
 spends it locating arrives at the pricing conversation already knowing which
@@ -59,7 +59,7 @@ argument they're actually having.
 
 > **The counterintuitive part.** Most training tells you to control the
 > negotiation. You can't control something that started without you. What you
-> can do is find out how far it has already traveled — and that is a far more
+> can do is find out how far it has already traveled, and that is a far more
 > useful capability, because it's available in every deal, including the ones
 > you inherited.
 
@@ -67,40 +67,47 @@ argument they're actually having.
 
 ## The words
 
-These go in early conversations — discovery, check-ins, the call after a demo.
+These go in early conversations, discovery, check-ins, the call after a demo.
 They are not pricing questions and should never sound like they are.
 
 ```
 LOCATING THE DEAL
 
-  Finding the timeline
-  "When did this first come up on your end?"
-  "What was happening that made this a priority now?"
-
   Finding the room
-  "Who else has been part of this conversation so far?"
-  "Whose week gets harder if this doesn't happen?"
+  "Who else has to sign off before any of this is real?"
+  "What are you actually trying to protect in this?"
 
   Finding the position already taken
-  "What's the general feeling internally at this point?"
-  "Has anyone raised a concern I should know about
-   before it becomes a problem?"
+  "What haven't you told me yet that you think I should know?"
+  "Is something being left unsaid?"
 
   Finding the alternative
-  "What were you doing about this before we talked?"
-  "If this stalled out, what happens instead?"
+  "If nothing changes in six months, what does that look like?"
+  "What's higher priority than this right now, and why?"
 ```
 
-That last pair does more work than the rest combined. The answer to "what
-happens instead" is their alternative — and their alternative is the ceiling on
-what you can ask for. Chapter 4 covers what to do with that answer. This chapter
-is about getting it early enough to matter.
+All six are shipped lines. They come from the listening family (Chapter 4),
+the no-oriented family (Chapters 12 and 21), and the not-yet family (Chapter
+5). Locating is not a new tool. It is the Read families deployed early, before anyone has said the
+word "negotiate."
+
+There is a fourth job, finding the timeline, and it has no scripted lines yet.
+
+`[NEEDS: two locating questions for the timeline. Nothing in the 544 shipped
+lines asks when this first came up, what made it a priority now, or what they
+were doing about it before we talked. The drafted versions read fine but have
+never been shipped or drilled. Bless them or replace them.]`
+
+The alternative pair does more work than the rest combined. The answer to "if
+nothing changes, what does that look like" is their alternative, and their
+alternative is the ceiling on what you can ask for. Chapter 4 covers what to do
+with that answer. This chapter is about getting it early enough to matter.
 
 Note the register. Every one of these is a question a helpful colleague would
 ask. None of them signals that a negotiation is underway, which is the point:
 you are gathering position while the other side still believes the two of you
 are in the pre-negotiation phase. That is not a trick. They genuinely are still
-in that phase — you're simply the only one who knows it isn't.
+in that phase, you're simply the only one who knows it isn't.
 
 ---
 
@@ -117,7 +124,7 @@ Chapter 9 is about what to do next.
 **"We're just gathering information right now."** Almost never true, and it's
 the most useful false answer you'll get. Nobody gathers information about a
 thing they haven't already started deciding. Treat it as a signal that a
-position exists and hasn't been shared. Don't challenge it — note it, and keep
+position exists and hasn't been shared. Don't challenge it, note it, and keep
 locating.
 
 **A long pause before the answer.** Something happened internally that they are
@@ -127,10 +134,10 @@ about this.
 **"You're the only one we're talking to."** Occasionally true. Usually a
 courtesy. Either way, it's a claim about their alternative, and claims about
 alternatives are the most reliably inflated statements in commercial
-negotiation — in both directions, by both sides.
+negotiation, in both directions, by both sides.
 
 ---
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

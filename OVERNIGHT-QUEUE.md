@@ -1,0 +1,254 @@
+# Overnight Work Queue
+
+Hourly blocks, roughly 15 minutes of work each, running Chicago midnight to
+7am. Each firing takes **the top item not marked done**, does that item only,
+commits, ticks the box, and stops.
+
+## Rules for each block
+
+1. Do **one** item. Do not start a second.
+2. Commit and push before finishing. A block that ends uncommitted is lost
+   work, because the container can be reclaimed.
+3. Never fill a `[NEEDS:]` slot. Those are Dan's real cases and named expert
+   voices. Inventing one would be worse than leaving the box empty, and it is
+   the single rule that protects both books.
+4. Rebuild derived output when chapters change:
+   `python3 book/tools/build.py && python3 book/tools/makebook.py && python3 guide/tools/makeguide.py`
+5. No dashes. Run `python3 book/tools/voicepass.py <files>` on anything new.
+7. Script lines come from the 544 shipped lines. If the Supabase connector
+   is down, use the checked-in export at `book/data/negotiation_labels.json`
+   (and `negotiation_knowledge.json`). Read-only. The table is canonical.
+6. If every item is done, go to **New books** at the bottom and take the top
+   one there. If that list is also done, stop the cron and say so.
+
+---
+
+## Queue
+
+### Manual: The Cruz Protocol
+
+- [x] **M1. Front matter.** Title page positioning line (a field manual, not a
+      guide, not a journey), the "who this manual is for" page naming job
+      titles explicitly (sales leaders, procurement, claims, legal, real
+      estate principals, L&D), and the credentials page. Use the settled line:
+      seven years of practice since Covid, five hosting, 1,000+ live sessions.
+      Never "since 2024." → `book/front-matter.md`
+- [x] **M2. Back matter, part 1: the Field Card appendix.** All 33 cards
+      collected in order as a printable section, with a one-paragraph note on
+      how to use them (print, laminate, one per desk). The cards already exist
+      at the end of each `chNNb` file; this collects them.
+      → `book/back-matter-cards.md`
+- [x] **M3. Back matter, part 2: reference.** The emotion vocabulary reference
+      (from the 1st Edition, expanded with the Torn/Ready/Not Yet triage), a
+      blank manager's scorecard sized for a real floor, and one clean page on
+      bringing the install in-house that names the ladder without pitching.
+      → `book/back-matter-reference.md`
+- [x] **M4. Consistency pass on Ch 1-3 and Ch 6.** These were drafted before
+      the 544 shipped lines were available, so their script boxes are written
+      rather than assembled. Reconcile against `book/02-LABEL-INVENTORY.md`.
+      Flag rather than invent where no shipped line covers a slot.
+
+### Guide: Six Before Yes
+
+- [x] **G1. Front matter.** Cover, title and copyright with the IP notice,
+      the introduction stating five theses flatly (the blueprint's model), and
+      "how to use this guide" carrying the State Check instruction on page
+      four. → `guide/front-matter.md`
+- [x] **G2. Back matter.** Glossary of every marked term, the About
+      Negotiators on Demand page, and the CTA page. One offer only: first
+      Saturday session free. The one-page method summary already exists and
+      slots in ahead of these. → `guide/back-matter.md`
+- [x] **G3. Figure specs.** Seven figures are currently prose placeholders.
+      Draw them as SVG in the same system as the manual's two diagrams, so the
+      guide has one visual hand: master six-step diagram, authority map,
+      positions/stakes waterline, influence map, balance-of-power grid,
+      movement loop, and the closed loop.
+
+### Cross-book
+
+- [x] **X1. Shared glossary audit.** Both books use Read/Disarm/Steer/Close,
+      the three states, and the leverage trio. Verify the definitions match
+      word for word across the two manuscripts. A reader who owns both and
+      finds them disagreeing is the worst outcome available.
+
+---
+
+## The mandate, Sun Aug 17
+
+Dan's directive, given live in session: keep the queue firing every two
+hours and get to at least four finished books inside one to two weeks. The
+emphasis is negotiation in interpersonal relationships, personal finance,
+and everyday situations, scaling all the way up to multi-million dollar
+deals. New books cap near 100 pages.
+
+What that means for the list:
+
+1. **The Drill Book gets finished.** That is book three. Eight drill blocks
+   plus indexes, per the format fixed in `drillbook/00-DECISIONS.md`.
+2. **Book four is new: the everyday book.** Working title *Same Words,
+   Bigger Rooms*, in `everyday/`. Decisions doc scaffolded first, same as
+   the guide was. It is the consumer register done right: the 1st Edition's
+   audience, the Protocol's actual tools, scripts from the same 544 shipped
+   lines, and every real story flagged for Dan rather than invented.
+3. **G3 and X1 are done** (see the log). A final all-four-books
+   conformance check runs as X2 near the end of the list.
+4. **N3 stays parked.** Dan has not justified it and the standing rule
+   holds. If every block below is done and Dan has not weighed in, stop and
+   say so rather than starting it.
+
+A block remains one item, committed and pushed, box ticked, one log line.
+
+## The ordered list
+
+- [x] **B4-0. Scaffold the everyday book.** `everyday/00-DECISIONS.md`:
+      audience, register, the scale-arc structure, the chapter map with the
+      family sources per chapter, and what stays flagged for Dan.
+- [x] **D1. Drills 01 to 05** to full format in `drillbook/`, per the
+      decisions doc order.
+- [x] **B4-1. Everyday specimen chapter.** Chapter 1 written to full length
+      to lock the voice, plus `everyday/tools/` build script cloned from the
+      guide's.
+- [x] **D2. Drills 06 to 10** (as numbered: 07 to 11, since 06 shipped in
+      D1 and there is no 03).
+- [x] **B4-2. Everyday Ch 2.**
+- [x] **D3. Drills 11 to 15** (as numbered: 12 to 16).
+- [x] **B4-3. Everyday Ch 3.**
+- [x] **D4. Drills 16 to 20** (as numbered: 17 to 21).
+- [x] **B4-4. Everyday Ch 4.**
+- [x] **D5. Drills 21 to 25** (as numbered: 22 to 26).
+- [x] **B4-5. Everyday Ch 5.**
+- [x] **D6. Drills 26 to 30** (as numbered: 27 to 31).
+- [x] **B4-6. Everyday Ch 6.**
+- [x] **D7. Drills 31 to 35** (as numbered: 32, 33, then guide drills 34
+      to 36).
+- [x] **B4-7. Everyday Ch 7.**
+- [x] **D8. Drills 36 to 40** (as numbered: 37 to 39, and the count is
+      now settled at 38, see the decisions doc and its new title flag).
+- [x] **B4-8. Everyday Ch 8.**
+- [x] **D9. The two drill indexes** (by what is broken, by time and people)
+      plus Part V program pages assembled from Ch 31 and the flagged
+      Saturday format.
+- [x] **B4-9. Everyday Ch 9.**
+- [x] **B4-10. Everyday Ch 10.**
+- [x] **B4-11. Everyday Ch 11.**
+- [x] **B4-12. Everyday Ch 12,** the belief-family chapter, written only as
+      far as the shipped lines allow and held behind Dan's sign-off note.
+- [x] **B4-13. Everyday front matter.**
+- [x] **B4-14. Everyday back matter,** glossary aligned word for word
+      with the audited definitions from X1.
+- [x] **X2. Glossary conformance across all four manuscripts.** X1 verified
+      the two finished books. Rerun the same audit once the drill and
+      everyday manuscripts exist, word for word, all four.
+- [x] **B4-15. Everyday full voice pass and page-count check** against the
+      100-page cap, then a rendered PDF proof.
+- [x] **D10. Drill Book full voice pass and page-count check,** then a
+      rendered PDF proof. Note for a later block: the drill book still
+      wants formal front and back matter pages, the build script's title
+      page stands in for now.
+- [x] **N2. The Field Card Deck.** A physical product rather than a book: 33
+      cards, print-ready at a real card size, with cut marks. The site
+      already promises these as the training-day leave-behind.
+- [x] **D11. Drill Book front and back matter.** Discovered at D10: title
+      and copyright pages on the series pattern with the count flag
+      carried, and a short back matter pointing at the manual, the guide
+      and the Saturday session. The build script's generated title page
+      stands in until then.
+- [ ] **N3. Objections: The Counter-Manual.** Not yet justified. Do not
+      start without Dan. Listed only so the queue has a visible end.
+
+### The quality pass, added Fri after the list closed
+
+Dan said keep working, so the layer the fast drafting never had:
+
+- [x] **Q1. Line verification tool.** `book/tools/verifylines.py`: extract
+      every quoted line from the everyday book's script boxes, match it
+      against the checked-in catalog export under the allowed transforms
+      (dash conversion, slot to blank), and report anything unmatched.
+      Judge each report honestly: whitelist the deliberately authored
+      teaching lines, fix any line that drifted from its shipped wording.
+      The tool stays in the repo as the standing enforcement of rule 4.
+- [x] **Q2. Cross-reference audit.** Every Chapter N and Drill NN mention
+      in the two new books checked against its actual target,
+      programmatically where possible, fixed where wrong.
+- [x] **Q3. EPUBs for the new books.** The manual has `makeepub.py`.
+      Extend the pipeline so the Drill Book and the everyday book render
+      to draft EPUBs the way the manual does.
+
+### The audio and funnel pass, added Sat Aug 30
+
+Dan's direction, given live: more of the books ready as audiobooks, simple
+reminders of the basic tools that keep people motivated, and readers always
+able to come to him for personal training or the other products, the
+Mix & Match practice software on the App Store and at
+negotiatorsondemand.com.
+
+- [x] **A1. Guide narration scripts.** The manual and the everyday book
+      have audiobook scripts. Six Before Yes has none. Clone the narration
+      tool onto the guide: the method summary as the opening track, seven
+      chapters, stage directions stripped, the parallel grid left to
+      Chapter 4's teaching. → `guide/tools/makenarration.py`, `guide/audio/`
+- [x] **A2. The series page.** No book names the others, the sessions, the
+      training, or the software. One shared Also-from page in each book's
+      back matter: the four books by role, the Saturday session, personal
+      training, and Mix & Match on the App Store and the website. Same
+      text in all four, so it is checkable, and no invented claims about
+      the app beyond name, platform, and where it lives.
+- [x] **A3. The cards, spoken.** The reminder product Dan described,
+      derived rather than written: the 33 field cards as short spoken
+      scripts, sixty to ninety seconds each, assembled from the card
+      fields and the chapter's shipped lines. The audio twin of the deck
+      N2 printed.
+
+---
+
+## Log
+
+Each block appends one line: date, item, what changed.
+
+| When | Item | Result |
+|---|---|---|
+| Sat 23:5x CT (manual first block) | M1 | `book/front-matter.md`. Five pages: title with the positioning note, copyright carrying the honest attribution split, the who-this-is-for page naming eight job titles, the standard, and the author page on the settled seven-years-five-hosting line. |
+| Sun 20:0x CT | M2 | `book/back-matter-cards.md`, all 33 cards collected by part. Found only 30 existed: Ch 14 had none, Ch 31 and 33 used a different format from the other thirty. Wrote card 14 (the Attack Decoder) and reformatted 31 and 33 to the standard 56-column box. All 33 now consistent and verified square. |
+| Sun 20:1x CT | M3 | `book/back-matter-reference.md`. Emotion vocabulary grouped by six pressure categories with the four banned defaults called out, the state triage table, the blank twelve-row scorecard marked free to photocopy, and the honest in-house page that names the ladder once and stops. |
+| Sun 20:2x CT | G1 | `guide/front-matter.md`. Cover, copyright with the Protocol cross-reference and IP split, the five theses stated flatly, how-to-use carrying the State Check on page four, and the standard. |
+| Sun 20:2x CT | G2 | `guide/back-matter.md`. Twenty-term glossary with each term tagged to its step, the About page, and a CTA page that ends by pointing out it would be strange to close a book arguing you cannot learn this from a book by selling another one. |
+| Mon (M4 block) | M4 | Ch 1, 2 and 6 script boxes reassembled from shipped lines. Ch 6 now carries all twelve labeling templates with the Chapter 5 blank, Ch 2's transitions quote the audit, calibrated and summary families, Ch 1's locating box uses listen, noq and notyet lines. The timeline slot has no shipped coverage and is flagged, gap count 34 to 35. Ch 3 has no script boxes, verified, nothing to reconcile. Cards 01, 02, 06 updated in chapters and appendix, all boxes verified square. |
+| Sun (G3 block) | G3 | All seven guide figures drawn as inline SVG in `makeguide.py`, same system as the manual's two diagrams: master six-step line with brackets and the return arrow, authority map, positions and stakes waterline, influence map, balance of power grid, movement loop, and the closed ring. Each replaces its chapter's prose placeholder at build time, and a missing placeholder now fails the build. The placeholder text stays in the chapter sources as each figure's spec. The one-pager no longer prints the master figure spec, since the figure exists. All seven verified visually in a rendered build, zero dashes in the built book. |
+| Sun (X1 block) | X1 | Shared vocabulary audited across both manuscripts. The four stages, the three states, and the leverage trio agree: stage produces and skip costs, the Torn and Ready and Not Yet reads, the Time and Silence formula lines, the leverage table with its predictability example, the that's right versus you're right rule, anchors, and the thirty-three card count all check. One defect found and fixed: the parallel grid said Torn asks for information they don't read, while the guide's own Chapter 4 prose and the manual's triage table both say don't use. The grid now says use. |
+| Sun eve (mandate) | B4-0 | `everyday/00-DECISIONS.md`. Fourth book scaffolded to Dan's live directive. Working title Same Words, Bigger Rooms. Twelve-chapter map across four parts, kitchen table to six zeros, every chapter sourced to shipped families, the belief family proposed as Ch 12 behind a sign-off flag, three open flags for Dan. Queue reordered into the mandate list and the two-hour Routine created. |
+| Wed 18:0x UTC | D1 | First five drills to full format in `drillbook/drills/`, one file each: 01 Backdate the Deal, 02 Call the Stage, 04 Shut Up and Score, 05 Three Emotions Three Minutes, 06 The Label Round. Numbering settled and recorded in the decisions doc: a drill carries its source chapter's number, no Drill 03, guide drills are 34 to 39, final count settled at collection per the no-padding rule. Also fixed two table cells the voice pass had mangled in the decisions doc. |
+| Wed 20:1x UTC | B4-1 | Specimen chapter `everyday/ch1-the-argument-you-are-actually-having.md`, 1,443 words, voice locked: second person, home register, the seven-section spine from the decisions doc plus a when-not-to section the home setting demands. Script boxes assembled from the labeling, latent and listen families, blanks per the manual's convention, one story slot flagged. Build script `everyday/tools/makeeveryday.py` cloned from the guide's, reusing the manual renderer, skips unwritten chapters, builds clean at 13 KB. |
+| Wed 22:2x UTC | D2 | Drills 07 to 11 to full format: The Last Three Words, Six Seconds On Camera, Map the Room, The Five Worst Things, Name the Thing. Scripted lines inside them quoted verbatim from the digging, power, mislabel, audit and negatives families. Eleven of the manual's thirty-two drills now done. |
+| Thu 00:2x UTC | B4-2 | `everyday/ch2-listening-is-not-waiting.md`, 1,194 words. Encourager, mirror, silence and voice families in three boxes with the bracket stage-direction convention kept from the catalog. The bigger-room page runs the mirror against procurement. Story slot flagged. Book builds at 20 KB with two chapters. |
+| Thu 02:1x UTC | D3 | Drills 12 to 16 to full format: Invert the Ask, Validate Don't Concede, The Three-Type Sort, Rewrite Ten Demands, Kill the Question. Shipped lines quoted from the noq, empathy, positive, trust, calibrated and asking families. The Three-Type Sort carries Ch 14's standing flag for Dan's three real attack lines. Fifteen of forty drills done. |
+| Thu 04:1x UTC | B4-3 | `everyday/ch3-the-repair.md`, 1,177 words. Going first after a rupture: audit lines pointed at yourself, empathy lines that concede nothing, the trust questions, and the acknowledge family's stuck line as the door reopener. When-not-to covers the real apology owed first and repair used to skip accountability. Bigger room runs the same sequence on a blown rollout renewal. Part I of the book is now complete in draft. |
+| Thu 06:3x UTC | D4 | Drills 17 to 21 to full format: Three In Their Words, Currency Map, Where's It From, Real or Atmosphere, Ask and Absorb. Shipped lines quoted from the summary, chip, anchor, bracket, urgency, noq and calibrated families. Twenty of forty drills done, the whole Steer run plus the first Close drill. |
+| Thu 08:1x UTC | B4-4 | `everyday/ch4-the-raise.md`, 1,107 words, Part II opener. The power ask: no-oriented meeting asks, the audit on the awkwardness, asking labels to locate the real decision-maker, calibrated conversions for the vague answer. When-not-to holds the leverage rule and bans the bluffed outside offer. Bigger room is the twelve percent price increase, pointing at manual Part V. Story slot flagged. Build at 34 KB. |
+| Thu 10:2x UTC | D5 | Drills 22 to 26 to full format: Hunt the Phrase, Honor It Once, Two Frames, The Sweep, Write Their Review. Shipped lines quoted from the thatright, focus, fairness, vision, elevation, onemore and listen families. Twenty-five of forty drills done, into the Part V application chapters. |
+| Thu 12:5x UTC | B4-5 | `everyday/ch5-the-big-purchase.md`, 1,167 words. The dealership chapter: anchor probes, brackets, the chip currencies kept separate, the silence stage directions for your own number, and the loss family taught as defense, recognizing the pressure lines when they run at you. When-not-to holds the walkaway rule and the fairness standard on private sellers. Bigger room is a nine-figure acquisition anchor. Build at 41 KB. |
+| Thu 14:2x UTC | D6 | Drills 27 to 31 to full format: Argue Against Yourself, Hold the Line at Volume, No Exit, Kill the Deal, The Monday Fifteen. Kill the Deal names Ch 30's four questions and quotes the acknowledge family. The Monday Fifteen is the facilitator's own drill, the fixed weekly session the rest run inside. Thirty of forty drills done. |
+| Thu 16:1x UTC | B4-6 | `everyday/ch6-the-bill-you-should-not-pay.md`, 1,121 words. Negotiating a system through a person: ally lines for the agent with the noq escalation, the clean family pinning vague words, How am I supposed to do that as the workhorse, urgency checks on collections clocks, and the log discipline. When-not-to holds the pledge line: pay the fair bill. Build at 48 KB, half the book drafted. |
+| Thu 18:1x UTC | D7 | Drills 32 to 36 to full format: Coach the Coach, Score Twelve Rows, then the guide's first three converted from scenario format to facilitator format: The Eleven-Word Brief, The False Number and the False Clock, The Messenger With No Mandate. The manual's thirty-two are all done. Thirty-five of forty. |
+| Thu 20:1x UTC | B4-7 | `everyday/ch7-the-landlord-and-the-contractor.md`, 1,098 words, closes Part II. Negotiation inside a continuing relationship: focus labels to narrow, calibrated unpacking with the snag question flagged as the ask-it-early tool, positive labels as relationship deposits, summaries locked in writing. When-not-to bans hostage leverage and points bad relationships at the Ch 30 test. Build at 55 KB. |
+| Thu 20:4x UTC | D8 | The last three guide drills to full format: Two Defensible Paths, The Hardened Position With the Room Watching, The Clause That Breaks in a Month. All thirty-eight drills now written. The count is settled in the decisions doc: 38 drills plus 2 Part V programs, with a new flag for Dan on the working title's 40, including the best fix, two real Saturday-session drills the books never captured. |
+| Thu 20:5x UTC | B4-8 | `everyday/ch8-the-job-offer.md`, 1,032 words, opens Part III. Peak leverage between offer and acceptance: noq lines to slow it down, brackets to find the band, vision lines aimed at the one-year win, urgency tests for exploding deadlines, the comp messenger armed. When-not-to bans theater counters and sets the gracious-yes standard. Build at 62 KB. Dan said keep working, so this block ran in the same session as D8. |
+| Thu 21:0x UTC | D9 | `drillbook/02-the-two-indexes.md` and `03-the-programs.md`. Symptom index covering all 38 drills, the time-and-bodies index built from each drill's actual header fields, the four-week install mapped to Ch 31's rollout, and the twelve-week curriculum sequencing every drill plus the manager track. The Saturday session page holds its flag and assembles nothing. Drill Book content is now complete except front and back matter, pending D10's proof. |
+| Thu 21:2x UTC | B4-9 | `everyday/ch9-no-without-the-burn.md`, 1,112 words. The clean no: warmth that is true, the unpadded no taught as form rather than script, the non-cash currency, labels for the push, and Sounds like that's a no for taking one. When-not-to covers the fake clean no, warmth as anesthetic, and the repeat offender as a Ch 30 problem. Build at 68 KB. |
+| Thu 21:4x UTC | B4-10 | `everyday/ch10-torn-ready-not-yet.md`, 1,098 words, closes Part III. The state triage on three coffees: torn named without shame, ready scheduled instead of persuaded, not-yet asked the future questions with someday-or-never flagged as the brave line. When-not-to bans the clinician verdict and weaponized urgency, and turns the triage on the advisor. Definitions match manual Ch 5 word for word. Build at 75 KB. |
+| Thu 22:0x UTC | B4-11 | `everyday/ch11-the-same-words-with-six-zeros.md`, 1,041 words. The payoff chapter: a $4.2M committee room walked stage by stage, every move pointed back at the chapter that taught it in a small room, framed explicitly as a composite. What the zeros change, preparation, paper, time, team, and what they do not, the sentences. The evidence flag asks Dan for a real at-scale case to anchor or replace the composite. Build at 82 KB. |
+| Thu 22:2x UTC | B4-12 | `everyday/ch12-what-they-believe.md`, 1,087 words, behind the sign-off flag at the top. The belief family aimed inward first, seven of the thirteen lines quoted, the three gentlest offered for people you love, and the longest when-not-to in the book: never as leverage, never mid-argument, and the therapist boundary stated plainly. The bigger-room section closes the whole arc by refusing to scale. All twelve chapters now drafted, 13,677 words, build at 89 KB. |
+| Thu 22:4x UTC | B4-13 | `everyday/front-matter.md`, five pages on the series pattern: cover, copyright with the honest attribution split and the standing title flag, the introduction on the thousand-session premise, how-to-use with the front-door map, and the standard with its home-table teeth. Build at 94 KB. |
+| Thu 23:0x UTC | B4-14 | `everyday/back-matter.md`. Eighteen-term glossary with every shared definition carried word for word from the X1-audited wording, chapter tags swapped for step tags, belief marked conditional. About page reuses the settled credential text verbatim, and the CTA holds the single Saturday offer. Build at 100 KB, the whole manuscript now assembled. |
+| Thu 23:2x UTC | X2 | Glossary and doctrine audited across all four manuscripts. Shared glossary entries diffed programmatically: two drifts found, both in the day-old everyday glossary, Protocol and State, fixed to the audited wording. Stage order, state names, leverage trio, and the that's right rule checked across every file in all four books: consistent, no contradictions. |
+| Thu 23:4x UTC | B4-15 | Everyday proof pass. Voice pass across all fifteen files changed nothing, zero dashes, zero semicolons in prose. PDF proof rendered at 49 pages against the 100-page cap, with headroom for Dan's twelve stories. Structure verified in the render: twelve chapters, four parts, front and back matter, fifteen flagged slots visible. Book four is draft-complete. |
+| Fri 00:0x UTC | D10 | `drillbook/tools/makedrillbook.py` written on the shared renderer, sorting the 38 drills into the four parts from each drill's own PART field, with the two indexes ahead and the programs behind. Voice pass across all 42 files changed nothing, zero dashes. PDF proof at 91 pages, under the cap. All 38 drills verified in the render with the four flags visible. Book three is draft-complete except formal front and back matter, noted on D10's box. |
+| Fri 00:2x UTC | N2 | `book/tools/makecards.py`. The 33 cards parsed from the appendix, verified at 33 or the build fails, rendered two-up on letter at 6 by 4 inches with corner cut marks and a cover sheet. PDF proof at 18 pages. The deck the site promises now exists as a printable file. D11 added to the list for the drill book's formal front and back matter. |
+| Fri 00:4x UTC | D11 | `drillbook/front-matter.md` and `back-matter.md` on the series pattern: cover, copyright with the no-new-doctrine note and photocopy permission, the this-book-assumes-a-room page, the standard with the score-the-behavior clause, the drill-to-chapter map, About, and the single Saturday offer. Build script includes both, proof now 95 pages, still under the cap. The ordered list is complete except N3, which stays parked without Dan. |
+| Fri 01:0x UTC | Q1 | `book/tools/verifylines.py`. Every logical line in the everyday book's script boxes now machine-checked against the catalog export under the allowed transforms, with a short documented allowlist for the deliberately authored teaching lines. Found and fixed one wrap indented like an entry in Ch 5, and codified the numeral-spelling convention the manual already used. Runs clean, exit 1 on any future drift. |
+| Fri 01:2x UTC | Q2 | Cross-reference audit of both new books. Everyday: every Chapter N mention checked, two real bugs found and fixed, Ch 7 and Ch 9 pointed readers at Chapter 30 which the everyday book does not have, both now name the corporate manual's failure chapter explicitly. Drill book: zero dangling Drill NN references, all 38 drills covered by the two indexes, no phantom numbers. |
+| Fri 01:4x UTC | Q3 | `book/tools/makeepub2.py`, the generic KDP pipeline on the manual's renderer and stylesheet. Both new books now render to draft EPUBs: the everyday book at 50 KB with its twelve chapters and four parts, the Drill Book at 87 KB with all 38 drills sorted by part. Mimetype ordering, nav, and NCX verified, no markdown leakage in the rendered pages, and each title page carries its open-slot count. The quality pass is complete. |
+| Fri 02:0x UTC | Q4 | Two closing deliverables. `book/GAP-INTAKE.md` extended to cover all four books, the everyday twelve listed cheapest first and the Drill Book's two bonus drills named as the title fix, so Dan has one ranked list. And `everyday/tools/makenarration.py` reuses the manual's narrate pipeline to generate twelve audiobook scripts into `everyday/audio/`, flags stripped, boxes spoken. |
+| Fri 03:0x UTC | Q5 | Cold quality reads of both new books, run as two Fable 5 subagents, then triaged and fixed. Drill book: nine header boxes that contradicted their own steps (times that could not fit the steps, people counts below what the steps require, a NEEDS list missing its timer), an index row filing a room drill under solo work, two wrong cross-references, two verbatim duplicated sentences, and the Part II definition that never matched the four three-seat drills. Everyday book: two invented script lines taught as moves, now replaced with shipped calibrated questions, plus five factual errors about the companion books, all five verified against source before fixing. Chapter 12 gained the Try it this week section the spine promised. Four of nine manual plugs trimmed. |
+| Sat 30 Aug | A1 | `guide/tools/makenarration.py` on the shared narrate pipeline. Eight scripts into `guide/audio/`: the one-page method summary as the opening track, then all seven chapters. Bracketed stage directions, figure specs and device counts stripped whole before narration, flags gone, drills and worked answers spoken. Verified zero leftover brackets and zero NEEDS text across all eight files, about 8,000 words of narration. |
+| Sat 30 Aug | A2 | The Also-from page, one hundred seventy-four words, word for word identical in all four back matters and verified so programmatically. Four books each named with a one-line role and audience, Mix & Match named as the free practice app on the App Store and the website, the Saturday session, personal training with Dan, and corporate installs. Placed ahead of each book's Come-practice page so every book still ends on the single offer, and at the end of the manual's glossary appendix. Full rebuild green, shipcheck all four, voice pass clean. |
+| Sat 30 Aug | A3 | `book/tools/makecardscripts.py`, the audio twin of the printed deck. All 33 field cards derived into spoken reminder scripts in `book/audio/cards/`, one per chapter, 102 to 221 words each, about a minute read aloud. The conversion is mechanical, borders stripped, labels spoken as headings, cue arrows spoken as one line per cue, and the tool fails the build on any unspoken character. Nothing appears in a script that is not on its card. |

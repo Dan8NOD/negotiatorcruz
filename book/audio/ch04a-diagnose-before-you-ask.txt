@@ -1,4 +1,4 @@
-Chapter 4 - Diagnose Before You Ask
+Chapter 4: Diagnose Before You Ask
 
 Part 1 of 2 · The Method
 
@@ -18,7 +18,7 @@ Listening in the Protocol is not politeness and it is not waiting. It is an
 active extraction procedure with a specific output: by the end of the
 conversation you should be able to state the other side's position more
 accurately than they stated it. Not sympathetically. Accurately. If you
-can't, you weren't listening - you were queuing.
+can't, you weren't listening. You were queuing.
 
 When to reach for it
 
@@ -32,7 +32,7 @@ They're saying something you disagree with. Disagreement is the moment
  listening switches off and rebuttal-drafting switches on. It is audible. They
  can hear it in the two-beat pause where you were supposed to be thinking.
 They're repeating themselves. People repeat things when they don't
- believe they've been heard. A third repetition is not stubbornness - it's a
+ believe they've been heard. A third repetition is not stubbornness, it's a
  receipt for a listening failure two minutes earlier.
 You're behind on time. The single most expensive place to save four
  minutes.
@@ -48,7 +48,7 @@ Three tools live here, and they escalate in force.
 
 Minimal encouragers are the cheapest thing in the manual and they buy more
 talking than any question. The rule is that they end. That's the whole
-technique - say the small thing and then genuinely stop.
+technique, say the small thing and then genuinely stop.
 
 Minimal Encouragers.
 
@@ -64,7 +64,7 @@ Quote. Right." One word, then stop. End quote.
 
 Quote. Uh-huh." Nothing else. Keep your face open. End quote.
 
-Quote. Okay - say more about that." Then close your mouth. End quote.
+Quote. Okay, say more about that." Then close your mouth. End quote.
 
 Quote. Take your time." Then actually give them the silence to use it. End quote.
 
@@ -75,9 +75,9 @@ Quote. Sure." One syllable, then wait. End quote.
 Listen-For lines are the mid-weight instrument. Each one is a hypothesis
 about what is really going on, said out loud so they can confirm or correct it.
 
-LISTEN FOR - the ask under the ask
+LISTEN FOR, the ask under the ask
 
-Quote. Before we go further - walk me through what actually happened. End quote.
+Quote. Before we go further, walk me through what actually happened. End quote.
 
 Quote. It sounds like the surface ask isn't the real ask. End quote.
 
@@ -91,7 +91,7 @@ Quote. It sounds like the real value here never shows up on the invoice. End quo
 
 Quote. It seems like we're pricing two completely different things. End quote.
 
-LISTEN FOR - principle, not price
+LISTEN FOR, principle, not price
 
 Quote. What's the one principle you're not willing to trade on? End quote.
 
@@ -101,7 +101,7 @@ Quote. It seems like fairness matters more here than the dollars do. End quote.
 
 Quote. What would make this feel like a win, even if the number never moves? End quote.
 
-LISTEN FOR - the block
+LISTEN FOR, the block
 
 Quote. It sounds like you want to say yes and something's stopping you. End quote.
 
@@ -121,27 +121,27 @@ underestimated tool in Part I. When someone hands you a fuzzy word, you have
 two options: assume you know what they meant, or make them define it. Everyone
 takes option one. Option one is where deals go to die.
 
-CLEAN LANGUAGE - make the vague word do work
+CLEAN LANGUAGE, make the vague word do work
 
-Quote. Stuck" - what kind of stuck is that? End quote.
+Quote. Stuck", what kind of stuck is that? End quote.
 
-Quote. Complicated" - complicated how? End quote.
+Quote. Complicated", complicated how? End quote.
 
-Quote. Expensive" - expensive compared to what? End quote.
+Quote. Expensive", expensive compared to what? End quote.
 
-Quote. Risky" - risky how, specifically? End quote.
+Quote. Risky", risky how, specifically? End quote.
 
-Quote. Difficult" - difficult in what way? End quote.
+Quote. Difficult", difficult in what way? End quote.
 
-Quote. Busy" - busy with what, exactly? End quote.
+Quote. Busy", busy with what, exactly? End quote.
 
-Quote. Fine" - what does fine actually mean here? End quote.
+Quote. Fine", what does fine actually mean here? End quote.
 
-Quote. Later" - later meaning when, specifically? End quote.
+Quote. Later", later meaning when, specifically? End quote.
 
-Quote. Overwhelmed" - overwhelmed by what, exactly? End quote.
+Quote. Overwhelmed", overwhelmed by what, exactly? End quote.
 
-Quote. Maybe" - what would move that to a yes? End quote.
+Quote. Maybe", what would move that to a yes? End quote.
 
 Quote. And when it's unfair, what happens next? End quote.
 
@@ -156,14 +156,14 @@ What good sounds like
 
 They talk for longer than is comfortable for you. This is the primary
 signal and it feels wrong for about two weeks. The instinct that a long
-monologue means you've lost control of the call is precisely backwards - you
+monologue means you've lost control of the call is exactly backwards. You
 have never had more control than when someone is explaining their own
 constraints to you unprompted.
 
 They say something they didn't plan to say. You can usually hear it. There
 is a small hesitation before it, and often a "look," or "honestly," or "between
 us." That's the sentence you came for. Write it down verbatim, not paraphrased
- - you'll want their exact words later, in Stage 3.
+you'll want their exact words later, in Stage 3.
 
 They correct your Listen-For line. "It's not really about fairness, it's
 that I'll have to defend this to my board." Excellent. You proposed a
@@ -179,4 +179,4 @@ agreeable, frictionless discovery calls are usually a sign that nobody said
 anything real. A call where nothing was corrected is a call where nothing was
 learned.
 
-Continues in Part 2 of 2 - the drill, the scoring, and the failure mode.
+Continues in Part 2 of 2. The drill, the scoring, and the failure mode.

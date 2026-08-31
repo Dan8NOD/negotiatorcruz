@@ -1,4 +1,4 @@
-Chapter 30 - When the Protocol Fails
+Chapter 30: When the Protocol Fails
 
 Part 2 of 2 · The Practice
 
@@ -10,8 +10,7 @@ The drill
 
 "Kill the Deal." Twenty-five minutes, run quarterly on live pipeline.
 Each rep brings their oldest open deal.
-They run all three diagnoses out loud: bad faith, no authority, deadlock - 
- with evidence for each, not impressions.
+They run all three diagnoses out loud: bad faith, no authority, deadlock, with evidence for each, not impressions.
 Then the four questions above, answered honestly, in front of the room.
 Then the hard part: each rep names one deal they will kill this week,
  and drafts the acknowledgement sentence they'll use.
@@ -28,7 +27,7 @@ Metric: Diagnosis before escalation. Target: Any deal stalled 3+ conversations g
 
 Metric: Small-commitment test. Target: Requested on every suspected bad-faith deal. Binary.
 
-Metric: Time to kill. Target: Days from first stall signal to a definite answer. Track it - this is the number that frees capacity.
+Metric: Time to kill. Target: Days from first stall signal to a definite answer. Track it. This is the number that frees capacity.
 
 Metric: Clean endings. Target: Deals ended with an explicit acknowledgement rather than fading. Percentage.
 
@@ -40,7 +39,7 @@ Trying harder. The rep, correctly trained, responds to a stalling
 negotiation by running the Protocol more carefully. More labels. Better
 questions. A tighter summary.
 
-In all three failure conditions this makes things worse - because sustained
+In all three failure conditions this makes things worse, because sustained
 attention from someone who cannot be helped, will not agree, or genuinely
 cannot move reads as pressure regardless of how well executed it is. The
 technique is fine. It is aimed at a problem it cannot solve.
@@ -54,7 +53,7 @@ Quote. I've been working this like there's a version that lands, and I'm not sur
 
 The second failure mode: mistaking a hard negotiation for a failing one. The
 inverse error, and it's expensive in the other direction. A counterpart who is
-difficult, slow, or unpleasant is not necessarily acting in bad faith - Chapter
-28's disputes are frequently all three and entirely winnable. The three
-conditions have specific tells. Apply the tests rather than the feeling; the
+difficult, slow, or unpleasant is not necessarily acting in bad faith. Chapter
+28's disputes are often all three and entirely winnable. The three
+conditions have specific tells. Apply the tests rather than the feeling. The
 feeling is often just fatigue.

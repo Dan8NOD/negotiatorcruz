@@ -1,4 +1,4 @@
-# Chapter 26 — The Renewal and the Price Increase
+# Chapter 26: The Renewal and the Price Increase
 
 ### Part 1 of 2 · The Method
 
@@ -13,7 +13,7 @@ you have been conducting, unaware, for the entire contract term.
 
 Every support ticket that took too long, every invoice that arrived larger than
 expected, every promised feature that slipped, every quarterly review someone
-scheduled and then moved — all of it was position-building. By the time you
+scheduled and then moved. All of it was position-building. By the time you
 open the renewal conversation, the other side is not forming a view. They are
 consulting one they've been assembling since month two.
 
@@ -36,7 +36,7 @@ position stated honestly is the accusation audit.
 - **Immediately after anything goes wrong.** A bad escalation is a renewal
   event. Handle it as one.
 - **When they go quiet.** Silence from an existing account is the most
-  misread signal in commercial work. Happy customers are also quiet; the two
+  misread signal in commercial work. Happy customers are also quiet. The two
   look identical until the renewal lands.
 
 Do **not**:
@@ -57,7 +57,7 @@ Do **not**:
 ```
 LOCATING THE RENEWAL
 
-  "Looking back over the year — what's the thing we got
+  "Looking back over the year, what's the thing we got
    most wrong?"
   "If you were writing our review internally, what would
    the criticism be?"
@@ -69,7 +69,7 @@ LOCATING THE RENEWAL
 ```
 
 *"Who inside your organization has been least happy with us?"* is the important
-one. There is always someone, they are frequently not your contact, and they
+one. There is always someone, they are often not your contact, and they
 will be in the room where this gets decided (Chapter 9).
 
 ### Then: the increase, front-loaded
@@ -78,7 +78,7 @@ The accusation audit does the work here because every objection to a price
 increase is one you already know.
 
 ```
-THE INCREASE — audit first
+THE INCREASE, audit first
 
   "You're probably thinking we're charging more for exactly
    the same thing."
@@ -97,7 +97,7 @@ Then the mechanism, plainly, and then stop:
    not good enough."
 ```
 
-### Leverage — know which kind you actually have
+### Leverage, know which kind you actually have
 
 Most renewal conversations fail because the rep reaches for the only leverage
 they've ever named. There are three:
@@ -109,7 +109,7 @@ they've ever named. There are three:
 | **Normative** | Their own stated standards, applied to an inconsistency | "You told us predictability mattered more than price" |
 
 Negative leverage is usually the strongest, because people work harder to avoid
-a loss than to chase a gain — and in a renewal it is almost always *theirs* to
+a loss than to chase a gain, and in a renewal it is almost always *theirs* to
 lose, not yours. **It is also the one to name least directly.** A migration
 cost you describe is a threat. A migration cost they compute, in answer to a
 loss question from Chapter 20, is a fact.
@@ -123,7 +123,7 @@ arguing price, that inconsistency is theirs to resolve, not yours to attack.
 ## What good sounds like
 
 **A criticism you hadn't heard.** The point of the ninety-day read. A
-complaint volunteered at day ninety is a gift; the same complaint at day thirty
+complaint volunteered at day ninety is a gift. The same complaint at day thirty
 is an objection.
 
 **"Honestly the increase isn't the issue."** Extremely common, and it means the
@@ -145,4 +145,4 @@ month eleven was never easy.
 
 ---
 
-*Continues in Part 2 of 2 — the drill, the scoring, and the failure mode.*
+*Continues in Part 2 of 2. The drill, the scoring, and the failure mode.*

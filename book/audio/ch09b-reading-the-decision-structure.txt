@@ -1,4 +1,4 @@
-Chapter 9 - Reading the Decision Structure
+Chapter 9: Reading the Decision Structure
 
 Part 2 of 2 · The Practice
 
@@ -17,7 +17,7 @@ Then the hard part: mark every box with how you know. Told directly?
  them.
 Count the assumed boxes. Count the empty space.
 Each rep writes the one sentence they will use on their next call to
- convert their largest assumption into a fact - an information label, a power
+ convert their largest assumption into a fact. An information label, a power
  label, or a mislabel, written verbatim.
 Next week's review opens by checking what came back.
 
@@ -29,7 +29,7 @@ Scored on
 
 Metric: Named participants. Target: Three or more, by name, with role. Under three means the deal is running blind.
 
-Metric: Authority confirmed. Target: The person who signs is identified and confirmed - not assumed - before the first ask. Binary.
+Metric: Authority confirmed. Target: The person who signs is identified and confirmed, not assumed, before the first ask. Binary.
 
 Metric: Assumption ratio. Target: Facts vs. assumptions on the deal map. Under 50% facts is a red deal regardless of how it feels.
 
@@ -55,7 +55,7 @@ What it looks like on tape: high enthusiasm, no names, no numbers, no
 mention of process. Nobody with real authority describes a purchase without
 mentioning a mechanism.
 
-The recovery: widen the room without demoting your champion - that
+The recovery: widen the room without demoting your champion. That
 relationship is real and worth protecting.
 
 Quote. You've been the one carrying this internally and I don't want that to fall entirely on you. Who else should be in the next conversation so you're not the only one defending it? End quote.
@@ -65,6 +65,6 @@ end-run. Your champion stays your champion, and you get the room.
 
 The second failure mode: mapping the structure and then negotiating with the
 wrong person anyway. Rep identifies that Rachel decides, writes it in the CRM,
-and keeps running the deal through the friendly contact - because the friendly
+and keeps running the deal through the friendly contact, because the friendly
 contact returns calls and Rachel is intimidating. Diagnosis without action is
 just a well-documented loss.

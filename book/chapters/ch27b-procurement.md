@@ -1,4 +1,4 @@
-# Chapter 27 — Procurement and the Committee You Can't See
+# Chapter 27: Procurement and the Committee You Can't See
 
 ### Part 2 of 2 · The Practice
 
@@ -12,7 +12,7 @@
 
 **"Argue Against Yourself."** Twenty-five minutes.
 
-1. Each rep writes the **strongest case against their own proposal** — the
+1. Each rep writes the **strongest case against their own proposal**, the
    version the internal skeptic would present.
 2. They mark which parts they can answer in writing and which they can only
    answer in person.
@@ -24,7 +24,7 @@
    name.
 
 Step 3 is the drill. Most reps discover that their strongest argument is one
-they deliver verbally, with conviction, in a room — and that the actual
+they deliver verbally, with conviction, in a room, and that the actual
 decision happens somewhere that argument cannot travel.
 
 ---
@@ -61,13 +61,12 @@ answer to the strongest counter-argument.
 ```
 
 That question reframes your champion from advocate to operator, and it hands
-them the thing they actually needed — ammunition, not enthusiasm.
+them the thing they actually needed, ammunition, not enthusiasm.
 
 **The second failure mode: treating commoditization as an insult.** The rep,
 told they're being compared on price, becomes indignant and starts asserting
 differentiation loudly. Assertion is exactly what a scoring matrix is designed
-to neutralize. Differentiation that arrives as a claim scores nothing;
-differentiation that arrives as a compliance advantage, a risk reduction, or a
+to neutralize. Differentiation that arrives as a claim scores nothing. Differentiation that arrives as a compliance advantage, a risk reduction, or a
 cost the alternatives carry and you don't, scores.
 
 ---
@@ -75,52 +74,52 @@ cost the alternatives carry and you don't, scores.
 > ### Evidence
 >
 > `[NEEDS: a real deal decided by people you never met. How did you reach them
-> — or how did you fail to? What made the argument portable, or what stopped it
-> travelling? 150–200 words.]`
+> or how did you fail to? What made the argument portable, or what stopped it
+> travelling? 150-200 words.]`
 
 ---
 
-## FIELD CARD 27 — PROCUREMENT
+## FIELD CARD 27: PROCUREMENT
 
 ```
-┌──────────────────────────────────────────────────────────┐
-│  PROCUREMENT                    Part V · APPLICATIONS    │
-├──────────────────────────────────────────────────────────┤
-│  Their job is to make you interchangeable.               │
-│  Not hostility — function.                               │
-│                                                          │
-│  THE REAL    The decision happens in a room you're not   │
-│  CONSTRAINT  in, described by someone who isn't you.     │
-│              Your argument must survive being repeated   │
-│              by a third party. Design for that.          │
-│                                                          │
-│  ASK         "When this gets discussed without me,       │
-│               who presents it?"                          │
-│              "If someone wanted to argue against this,   │
-│               what's the strongest thing they'd say?"    │
-│              "What would you need in writing to          │
-│               defend this internally?"                   │
-│                                                          │
-│  TO          "It seems like your job here is to make     │
-│  PROCUREMENT  sure we're comparable to two others."      │
-│              "What's the thing that would get us         │
-│               disqualified?"   ← ask about the FLOOR     │
-│              Flat delivery. Charm scores nothing.        │
-│                                                          │
-│  GONE QUIET  Exit ramp, not follow-up:                   │
-│              "Have you given up on this?"                │
-│              "Should I close your file?"                 │
-│              Release them and they reply.                │
-│                                                          │
-│  SCORED      Presenter named · argument portable in      │
-│              writing · disqualifier known · strongest    │
-│              counter-argument surfaced early             │
-│                                                          │
-│  FAILS WHEN  You sell to the person who likes you and    │
-│              arm them with enthusiasm instead of         │
-│              ammunition.                                 │
-│  RECOVER     "You're going to have to make this case     │
-│              without me. What do you need from me so     │
-│              it holds up in that room?"                  │
-└──────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│  PROCUREMENT                    Part V · APPLICATIONS  │
+├────────────────────────────────────────────────────────┤
+│  Their job is to make you interchangeable.             │
+│  Not hostility, function.                              │
+│                                                        │
+│  THE REAL    The decision happens in a room you're not │
+│  CONSTRAINT  in, described by someone who isn't you.   │
+│              Your argument must survive being repeated │
+│              by a third party. Design for that.        │
+│                                                        │
+│  ASK         "When this gets discussed without me,     │
+│               who presents it?"                        │
+│              "If someone wanted to argue against this, │
+│               what's the strongest thing they'd say?"  │
+│              "What would you need in writing to        │
+│               defend this internally?"                 │
+│                                                        │
+│  TO          "It seems like your job here is to make   │
+│  PROCUREMENT  sure we're comparable to two others."    │
+│              "What's the thing that would get us       │
+│               disqualified?"   ← ask about the FLOOR   │
+│              Flat delivery. Charm scores nothing.      │
+│                                                        │
+│  GONE QUIET  Exit ramp, not follow-up:                 │
+│              "Have you given up on this?"              │
+│              "Should I close your file?"               │
+│              Release them and they reply.              │
+│                                                        │
+│  SCORED      Presenter named · argument portable in    │
+│              writing · disqualifier known · strongest  │
+│              counter-argument surfaced early           │
+│                                                        │
+│  FAILS WHEN  You sell to the person who likes you and  │
+│              arm them with enthusiasm instead of       │
+│              ammunition.                               │
+│  RECOVER     "You're going to have to make this case   │
+│              without me. What do you need from me so   │
+│              it holds up in that room?"                │
+└────────────────────────────────────────────────────────┘
 ```
