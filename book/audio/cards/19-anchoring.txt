@@ -1,0 +1,21 @@
+Field card 19 of 33. Anchoring. Part III. STEER.
+
+Three moves, in this order: PROBE theirs, BRACKET the range, SET yours
+
+Probe.
+"Compared to what, exactly?" "Where did that number actually come from?" "Is that the number, or just the first one anyone said out loud?" "Is that based on this deal, or the last one that went badly?"
+
+Bracket.
+"Before we talk exact numbers, what range are you even considering?" "What would the top of your range need to include to make sense?" People who won't give a number give a range.
+
+Set.
+Ackerman ladder, 65%. 85%. 95%. 100% Steps DECELERATE: 20, then 10, then 5. Even steps say the well is infinite. End non-round. $47,250 not $47,000. Silence between steps. A trade at each one.
+
+Scored.
+Probe before every counter. range obtained first. steps decelerate. final non-round. zero unreciprocated ladder steps
+
+Fails When.
+You counter a number you never tested, and legitimize it by doing so.
+
+Recover.
+"I jumped to a counter without asking the obvious thing. Where did the sixty come from?"
