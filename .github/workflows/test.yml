@@ -127,7 +127,12 @@ jobs:
           distribution: temurin
           java-version: '17'
 
+      # The action's default package list includes 'tools', which Android
+      # cmdline-tools 16.0 no longer ships, so sdkmanager exits 1 before the
+      # build starts. Name exactly what AGP 8.7 needs for compileSdk 34.
       - uses: android-actions/setup-android@v3
+        with:
+          packages: 'platform-tools platforms;android-34 build-tools;34.0.0'
 
       - name: Build the Fire tablet APK
         run: ./gradlew assembleDebug --no-daemon
