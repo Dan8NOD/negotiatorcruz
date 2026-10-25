@@ -76,7 +76,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,textarea:focus-visible,
   pointer-events:none;z-index:0;animation:heroDrift 18s ease-in-out infinite alternate}
 @keyframes heroDrift{from{transform:translateX(-52%) scale(1)}to{transform:translateX(-48%) scale(1.1)}}
 .hero>*{position:relative;z-index:1}
-.hero .coin{width:88px;margin-bottom:24px;filter:drop-shadow(0 0 24px rgba(212,168,83,.4))}
+.hero .coin{width:88px;height:auto;margin-bottom:24px;filter:drop-shadow(0 0 24px rgba(212,168,83,.4))}
 .hero .kicker{display:inline-block;font-size:11px;letter-spacing:.28em;text-transform:uppercase;
   color:var(--gold);padding:6px 14px;border:1px solid rgba(212,168,83,.35);border-radius:30px;
   margin-bottom:24px;font-weight:600;background:rgba(212,168,83,.05)}
@@ -305,7 +305,9 @@ section h3{font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--white);
 .faq .a{padding:0 22px 20px 50px;color:var(--dim);font-size:14.5px;line-height:1.7}
 
 /* ---------- CTA band ------------------------------------------------- */
-.cta-section{text-align:center;padding:80px 20px;position:relative}
+/* overflow:hidden keeps the 500px glow below from widening the layout
+   viewport on phones (it made mobile Safari render every page ~445px wide). */
+.cta-section{text-align:center;padding:80px 20px;position:relative;overflow:hidden}
 .cta-section::before{content:'';position:absolute;top:50%;left:50%;
   transform:translate(-50%,-50%);width:500px;height:500px;
   background:radial-gradient(circle,rgba(212,168,83,.06) 0%,transparent 70%);pointer-events:none}
@@ -390,7 +392,7 @@ section h3{font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--white);
 .footer{text-align:center;padding:48px 20px 32px;border-top:1px solid rgba(255,255,255,.06);
   color:var(--dim);font-size:12px;background:var(--bg-2)}
 .footer a{color:var(--gold);text-decoration:none}
-.footer .coin-sm{width:32px;display:block;margin:0 auto 12px}
+.footer .coin-sm{width:32px;height:auto;display:block;margin:0 auto 12px}
 .footer .socials{display:flex;gap:20px;justify-content:center;margin:18px 0 12px;font-size:12px;
   letter-spacing:.12em;text-transform:uppercase;flex-wrap:wrap}
 .footer .socials a{color:var(--gold-2);text-decoration:none;
@@ -421,3 +423,11 @@ section h3{font-size:clamp(24px,4vw,36px);font-weight:800;color:var(--white);
   .rung::before{left:-23px}
   .form{padding:24px 20px}
 }
+
+/* ---------- Cross-site notes ------------------------------------------ */
+/* Sits under a price that has a cheaper-looking sibling on the consumer site,
+   so a visitor moving between the two doesn't read it as a contradiction. */
+.tier-note{margin-top:14px;font-size:12.5px;line-height:1.5;color:var(--dim)}
+.rung .tier-note{margin-top:10px}
+.proof-line{text-align:center;margin:28px auto 0;max-width:640px;font-size:14px;color:var(--dim)}
+.proof-line a{color:var(--gold);text-decoration:underline;text-underline-offset:3px}
