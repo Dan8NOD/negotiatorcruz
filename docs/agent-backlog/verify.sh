@@ -63,13 +63,24 @@ fi
 # Counts shipped files only. test/ and e2e/ also assert this address -- that is
 # the suite doing its job, not a site occurrence, and folding them in here would
 # make the number move whenever coverage changes.
+# 2026-10-26: the published address moved to dan@fatcatcruz.com, the
+# business identity. The Gmail address is still Dan's, but nothing shipped
+# should point visitors at it any more.
 n=$(grep -roF 'negotiatorsondemand@gmail.com' \
       --include='*.html' --include='*.js' --include='*.txt' \
       "${SCAN_EXCLUDES[@]}" . 2>/dev/null | wc -l)
-if [ "$n" -eq 14 ]; then
-  pass "correct address in all 14 places"
+if [ "$n" -eq 0 ]; then
+  pass "previous Gmail address retired from shipped files"
 else
-  fail "expected 14 occurrences of the correct address, found $n"
+  fail "previous Gmail address still published in $n place(s)"
+fi
+n=$(grep -roF 'dan@fatcatcruz.com' \
+      --include='*.html' --include='*.js' --include='*.txt' \
+      "${SCAN_EXCLUDES[@]}" . 2>/dev/null | wc -l)
+if [ "$n" -eq 14 ]; then
+  pass "current address in all 14 places"
+else
+  fail "expected 14 occurrences of the current address, found $n"
 fi
 
 echo
