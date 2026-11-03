@@ -67,7 +67,7 @@ describe('configuration guard', () => {
   test('the 503 blames the site, not the visitor, and offers a way through', async () => {
     stubFetch();
     const res = await call({ body: valid(), noEnv: true });
-    assert.match(res.body.error, /negotiatorsondemand@gmail\.com/);
+    assert.match(res.body.error, /dan@fatcatcruz\.com/);
     assert.doesNotMatch(res.body.error, /invalid|required|wrong/i);
   });
 });
@@ -508,7 +508,7 @@ describe('failure paths', () => {
     const thrown = await call({ body: valid() });
 
     for (const res of [upstream, thrown]) {
-      assert.match(res.body.error, /negotiatorsondemand@gmail\.com/);
+      assert.match(res.body.error, /dan@fatcatcruz\.com/);
     }
   });
 

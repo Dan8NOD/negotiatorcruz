@@ -90,7 +90,7 @@ module.exports = async function handler(req, res) {
     // Don't imply the visitor did something wrong.
     return res.status(503).json({
       ok: false,
-      error: 'The form is not configured yet. Please email negotiatorsondemand@gmail.com.',
+      error: 'The form is not configured yet. Please email dan@fatcatcruz.com.',
     });
   }
 
@@ -181,7 +181,7 @@ module.exports = async function handler(req, res) {
       return res.status(502).json({
         ok: false,
         error:
-          'Something broke on our end. Please email negotiatorsondemand@gmail.com and I\'ll get straight back to you.',
+          'Something broke on our end. Please email dan@fatcatcruz.com and I\'ll get straight back to you.',
       });
     }
 
@@ -194,14 +194,14 @@ module.exports = async function handler(req, res) {
       return res.status(504).json({
         ok: false,
         error:
-          'The form timed out before it saved. Please email negotiatorsondemand@gmail.com and I\'ll get straight back to you.',
+          'The form timed out before it saved. Please email dan@fatcatcruz.com and I\'ll get straight back to you.',
       });
     }
     console.error('lead: unexpected error', err);
     return res.status(500).json({
       ok: false,
       error:
-        'Something broke on our end. Please email negotiatorsondemand@gmail.com and I\'ll get straight back to you.',
+        'Something broke on our end. Please email dan@fatcatcruz.com and I\'ll get straight back to you.',
     });
   } finally {
     clearTimeout(timer);
